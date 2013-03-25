@@ -1,0 +1,68 @@
+    if word[-3:] in [u'ibus', u'ebus']:
+        # candidates.append("pl,D/Ab")
+        pass
+    if word[-2:] in [u'ae'], u'ebus']:
+
+    elif word[-2:] == 'us':
+        return {'pos':'n', 'case':'Nom', 'num':'sg', 'gender':'m'}
+    elif word[-1] == 'm':
+        return {'pos':'n', 'case':'Acc', 'num':'sg', 'gender':'m/n'}
+    elif word[-1] == 'a':
+        return {'pos':'n', 'case':'Nom', 'num':'sg', 'gender':'f'}
+    elif word[-1] in [u'ō', u'ā']:
+        return {'pos':'n', 'case':'Abl'}
+    elif word[-2:] == u'ās':
+        return {'pos':'n', 'case':'Abl'}
+    elif word[-2:] == u'ae':
+        return {'pos':'n', 'case':'Nom', 'num':'pl'}
+    elif word[-2:] == 'nt':
+        return {'pos':'v', 'pers':'3pl'}
+    elif word[-1] == 't':
+        return {'pos':'v', 'pers':'3sg'}
+
+
+
+    if surface[-3:] == u'rum':
+        s4 = surface[-4]
+        before = surface[:-4]
+        tag = {'pos':'n', 'case':'Gen', 'num':'pl'}
+        if s4 == u'ā':
+            # -ārum, I, Gen.pl
+            check(before + u'a', tag)
+        elif s4 == u'ō':
+            # -ōrum, II, Gen.pl
+            check(before + u'us', tag)
+            check(before + u'er', tag)
+            check(before + u'um', tag)
+        elif s4 == u'ē':
+            # -ērum, V, Gen.pl
+            check(before + u'ēs', tag)
+
+    if surface[-3:] == u'bus':
+        s4 = surface[-4]
+        before = surface[:-4]
+        tag = {'pos':'n', 'case':'Dat/Abl', 'num':'pl'}
+        if s4 == u'i':
+            # -ibus, V, Dat/Abl.pl
+            check(before + u'is', tag)
+            check(before + u'ēs', tag)
+            check(before + u's', tag)
+            check(before, tag)
+            check(before + u'e', tag)
+        elif s4 == u'ē':
+            # -ēbus, V, Dat/Abl.pl
+            check(before + u'ēs', tag)
+
+    if surface[-3:] == u'ium':
+        before = surface[:-3]
+        tag = {'pos':'n', 'case':'Gen', 'num':'pl'}
+        check(before + u'is', tag)
+        check(before + u'ēs', tag)
+        check(before + u's', tag)
+        check(before, tag)
+        check(before + u'e', tag)
+
+    if surface[-2:] == u'ae':
+        tag = {'pos':'n', 'case':'Nom/Voc', 'num':'pl', 'gender':'f'}
+        check(surface[:-1], tag)
+
