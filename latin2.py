@@ -1,0 +1,364 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import latin
+import util
+
+latindic = {}
+
+def latindic_register(surface, info):
+    if latindic.has_key(surface):
+        latindic[surface].append(info)
+    else:
+        latindic[surface] = [info]
+
+words_to_register = [
+    (u'et', {'pos':'conj', 'en':'and', 'ja':'と,そして'}),
+    (u'sed', {'pos':'conj', 'en':'but', 'ja':'しかし'}),
+    (u'saepe', {'pos':'adv', 'en':'often'}),
+    (u'hodiē', {'pos':'adv', 'ja':'今日'}),
+    (u'rēctē', {'pos':'adv', 'ja':'正しく,まっすぐに,その通り'}),
+    (u'satis', {'pos':'adv', 'ja':'十分に'}),
+    (u'quam', {'pos':'prep', 'ja':'〜より(than)'}),
+]
+util.tuple_map(latindic_register, words_to_register)
+
+latin_prepositions = [
+    ## Acc/Abl
+    (u'in', 'Acc', '〜の中へ,〜の上へ,〜に向かって,〜に対して'),
+    (u'sub', 'Acc', '〜の下へ,〜のもとへ'),
+    (u'in', 'Abl', '〜の中で,〜の上で'),
+    (u'sub', 'Abl', '〜の下で,〜のもとで'),
+
+    ## Acc
+    (u'ad', 'Acc', '〜の方へ,〜のところまで'),
+    (u'ante', 'Acc', '〜の前に,〜以前に'),
+    (u'apud', 'Acc', '〜の家で,〜のもとで'),
+    (u'circum', 'Acc', '〜のまわりに'),
+    (u'circā', 'Acc', '〜のまわりに'),
+    (u'contrā', 'Acc', '〜に対抗して,〜に反して'),
+    (u'extrā', 'Acc', '〜の外側で,〜の外へ'),
+    (u'praeter', 'Acc', '〜の傍らをすぎて,〜に反して'),
+    (u'prope', 'Acc', '〜の近くで'),
+    (u'propter', 'Acc', '〜の近くで,〜のゆえに'),
+    (u'īnfrā', 'Acc', '〜の下方へ,〜に劣って'),
+    (u'inter', 'Acc', '〜の間に'),
+    (u'intrā', 'Acc', '〜の内側で,〜の中へ'),
+    (u'ob', 'Acc', '〜の前へ,〜ゆえに,〜の代わりに'),
+    (u'per', 'Acc', '〜を通って,〜を通じて,〜により'),
+    (u'post', 'Acc', '〜のうしろで,〜以後'),
+    (u'suprā', 'Acc', '〜の上方に,〜をこえて'),
+    (u'trāns', 'Acc', '〜をこえて,〜を通過して'),
+    (u'ultrā', 'Acc', '〜の向こうに,〜をこえて'),
+
+    ## Abl
+    (u'ā', 'Abl', '〜から(離れて),〜によって'), # ā 子音 / ab 母音
+    (u'ab', 'Abl', '〜から(離れて),〜によって'),
+    (u'cum', 'Abl', '〜とともに,〜をもって'),
+    (u'dē', 'Abl', '〜から(離れて)下へ,〜について'),
+    (u'ē', 'Abl', '〜(の中)から外へ'),
+    (u'ex', 'Abl', '〜(の中)から外へ'),
+    (u'prae', 'Abl', '〜の前に,〜のあまり,〜に比して'),
+    (u'prō', 'Abl', '〜の前に,〜のために,〜の代わりに'),
+    (u'sine', 'Abl', '〜なしに'),
+]
+for word, dom, ja in latin_prepositions:
+    latindic_register(word, {'pos':'preposition', 'surface':word, 'base':word, 'domines':dom, 'ja':ja})
+
+
+#
+# (名詞・形容詞の)格変化
+#
+def declension_table(stem1, stem2, suffices, tags):
+    # assert(len(suffices) == 10):
+    if suffices[0] == suffices[2]:
+        # Acc = Nom (= Voc)
+        stems = [stem1, stem1, stem1, stem2, stem2, stem2,
+                 stem2, stem2, stem2, stem2, stem2, stem2]
+        cases = ['Nom', 'Voc', 'Acc', 'Gen', 'Dat', 'Abl',
+                 'Nom', 'Voc', 'Acc', 'Gen', 'Dat', 'Abl']
+        numbers = ['sg', 'sg', 'sg', 'sg', 'sg', 'sg',
+                   'pl', 'pl', 'pl', 'pl', 'pl', 'pl']
+    else:
+        stems = [stem1, stem1, stem2, stem2, stem2, stem2,
+                 stem2, stem2, stem2, stem2, stem2, stem2]
+        cases = ['Nom', 'Voc', 'Acc', 'Gen', 'Dat', 'Abl',
+                 'Nom', 'Voc', 'Acc', 'Gen', 'Dat', 'Abl']
+        numbers = ['sg', 'sg', 'sg', 'sg', 'sg', 'sg',
+                   'pl', 'pl', 'pl', 'pl', 'pl', 'pl']
+
+    def combine(stem, suffix, case, number):
+        surface = stem + suffix
+        return dict({'surface':surface, 'case':case, 'number':number}, **tags)
+
+    return map(combine, stems, suffices, cases, numbers)
+
+
+def decline_noun_type1(nom_sg, gen_sg, gender, ja, tags={}):
+    suffices = [u'a', u'a', u'am', u'ae', u'ae', u'ā',
+                u'ae', u'ae', u'ās', u'ārum', u'īs', u'īs']
+    return declension_table(nom_sg[:-1], gen_sg[:-2], suffices, tags)
+
+def decline_noun_type2(nom_sg, gen_sg, gender, ja, tags={}):
+    last2 = nom_sg[-2:]
+
+    if last2 == 'um':
+        suffices = [u'um', u'um', u'um', u'ī', u'ō', u'ō',
+                    u'a', u'a', u'a', u'ōrum', u'īs', u'īs']
+        stem1 = nom_sg[:-2]
+    elif last2 == 'us':
+        suffices = [u'us', u'e', u'um', u'ī', u'ō', u'ō',
+                    u'ī', u'ī', u'ōs', u'ōrum', u'īs', u'īs']
+        stem1 = nom_sg[:-2]
+    elif last2 == 'er':
+        # if gen_sg == nom_sg + u'ī': # puer / puerī
+        # else: # ager / agrī
+        suffices = [u'', u'', u'um', u'ī', u'ō', u'ō',
+                    u'ī', u'ī', u'ōs', u'ōrum', u'īs', u'īs']
+        stem1 = nom_sg
+    else:
+        return []
+
+    stem2 = gen_sg[:-1]
+    return declension_table(stem1, stem2, suffices, tags)
+
+def decline_noun_type3_ium(nom_sg, gen_sg, gender, ja, tags={}):
+    if gender == 'n':
+        if nom_sg[-1] == u'e':
+            # (c) mare, maris
+            suffices = [u'e', u'e', u'e', u'is', u'ī', u'ī',
+                        u'ia', u'ia', u'ia', u'ium', u'ibus', u'ibus']
+            stem1 = nom_sg[:-1]
+        else: # in [u'al', u'ar']:
+            # (c) animal. animālis
+            suffices = [u'is', u'is', u'em', u'is', u'ī', u'ī',
+                        u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus']
+            stem1 = nom_sg[:-2]
+    else: # m, f
+        if nom_sg == gen_sg:
+            # (a) piscis, piscis
+            suffices = [u'is', u'is', u'em', u'is', u'ī', u'e',
+                        u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
+            stem1 = nom_sg[:-2]
+        else:
+            # (b) mōns, montis
+            suffices = [u's', u's', u'em', u'is', u'ī', u'e',
+                        u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
+            stem1 = nom_sg[:-1]
+
+    stem2 = gen_sg[:-2]
+    return declension_table(stem1, stem2, suffices, tags)
+
+def decline_noun_type3_um(nom_sg, gen_sg, gender, ja, tags={}):
+    if gender == 'n':
+        # (b) corpus, corporis
+        # (b) nōmen, nōminis
+        suffices = [u'', u'', u'', u'is', u'ī', u'e',
+                    u'a', u'a', u'a', u'um', u'ibus', u'ibus']
+    else: # m, f
+        # (a) dux, ducis
+        # (a) nātiō, nātiōnis
+        suffices = [u'', u'', u'em', u'is', u'ī', u'e',
+                    u'ēs', u'ēs', u'ēs', u'um', u'ibus', u'ibus']
+
+    return declension_table(nom_sg, gen_sg[:-2], suffices, tags)
+
+def decline_noun_type4(nom_sg, gen_sg, gender, ja, tags={}):
+    if nom_sg[-1] == u'ū':
+        # cornū, cornūs
+        suffices = [u'ū', u'ū', u'ū', u'ūs', u'ū', u'ū',
+                    u'ua', u'ua', u'ua', u'uum', u'ibus', u'ibus']
+        stem1 = nom_sg[:-1]
+        stem2 = gen_sg[:-2]
+    else: # manus, manūs
+        suffices = [u'us', u'us', u'um', u'ūs', u'uī', u'ū', # (ū for Dat.sg)
+                    u'ūs', u'ūs', u'ūs', u'uum', u'ibus', u'ibus']
+        stem1 = nom_sg[:-2]
+        stem2 = gen_sg[:-2]
+
+    return declension_table(stem1, stem2, suffices, tags)
+
+def decline_noun_type5(nom_sg, gen_sg, gender, ja, tags={}):
+    stem = nom_sg[:-2]
+    if stem[-1] == u'i':
+        # diēs diēī
+        suffices = [u'ēs', u'ēs', u'em', u'ēī', u'ēī', u'ē',
+                    u'ēs', u'ēs', u'ēs', u'ērum', u'ēbus', u'ēbus']
+    else:
+        # rēs reī
+        suffices = [u'ēs', u'ēs', u'em', u'eī', u'eī', u'ē',
+                    u'ēs', u'ēs', u'ēs', u'ērum', u'ēbus', u'ēbus']
+
+    return declension_table(stem, stem, suffices, tags)
+
+def decline_adj_type1(nom_sg_m, nom_sg_f, ja, tags={}):
+    tags = {'pos':'adj', 'base':nom_sg_m, 'ja':ja, 'type':'I'}
+    suffix = nom_sg_m[-2:]
+    if suffix == u'us':
+        stem1 = nom_sg_m[:-2]
+        stem2 = stem1 # + u'ī'
+    elif suffix == u'er':
+        if nom_sg_m[-3:] == nom_sg_f[-4:-1]:
+            # lī-ber lī-ber-a
+            stem1 = nom_sg_m
+            stem2 = stem1
+        else:
+            stem1 = nom_sg_m
+            stem2 = nom_sg_m[:-2] + u'r'
+
+    table = []
+    tags['gender'] = 'm'
+    table += decline_noun_type2(nom_sg_m, stem2 + u'ī', 'm', ja, tags)
+    tags['gender'] = 'f'
+    table += decline_noun_type1(nom_sg_f, stem2 + u'ae', 'f', ja, tags)
+    tags['gender'] = 'n'
+    table += decline_noun_type2(stem1 + u'um', stem2 + u'ī', 'n', ja, tags)
+    return table
+
+def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, ja, tags={}):
+    tags = {'pos':'adj', 'base':nom_sg_mf, 'ja':ja, 'type':'II'}
+    table = []
+    if nom_sg_n == u'-':
+        if nom_sg_mf[-1:] == 'x':
+            pass
+        elif nom_sg_mf[-2:] == 'ns':
+            pass
+        # (2: n=m) -x -cis, -ns -ntis
+        stem1 = nom_sg_mf
+        stem2 = gen_sg[:-2]
+        if nom_sg_mf in [u'vetus', u'dīves']:
+            suffices = [u'', u'', u'em', u'is', u'ī', u'e',
+                        u'ēs', u'ēs', u'ēs', u'um', u'ibus', u'ibus']
+        else:
+            suffices = [u'', u'', u'em', u'is', u'ī', u'ī', # (-e) for Abl.sg
+                        u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
+        tags['gender'] = 'm'
+        table += declension_table(stem1, stem2, suffices, tags)
+        tags['gender'] = 'f'
+        table += declension_table(stem1, stem2, suffices, tags)
+
+        if nom_sg_mf == u'vetus':
+            suffices = [u'', u'', u'', u'is', u'ī', u'e',
+                        u'a', u'a', u'a', u'um', u'ibus', u'ibus']
+        elif nom_sg_mf == u'dīves':
+            suffices = [u'', u'', u'', u'is', u'ī', u'e',
+                        u'ia', u'ia', u'ia', u'um', u'ibus', u'ibus']
+            # Nom/Voc/Acc.pl で dīt-
+        else:
+            suffices = [u'', u'', u'', u'is', u'ī', u'ī', # (-e) for Abl.sg
+                        u'ia', u'ia', u'ia', u'ium', u'ibus', u'ibus']
+        tags['gender'] = 'n'
+        table += declension_table(stem1, stem2, suffices, tags)
+    else:
+        # (1: n!=m) -is/-e
+        if nom_sg_mf[-2:] == 'er':
+            stem1 = nom_sg_mf
+            stem2 = gen_sg[:-2]
+            suffices = [u'', u'', u'em', u'is', u'ī', u'ī',
+                        u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
+        else:
+            stem1 = nom_sg_mf[:-2]
+            stem2 = gen_sg[:-2]
+            suffices = [u'is', u'is', u'em', u'is', u'ī', u'ī',
+                        u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
+        tags['gender'] = 'm'
+        table += declension_table(stem1, stem2, suffices, tags)
+
+        # f
+        stem1 = stem2 = gen_sg[:-2]
+        suffices = [u'is', u'is', u'em', u'is', u'ī', u'ī',
+                    u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
+        tags['gender'] = 'f'
+        tags['gender'] = 'f'
+        table += declension_table(stem1, stem2, suffices, tags)
+
+        # n
+        suffices = [u'e', u'e', u'e', u'is', u'ī', u'ī',
+                    u'ia', u'ia', u'ia', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
+        tags['gender'] = 'n'
+        stem1 = stem2
+        table += declension_table(stem1, stem2, suffices, tags)
+    return table
+
+def load_nouns(file):
+    with open(file, 'r') as fp:
+        for line in fp:
+            if line[0] == '#': continue
+            fs = line.rstrip().split()
+            if len(fs) < 5: continue
+            type = fs[0]
+            nom_sg = fs[1].decode('utf-8')
+            gen_sg = fs[2].decode('utf-8')
+            gender = fs[3]
+            ja = fs[4]
+
+            tags = {'pos':'noun', 'base':nom_sg, 'gen_sg':gen_sg, 'gender':gender, 'ja':ja}
+            if type == '1':
+                tags['type'] = 'I'
+                table = decline_noun_type1(nom_sg, gen_sg, gender, ja, tags)
+            elif type == '2':
+                tags['type'] = 'II'
+                table = decline_noun_type2(nom_sg, gen_sg, gender, ja, tags)
+            elif type == '3-ium':
+                tags['type'] = 'III'
+                table = decline_noun_type3_ium(nom_sg, gen_sg, gender, ja, tags)
+            elif type == '3-um':
+                tags['type'] = 'III'
+                table = decline_noun_type3_um(nom_sg, gen_sg, gender, ja, tags)
+            elif type == '4':
+                tags['type'] = 'IV'
+                table = decline_noun_type4(nom_sg, gen_sg, gender, ja, tags)
+            elif type == '5':
+                tags['type'] = 'V'
+                table = decline_noun_type5(nom_sg, gen_sg, gender, ja, tags)
+            else:
+                table = []
+
+            for item in table:
+                # print "noun>", util.render(item)
+                latindic_register(item['surface'], item)
+
+load_nouns('noun.def')
+
+def load_adjs(file):
+    with open(file, 'r') as fp:
+        for line in fp:
+            if line[0] == '#': continue
+            fs = line.rstrip().split()
+            if len(fs) < 5: continue
+            type = fs[0]
+            f1 = fs[1].decode('utf-8')
+            f2 = fs[2].decode('utf-8')
+            f3 = fs[3].decode('utf-8')
+            ja = fs[4]
+
+            table = []
+            if type == '1':
+                nom_sg_m = f1
+                nom_sg_f = f2
+                # nom_sg_n = f3
+                table = decline_adj_type1(nom_sg_m, nom_sg_f, ja)
+
+            elif type == '2':
+                nom_sg_mf = f1
+                gen_sg = f2
+                nom_sg_n = f3
+                table = decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, ja)
+            else:
+                pass
+
+            for item in table:
+                # print "adj>", util.render(item)
+                latindic_register(item['surface'], item)
+
+load_adjs('adj.def')
+
+def lookup(word):
+    if latindic.has_key(word):
+        return latindic[word]
+    else:
+        return None
+
+if __name__ == '__main__':
+    for k, v in latindic.items():
+        print util.render(k), util.render(v)

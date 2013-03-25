@@ -1,0 +1,143 @@
+1	rosa	rosae	f	バラ
+1	aqua	aquae	f	水
+1	vīta	vitae	f	人生
+1	terra	terrae	f	地,大地
+1	preada	preadae	f	戦利品
+1	puella	puellae	f	少女
+1	agricola	agricolae	m	農夫
+1	herba	herbae	f	草
+1	dea	deae	f	女神
+1	via	viae	f	道
+1	Graecia	Graeciae	f	ギリシア
+1	Rōma	Rōmae	f	ローマ
+1	poēta	poētae	m	詩人
+
+1	schola	scholae	f	学校
+1	fīlia	fīliae	f	娘
+1	incola	incolae	f	住人
+1	rēgīna	rēgīnae	f	女王
+1	laetitia	laetitiae	f	喜び
+1	prūdentia	prūdentiae	f	思慮深さ
+1	patria	patriae	f	故郷,祖国
+1	īnsula	īnsulae	f	島
+1	Thessalia	Thessaliae	f	テッサリア
+1	Phthia	Phthiae	f	プティア
+1	Trōja	Trōjae	f	トロヤ
+
+2	templum	templī	n	神殿
+2	bellum	bellī	n	戦争
+2	dōnum	dōnī	n	贈物
+2	saeculum	saeculī	n	時代
+2	gaudium	gaudiī	n	喜び
+2	vīnum	vīnī	n	ワイン
+2	ōvum	ōvī	n	卵
+2	oppidum	oppidī	n	町
+2	rēgnum	rēgnī	n	王国
+2	ingenium	ingeniī	n	才能
+2	studium	studiī	n	努力,研究
+
+2	dominus	dominī	m	主,主人
+2	amīcus	amīcī	m	友人
+2	famulus	famulī	m	奉公人
+2	servus	servī	m	奴隷
+2	populus	populī	m	人民
+2	campus	campī	m	平原
+2	mundus	mundī	m	世界
+2	Aegyptus	Aegyptī	f	エジプト
+2	fīlius	fīlī	m	息子
+2	animus	animī	m	精神
+2	Homērus	Homērī	m	ホメルス
+
+2	ager	agrī	m	畑
+2	liber	librī	m	本
+2	faber	fabrī	m	職人
+2	Alexander	Alexandrī	m	アレクサンダー
+2	magister	magistrī	m	先生
+
+2	puer	puerī	m	少年
+2	vir	virī	m	男,夫
+
+# III -ium (a)
+3-ium	piscis	piscis	m	魚
+3-ium	tēstis	tēstis	m	証人
+3-ium	auris	auris	f	耳
+3-ium	hostis	hostis	m	敵
+3-ium	cīvis	cīvis	m	市民
+3-ium	fīnis	fīnis	m	境界
+3-ium	clāssis	clāssis	f	艦隊
+3-ium	īgnis	īgnis	m	火
+3-ium	amnis	amnis	m	川
+3-ium	nūbēs	nūbis	f	雲
+3-ium	Ulixēs	Ulixis	m	ウリクセス
+
+# III -ium (b)
+3-ium	mōns	montis	m	山
+3-ium	dēns	dentis	m	歯
+3-ium	gēns	gentis	f	種族
+3-ium	pōns	pontis	m	橋
+3-ium	fōns	fontis	m	泉
+3-ium	mēns	mentis	f	精神
+3-ium	ars	artis	f	術
+3-ium	mors	mortis	f	死
+3-ium	nox	noctis	f	夜
+3-ium	urbs	urbis	f	都市
+3-ium	pars	partis	f	部分
+
+# III -ium (c)
+3-ium	cubīle	cubīlis	n	寝台
+3-ium	exemplar	exemplāris	n	模範
+
+# III -um (a)
+3-um	dux	ducis	m	指導者
+3-um	nātiō	nātiōnis	f	国民
+3-um	rēx	rēgis	m	指導者
+3-um	lēx	lēgis	f	法律
+3-um	vōx	vōcis	f	声
+3-um	mīles	mīlitis	m	兵士
+3-um	pēs	pedis	m	足
+3-um	cīvitās	cīvitātis	f	国歌
+3-um	legiō	legiōnis	f	軍団
+3-um	uxor	uxōris	f	妻
+3-um	amor	amōris	m	愛
+3-um	color	colōris	m	色
+3-um	ōrātor	ōrātōris	m	弁論家
+3-um	sōl	sōlis	m	太陽
+3-um	homō	hominis	m	人間
+3-um	imāgō	imāginis	f	像,似姿
+
+# III -um (b)
+3-um	corpus	corporis	n	身体
+3-um	nōmen	nōminis	n	名
+3-um	tempus	temporis	n	時
+3-um	genus	generis	n	種類
+3-um	opus	operis	n	仕事
+3-um	flūmen	flūminis	n	川
+3-um	lūmen	lūminis	n	光
+3-um	ōmen	ōminis	n	前兆
+3-um	cor	cordis	n	心,心臓
+3-um	pater	patris	m	父
+3-um	frāter	frātris	m	兄弟
+3-um	canis	canis	m	犬
+3-um	māter	mātris	f	母
+3-um	juvenis	juvenis	m	若者
+
+4	manus	manūs	f	手
+4	cornū	cornūs	n	角(つの)
+4	exercitus	exercitūs	m	軍隊
+4	cursus	cursūs	m	コース
+4	domus	domūs	f	家
+4	senātus	senātūs	m	元老院
+4	currus	currūs	m	馬車
+4	adventus	adventūs	m	到着
+4	genū	genūs	n	ひざ
+4	specus	specūs	m	洞穴
+4	fructus	fructūs	m	果実
+4	gradus	gradūs	m	階段,段階
+
+5	diēs	diēī	mf	日,昼
+5	rēs	reī	f	物,事
+5	spēs	speī	f	希望
+5	aciēs	aciēī	f	戦列
+5	faciēs	faciēī	f	顔
+5	speciēs	speciēī	f	姿
+5	seriēs	seriēī	f	連続,シリーズ

@@ -1,0 +1,55 @@
+1	bonus	bona	bonum	良い
+1	malus	mala	malum	悪い
+1	longus	longa	longum	長い,広い
+1	māgnus	māgna	māgnum	大きい
+1	parvus	parva	parvum	小さい
+1	jūcundus	jūcunda	jūcundum	快適な
+1	albus	alba	album	白い
+1	altus	alta	altum	高い,深い
+1	vānus	vāna	vānum	空虚な
+1	multus	multa	multum	多くの
+1	clārus	clāra	clārum	明瞭な,素晴らしい
+1	Trōjānus	Trōjāna	Trōjānum	トロヤの
+1	Graecus	Graeca	Graecum	ギリシアの
+
+1	līber	lībera	līberum	自由な
+1	miser	misera	miserum	みじめな
+
+1	pulcher	pulchra	pulchrum	美しい
+1	niger	nigra	nigrum	黒い
+1	aeger	aegra	aegrum	病める
+
+
+# II (1) -is -is e
+2	fortis	fortis	forte	勇敢な
+2	brevis	brevis	breve	短い
+2	levis	levis	leve	軽い
+2	omnis	omnis	omne	すべての
+2	facilis	facilis	facile	容易な
+2	mortālis	mortālis	mortāle	死すべき
+2	viridis	viridis	viride	緑の
+2	ūtilis	ūtilis	ūtile	有用な
+2	dulcis	dulcis	dulce	甘い
+2	similis	similis	simile	似た
+2	gravis	gravis	grave	重い
+2	lēnis	lēnis	lēne	穏やかな
+2	turpis	turpis	turpe	恥ずべき
+2	suāvis	suāvis	suāve	快適な
+2	ācer	ācris	ācre	鋭い
+2	celeber	celebris	celebre	名士の
+2	alacer	alacris	alacre	活発な
+# II (2) -x
+2	audāx	audācis	-	大胆な
+2	ferōx	ferōcis	-	凶暴な
+2	fēlīx	fēlīcis	-	幸福な
+2	simplex	simplicis	-	単純な
+# II (2) -ns -ntis
+2	prūdēns	prūdentis	-	思慮ある
+2	arrogāns	arrogantis	-	不遜な
+2	amāns	amantis	-	情の厚い
+2	sapiēns	sapientis	-	賢い
+# vetus : Abl=vetere
+2	vetus	veteris	-	古い,老いた
+2	dīves	dīvitis	-	富める
+
+

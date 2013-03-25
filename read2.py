@@ -4,19 +4,18 @@ import sys
 
 import text
 import latin
-import latin1
+import latin2
 import util
 
+import latin1
+
 def lookup(word, is_first=False):
-    res = latin1.lookup(word)
-#    print "res=", res
+    res = latin2.lookup(word)
     if res: return res
 
     if is_first and latin.isupper(word[0]):
-        # print lat_tolower(u"TRŌJĀNŌ").encode('utf-8')
         l = latin.tolower(word)
-        res = latin1.lookup(l)
-#        print "res=", res
+        res = latin2.lookup(l)
         if res: return res
 
     return None
