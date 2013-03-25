@@ -102,15 +102,15 @@ def decline_noun_type1(nom_sg, gen_sg, gender, ja, tags={}):
 def decline_noun_type2(nom_sg, gen_sg, gender, ja, tags={}):
     last2 = nom_sg[-2:]
 
-    if last2 == 'um':
+    if last2 == u'um':
         suffices = [u'um', u'um', u'um', u'ī', u'ō', u'ō',
                     u'a', u'a', u'a', u'ōrum', u'īs', u'īs']
         stem1 = nom_sg[:-2]
-    elif last2 == 'us':
+    elif last2 == u'us':
         suffices = [u'us', u'e', u'um', u'ī', u'ō', u'ō',
                     u'ī', u'ī', u'ōs', u'ōrum', u'īs', u'īs']
         stem1 = nom_sg[:-2]
-    elif last2 == 'er':
+    elif last2 in [u'er', u'ir']:
         # if gen_sg == nom_sg + u'ī': # puer / puerī
         # else: # ager / agrī
         suffices = [u'', u'', u'um', u'ī', u'ō', u'ō',
@@ -191,8 +191,31 @@ def decline_noun_type5(nom_sg, gen_sg, gender, ja, tags={}):
 
     return declension_table(stem, stem, suffices, tags)
 
-def decline_adj_type1(nom_sg_m, nom_sg_f, ja, tags={}):
-    tags = {'pos':'adj', 'base':nom_sg_m, 'ja':ja, 'type':'I'}
+
+def decline_adj_comparative(nom_sg_mf, tags):
+    table = []
+    stem1 = nom_sg_mf
+    stem1_n = nom_sg_mf[:-3] + 'ius'
+    stem2 = nom_sg_mf[:-3]+ u'iōr'
+
+    suffices = [u'', u'', u'em', u'is', u'ī', u'e', # (-ī) for Abl.sg
+                u'ēs', u'ēs', u'ēs', u'um', u'ibus', u'ibus'] # (īs) for Acc.pl
+    tags['gender'] = 'm'
+    table += declension_table(stem1, stem2, suffices, tags)
+    tags['gender'] = 'f'
+    table += declension_table(stem1, stem2, suffices, tags)
+
+    suffices = [u'', u'', u'', u'is', u'ī', u'e', # (-ī) for Abl.sg
+                u'a', u'a', u'a', u'um', u'ibus', u'ibus'] # (īs) for Acc.pl
+    tags['gender'] = 'n'
+    table += declension_table(stem1_n, stem2, suffices, tags)
+
+    return table
+
+def decline_adj_superlative(nom_sg_m, tags):
+    return decline_adj_type1(nom_sg_m, nom_sg_m[:-2]+u'a', tags, False)
+
+def decline_adj_type1(nom_sg_m, nom_sg_f, tags, comp=True):
     suffix = nom_sg_m[-2:]
     if suffix == u'us':
         stem1 = nom_sg_m[:-2]
@@ -213,10 +236,23 @@ def decline_adj_type1(nom_sg_m, nom_sg_f, ja, tags={}):
     table += decline_noun_type1(nom_sg_f, stem2 + u'ae', 'f', ja, tags)
     tags['gender'] = 'n'
     table += decline_noun_type2(stem1 + u'um', stem2 + u'ī', 'n', ja, tags)
+
+    if comp:
+        # 比較級
+        tags_c = {'pos':'adj', 'base':nom_sg_m, 'ja':'より'+tags['ja'], 'type':'I', 'rank':'+'}
+        table += decline_adj_comparative(stem2 + u'ior', tags_c)
+
+        # 最上級
+        tags_s = {'pos':'adj', 'base':nom_sg_m, 'ja':'最も'+tags['ja'], 'type':'I', 'rank':'++'}
+        if nom_sg_m[-1] == 'r':
+            base = nom_sg_m + 'rimus'
+        else:
+            base = stem2 + u'issimus'
+            table += decline_adj_superlative(base, tags_s)
+
     return table
 
-def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, ja, tags={}):
-    tags = {'pos':'adj', 'base':nom_sg_mf, 'ja':ja, 'type':'II'}
+def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, tags):
     table = []
     if nom_sg_n == u'-':
         if nom_sg_mf[-1:] == 'x':
@@ -269,7 +305,6 @@ def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, ja, tags={}):
         suffices = [u'is', u'is', u'em', u'is', u'ī', u'ī',
                     u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
         tags['gender'] = 'f'
-        tags['gender'] = 'f'
         table += declension_table(stem1, stem2, suffices, tags)
 
         # n
@@ -278,19 +313,37 @@ def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, ja, tags={}):
         tags['gender'] = 'n'
         stem1 = stem2
         table += declension_table(stem1, stem2, suffices, tags)
+
+    # 比較級
+    tags_c = {'pos':'adj', 'base':nom_sg_mf, 'ja':'より'+tags['ja'], 'type':'II', 'rank':'+'}
+    table += decline_adj_comparative(gen_sg[:-2] + u'ior', tags_c)
+
+    # 最上級
+    tags_s = {'pos':'adj', 'base':nom_sg_mf, 'ja':'最も'+tags['ja'], 'type':'II', 'rank':'++'}
+    if nom_sg_mf[-4:] == 'ilis':
+        base = nom_sg_mf[:-4] + 'illimus'
+    else:
+        base = gen_sg[:-2] + u'issimus'
+    table += decline_adj_superlative(base, tags_s)
+
     return table
 
 def load_nouns(file):
     with open(file, 'r') as fp:
         for line in fp:
+            # print line[0],
+            if len(line) == 0: continue
             if line[0] == '#': continue
+
             fs = line.rstrip().split()
+            # print len(fs)
             if len(fs) < 5: continue
             type = fs[0]
             nom_sg = fs[1].decode('utf-8')
             gen_sg = fs[2].decode('utf-8')
             gender = fs[3]
             ja = fs[4]
+            print fs
 
             tags = {'pos':'noun', 'base':nom_sg, 'gen_sg':gen_sg, 'gender':gender, 'ja':ja}
             if type == '1':
@@ -313,6 +366,16 @@ def load_nouns(file):
                 table = decline_noun_type5(nom_sg, gen_sg, gender, ja, tags)
             else:
                 table = []
+
+            if len(table) == 0: continue
+
+            # printing table
+            maxlen = max([len(item['surface']) for item in table])
+            casename = ['Nom','Voc','Acc','Gen','Dat','Abl']
+            for y in xrange(6):
+                line = u"%s: %-*s   %-*s" % (casename[y], maxlen, table[y]['surface'], maxlen, table[y+6]['surface'])
+                print line.encode('utf-8')
+            print
 
             for item in table:
                 # print "noun>", util.render(item)
@@ -337,18 +400,33 @@ def load_adjs(file):
                 nom_sg_m = f1
                 nom_sg_f = f2
                 # nom_sg_n = f3
-                table = decline_adj_type1(nom_sg_m, nom_sg_f, ja)
-
+                tags = {'pos':'adj', 'base':nom_sg_m, 'ja':ja, 'type':'I'}
+                table = decline_adj_type1(nom_sg_m, nom_sg_f, tags)
             elif type == '2':
                 nom_sg_mf = f1
                 gen_sg = f2
                 nom_sg_n = f3
-                table = decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, ja)
+                tags = {'pos':'adj', 'base':nom_sg_mf, 'ja':ja, 'type':'II'}
+                table = decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, tags)
             else:
                 pass
 
+            # printing table
+            maxlen = max([len(item['surface']) for item in table])
+            casename = ['Nom','Voc','Acc','Gen','Dat','Abl']
+            for y in xrange(6):
+                line = "%s: " % casename[y]
+                for x in xrange(3):
+                    item = table[x*12 + y]
+                    line += u"%-*s " % (maxlen, item['surface'])
+                line += u"    "
+                for x in xrange(3):
+                    item = table[x*12 + y+6]
+                    line += u"%-*s " % (maxlen, item['surface'])
+                print line.encode('utf-8')
+            print
+
             for item in table:
-                # print "adj>", util.render(item)
                 latindic_register(item['surface'], item)
 
 load_adjs('adj.def')
