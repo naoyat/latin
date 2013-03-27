@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import latin
 import util
 
 latindic = {}
+
+import latin_pronouns
 
 def latindic_register(surface, info):
     if latindic.has_key(surface):
@@ -20,6 +21,8 @@ words_to_register = [
     (u'hodiē', {'pos':'adv', 'ja':'今日'}),
     (u'rēctē', {'pos':'adv', 'ja':'正しく,まっすぐに,その通り'}),
     (u'satis', {'pos':'adv', 'ja':'十分に'}),
+    (u'semper', {'pos':'adv', 'ja':'いつも,ずっと'}),
+    (u'autem', {'pos':'adv', 'ja':'しかし,さらに,一方'}),#
     (u'quam', {'pos':'prep', 'ja':'〜より(than)'}),
 ]
 util.tuple_map(latindic_register, words_to_register)
@@ -231,23 +234,23 @@ def decline_adj_type1(nom_sg_m, nom_sg_f, tags, comp=True):
             stem1 = nom_sg_m
             stem2 = nom_sg_m[:-2] + u'r'
 
-    tags = dict({'pos':'adj', 'base':nom_sg_m, 'type':'I'}, **tags)
+    my_tags = util.aggregate_dicts({'pos':'adj', 'base':nom_sg_m, 'type':'I'}, tags)
 
     table = []
-    tags['gender'] = 'm'
-    table += decline_noun_type2(nom_sg_m, stem2 + u'ī', 'm', ja, tags)
-    tags['gender'] = 'f'
-    table += decline_noun_type1(nom_sg_f, stem2 + u'ae', 'f', ja, tags)
-    tags['gender'] = 'n'
-    table += decline_noun_type2(stem2 + u'um', stem2 + u'ī', 'n', ja, tags)
+    my_tags['gender'] = 'm'
+    table += decline_noun_type2(nom_sg_m, stem2 + u'ī', 'm', ja, my_tags)
+    my_tags['gender'] = 'f'
+    table += decline_noun_type1(nom_sg_f, stem2 + u'ae', 'f', ja, my_tags)
+    my_tags['gender'] = 'n'
+    table += decline_noun_type2(stem2 + u'um', stem2 + u'ī', 'n', ja, my_tags)
 
     if comp:
         # 比較級
-        tags_c = {'pos':'adj', 'base':nom_sg_m, 'ja':'より'+tags['ja'], 'type':'I', 'rank':'+'}
+        tags_c = {'pos':'adj', 'base':nom_sg_m, 'ja':'より'+my_tags['ja'], 'type':'I', 'rank':'+'}
         table += decline_adj_comparative(stem2 + u'ior', tags_c)
 
         # 最上級
-        tags_s = {'pos':'adj', 'base':nom_sg_m, 'ja':'最も'+tags['ja'], 'type':'I', 'rank':'++'}
+        tags_s = {'pos':'adj', 'base':nom_sg_m, 'ja':'最も'+my_tags['ja'], 'type':'I', 'rank':'++'}
         if nom_sg_m[-1] == 'r':
             base = nom_sg_m + 'rimus'
         else:
@@ -258,6 +261,7 @@ def decline_adj_type1(nom_sg_m, nom_sg_f, tags, comp=True):
 
 
 def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, tags):
+    my_tags = util.aggregate_dicts({'pos':'adj', 'base':nom_sg_mf, 'type':'II'}, tags)
     table = []
     if nom_sg_n == u'-':
         if nom_sg_mf[-1:] == 'x':
@@ -274,12 +278,12 @@ def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, tags):
             suffices = [u'', u'', u'em', u'is', u'ī', u'ī', # (-e) for Abl.sg
                         u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
 
-        tags = dict({'pos':'adj', 'base':nom_sg_mf, 'type':'II'}, **tags)
+        # tags = dict({'pos':'adj', 'base':nom_sg_mf, 'type':'II'}, **tags)
 
-        tags['gender'] = 'm'
-        table += declension_table(stem1, stem2, suffices, tags)
-        tags['gender'] = 'f'
-        table += declension_table(stem1, stem2, suffices, tags)
+        my_tags['gender'] = 'm'
+        table += declension_table(stem1, stem2, suffices, my_tags)
+        my_tags['gender'] = 'f'
+        table += declension_table(stem1, stem2, suffices, my_tags)
 
         if nom_sg_mf == u'vetus':
             suffices = [u'', u'', u'', u'is', u'ī', u'e',
@@ -291,8 +295,8 @@ def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, tags):
         else:
             suffices = [u'', u'', u'', u'is', u'ī', u'ī', # (-e) for Abl.sg
                         u'ia', u'ia', u'ia', u'ium', u'ibus', u'ibus']
-        tags['gender'] = 'n'
-        table += declension_table(stem1, stem2, suffices, tags)
+        my_tags['gender'] = 'n'
+        table += declension_table(stem1, stem2, suffices, my_tags)
     else:
         # (1: n!=m) -is/-e
         if nom_sg_mf[-2:] == 'er':
@@ -305,29 +309,29 @@ def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, tags):
             stem2 = gen_sg[:-2]
             suffices = [u'is', u'is', u'em', u'is', u'ī', u'ī',
                         u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
-        tags['gender'] = 'm'
-        table += declension_table(stem1, stem2, suffices, tags)
+        my_tags['gender'] = 'm'
+        table += declension_table(stem1, stem2, suffices, my_tags)
 
         # f
         stem1 = stem2 = gen_sg[:-2]
         suffices = [u'is', u'is', u'em', u'is', u'ī', u'ī',
                     u'ēs', u'ēs', u'ēs', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
-        tags['gender'] = 'f'
-        table += declension_table(stem1, stem2, suffices, tags)
+        my_tags['gender'] = 'f'
+        table += declension_table(stem1, stem2, suffices, my_tags)
 
         # n
         suffices = [u'e', u'e', u'e', u'is', u'ī', u'ī',
                     u'ia', u'ia', u'ia', u'ium', u'ibus', u'ibus'] # (īs) for Acc.pl
-        tags['gender'] = 'n'
+        my_tags['gender'] = 'n'
         stem1 = stem2
-        table += declension_table(stem1, stem2, suffices, tags)
+        table += declension_table(stem1, stem2, suffices, my_tags)
 
     # 比較級
-    tags_c = {'pos':'adj', 'base':nom_sg_mf, 'ja':'より'+tags['ja'], 'type':'II', 'rank':'+'}
+    tags_c = {'pos':'adj', 'base':nom_sg_mf, 'ja':'より'+my_tags['ja'], 'type':'II', 'rank':'+'}
     table += decline_adj_comparative(gen_sg[:-2] + u'ior', tags_c)
 
     # 最上級
-    tags_s = {'pos':'adj', 'base':nom_sg_mf, 'ja':'最も'+tags['ja'], 'type':'II', 'rank':'++'}
+    tags_s = {'pos':'adj', 'base':nom_sg_mf, 'ja':'最も'+my_tags['ja'], 'type':'II', 'rank':'++'}
     if nom_sg_mf[-4:] == 'ilis':
         base = nom_sg_mf[:-4] + 'illimus'
     else:
@@ -390,7 +394,6 @@ def load_nouns(file):
                 # print "noun>", util.render(item)
                 latindic_register(item['surface'], item)
 
-load_nouns('noun.def')
 
 
 def decline_adj(type, f1, f2, f3, ja):
@@ -444,8 +447,6 @@ def load_adjs(file):
             for item in table:
                 latindic_register(item['surface'], item)
 
-load_adjs('adj.def')
-
 def lookup(word):
     if latindic.has_key(word):
         return latindic[word]
@@ -453,7 +454,10 @@ def lookup(word):
         return None
 
 
+load_nouns('noun.def')
+load_adjs('adj.def')
+
 if __name__ == '__main__':
-    for k, v in latindic.items():
-        print util.render(k), util.render(v)
+#    for k, v in latindic.items():
+#        print util.render(k), util.render(v)
     pass

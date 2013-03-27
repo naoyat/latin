@@ -2,12 +2,16 @@
 # -*- coding: utf-8 -*-
 import sys
 
+import util
 import text
 import latin
 import latin2
-import util
+import latin_pronouns
 
-import latin1
+for item in latin_pronouns.items:
+    latin2.latindic_register(item['surface'], item)
+
+# import latin1
 
 def lookup(word, is_first=False):
     res = latin2.lookup(word)
@@ -31,9 +35,12 @@ def analyse(sentence):
         sentence_uc.append(word_uc)
 
     def pp(info):
+        if not info.has_key('pos'):
+            print "NO pos IN", util.render(info)
+            return "(NO POS)"
         pos = info['pos']
         if pos == 'n':
-            cases_ja = [latin1.cases_ja[case[0:3]] + case[3:6] for case in info['case'].split('/')]
+            cases_ja = [latin.cases_ja[case[0:3]] + case[3:6] for case in info['case'].split('/')]
             return util.render([pos, info['base'], info['case'], info['gender'], info['ja'], cases_ja])
         else:
             return util.render(info)

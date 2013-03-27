@@ -12,6 +12,8 @@
 1	Rōma	Rōmae	f	ローマ
 1	poēta	poētae	m	詩人
 
+1	Crēta	Crētae	f	クレタ
+
 1	schola	scholae	f	学校
 1	fīlia	fīliae	f	娘
 1	incola	incolae	f	住人
@@ -104,6 +106,10 @@
 3-um	sōl	sōlis	m	太陽
 3-um	homō	hominis	m	人間
 3-um	imāgō	imāginis	f	像,似姿
+
+3-um	Agamemnōn	Agamemnonis	m	アガメムノン
+3-um	Agamemnō	Agamemnonis	m	アガメムノン
+3-um	Myrmidōn	Myrmidonis	m	ミュルミドン
 
 # III -um (b)
 3-um	corpus	corporis	n	身体

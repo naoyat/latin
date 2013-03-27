@@ -60,16 +60,29 @@ case_tags_6x2 = [
     {'case':'Abl', 'number':'pl'}
     ]
 
-case_tags_5x2 = [
+case_tags_5sg = [
     {'case':'Nom', 'number':'sg'},
     {'case':'Acc', 'number':'sg'},
     {'case':'Gen', 'number':'sg'},
     {'case':'Dat', 'number':'sg'},
     {'case':'Abl', 'number':'sg'},
+]
 
+case_tags_5pl = [
     {'case':'Nom', 'number':'pl'},
     {'case':'Acc', 'number':'pl'},
     {'case':'Gen', 'number':'pl'},
     {'case':'Dat', 'number':'pl'},
     {'case':'Abl', 'number':'pl'}
     ]
+
+case_tags_5x2 = case_tags_5sg + case_tags_5pl
+
+cases_ja = {
+    'Nom':'〜が',
+    'Acc':'〜を',
+    'Gen':'〜の',
+    'Dat':'〜に,〜のために,〜にとって',
+    'Abl':'〜によって,〜でもって,〜をもって,〜において,〜から',
+    'Voc':'〜よ'
+}
