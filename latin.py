@@ -43,3 +43,33 @@ def islower(char):
         return True
     else:
         return False
+
+case_tags_6x2 = [
+    {'case':'Nom', 'number':'sg'},
+    {'case':'Voc', 'number':'sg'},
+    {'case':'Acc', 'number':'sg'},
+    {'case':'Gen', 'number':'sg'},
+    {'case':'Dat', 'number':'sg'},
+    {'case':'Abl', 'number':'sg'},
+
+    {'case':'Nom', 'number':'pl'},
+    {'case':'Voc', 'number':'pl'},
+    {'case':'Acc', 'number':'pl'},
+    {'case':'Gen', 'number':'pl'},
+    {'case':'Dat', 'number':'pl'},
+    {'case':'Abl', 'number':'pl'}
+    ]
+
+case_tags_5x2 = [
+    {'case':'Nom', 'number':'sg'},
+    {'case':'Acc', 'number':'sg'},
+    {'case':'Gen', 'number':'sg'},
+    {'case':'Dat', 'number':'sg'},
+    {'case':'Abl', 'number':'sg'},
+
+    {'case':'Nom', 'number':'pl'},
+    {'case':'Acc', 'number':'pl'},
+    {'case':'Gen', 'number':'pl'},
+    {'case':'Dat', 'number':'pl'},
+    {'case':'Abl', 'number':'pl'}
+    ]
