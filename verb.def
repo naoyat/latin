@@ -1,0 +1,80 @@
+# amō amāvī amātum amāre
+1	amō	愛する
+1	dēlectō	喜ばす
+1	laudō	ほめる
+1	pūgnō	戦う
+1	clāmō	叫ぶ
+
+1	habitō	住む
+1	intrō	入る,貫く
+1	aedificō	建築する
+1	dēvorō	飲み込む
+1	mōnstrō	示す,見せる
+1	nōminō	(名を)呼ぶ
+1	expugnō	襲撃する
+
+1	dō	dedī	datum	dare	与える
+
+#2
+2	moneō	monuī	monitum	monēre	忠告する
+2	maneō	mānsī	mānsum	manēre	とどまる
+2	doceō	docuī	doctum	docēre	教える
+2	moveō	mōvī	mōtum	movēre	動かす
+2	pāreō	pāruī	pāritum	pārēre	現れる,従う
+
+#3a
+3a	regō	rēxī	rēctum	regere	支配する
+3a	scrībō	scrīpsī	scrīptum	scrībere	書く
+3a	bibō	bibī	pōtum	bibere	飲む
+3a	vincō	vīcī	vīctum	vincere	勝つ
+3a	fallō	fefelli	falsum	fallere	だます
+3a	canō	cecinī	cantum	canere	歌う
+3a	legō	lēgī	lēctum	legere	読む
+3a	cēdō	cēssī	cēssum	cēdere	移る
+3a	dīcō	dīxī	dictum	dīcere	いう
+3a	laedō	laesī	laesum	laedere	たたく
+3a	lūdō	lūsī	lūsum	lūdere	遊ぶ
+3a	pellō	pepulī	pulsum	pellere	押す
+3a	vīvō	vīxī	vīctūrus	vīvere	生きる
+3a	edō	ēdī	ēsum	edere	食べる
+3a	dūcō	dūxī	ductum	dūcere	導く
+3a	emō	ēmī	emptum	emere	買う
+3a	agō	ēgī	āctum	agere	駆る
+
+#3B
+3b	capiō	cēpī	captum	capere	捕える
+3b	fugiō	fūgī	fugitum	fugere	逃げる
+3b	rapiō	rapuī	raptum	rapere	奪う
+3b	cupiō	cupīvī	cupītum	cupere	欲求する
+3b	faciō	fēcī	factum	facere	作る
+3b	accipiō	accēpī	acceptum	accipere	受け取る
+3b	jaciō	jēcī	jactum	jacere	投げる
+
+
+#4
+4	audiō	audīvī	audītum	audīre	聞く
+4	vestiō	vestīvī	vestītum	vestīre	着せる
+4	vinciō	vīnxī	vīnctum	vincīre	結ぶ
+4	saliō	saluī	saltum	salīre	跳ぶ
+4	pūniō	pūnīvī	pūnītum	pūnīre	罰する
+4	aperiō	aperuī	apertum	aperīre	開く
+4	veniō	vēnī	ventum	venīre	来る
+4	dormiō	dormīvī	dormītum	dormīre	眠る
+#4	feriō	*	*	ferīre	打つ
+4	reperiō	repperī	repertum	reperīre	見つける
+4	sentiō	sēnsi	sēnsum	sentīre	思う
+
+#	placent
+#	nōtī
+#	interrogāvī
+#	prob
+#	occupāta
+#	oppūgnāvērunt
+#	tractāvit
+#	sit
+#	servat
+#	mediō
+#	fuit
+#	dēserit	(ūNKNōWN)
+#	dēvorābat
+#	aedificiī

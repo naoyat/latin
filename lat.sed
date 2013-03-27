@@ -1,20 +1,20 @@
-s/A/ā/g # 257
-s/E/ē/g # 275
-s/I/ī/g # 299
-s/O/ō/g # 333
-s/U/ū/g # 363
-s/Y/ȳ/g # 563
-# s/ae/æ/g # aelig
-# s/oe/œ/g # oelig
+s/A/ā/g; # 257
+s/E/ē/g; # 275
+s/I/ī/g; # 299
+s/O/ō/g; # 333
+s/U/ū/g; # 363
+s/Y/ȳ/g; # 563
+# s/ae/æ/g; # aelig
+# s/oe/œ/g; # oelig
 
-s/_A/Ā/g # 256
-s/_E/Ē/g # 274
-s/_I/Ī/g # 298
-s/_O/Ō/g # 332
-s/_U/Ū/g # 362
-s/_Y/Ȳ/g # 562
-# s/AE/Æ/g # AElig
-# s/OE/Œ/g # OElig
+s/_A/Ā/g; # 256
+s/_E/Ē/g; # 274
+s/_I/Ī/g; # 298
+s/_O/Ō/g; # 332
+s/_U/Ū/g; # 362
+s/_Y/Ȳ/g; # 562
+# s/AE/Æ/g; # AElig
+# s/OE/Œ/g; # OElig
  
 s/_a/A/g
 s/_b/B/g

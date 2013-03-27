@@ -5,7 +5,10 @@ import sys
 import util
 import text
 import latin
+import latin_char
 import latin_noun
+
+latin.latindic_load()
 
 def lookup(word, is_first=False):
     res = latin.latindic_lookup(word)
@@ -40,7 +43,11 @@ def analyse(sentence):
             return util.render(info)
 
     first = True
-    for word in sentence_uc:
+
+    l = len(sentence_uc)
+
+    for i in xrange(l):
+        word = sentence_uc[i]
         print "    %*s" % (-maxlen, word.encode('utf-8')),
         # print u"    %*s" % (-maxlen, word),
         c0 = ord(word[0])

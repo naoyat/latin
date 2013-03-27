@@ -25,6 +25,7 @@
 1	Thessalia	Thessaliae	f	テッサリア
 1	Phthia	Phthiae	f	プティア
 1	Trōja	Trōjae	f	トロヤ
+1	memoria	memoriae	f	記憶
 
 2	templum	templī	n	神殿
 2	bellum	bellī	n	戦争
@@ -37,6 +38,9 @@
 2	rēgnum	rēgnī	n	王国
 2	ingenium	ingeniī	n	才能
 2	studium	studiī	n	努力,研究
+2	labyrinthum	labyrinthī	n	迷宮
+2	mōnstrum	mōnstrī	n	怪物
+
 
 2	dominus	dominī	m	主,主人
 2	amīcus	amīcī	m	友人
@@ -49,6 +53,9 @@
 2	fīlius	fīlī	m	息子
 2	animus	animī	m	精神
 2	Homērus	Homērī	m	ホメルス
+2	Thēseus	Thēseī	m	テセウス
+2	Atticus	Atticī	m	アッティクス
+2	taurus	taurī	m	雄牛
 
 2	ager	agrī	m	畑
 2	liber	librī	m	本
@@ -71,6 +78,7 @@
 3-ium	amnis	amnis	m	川
 3-ium	nūbēs	nūbis	f	雲
 3-ium	Ulixēs	Ulixis	m	ウリクセス
+3-ium	Achillēs	Achillis	m	アキレス
 
 # III -ium (b)
 3-ium	mōns	montis	m	山
@@ -110,6 +118,7 @@
 3-um	Agamemnōn	Agamemnonis	m	アガメムノン
 3-um	Agamemnō	Agamemnonis	m	アガメムノン
 3-um	Myrmidōn	Myrmidonis	m	ミュルミドン
+3-um	Hector	Hectoris	m	ヘクトル
 
 # III -um (b)
 3-um	corpus	corporis	n	身体
