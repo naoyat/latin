@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import latin
-import latin2
+import latin_noun
 import util
 
 #def make_declined_tags(prefix, prefix_tag, suffix, suffix_tag):
@@ -26,27 +26,27 @@ items = []
 common_tags = {'pos':'pronoun', 'person':1, 'ja':'私', 'desc':'人称代名詞'}
 forms = [u'ego', u'mē', u'meī', u'mihi', u'mē',
          u'nōs', u'nōs', u'nostrī', u'nōbīs', u'nōbīs']
-items += decline('', common_tags, forms, latin.case_tags_5x2)
-items += [util.aggregate_dicts({'surface':u'mihī'}, common_tags, latin.case_tags_5x2[3])]
-items += [util.aggregate_dicts({'surface':u'nostrum'}, common_tags, latin.case_tags_5x2[7])]
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2)
+items += [util.aggregate_dicts({'surface':u'mihī'}, common_tags, latin_noun.case_tags_5x2[3])]
+items += [util.aggregate_dicts({'surface':u'nostrum'}, common_tags, latin_noun.case_tags_5x2[7])]
 
 ## 二人称
 common_tags = {'pos':'pronoun', 'person':2, 'ja':'あなた', 'desc':'人称代名詞'}
 forms = [u'tū', u'tē', u'tuī', u'tibi', u'tē',
          u'vōs', u'vōs', u'vestrī', u'vōbīs', u'vōbīs']
-items += decline('', common_tags, forms, latin.case_tags_5x2)
-items += [util.aggregate_dicts({'surface':u'tibī'}, common_tags, latin.case_tags_5x2[3])]
-items += [util.aggregate_dicts({'surface':u'vestrum'}, common_tags, latin.case_tags_5x2[7])]
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2)
+items += [util.aggregate_dicts({'surface':u'tibī'}, common_tags, latin_noun.case_tags_5x2[3])]
+items += [util.aggregate_dicts({'surface':u'vestrum'}, common_tags, latin_noun.case_tags_5x2[7])]
 
 # <28> 所有代名詞
 ## 所有形容詞
-#items += latin2.decline_adj_type1(u'meus', u'mea', \
+#items += latin.decline_adj_type1(u'meus', u'mea', \
 #                                  {'ja':'私の', 'base':u'meus', 'desc':'所有形容詞'}, False)
-#items += latin2.decline_adj_type1(u'noster', u'nostra', \
+#items += latin.decline_adj_type1(u'noster', u'nostra', \
 #                                  {'ja':'私たちの', 'base':u'noster', 'desc':'所有形容詞'}, False)
-#items += latin2.decline_adj_type1(u'tuus', u'tua', \
+#items += latin.decline_adj_type1(u'tuus', u'tua', \
 #                                  {'ja':'あなたの', 'base':u'tuus', 'desc':'所有形容詞'}, False)
-#items += latin2.decline_adj_type1(u'vester', u'vestra', \
+#items += latin.decline_adj_type1(u'vester', u'vestra', \
 #                                  {'ja':'あなたたちの', 'base':u'vester', 'desc':'所有形容詞'}, False)
 
 items = util.remove_matched_items(items, {'surface':u'mee'})
@@ -61,17 +61,17 @@ common_tags = {'pos':'pronoun', 'person':3, 'ja':'(それ)自身', 'desc':'強�
 forms = [u'ipse', u'ipsum', u'ipsīus', u'ipsī', u'ipsō',
          u'ipsī', u'ipsōs', u'ipsōrum', u'ipsīs', u'ipsīs']
 common_tags['gender'] = 'm'
-items += decline('', common_tags, forms, latin.case_tags_5x2)
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2)
 
 forms = [u'ipsa', u'ipsam', u'ipsīus', u'ipsī', u'ipsā',
          u'ipsae', u'ipsās', u'ipsārum', u'ipsīs', u'ipsīs']
 common_tags['gender'] = 'f'
-items += decline('', common_tags, forms, latin.case_tags_5x2)
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2)
 
 forms = [u'ipsum', u'ipsum', u'ipsīus', u'ipsī', u'ipsō',
          u'ipsa', u'ipsa', u'ipsōrum', u'ipsīs', u'ipsīs']
 common_tags['gender'] = 'n'
-items += decline('', common_tags, forms, latin.case_tags_5x2)
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2)
 
 
 
@@ -80,13 +80,13 @@ items += decline('', common_tags, forms, latin.case_tags_5x2)
 common_tags = {'pos':'pronoun', 'ja':'各人(の)', 'desc':'関係代名詞', 'base':u'quī'}
 forms = [u'quī', u'quem', u'cūjus', u'cuī', u'quō',
          u'quī', u'quōs', u'quōrum', u'quibus', u'quibus']
-items += decline('', common_tags, forms, latin.case_tags_5x2, {'gender':'m'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'m'})
 forms = [u'quae', u'quam', u'cūjus', u'cuī', u'quā',
          u'quae', u'quās', u'quārum', u'quibus', u'quibus']
-items += decline('', common_tags, forms, latin.case_tags_5x2, {'gender':'f'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'f'})
 forms = [u'quod', u'quod', u'cūjus', u'cuī', u'quō',
          u'quae', u'quae', u'quōrum', u'quibus', u'quibus']
-items += decline('', common_tags, forms, latin.case_tags_5x2, {'gender':'n'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'n'})
 
 
 # <38> 疑問代名詞 quis, quid
@@ -94,15 +94,15 @@ items += decline('', common_tags, forms, latin.case_tags_5x2, {'gender':'n'})
 common_tags = {'pos':'pronoun', 'ja':'誰が', 'desc':'疑問代名詞', 'base':u'quis'}
 forms = [u'quis', u'quem', u'cūjus', u'cuī', u'quō',
          u'quī', u'quōs', u'quōrum', u'quibus', u'quibus']
-items += decline('', common_tags, forms, latin.case_tags_5x2, {'gender':'m'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'m'})
 forms = [u'quis', u'quem', u'cūjus', u'cuī', u'quā',
          u'quae', u'quās', u'quārum', u'quibus', u'quibus']
-items += decline('', common_tags, forms, latin.case_tags_5x2, {'gender':'f'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'f'})
 
 common_tags = {'pos':'pronoun', 'ja':'何が', 'desc':'疑問代名詞', 'base':u'quid', 'gender':'n'}
 forms = [u'quid', u'quid', u'cūjus', u'cuī', u'quō',
          u'quae', u'quae', u'quōrum', u'quibus', u'quibus']
-items += decline('', common_tags, forms, latin.case_tags_5x2)
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2)
 
 
 
@@ -117,34 +117,34 @@ items += decline('', common_tags, forms, latin.case_tags_5x2)
 # pronoun.
 common_tags = {'pos':'pronoun', 'ja':'各人(の)', 'desc':'不定代名詞', 'base':u'quisque'}
 forms = [u'quisque', u'quemque', u'cūjusque', u'cuīque', u'quōque'] # m,f
-items += decline('', common_tags, forms, latin.case_tags_5sg, {'gender':'m'})
-items += decline('', common_tags, forms, latin.case_tags_5sg, {'gender':'f'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5sg, {'gender':'m'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5sg, {'gender':'f'})
 forms = [u'quidque', u'quidque', u'cūjusque', u'cuīque', u'quōque'] # n
-items += decline('', common_tags, forms, latin.case_tags_5sg, {'gender':'n'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5sg, {'gender':'n'})
 # adj.
 common_tags = {'pos':'adj', 'ja':'各人(の)', 'desc':'不定形容詞', 'base':u'quisque'}
 forms = [u'quīque', u'quemque', u'cūjusque', u'cuīque', u'quōque']
-items += decline('', common_tags, forms, latin.case_tags_5sg, {'gender':'m'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5sg, {'gender':'m'})
 forms = [u'quaeque', u'quamque', u'cūjusque', u'cuīque', u'quāque']
-items += decline('', common_tags, forms, latin.case_tags_5sg, {'gender':'f'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5sg, {'gender':'f'})
 forms = [u'quodque', u'quodque', u'cūjusque', u'cuīque', u'quōque']
-items += decline('', common_tags, forms, latin.case_tags_5sg, {'gender':'n'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5sg, {'gender':'n'})
 
 # <42> quīdam「或る(人,物)」(英:certain)
 # pronoun.
 common_tags = {'pos':'pronoun', 'ja':'或る(人,物)', 'desc':'不定代名詞', 'base':u'quīdam'}
 forms = [u'quīdam', u'quendam', u'cūjusdam', u'cuīdam', u'quōdam',
          u'quīdam', u'quōsdam', u'quōrundam', u'quibusdam', u'quibusdam']
-items += decline('', common_tags, forms, latin.case_tags_5x2, {'gender':'m'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'m'})
 forms = [u'quaedam', u'quandam', u'cūjusdam', u'cuīdam', u'quādam',
          u'quaedam', u'quāsdam', u'quārundam', u'quibusdam', u'quibusdam']
-items += decline('', common_tags, forms, latin.case_tags_5x2, {'gender':'f'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'f'})
 forms = [u'quiddam', u'quiddam', u'cūjusdam', u'cuīdam', u'quōdam',
          u'quīdam', u'quōsdam', u'quōrundam', u'quibusdam', u'quibusdam']
-items += decline('', common_tags, forms, latin.case_tags_5x2, {'gender':'n'})
+items += decline('', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'n'})
 
 #  quiddam<代名詞> -> quoddam<形容詞>
 
-
-# for item in items:
-#     latin2.latindic_register(item['surface'], item)
+def load():
+    for item in items:
+        latin.latindic_register(item['surface'], item)

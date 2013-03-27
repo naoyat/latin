@@ -1,88 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-LOWER_LONG_VOWELS = [257,275,299,333,363,563] # ā ē ī ō ū ȳ
-UPPER_LONG_VOWELS = [256,274,298,332,362,562] # Ā Ē Ī Ō Ū Ȳ
+import latin_noun
+import latin_pronouns
+import latin_adj
+import latin_conj
+import latin_prep
+# import util
 
-TRANSTABLE_TOLOWER = {}
-TRANSTABLE_TOUPPER = {}
+#
+# 辞書
+#
+latindic = {}
 
-for j in xrange(26): # A-Z / a-z
-    TRANSTABLE_TOLOWER[0x41+j] = unichr(0x61+j)
-    TRANSTABLE_TOUPPER[0x61+j] = unichr(0x41+j)
-
-for c in UPPER_LONG_VOWELS:
-    TRANSTABLE_TOLOWER[c] = unichr(c+1)
-    TRANSTABLE_TOUPPER[c+1] = unichr(c)
-
-def tolower(ustr):
-    return ustr.translate(TRANSTABLE_TOLOWER)
-
-def toupper(ustr):
-    return ustr.translate(TRANSTABLE_TOUPPER)
-
-
-def isupper(char):
-    c = ord(char)
-    if 0x41 <= c <= 0x5A:
-        return True
-    elif 0x61 <= c <= 0x7A:
-        return False
-    elif c in UPPER_LONG_VOWELS:
-        return True
+def latindic_register(surface, info):
+    # assert(info.has_key('pos'))
+    if latindic.has_key(surface):
+        latindic[surface].append(info)
     else:
-        return False
+        latindic[surface] = [info]
 
-def islower(char):
-    c = ord(char)
-    if 0x41 <= c <= 0x5A:
-        return False
-    elif 0x61 <= c <= 0x7A:
-        return True
-    elif c in LOWER_LONG_VOWELS:
-        return True
-    else:
-        return False
+def latindic_lookup(word):
+    return latindic.get(word, None)
 
-case_tags_6x2 = [
-    {'case':'Nom', 'number':'sg'},
-    {'case':'Voc', 'number':'sg'},
-    {'case':'Acc', 'number':'sg'},
-    {'case':'Gen', 'number':'sg'},
-    {'case':'Dat', 'number':'sg'},
-    {'case':'Abl', 'number':'sg'},
+def load_other(file):
+    with open(file, 'r') as fp:
+        for line in fp:
+            if len(line) == 0: continue
+            if line[0] == '#': continue
 
-    {'case':'Nom', 'number':'pl'},
-    {'case':'Voc', 'number':'pl'},
-    {'case':'Acc', 'number':'pl'},
-    {'case':'Gen', 'number':'pl'},
-    {'case':'Dat', 'number':'pl'},
-    {'case':'Abl', 'number':'pl'}
-    ]
+            fs = line.rstrip().split()
+            if len(fs) < 3: continue
 
-case_tags_5sg = [
-    {'case':'Nom', 'number':'sg'},
-    {'case':'Acc', 'number':'sg'},
-    {'case':'Gen', 'number':'sg'},
-    {'case':'Dat', 'number':'sg'},
-    {'case':'Abl', 'number':'sg'},
-]
+            surface = fs[0].decode('utf-8')
+            pos = fs[1]
+            ja = fs[2]
 
-case_tags_5pl = [
-    {'case':'Nom', 'number':'pl'},
-    {'case':'Acc', 'number':'pl'},
-    {'case':'Gen', 'number':'pl'},
-    {'case':'Dat', 'number':'pl'},
-    {'case':'Abl', 'number':'pl'}
-    ]
+            info = {'surface':surface, 'pos':pos, 'ja':ja}
+            latindic_register(surface, info)
 
-case_tags_5x2 = case_tags_5sg + case_tags_5pl
+latin_noun.load()
+latin_pronoun.load()
+latin_adj.load()
+latin_conj.load()
+latin_prep.load()
+load_other('other.def')
 
-cases_ja = {
-    'Nom':'〜が',
-    'Acc':'〜を',
-    'Gen':'〜の',
-    'Dat':'〜に,〜のために,〜にとって',
-    'Abl':'〜によって,〜でもって,〜をもって,〜において,〜から',
-    'Voc':'〜よ'
-}
+if __name__ == '__main__':
+#    for k, v in latindic.items():
+#        print util.render(k), util.render(v)
+    pass

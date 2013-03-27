@@ -4,7 +4,7 @@
 import strutil
 import unittest
 
-import latin2
+import latin
 import util
 
 def partial_surfaces(table, start, end):
@@ -49,7 +49,7 @@ def transpose(expected):
 class StringTestCase(unittest.TestCase):
 
     def adj_decl_assertEqual(self, adj, expected):
-        table = latin2.decline_adj(*adj)
+        table = latin.decline_adj(*adj)
         ss = partial_surfaces(table, 0, 12)
         tt = transpose(expected)
         # for g in ss:
