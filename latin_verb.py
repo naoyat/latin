@@ -459,7 +459,7 @@ def load_verbs(file):
                 latin.latindic_register(item['surface'], item)
 
 def load():
-    load_verbs('verb.def')
+    load_verbs('words/verb.def')
 
     conjugate_verb_sum_composites()
     # items += conjugate_irregular_verb(u'edō', '食べる') # edO EdI Esum edere/Esse

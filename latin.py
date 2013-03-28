@@ -53,7 +53,7 @@ def latindic_load():
     latin_conj.load()
     latin_prep.load()
     latin_verb.load()
-    load_other('other.def')
+    load_other('words/other.def')
 
 if __name__ == '__main__':
 #    for k, v in latindic.items():

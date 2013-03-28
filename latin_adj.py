@@ -216,4 +216,4 @@ def load_adjs(file):
 
 
 def load():
-    load_adjs('adj.def')
+    load_adjs('words/adj.def')

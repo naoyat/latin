@@ -229,4 +229,4 @@ def load_nouns(file):
                 latin.latindic_register(item['surface'], item)
 
 def load():
-    load_nouns('noun.def')
+    load_nouns('words/noun.def')
