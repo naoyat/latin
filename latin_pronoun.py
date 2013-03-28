@@ -3,6 +3,7 @@
 
 import latin
 import latin_noun
+import latin_adj
 import util
 
 #def make_declined_tags(prefix, prefix_tag, suffix, suffix_tag):
@@ -40,14 +41,14 @@ items += [util.aggregate_dicts({'surface':u'vestrum'}, common_tags, latin_noun.c
 
 # <28> 所有代名詞
 ## 所有形容詞
-#items += latin.decline_adj_type1(u'meus', u'mea', \
-#                                  {'ja':'私の', 'base':u'meus', 'desc':'所有形容詞'}, False)
-#items += latin.decline_adj_type1(u'noster', u'nostra', \
-#                                  {'ja':'私たちの', 'base':u'noster', 'desc':'所有形容詞'}, False)
-#items += latin.decline_adj_type1(u'tuus', u'tua', \
-#                                  {'ja':'あなたの', 'base':u'tuus', 'desc':'所有形容詞'}, False)
-#items += latin.decline_adj_type1(u'vester', u'vestra', \
-#                                  {'ja':'あなたたちの', 'base':u'vester', 'desc':'所有形容詞'}, False)
+items += latin_adj.decline_adj_type1(u'meus', u'mea', \
+                                  {'ja':'私の', 'base':u'meus', 'desc':'所有形容詞'}, False)
+items += latin_adj.decline_adj_type1(u'noster', u'nostra', \
+                                  {'ja':'私たちの', 'base':u'noster', 'desc':'所有形容詞'}, False)
+items += latin_adj.decline_adj_type1(u'tuus', u'tua', \
+                                  {'ja':'あなたの', 'base':u'tuus', 'desc':'所有形容詞'}, False)
+items += latin_adj.decline_adj_type1(u'vester', u'vestra', \
+                                  {'ja':'あなたたちの', 'base':u'vester', 'desc':'所有形容詞'}, False)
 
 items = util.remove_matched_items(items, {'surface':u'mee'})
 items += [{'case':'Voc', 'number':'sg', 'gender':'m', 'base':u'meus', 'surface':u'mī', 'ja':'私の', 'desc':'所有形容詞'}]

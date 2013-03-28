@@ -1,16 +1,20 @@
-1	bonus	bona	bonum	良い
-1	malus	mala	malum	悪い
-1	longus	longa	longum	長い,広い
-1	māgnus	māgna	māgnum	大きい
-1	parvus	parva	parvum	小さい
-1	jūcundus	jūcunda	jūcundum	快適な
-1	albus	alba	album	白い
-1	altus	alta	altum	高い,深い
-1	vānus	vāna	vānum	空虚な
-1	multus	multa	multum	多くの
-1	clārus	clāra	clārum	明瞭な,素晴らしい
-1	Trōjānus	Trōjāna	Trōjānum	トロヤの
-1	Graecus	Graeca	Graecum	ギリシアの
+# bonus bona bonum
+1	bonus	良い
+1	malus	悪い
+1	longus	長い,広い
+1	māgnus	大きい
+1	parvus	小さい
+1	jūcundus	快適な
+1	albus	白い
+1	altus	高い,深い
+1	vānus	空虚な
+1	multus	多くの
+1	clārus	明瞭な,素晴らしい
+1	Trōjānus	トロヤの
+1	Graecus	ギリシアの
+1	Atticus	アッティカの
+1	nōtus	知られている
+1	flexuōsus	曲がりくねった
 
 1	līber	lībera	līberum	自由な
 1	miser	misera	miserum	みじめな
@@ -20,7 +24,7 @@
 1	aeger	aegra	aegrum	病める
 
 
-# II (1) -is -is e
+# II (1) [Nom]-is [Gen]-is / [n.]e
 2	fortis	fortis	forte	勇敢な
 2	brevis	brevis	breve	短い
 2	levis	levis	leve	軽い

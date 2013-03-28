@@ -54,10 +54,14 @@ def analyse(sentence):
         if c0 > 64:
             info = lookup(word, first)
             first = False
+#            if info:
+#                print ', '.join(map(pp, info))
+#            else:
+#                print "(UNKNOWN)"
             if info:
-                print ', '.join(map(pp, info))
+                print info[0]['pos'], info[0]['ja'], info[0].get('case', "-")
             else:
-                print "(UNKNOWN)"
+                print "(?)"
         else:
             print
     print

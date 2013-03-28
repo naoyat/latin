@@ -153,20 +153,16 @@ def decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, tags):
 
 
 def decline_adj(type, f1, f2, f3, ja):
-    f1_uc = f1.decode('utf-8')
-    f2_uc = f2.decode('utf-8')
-    f3_uc = f3.decode('utf-8')
-
     table = []
     if type == '1':
-        nom_sg_m = f1_uc
-        nom_sg_f = f2_uc
-        # nom_sg_n = f3_uc
+        nom_sg_m = f1
+        nom_sg_f = f2
+        # nom_sg_n = f3
         table = decline_adj_type1(nom_sg_m, nom_sg_f, {'ja':ja})
     elif type == '2':
-        nom_sg_mf = f1_uc
-        gen_sg    = f2_uc
-        nom_sg_n  = f3_uc
+        nom_sg_mf = f1
+        gen_sg    = f2
+        nom_sg_n  = f3
         table = decline_adj_type2(nom_sg_mf, gen_sg, nom_sg_n, {'ja':ja})
     else:
         pass
@@ -196,9 +192,24 @@ def load_adjs(file):
         for line in fp:
             if line[0] == '#': continue
             fs = line.rstrip().split()
-            if len(fs) < 5: continue
+            if len(fs) == 5:
+                args = (fs[0],
+                        fs[1].decode('utf-8'),
+                        fs[2].decode('utf-8'),
+                        fs[3].decode('utf-8'),
+                        fs[4])
+            elif len(fs) == 3:
+                nom_sg_m = fs[1].decode('utf-8')
+                stem = nom_sg_m[:-2]
+                args = (fs[0],
+                        stem + u'us',
+                        stem + u'a',
+                        stem + u'um',
+                        fs[2])
+            else:
+                continue
 
-            table = decline_adj(*fs)
+            table = decline_adj(*args)
             # pp_adj_declension(table)
             for item in table:
                 latin.latindic_register(item['surface'], item)

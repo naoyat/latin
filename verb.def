@@ -12,6 +12,11 @@
 1	mōnstrō	示す,見せる
 1	nōminō	(名を)呼ぶ
 1	expugnō	襲撃する
+1	probō	試す,確かめる,賛成する
+#1	plācō	和らげる
+1	interrogō	尋ねる,質問する
+# 1	nōtō	(示す,印をつける)
+1	superō	超える,上を行く
 
 1	dō	dedī	datum	dare	与える
 
@@ -21,6 +26,8 @@
 2	doceō	docuī	doctum	docēre	教える
 2	moveō	mōvī	mōtum	movēre	動かす
 2	pāreō	pāruī	pāritum	pārēre	現れる,従う
+
+2	placeō	placuī	placitum	placēre	良いと思う
 
 #3a
 3a	regō	rēxī	rēctum	regere	支配する
