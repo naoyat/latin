@@ -9,12 +9,18 @@
 1	altus	高い,深い
 1	vānus	空虚な
 1	multus	多くの
-1	clārus	明瞭な,素晴らしい
+1	clārus	有名な,明瞭な,素晴らしい
 1	Trōjānus	トロヤの
 1	Graecus	ギリシアの
 1	Atticus	アッティカの
 1	nōtus	知られている
 1	flexuōsus	曲がりくねった
+1	Rōmānus	ローマの
+1	foedus	醜い,恐ろしい
+1	plēnus	沢山の
+1	mīrus	素晴らしい
+1	miserandus	かわいそうな,残念な
+1	sōlus	孤独な,唯一の,孤立した
 
 1	līber	lībera	līberum	自由な
 1	miser	misera	miserum	みじめな
@@ -42,6 +48,9 @@
 2	ācer	ācris	ācre	鋭い
 2	celeber	celebris	celebre	名士の
 2	alacer	alacris	alacre	活発な
+
+2	īnsīgnis	īnsīgnis	insigne	目立った,秀でた,独特な,奇抜な
+
 # II (2) -x
 2	audāx	audācis	-	大胆な
 2	ferōx	ferōcis	-	凶暴な

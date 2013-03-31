@@ -1,61 +1,70 @@
-1	rosa	rosae	f	バラ
-1	aqua	aquae	f	水
-1	vīta	vitae	f	人生
-1	terra	terrae	f	地,大地
-1	preada	preadae	f	戦利品
-1	puella	puellae	f	少女
-1	agricola	agricolae	m	農夫
-1	herba	herbae	f	草
-1	dea	deae	f	女神
-1	via	viae	f	道
-1	Graecia	Graeciae	f	ギリシア
-1	Rōma	Rōmae	f	ローマ
-1	poēta	poētae	m	詩人
+1	rosa	f	バラ
+1	aqua	f	水
+1	vīta	f	人生
+1	terra	f	地,大地
+1	preada	f	戦利品
+1	puella	f	少女
+1	agricola	m	農夫
+1	herba	f	草
+1	dea	f	女神
+1	via	f	道
+1	Graecia	f	ギリシア
+1	Rōma	f	ローマ
+1	poēta	m	詩人
 
-1	Crēta	Crētae	f	クレタ
+1	Crēta	f	クレタ
+1	schola	f	学校
+1	fīlia	f	娘
+1	incola	f	住人
+1	rēgīna	f	女王
+1	laetitia	f	喜び
+1	prūdentia	f	思慮深さ
+1	patria	f	故郷,祖国
+1	īnsula	f	島
+1	Thessalia	f	テッサリア
+1	Phthia	f	プティア
+1	Trōja	f	トロヤ
+1	memoria	f	記憶
+1	fōrma	f	形,型,姿
+1	sapientia	f	知識,良識,知恵
+1	sententia	f	意見,考え
+1	misericordia	f	慈悲,憐憫
+1	porta	f	扉
 
-1	schola	scholae	f	学校
-1	fīlia	fīliae	f	娘
-1	incola	incolae	f	住人
-1	rēgīna	rēgīnae	f	女王
-1	laetitia	laetitiae	f	喜び
-1	prūdentia	prūdentiae	f	思慮深さ
-1	patria	patriae	f	故郷,祖国
-1	īnsula	īnsulae	f	島
-1	Thessalia	Thessaliae	f	テッサリア
-1	Phthia	Phthiae	f	プティア
-1	Trōja	Trōjae	f	トロヤ
-1	memoria	memoriae	f	記憶
+2	templum	n	神殿
+2	bellum	n	戦争
+2	dōnum	n	贈物
+2	saeculum	n	時代
+2	gaudium	n	喜び
+2	vīnum	n	ワイン
+2	ōvum	n	卵
+2	oppidum	n	町
+2	rēgnum	n	王国
+2	ingenium	n	才能
+2	studium	n	努力,研究
+2	labyrinthum	n	迷宮
+2	mōnstrum	n	怪物
+2	medium	n	真ん中
+2	fīlum	n	糸
 
-2	templum	templī	n	神殿
-2	bellum	bellī	n	戦争
-2	dōnum	dōnī	n	贈物
-2	saeculum	saeculī	n	時代
-2	gaudium	gaudiī	n	喜び
-2	vīnum	vīnī	n	ワイン
-2	ōvum	ōvī	n	卵
-2	oppidum	oppidī	n	町
-2	rēgnum	rēgnī	n	王国
-2	ingenium	ingeniī	n	才能
-2	studium	studiī	n	努力,研究
-2	labyrinthum	labyrinthī	n	迷宮
-2	mōnstrum	mōnstrī	n	怪物
-
-
-2	dominus	dominī	m	主,主人
-2	amīcus	amīcī	m	友人
-2	famulus	famulī	m	奉公人
-2	servus	servī	m	奴隷
-2	populus	populī	m	人民
-2	campus	campī	m	平原
-2	mundus	mundī	m	世界
-2	Aegyptus	Aegyptī	f	エジプト
-2	fīlius	fīlī	m	息子
-2	animus	animī	m	精神
-2	Homērus	Homērī	m	ホメルス
-2	Thēseus	Thēseī	m	テセウス
-2	taurus	taurī	m	雄牛
-2	Daedalus	Daedalī	m	ダエダルス
+2	dominus	m	主,主人
+2	amīcus	m	友人
+2	famulus	m	奉公人
+2	servus	m	奴隷
+2	populus	m	人民
+2	campus	m	平原
+2	mundus	m	世界
+2	Aegyptus	f	エジプト
+2	fīlius	m	息子
+2	animus	m	精神
+2	Homērus	m	ホメルス
+2	Thēseus	m	テセウス
+2	taurus	m	雄牛
+2	Daedalus	m	ダエダルス
+2	pīnus	f	松
+2	rēgulus	m	王子
+2	Tenedus	m	テネドス
+2	gladius	m	剣
 
 2	ager	agrī	m	畑
 2	liber	librī	m	本
@@ -114,14 +123,6 @@
 3-um	sōl	sōlis	m	太陽
 3-um	homō	hominis	m	人間
 3-um	imāgō	imāginis	f	像,似姿
-
-3-um	mōs	mōris	m	意思,習慣,性格
-
-3-um	Agamemnōn	Agamemnonis	m	アガメムノン
-3-um	Agamemnō	Agamemnonis	m	アガメムノン
-3-um	Myrmidōn	Myrmidonis	m	ミュルミドン
-3-um	Hector	Hectoris	m	ヘクトル
-
 # III -um (b)
 3-um	corpus	corporis	n	身体
 3-um	nōmen	nōminis	n	名
@@ -137,6 +138,21 @@
 3-um	canis	canis	m	犬
 3-um	māter	mātris	f	母
 3-um	juvenis	juvenis	m	若者
+3-um	nāvis	nāvis	f	船
+
+# 3-um	plūs	plūris	n	(より多くの,沢山の)
+3-um	laus	laudis	f	称賛,名誉,名声
+
+3-um	Agamemnōn	Agamemnonis	m	アガメムノン
+3-um	Agamemnō	Agamemnonis	m	アガメムノン
+3-um	Myrmidōn	Myrmidonis	m	ミュルミドン
+3-um	Hector	Hectoris	m	ヘクトル
+3-um	Nestor	Nestoris	m	ネストル
+
+3-um	mōs	mōris	m	意思,習慣,性格
+3-um	flōs	flōris	f	花
+
+3-um	odor	odōris	m	匂い,香り
 
 4	manus	manūs	f	手
 4	cornū	cornūs	n	角(つの)
@@ -150,6 +166,8 @@
 4	specus	specūs	m	洞穴
 4	fructus	fructūs	m	果実
 4	gradus	gradūs	m	階段,段階
+
+4	Ariadnē	Ariadnēs	f	アリアドネ(ミノスの娘)
 
 5	diēs	diēī	mf	日,昼
 5	rēs	reī	f	物,事

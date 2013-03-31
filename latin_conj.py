@@ -11,7 +11,7 @@ latin_conjs_1 = [
     (u'atque', '〜および〜(第2項に重点がある)'), # and also
     (u'ac', '〜および〜(第2項に重点がある)'), # and also
     (u'et ... et', '〜も〜も'),
-    (u'neque', 'そして〜ない'),
+    (u'neque', 'そして〜ない'), # and not
     (u'nec', 'そして〜ない'),
     (u'neque ... neque', '〜もない〜もない'),
     (u'nec ... nec', '〜もない〜もない'),
@@ -46,9 +46,9 @@ latin_conjs_1 = [
     (u'etenim', 'というのは,すなわち'),
 
     # (5) 結果
-    (u'itaque', 'したがって'),
-    (u'igitur', 'したがって'),
-    (u'ergō', 'したがって'),
+    (u'itaque', '従って'),
+    (u'igitur', '従って'),
+    (u'ergō', '従って'),
     (u'ideō', 'それゆえ'),
     (u'quamobrem', 'それゆえ'),
     (u'quārē', 'それゆえ'),

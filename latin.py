@@ -16,11 +16,30 @@ import util
 latindic = {}
 
 def latindic_register(surface, info):
-    # assert(info.has_key('pos'))
+    if not info.has_key('pos'): return
+
+    if info['pos'] in ('noun', 'adj'):
+        cn = [(info['case'], info['number'])]
+        del info['case']
+        del info['number']
+        info['cn'] = cn
+    else:
+        cn = None
+
     if latindic.has_key(surface):
-        latindic[surface].append(info)
+        merged = False
+        for item in latindic[surface]:
+            if cn is not None and item['pos'] == info['pos'] and item['ja'] == info['ja']:
+                item['cn'] += cn
+                merged = True
+        if not merged:
+            latindic[surface].append(info)
     else:
         latindic[surface] = [info]
+
+def latindic_register_items(items):
+    for item in items:
+        latindic_register(item['surface'], item)
 
 def latindic_lookup(word):
     return latindic.get(word, None)
@@ -29,7 +48,7 @@ def latindic_dump():
     for k, v in latindic.items():
         print util.render2(k, v)
 
-def load_other(file):
+def load_def(file, tags={}):
     with open(file, 'r') as fp:
         for line in fp:
             if len(line) == 0: continue
@@ -42,7 +61,7 @@ def load_other(file):
             pos = fs[1]
             ja = fs[2]
 
-            info = {'surface':surface, 'pos':pos, 'ja':ja}
+            info = util.aggregate_dicts({'surface':surface, 'pos':pos, 'ja':ja}, tags)
             latindic_register(surface, info)
 
 
@@ -53,7 +72,8 @@ def latindic_load():
     latin_conj.load()
     latin_prep.load()
     latin_verb.load()
-    load_other('words/other.def')
+    load_def('words/adv.def', {'pos':'adv'})
+    load_def('words/other.def')
 
 if __name__ == '__main__':
 #    for k, v in latindic.items():

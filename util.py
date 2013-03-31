@@ -45,3 +45,35 @@ def remove_matched_items(items, criteria):
                 return False
         return True
     return filter(p, items)
+
+
+def flatten_1(items):
+    res = []
+    for item in items:
+        if isinstance(item, list):
+            res += item
+        else:
+            res.append(item)
+    return res
+
+def variate(prefix, common_tags, suffices, suffices_tags):
+    def aggregate(a_prefix, a_suffix, suffix_tags):
+        return aggregate_dicts(common_tags, {'surface':a_prefix + a_suffix}, suffix_tags)
+
+    def combine1(prefix, suffix, suffix_tags):
+        if suffix is None:
+            return []
+        elif isinstance(suffix, tuple) or isinstance(suffix, list):
+            return [aggregate(prefix, a_suffix, suffix_tags) for a_suffix in suffix]
+        else:
+            return aggregate(prefix, suffix, suffix_tags)
+
+    def combine2(suffix, suffix_tags):
+        return combine1(prefix, suffix, suffix_tags)
+
+    if isinstance(prefix, tuple) or isinstance(prefix, list):
+        items = map(combine1, prefix, suffices, suffices_tags)
+    else:
+        items = map(combine2,         suffices, suffices_tags)
+
+    return flatten_1(items)

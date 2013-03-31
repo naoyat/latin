@@ -19,6 +19,10 @@ def lookup(word, is_first=False):
         res = latin.latindic_lookup(l)
         if res: return res
 
+    if word[-3:] == u'que':
+        res = latin.latindic_lookup(word[:-3])
+        if res: return res
+
     return None
 
 def analyse(sentence):
@@ -46,6 +50,20 @@ def analyse(sentence):
 
     l = len(sentence_uc)
 
+    def render_info(item):
+        if item['pos'] == 'noun':
+            return '%s %s' % (item['ja'], item.get('cn', "-"))
+        elif item['pos'] == 'adj':
+            return 'a.%s %s' % (item['ja'], item.get('cn', "-"))
+        elif item['pos'] == 'verb':
+            return 'v.%s %s%s %s %s %s' % (item['ja'],
+                                           item['person'], item['number'],
+                                           item.get('tense','-'),
+                                           item.get('voice','-'),
+                                           item.get('mood','-'))
+        else:
+            return '%s %s %s' % (item['pos'], item['ja'], util.render(item))
+
     for i in xrange(l):
         word = sentence_uc[i]
         print "    %*s" % (-maxlen, word.encode('utf-8')),
@@ -59,7 +77,7 @@ def analyse(sentence):
 #            else:
 #                print "(UNKNOWN)"
             if info:
-                print info[0]['pos'], info[0]['ja'], info[0].get('case', "-")
+                print ' | '.join(map(render_info, info))
             else:
                 print "(?)"
         else:
