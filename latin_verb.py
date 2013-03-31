@@ -59,7 +59,7 @@ def conjugate_future_34(stem, tags):
            conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future'}),
                      [u'ar', (u'ēris', u'ēre'), u'ētur', u'ēmur', u'ēminī', u'entur'])
 
-
+# 受動 完了
 def conjugate_passive_perfect_(stem, sum, tags):
     items = []
 
@@ -87,12 +87,12 @@ def conjugate_passive_past_perfect(supinum, tags):
                                       [u'eram', u'erās', u'erat', u'erāmus', u'erātis', u'erant'],
                                       util.aggregate_dicts(tags, {'voice':'passive', 'tense':'past-perfect'}))
 
-
 def conjugate_passive_future_perfect(supinum, tags):
     return conjugate_passive_perfect_(supinum[:-2],
                                       [u'erō', u'eris', u'erit', u'erimus', u'eritis', u'erunt'],
                                       util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future-perfect'}))
 
+# 不定形
 def conjugate_infinitive(inf, pf_stem, supinum, ja, tags, typeIII=False):
     if typeIII:
         # regere -> regī
@@ -122,7 +122,7 @@ def conjugate_infinitive(inf, pf_stem, supinum, ja, tags, typeIII=False):
 
     return items
 
-
+# 分詞
 def conjugate_participle(pres_stem, supinum, tags):
     items = []
 
@@ -230,31 +230,106 @@ def conjugate_verb_sum(prefix=u'', ja=''):
     return items
 
 
-def conjugate_verb_type1(pres1sg, perf1sg, supinum, inf, ja, tags):
-    # amō, amāvī, amātum, amāre; amā-
-    stem = pres1sg[:-1] # am-
-    pres_stem = stem + u'ā'
+def conjugate_imperative(type, stem, tags):
+    items = []
+
+    if type == CONJ_1:
+        long = long0 = u'ā'
+        short = u'a'
+    elif type == CONJ_2:
+        long = long0 = u'ē'
+        short = u'e'
+    elif type == CONJ_3A:
+        long0 = u'e'
+        long = u'i'
+        short = u'u'
+    elif type == CONJ_3B:
+        long0 = u'e'
+        long = u'i'
+        short = u'iu'
+    elif type == CONJ_4:
+        long = long0 = u'ī'
+        short = u'iu'
+
+    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present', 'mood':'imperative'}),
+                       [None, stem + long0, None,
+                        None, stem + long  + u'te', None])
+    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present', 'mood':'imperative'}),
+                       [None, stem + long0 + u're', None,
+                        None, stem + long  + u'minī', None])
+
+    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future', 'mood':'imperative'}),
+                       [None, stem + long + u'tō',   stem + long  + u'tō',
+                        None, stem + long + u'tōte', stem + short + u'ntō'])
+    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future', 'mood':'imperative'}),
+                       [None, stem + long + u'tor', stem + long + u'tor',
+                        None, None,                 stem + short + u'ntor'])
+
+    return items
+
+def conjugate_regular_verb(type, pres1sg, perf1sg, supinum, inf, ja, tags):
+    if type == CONJ_1:
+        # amō, amāvī, amātum, amāre; amā-
+        stem = pres1sg[:-1] # am-
+        pres_stem = stem + u'ā'
+
+        active_present_suffices = [u'ō', u'ās', u'at', u'āmus', u'ātis', u'ant']
+        passive_present_suffices = [u'or', (u'āris', u'āre'), u'ātur', u'āmur', u'āminī', u'antur']
+    elif type == CONJ_2:
+        # moneō, monuī, monitum, monēre
+        stem = pres1sg[:-2] # mon-
+        pres_stem = stem + u'ē'
+
+        active_present_suffices = [u'eō', u'ēs', u'et', u'ēmus', u'ētis', u'ent']
+        passive_present_suffices = [u'eor', (u'ēris', u'ēre'), u'ētur', u'ēmur', u'ēminī', u'entur']
+    elif type == CONJ_3A:
+        # regō, rēxī, rēctum, regere
+        stem = pres1sg[:-1] # reg-
+        pres_stem = stem + u'ē'
+
+        active_present_suffices = [u'ō', u'is', u'it', u'imus', u'itis', u'unt']
+        passive_present_suffices = [u'or', (u'eris', u'ere'), u'itur', u'imur', u'iminī', u'untur']
+    elif type == CONJ_3B:
+        # capiō, cēpī, captum, capere
+        stem = pres1sg[:-2] # cap-
+        pres_stem = stem + u'iē'
+
+        active_present_suffices = [u'iō', u'is', u'it', u'imus', u'itis', u'iunt']
+        passive_present_suffices = [u'ior', (u'eris', u'ere'), u'itur', u'imur', u'iminī', u'iuntur']
+    elif type == CONJ_4:
+        # audiō, audīvī, audītum, audīre
+        stem = pres1sg[:-2] # aud-
+        pres_stem = stem + u'iē'
+
+        active_present_suffices = [u'iō', u'īs', u'īt', u'īmus', u'ītis', u'iunt']
+        passive_present_suffices = [u'ior', (u'īris', u'īre'), u'ītur', u'īmur', u'īminī', u'iuntur']
+    else:
+        return []
+
     pf_stem = perf1sg[:-1]
 
     items = []
-    items += conjugate_infinitive(inf, pf_stem, supinum, ja, tags)
+    items += conjugate_infinitive(inf, pf_stem, supinum, ja, tags, typeIII=(type in [CONJ_3A, CONJ_3B]))
 
     # 現在
     items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
-                       [u'ō', u'ās', u'at', u'āmus', u'ātis', u'ant'])
+                       active_present_suffices)
     items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present'}),
-                       [u'or', (u'āris', u'āre'), u'ātur', u'āmur', u'āminī', u'antur'])
-
-    # 受動2sgで āris の代わりに āre (=? inf) とするのは何
+                       passive_present_suffices)
 
     # 能動態 完了
     items += conjugate_perfect(pf_stem, tags)
     items += conjugate_past_perfect(pf_stem, tags)
     items += conjugate_future_perfect(pf_stem, tags)
+
     # 未完了
     items += conjugate_imperfect(pres_stem, tags)
+
     # 未来
-    items += conjugate_future_12(pres_stem, tags)
+    if type in [CONJ_1, CONJ_2]:
+        items += conjugate_future_12(pres_stem[:-1], tags)
+    else:
+        items += conjugate_future_34(pres_stem[:-1], tags)
 
     # 受動態
     items += conjugate_passive_perfect(supinum, tags)
@@ -262,208 +337,12 @@ def conjugate_verb_type1(pres1sg, perf1sg, supinum, inf, ja, tags):
     items += conjugate_passive_future_perfect(supinum, tags)
 
     # 命令法
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'ā', None, None, u'āte', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'ātō', u'ātō', None, u'ātōte', u'antō'])
-
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'āre', None, None, u'āminī', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'ātor', u'ātor', None, None, u'antor'])
+    items += conjugate_imperative(type, stem, tags)
 
     # 分詞
     items += conjugate_participle(pres_stem, supinum, tags)
 
-    # print "(1)", util.render(items)
-    return items
-
-
-def conjugate_verb_type2(pres1sg, perf1sg, supinum, inf, ja, tags):
-    # moneō, monuī, monitum, monēre
-    stem = pres1sg[:-2] # mon-
-    pres_stem = stem + u'ē'
-    pf_stem = perf1sg[:-1]
-
-    items = []
-    items += conjugate_infinitive(inf, pf_stem, supinum, ja, tags)
-
-    # 現在
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
-                       [u'eō', u'ēs', u'et', u'ēmus', u'ētis', u'ent'])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present'}),
-                       [u'eor', (u'ēris', u'ēre'), u'ētur', u'ēmur', u'ēminī', u'entur'])
-
-    # 能動態 完了
-    items += conjugate_perfect(pf_stem, tags)
-    items += conjugate_past_perfect(pf_stem, tags)
-    items += conjugate_future_perfect(pf_stem, tags)
-    # 未完了
-    items += conjugate_imperfect(pres_stem, tags)
-    # 未来
-    items += conjugate_future_12(pres_stem, tags)
-
-    # 受動態
-    items += conjugate_passive_perfect(supinum, tags)
-    items += conjugate_passive_past_perfect(supinum, tags)
-    items += conjugate_passive_future_perfect(supinum, tags)
-
-    # 命令法
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'ē', None, None, u'ēte', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'ētō', u'ētō', None, u'ētōte', u'entō'])
-
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'ēre', None, None, u'ēminī', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'ētor', u'ētor', None, None, u'entor'])
-
-    # 分詞
-    items += conjugate_participle(pres_stem, supinum, tags)
-
-    # print "(2)", util.render(items)
-    return items
-
-
-def conjugate_verb_type3A(pres1sg, perf1sg, supinum, inf, ja, tags):
-    # regō, rēxī, rēctum, regere
-    stem = pres1sg[:-1] # reg-
-    pres_stem = stem + u'ē'
-    pf_stem = perf1sg[:-1] # rēx-
-
-    items = []
-    items += conjugate_infinitive(inf, pf_stem, supinum, ja, tags, typeIII=True)
-
-    # 現在
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
-                       [u'ō', u'is', u'it', u'imus', u'itis', u'unt'])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present'}),
-                       [u'or', (u'eris', u'ere'), u'itur', u'imur', u'iminī', u'untur'])
-
-    # 能動態 完了
-    items += conjugate_perfect(pf_stem, tags)
-    items += conjugate_past_perfect(pf_stem, tags)
-    items += conjugate_future_perfect(pf_stem, tags)
-    # 未完了
-    items += conjugate_imperfect(pres_stem, tags)
-    # 未来
-    items += conjugate_future_34(pres_stem[:-1], tags)
-
-    # 受動態
-    items += conjugate_passive_perfect(supinum, tags)
-    items += conjugate_passive_past_perfect(supinum, tags)
-    items += conjugate_passive_future_perfect(supinum, tags)
-
-    # 命令法
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'e', None, None, u'ite', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'itō', u'itō', None, u'itōte', u'untō'])
-
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'ere', None, None, u'iminī', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'itor', u'itor', None, None, u'untor'])
-
-    # 分詞
-    items += conjugate_participle(pres_stem, supinum, tags)
-
-    # print "(3a)", util.render(items)
-    return items
-
-
-def conjugate_verb_type3B(pres1sg, perf1sg, supinum, inf, ja, tags):
-    # capiō, cēpī, captum, capere
-    stem = pres1sg[:-2] # cap-
-    pres_stem = stem + u'iē'
-    pf_stem = perf1sg[:-1] # cēp-
-
-    items = []
-    items += conjugate_infinitive(inf, pf_stem, supinum, ja, tags, typeIII=True)
-
-    # 現在
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
-                       [u'iō', u'is', u'it', u'imus', u'itis', u'iunt'])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present'}),
-                       [u'ior', (u'eris', u'ere'), u'itur', u'imur', u'iminī', u'iuntur'])
-
-    # 能動態 完了
-    items += conjugate_perfect(pf_stem, tags)
-    items += conjugate_past_perfect(pf_stem, tags)
-    items += conjugate_future_perfect(pf_stem, tags)
-    # 未完了
-    items += conjugate_imperfect(pres_stem, tags)
-    # 未来
-    items += conjugate_future_34(pres_stem[:-1], tags)
-
-    # 受動態
-    items += conjugate_passive_perfect(supinum, tags)
-    items += conjugate_passive_past_perfect(supinum, tags)
-    items += conjugate_passive_future_perfect(supinum, tags)
-
-    # 命令法
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'e', None, None, u'ite', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'itō', u'itō', None, u'itōte', u'iuntō'])
-
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'ere', None, None, u'iminī', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'itor', u'itor', None, None, u'iuntor'])
-
-    # 分詞
-    items += conjugate_participle(pres_stem, supinum, tags)
-
-    # print "(3b)", util.render(items)
-    return items
-
-
-def conjugate_verb_type4(pres1sg, perf1sg, supinum, inf, ja, tags):
-    # audiō, audīvī, audītum, audīre
-    stem = pres1sg[:-2] # aud-
-    pres_stem = stem + u'iē'
-    pf_stem = perf1sg[:-1] # audīv-
-
-    items = []
-    items += conjugate_infinitive(inf, pf_stem, supinum, ja, tags)
-
-    # 現在
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
-                       [u'iō', u'īs', u'īt', u'īmus', u'ītis', u'iunt'])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
-                       [u'ior', (u'īris', u'īre'), u'ītur', u'īmur', u'īminī', u'iuntur'])
-
-    # 能動態 完了
-    items += conjugate_perfect(pf_stem, tags)
-    items += conjugate_past_perfect(pf_stem, tags)
-    items += conjugate_future_perfect(pf_stem, tags)
-    # 未完了
-    items += conjugate_imperfect(pres_stem, tags)
-    # 未来
-    items += conjugate_future_34(pres_stem[:-1], tags)
-
-    # 受動態
-    items += conjugate_passive_perfect(supinum, tags)
-    items += conjugate_passive_past_perfect(supinum, tags)
-    items += conjugate_passive_future_perfect(supinum, tags)
-
-    # 命令法
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'ī', None, None, u'īte', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'ītō', u'ītō', None, u'ītōte', u'iuntō'])
-
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present', 'mood':'imperative'}),
-                       [None, u'īre', None, None, u'īminī', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future', 'mood':'imperative'}),
-                       [None, u'ītor', u'ītor', None, None, u'iuntor'])
-
-    # 分詞
-    items += conjugate_participle(pres_stem, supinum, tags)
-
-    # print "(4)", util.render(items)
+    # print "(%s) %s" % (type, util.render(items))
     return items
 
 
@@ -511,25 +390,14 @@ def load_verbs(file):
                 ja = fs[2]
 
             tags = {'pos':'verb', 'pres1sg':pres1sg, 'ja':ja, 'type':type}
-            args = (pres1sg, perf1sg, supinum, inf, ja, tags)
 
             if type == CONJ_1:
                 stem = pres1sg[:-1]
                 if perf1sg is None: perf1sg = stem + u'āvī'
                 if supinum is None: supinum = stem + u'ātum'
                 if inf is None: inf = stem + u'āre'
-                args = (pres1sg, perf1sg, supinum, inf, ja, tags)
-                table = conjugate_verb_type1(*args)
-            elif type == CONJ_2:
-                table = conjugate_verb_type2(*args)
-            elif type == CONJ_3A:
-                table = conjugate_verb_type3A(*args)
-            elif type == CONJ_3B:
-                table = conjugate_verb_type3B(*args)
-            elif type == CONJ_4:
-                table = conjugate_verb_type4(*args)
-            else:
-                table = []
+
+            table = conjugate_regular_verb(type, pres1sg, perf1sg, supinum, inf, ja, tags)
 
             if len(table) == 0: continue
 

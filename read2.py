@@ -51,16 +51,21 @@ def analyse(sentence):
     l = len(sentence_uc)
 
     def render_info(item):
+        name = {'present':'現在', 'imperfect':'未完了', 'perfect':'完了', 'future':'未来',
+                'active':'能動', 'passive':'受動',
+                'imperative':'命令', 'infinitive':'不定',
+                '-':'-'}
         if item['pos'] == 'noun':
             return '%s %s' % (item['ja'], item.get('cn', "-"))
         elif item['pos'] == 'adj':
             return 'a.%s %s' % (item['ja'], item.get('cn', "-"))
         elif item['pos'] == 'verb':
-            return 'v.%s %s%s %s %s %s' % (item['ja'],
+            return 'v.%s %s%s %s.%s.%s' % (item['ja'],
                                            item['person'], item['number'],
-                                           item.get('tense','-'),
-                                           item.get('voice','-'),
-                                           item.get('mood','-'))
+                                           name[item.get('mood','-')],
+                                           name[item.get('voice','-')],
+                                           name[item.get('tense','-')],
+                                           )
         else:
             return '%s %s %s' % (item['pos'], item['ja'], util.render(item))
 
