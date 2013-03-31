@@ -18,26 +18,26 @@ latindic = {}
 def latindic_register(surface, info):
     if not info.has_key('pos'): return
 
-    if info['pos'] in ('noun', 'pronoun', 'adj'):
-        if info.has_key('gender'):
-            cn = [(info['case'], info['number'], info['gender'])]
-            del info['gender']
-        else:
-            cn = [(info['case'], info['number'])]
-        del info['case']
-        del info['number']
-        info['cn'] = cn
-    else:
-        cn = None
+#    if info['pos'] in ('noun', 'pronoun', 'adj'):
+#        if info.has_key('gender'):
+#            cn = [(info['case'], info['number'], info['gender'])]
+#            del info['gender']
+#        else:
+#            cn = [(info['case'], info['number'])]
+#        del info['case']
+#        del info['number']
+#        info['cn'] = cn
+#    else:
+#        cn = None
 
     if latindic.has_key(surface):
-        merged = False
-        for item in latindic[surface]:
-            if cn is not None and item['pos'] == info['pos'] and item['ja'] == info['ja']:
-                item['cn'] += cn
-                merged = True
-        if not merged:
-            latindic[surface].append(info)
+#        merged = False
+#        for item in latindic[surface]:
+#            if cn is not None and item['pos'] == info['pos'] and item['ja'] == info['ja']:
+#                item['cn'] += cn
+#                merged = True
+#        if not merged:
+        latindic[surface].append(info)
     else:
         latindic[surface] = [info]
 

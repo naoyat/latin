@@ -59,16 +59,18 @@ def flatten_1(items):
     return res
 
 def variate(prefix, common_tags, suffices, suffices_tags):
-    def aggregate(a_prefix, a_suffix, suffix_tags):
-        return aggregate_dicts(common_tags, {'surface':a_prefix + a_suffix}, suffix_tags)
+    # def aggregate(a_prefix, a_suffix, suffix_tags):
+    #    return aggregate_dicts(common_tags, {'surface':a_prefix + a_suffix}, suffix_tags)
 
     def combine1(prefix, suffix, suffix_tags):
         if suffix is None:
             return []
         elif isinstance(suffix, tuple) or isinstance(suffix, list):
-            return [aggregate(prefix, a_suffix, suffix_tags) for a_suffix in suffix]
+            return [aggregate_dicts(common_tags, {'surface':prefix + a_suffix}, suffix_tags) for a_suffix in suffix]
+            # return [aggregate(prefix, a_suffix, suffix_tags) for a_suffix in suffix]
         else:
-            return aggregate(prefix, suffix, suffix_tags)
+            return aggregate_dicts(common_tags, {'surface':prefix + suffix}, suffix_tags)
+            # return aggregate(prefix, suffix, suffix_tags)
 
     def combine2(suffix, suffix_tags):
         return combine1(prefix, suffix, suffix_tags)
@@ -79,3 +81,35 @@ def variate(prefix, common_tags, suffices, suffices_tags):
         items = map(combine2,         suffices, suffices_tags)
 
     return flatten_1(items)
+
+
+# noun, pronoun, adj.
+def aggregate_cases(items):
+    tmp = {}
+
+    for item in items:
+        surface = item['surface']
+        ja = item['ja']
+
+        if item.has_key('gender'):
+            cases_and_numbers = [(item['case'], item['number'], item['gender'])]
+            del item['gender']
+        else:
+            cases_and_numbers = [(item['case'], item['number'])]
+        del item['case']
+        del item['number']
+
+        if not tmp.has_key(surface):
+            tmp[surface] = {}
+
+        if tmp[surface].has_key(ja):
+            tmp[surface][ja]['_'] += cases_and_numbers
+        else:
+            item['_'] = cases_and_numbers
+            tmp[surface][ja] = item
+
+    result = []
+    for surface,sub in tmp.items():
+        result += [items for ja,items in sub.items()]
+
+    return result

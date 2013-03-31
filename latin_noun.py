@@ -231,6 +231,7 @@ def load_nouns(file):
 
             if len(table) == 0: continue
 
+            table = util.aggregate_cases(table)
 #            # printing table
 #            maxlen = max([len(item['surface']) for item in table])
 #            casename = ['Nom','Voc','Acc','Gen','Dat','Abl']

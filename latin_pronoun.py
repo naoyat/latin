@@ -39,7 +39,7 @@ def ego():
     items += [util.aggregate_dicts({'surface':u'tibī'}, common_tags, latin_noun.case_tags_5x2[3])]
     items += [util.aggregate_dicts({'surface':u'vestrum'}, common_tags, latin_noun.case_tags_5x2[7])]
 
-    return items
+    return util.aggregate_cases(items)
 
 
 # <28> 所有代名詞
@@ -57,7 +57,8 @@ def meus():
 
     items = util.remove_matched_items(items, {'surface':u'mee'})
     items += [{'case':'Voc', 'number':'sg', 'gender':'m', 'base':u'meus', 'surface':u'mī', 'ja':'私の', 'desc':'所有形容詞'}]
-    return items
+
+    return util.aggregate_cases(items)
 
 
 # <29> 再帰代名詞
@@ -87,7 +88,7 @@ def ipse():
     common_tags['gender'] = 'n'
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2)
 
-    return items
+    return util.aggregate_cases(items)
 
 
 # <32> 指示詞
@@ -114,7 +115,7 @@ def is_ea_id():
     common_tags['gender'] = 'n'
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2)
 
-    return items
+    return util.aggregate_cases(items)
 
 
 # <34> hic,haec,hoc「この、これ」（英:this）
@@ -138,7 +139,8 @@ def hic():
     common_tags['gender'] = 'n'
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2)
 
-    return items
+    return util.aggregate_cases(items)
+
 
 # <35> ille,illa,illud「あの、あれ」（英:that）
 def ille():
@@ -161,7 +163,8 @@ def ille():
     common_tags['gender'] = 'n'
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2)
 
-    return items
+    return util.aggregate_cases(items)
+
 
 # <36> idem,eadem,idem「同じ」（英:the same）
 def idem():
@@ -184,7 +187,7 @@ def idem():
     common_tags['gender'] = 'n'
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2)
 
-    return items
+    return util.aggregate_cases(items)
 
 
 # <37> 関係代名詞 quī, quae, quod
@@ -203,7 +206,7 @@ def qui():
              u'quae', u'quae', u'quōrum', u'quibus', u'quibus']
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'n'})
 
-    return items
+    return util.aggregate_cases(items)
 
 
 # <38> 疑問代名詞 quis, quid
@@ -223,11 +226,7 @@ def quis():
              u'quae', u'quae', u'quōrum', u'quibus', u'quibus']
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2)
 
-    return items
-
-
-
-
+    return util.aggregate_cases(items)
 
 
 # <41> quisque「各人(の)」(単数のみ) (英:each, every)
@@ -248,7 +247,8 @@ def quisque():
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5sg, {'gender':'f'})
     forms = [u'quodque', u'quodque', u'cūjusque', u'cuīque', u'quōque']
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5sg, {'gender':'n'})
-    return items
+
+    return util.aggregate_cases(items)
 
 
 # <42> quīdam「或る(人,物)」(英:certain)
@@ -266,7 +266,8 @@ def quidam():
              u'quīdam', u'quōsdam', u'quōrundam', u'quibusdam', u'quibusdam']
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2, {'gender':'n'})
     # quiddam<代名詞> -> quoddam<形容詞>
-    return items
+
+    return util.aggregate_cases(items)
 
 
 def load():

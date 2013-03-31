@@ -55,9 +55,9 @@ def analyse(sentence):
                 'imperative':'命令', 'infinitive':'不定',
                 '-':'-'}
         if item['pos'] == 'noun':
-            return '%s %s' % (item['ja'], item.get('cn', "-"))
+            return '%s %s' % (item['ja'], item.get('_', "-"))
         elif item['pos'] == 'adj':
-            return 'a.%s %s' % (item['ja'], item.get('cn', "-"))
+            return 'a.%s %s' % (item['ja'], item.get('_', "-"))
         elif item['pos'] == 'verb':
             return 'v.%s %s%s %s.%s.%s' % (item['ja'],
                                            item['person'], item['number'],

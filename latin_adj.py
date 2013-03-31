@@ -210,6 +210,8 @@ def load_adjs(file):
                 continue
 
             table = decline_adj(*args)
+            table = util.aggregate_cases(table)
+
             # pp_adj_declension(table)
             for item in table:
                 latin.latindic_register(item['surface'], item)

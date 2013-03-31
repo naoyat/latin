@@ -267,6 +267,7 @@ def conjugate_imperative(type, stem, tags):
 
     return items
 
+
 def conjugate_regular_verb(type, pres1sg, perf1sg, supinum, inf, ja, tags):
     if type == CONJ_1:
         # amō, amāvī, amātum, amāre; amā-
