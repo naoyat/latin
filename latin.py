@@ -18,8 +18,12 @@ latindic = {}
 def latindic_register(surface, info):
     if not info.has_key('pos'): return
 
-    if info['pos'] in ('noun', 'adj'):
-        cn = [(info['case'], info['number'])]
+    if info['pos'] in ('noun', 'pronoun', 'adj'):
+        if info.has_key('gender'):
+            cn = [(info['case'], info['number'], info['gender'])]
+            del info['gender']
+        else:
+            cn = [(info['case'], info['number'])]
         del info['case']
         del info['number']
         info['cn'] = cn

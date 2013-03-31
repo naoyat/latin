@@ -22,6 +22,8 @@ def render(obj):
         return "'" + obj.encode('utf-8') + "'"
     elif klass == 'list':
         return '[' + ',\n '.join(map(render, obj)) + ']'
+    elif klass == 'tuple':
+        return '(' + ', '.join(map(render, obj)) + ')'
     elif klass == 'dict':
         return '{' + ', '.join(dict_map(render2, obj)) + '}'
     else:

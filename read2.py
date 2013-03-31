@@ -8,6 +8,8 @@ import latin
 import latin_char
 import latin_noun
 
+import ansi_color
+
 latin.latindic_load()
 
 def lookup(word, is_first=False):
@@ -35,16 +37,13 @@ def analyse(sentence):
         maxlen = max(maxlen, len(word_uc))
         sentence_uc.append(word_uc)
 
-    def pp(info):
-#        if not info.has_key('pos'):
-#            print "NO pos IN", util.render(info)
-#            return "(NO POS)"
-        pos = info['pos']
-        if pos == 'n':
-            cases_ja = [latin_noun.cases_ja[case[0:3]] + case[3:6] for case in info['case'].split('/')]
-            return util.render([pos, info['base'], info['case'], info['gender'], info['ja'], cases_ja])
-        else:
-            return util.render(info)
+#    def pp(info):
+#        pos = info['pos']
+#        if pos == 'n':
+#            cases_ja = [latin_noun.cases_ja[case[0:3]] + case[3:6] for case in info['case'].split('/')]
+#            return util.render([pos, info['base'], info['case'], info['gender'], info['ja'], cases_ja])
+#        else:
+#            return util.render(info)
 
     first = True
 
@@ -67,20 +66,23 @@ def analyse(sentence):
                                            name[item.get('tense','-')],
                                            )
         else:
-            return '%s %s %s' % (item['pos'], item['ja'], util.render(item))
+            info = item.copy()
+            del info['surface']
+            del info['pos']
+            del info['ja']
+            if len(info) > 0:
+                return '%s %s %s' % (item['pos'], item['ja'], util.render(info))
+            else:
+                return '%s %s' % (item['pos'], item['ja'])
 
     for i in xrange(l):
         word = sentence_uc[i]
-        print "    %*s" % (-maxlen, word.encode('utf-8')),
+        print ansi_color.bold((u'    %*s' % (-maxlen, word)).encode('utf-8')),
         # print u"    %*s" % (-maxlen, word),
         c0 = ord(word[0])
         if c0 > 64:
             info = lookup(word, first)
             first = False
-#            if info:
-#                print ', '.join(map(pp, info))
-#            else:
-#                print "(UNKNOWN)"
             if info:
                 print ' | '.join(map(render_info, info))
             else:
