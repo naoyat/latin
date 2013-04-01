@@ -1,0 +1,38 @@
+## Acc/Abl
+in	Acc	〜の中へ,〜の上へ,〜に向かって,〜に対して
+sub	Acc	〜の下へ,〜のもとへ
+in	Abl	〜の中で,〜の上で
+sub	Abl	〜の下で,〜のもとで
+
+## Acc
+ad	Acc	〜の方へ,〜のところまで
+ante	Acc	〜の前に,〜以前に
+apud	Acc	〜の家で,〜のもとで
+circum	Acc	〜のまわりに
+circā	Acc	〜のまわりに
+contrā	Acc	〜に対抗して,〜に反して
+extrā	Acc	〜の外側で,〜の外へ
+praeter	Acc	〜の傍らをすぎて,〜に反して
+prope	Acc	〜の近くで
+propter	Acc	〜の近くで,〜のゆえに
+īnfrā	Acc	〜の下方へ,〜に劣って
+inter	Acc	〜の間に
+intrā	Acc	〜の内側で,〜の中へ
+ob	Acc	〜の前へ,〜ゆえに,〜の代わりに
+per	Acc	〜を通って,〜を通じて,〜により
+post	Acc	〜のうしろで,〜以後
+suprā	Acc	〜の上方に,〜をこえて
+trāns	Acc	〜をこえて,〜を通過して
+ultrā	Acc	〜の向こうに,〜をこえて
+
+## Abl
+ā	Abl	〜から(離れて),〜によって
+ab	Abl	〜から(離れて),〜によって
+# ā 子音 / ab 母音
+cum	Abl	〜とともに,〜をもって
+dē	Abl	〜から(離れて)下へ,〜について
+ē	Abl	〜(の中)から外へ
+ex	Abl	〜(の中)から外へ
+prae	Abl	〜の前に,〜のあまり,〜に比して
+prō	Abl	〜の前に,〜のために,〜の代わりに
+sine	Abl	〜なしに
