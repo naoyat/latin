@@ -9,7 +9,9 @@ def tuple_map(proc, d):
 
 def aggregate_dicts(*dicts):
     dic = {}
-    for d in dicts: dic.update(d)
+    for d in dicts:
+        # print d
+        if len(d) > 0: dic.update(d)
     return dic
 
 def render(obj):

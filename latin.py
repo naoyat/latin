@@ -6,7 +6,8 @@ import latin_pronoun
 import latin_adj
 import latin_conj
 import latin_prep
-import latin_verb
+import latin_verb_reg
+import latin_verb_irreg
 
 import util
 
@@ -75,7 +76,8 @@ def latindic_load():
     latin_adj.load()
     latin_conj.load()
     latin_prep.load()
-    latin_verb.load()
+    latin_verb_reg.load()
+    latin_verb_irreg.load()
     load_def('words/adv.def', {'pos':'adv'})
     load_def('words/other.def')
 

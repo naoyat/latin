@@ -232,13 +232,6 @@ def load_nouns(file):
             if len(table) == 0: continue
 
             table = util.aggregate_cases(table)
-#            # printing table
-#            maxlen = max([len(item['surface']) for item in table])
-#            casename = ['Nom','Voc','Acc','Gen','Dat','Abl']
-#            for y in xrange(6):
-#                line = u"%s: %-*s   %-*s" % (casename[y], maxlen, table[y]['surface'], maxlen, table[y+6]['surface'])
-#                print line.encode('utf-8')
-#            print
 
             for item in table:
                 # print "noun>", util.render(item)
