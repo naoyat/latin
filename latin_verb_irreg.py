@@ -40,15 +40,16 @@ def conjugate_verb_sum(prefix=u'', ja=''):
 
     inf = prefix + u'esse'
     pres_stem = prefix + u'et'
-    pf_stem = prefix + u'fu'
+    perf1sg = prefix + u'fuī'
+    pf_stem = perf1sg[:-1]
 
     items = []
     items += conjugate('', util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'present'}),
                        [inf], [{}])
-    items += conjugate('', util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'perfect'}),
-                       [pf_stem + u'isse'], [{}])
-    items += conjugate('', util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'perfect'}),
-                       [pf_stem + u'tūrus esse'], [{}])
+    items += conjugate(pf_stem, util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'perfect'}),
+                       [u'isse'], [{}])
+    items += conjugate(pf_stem, util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'perfect'}),
+                       [u'tūrus esse'], [{}])
 
     # 能動態 現在・過去・未来
     items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
@@ -59,9 +60,23 @@ def conjugate_verb_sum(prefix=u'', ja=''):
                        [u'erō', u'eris', u'erit', u'erimus', u'eritis', u'erunt'])
 
     # 能動態 完了
-    items += conjugate_perfect(pf_stem, tags)
-    items += conjugate_past_perfect(pf_stem, tags)
-    items += conjugate_future_perfect(pf_stem, tags)
+    items += conjugate_perfect(perf1sg, tags)
+    items += conjugate_past_perfect(perf1sg, tags)
+    items += conjugate_future_perfect(perf1sg, tags)
+
+    # 接続法
+    items += conjugate(prefix,
+                       util.aggregate_dicts(tags, {'mood':'subjunctive', 'voice':'active', 'tense':'present'}),
+                       [u'sim', u'sīs', u'sit', u'sīmus', u'sītis', u'sint'])
+    items += conjugate(prefix,
+                       util.aggregate_dicts(tags, {'mood':'subjunctive', 'voice':'active', 'tense':'imperfect'}),
+                       [u'essem', u'essēs', u'esset', u'essēmus', u'essētis', u'essent'])
+    items += conjugate(prefix,
+                       util.aggregate_dicts(tags, {'mood':'subjunctive', 'voice':'active', 'tense':'perfect'}),
+                       [u'fuerim', u'fueris', u'fuerit', u'fuerimus', u'fueritis', u'fuerint'])
+    items += conjugate(prefix,
+                       util.aggregate_dicts(tags, {'mood':'subjunctive', 'voice':'active', 'tense':'past-perfect'}),
+                       [u'fuissem', u'fuissēs', u'fuisset', u'fuissēmus', u'fuissētis', u'fuissent'])
 
     # 命令形
     items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present', 'mood':'imperative'}),
@@ -73,44 +88,6 @@ def conjugate_verb_sum(prefix=u'', ja=''):
     items += conjugate_participle(u'sē', u'es##', tags) # no supinum for 'sum'
 
     # print "(sum)", util.render(items)
-    return items
-
-
-def conjugate_imperative(type, stem, tags):
-    items = []
-
-    if type == CONJ_1:
-        long = long0 = u'ā'
-        short = u'a'
-    elif type == CONJ_2:
-        long = long0 = u'ē'
-        short = u'e'
-    elif type == CONJ_3A:
-        long0 = u'e'
-        long = u'i'
-        short = u'u'
-    elif type == CONJ_3B:
-        long0 = u'e'
-        long = u'i'
-        short = u'iu'
-    elif type == CONJ_4:
-        long = long0 = u'ī'
-        short = u'iu'
-
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present', 'mood':'imperative'}),
-                       [None, stem + long0, None,
-                        None, stem + long  + u'te', None])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present', 'mood':'imperative'}),
-                       [None, stem + long0 + u're', None,
-                        None, stem + long  + u'minī', None])
-
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future', 'mood':'imperative'}),
-                       [None, stem + long + u'tō',   stem + long  + u'tō',
-                        None, stem + long + u'tōte', stem + short + u'ntō'])
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future', 'mood':'imperative'}),
-                       [None, stem + long + u'tor', stem + long + u'tor',
-                        None, None,                 stem + short + u'ntor'])
-
     return items
 
 

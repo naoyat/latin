@@ -30,6 +30,9 @@
 1	sententia	f	意見,考え
 1	misericordia	f	慈悲,憐憫
 1	porta	f	扉
+1	victima	f	犠牲,被害者
+1	mora	f	遅れ,間
+1	vespera	f	夕刻
 
 2	templum	n	神殿
 2	bellum	n	戦争
@@ -46,6 +49,8 @@
 2	mōnstrum	n	怪物
 2	medium	n	真ん中
 2	fīlum	n	糸
+2	auxilium	n	助け,援助,救助
+2	aedificium	n	建物
 
 2	dominus	m	主,主人
 2	amīcus	m	友人
@@ -65,6 +70,7 @@
 2	rēgulus	m	王子
 2	Tenedus	m	テネドス
 2	gladius	m	剣
+2	Naxus	m	ナクソス
 
 2	ager	agrī	m	畑
 2	liber	librī	m	本
@@ -106,6 +112,8 @@
 3-ium	cubīle	cubīlis	n	寝台
 3-ium	exemplar	exemplāris	n	模範
 
+3-ium	mare	maris	n	海
+
 # III -um (a)
 3-um	dux	ducis	m	指導者
 3-um	nātiō	nātiōnis	f	国民
@@ -142,6 +150,7 @@
 
 # 3-um	plūs	plūris	n	(より多くの,沢山の)
 3-um	laus	laudis	f	称賛,名誉,名声
+3-um	hūmānitās	hūmānitātis	f	人間性,親切
 
 3-um	Agamemnōn	Agamemnonis	m	アガメムノン
 3-um	Agamemnō	Agamemnonis	m	アガメムノン
@@ -151,8 +160,8 @@
 
 3-um	mōs	mōris	m	意思,習慣,性格
 3-um	flōs	flōris	f	花
-
 3-um	odor	odōris	m	匂い,香り
+3-um	vesper	vesperis	m	夕方
 
 4	manus	manūs	f	手
 4	cornū	cornūs	n	角(つの)

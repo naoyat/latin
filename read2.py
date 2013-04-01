@@ -31,9 +31,10 @@ def lookup(word):
 
 
 def render_info(item):
-    name = {'present':'現在', 'imperfect':'未完了', 'perfect':'完了', 'future':'未来',
+    name = {'indicative':'直接法', 'subjunctive':'接続法', 'imperative':'命令法', 'infinitive':'不定法',
+            'present':'現在', 'imperfect':'未完了', 'perfect':'完了', 'future':'未来',
+            'past-perfect': '過去完了',
             'active':'能動', 'passive':'受動',
-            'imperative':'命令', 'infinitive':'不定',
             '-':'-'}
     pos = item['pos']
     if pos == 'noun':
@@ -82,7 +83,7 @@ def prep_constraint(res):
             possible_cases = actual.intersection(doms)
 
             # constrain
-            if possible_cases != []:
+            if len(possible_cases) > 0:
                 def filter_prep(item):
                     if item['pos'] != 'preposition': return True
                     return (item['dominates'] in possible_cases)
@@ -104,11 +105,31 @@ def analyse_sentence(sentence):
     # string(utf-8) --> unicode
     sentence_uc = [word.decode('utf-8') for word in sentence]
 
+    res = []
+    l = len(sentence_uc)
+    i = 0
+    maxlen_uc = 0
+    while i < l:
+        word = sentence_uc[i]
+        if i < l-1:
+            word2 = word + u' ' + sentence_uc[i+1]
+            lu2 = lookup(word2)
+            # print "word2:", word2.encode('utf-8'), util.render(lu2)
+            if lu2 is not None and len(lu2) > 0:
+                res.append([word2, lu2])
+                maxlen_uc = max(maxlen_uc, len(word2))
+                i += 2
+                continue
+        lu = lookup(word)
+        res.append([word, lu])
+        maxlen_uc = max(maxlen_uc, len(word))
+        i += 1
+
     # （表示の都合で）単語の最大長を得ておく
-    maxlen_uc = max(map(len, sentence_uc))
+    # maxlen_uc = max(map(len, sentence_uc))
 
     # lookupした結果。{wc} = [[word1, [item1, item2, ...]], [word2, [...] ], ...]
-    res = map(lambda word:[word, lookup(word)], sentence_uc) # 上書きするのでtupleでは駄目
+    # res = map(lambda word:[word, lookup(word)], sentence_uc) # 上書きするのでtupleでは駄目
 
     # 前置詞の各支配を利用して絞り込む
     res = prep_constraint(res)

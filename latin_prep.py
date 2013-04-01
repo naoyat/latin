@@ -12,7 +12,9 @@ def load_preps(file):
             fs = line.rstrip().split()
             if len(fs) != 3: continue
 
-            word, dom, ja = fs
+            word = fs[0].decode('utf-8')
+            dom = fs[1]
+            ja = fs[2]
             latin.latindic_register(word, {'pos':'preposition', 'surface':word, 'base':word, 'dominates':dom, 'ja':ja})
 
 def load():

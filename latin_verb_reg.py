@@ -129,8 +129,6 @@ def conjugate_imperfect(type, pres1sg, tags={}):
         stem = pres1sg[:-2] + u'iē'
     elif type == CONJ_4:
         stem = pres1sg[:-2] + u'iē'
-    else:
-        return []
 
     return conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'imperfect'}),
                      [u'bam', u'bās', u'bat', u'bāmus', u'bātis', u'bant']) + \
@@ -202,6 +200,7 @@ def conjugate_passive_perfect_(supinum, sum, tags={}):
             info = {'surface':surface, 'gender':gender, 'person':person, 'number':'pl'}
             items.append( util.aggregate_dicts(info, tags) )
 
+    # util.pp(items)
     return items
 
 def conjugate_passive_perfect(supinum, tags={}):
@@ -284,6 +283,7 @@ def conjugate_subjunctive_passive_perfect_(supinum, sum, tags={}):
             info = {'surface':surface, 'gender':gender, 'person':person, 'number':'pl'}
             items.append( util.aggregate_dicts(info, tags) )
 
+    # util.pp(items)
     return items
 
 def conjugate_subjunctive_passive_perfect(supinum, tags={}):
@@ -406,7 +406,7 @@ def conjugate_participle(pres_stem, supinum, tags={}):
                                          util.aggregate_dicts(tags, {'pos':'participle', 'tense':'past',
                                                                      'ja':ja+'+された'}))
 
-    return items
+    return util.aggregate_cases(items)
 
 
 #

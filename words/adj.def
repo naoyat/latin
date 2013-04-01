@@ -13,7 +13,7 @@
 1	Trōjānus	トロヤの
 1	Graecus	ギリシアの
 1	Atticus	アッティカの
-1	nōtus	知られている
+#1	nōtus	知られている
 1	flexuōsus	曲がりくねった
 1	Rōmānus	ローマの
 1	foedus	醜い,恐ろしい
@@ -21,6 +21,14 @@
 1	mīrus	素晴らしい
 1	miserandus	かわいそうな,残念な
 1	sōlus	孤独な,唯一の,孤立した
+1	vastus	空の,誰もいない,荒涼とした
+1	certus	確かな,決まった
+1	fīdus	誠実な,忠実な,頼りになる
+1	saevus	激怒した
+1	captīvus	捕らわれた,捕虜である
+#1	flexus	曲がった,屈折した
+1	lātus	広い,大きい
+1	hūmānus	人間の,人間味のある
 
 1	līber	lībera	līberum	自由な
 1	miser	misera	miserum	みじめな
