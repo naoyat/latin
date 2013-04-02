@@ -140,9 +140,19 @@ def analyse_sentence(sentence):
         # util.pp(items)
         return any([item['pos'] == 'verb' for item in items])
 
+    def say_verb(verb_item):
+#        return ansi_color.underline(verb_item.encode('utf-8')) + ' (' + verb_item['ja'] + ')'
+        return ansi_color.underline(verb_item[0].encode('utf-8')) + ' (' + verb_item[1][0]['ja'] + ')'
+
     verbs = filter(is_verb, res)
-    print "%d verb(s):" % len(verbs),
-    print util.render(verbs)
+    num_verbs = len(verbs)
+    if num_verbs == 0:
+        print "no verbs"
+    elif num_verbs == 1:
+        print "1 verb:", say_verb(verbs[0])
+    else:
+        print "%d verbs:" % num_verbs,
+        print ' | '.join(map(say_verb, verbs))
 
     for surface, info in res:
         print ansi_color.bold((u'  %*s ' % (-maxlen_uc, surface)).encode('utf-8')),
