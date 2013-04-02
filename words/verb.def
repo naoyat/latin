@@ -1,3 +1,5 @@
+# A=ā E=ē I=ī O=ō U=ū Y=ȳ
+
 # amō amāvī amātum amāre
 1	amō	愛する
 1	dēlectō	喜ばす
@@ -21,15 +23,17 @@
 1	oppūgnō	襲う,襲撃する
 1	occupō	先取りする,占有する
 1	obtemperō	従う
-1	tractō	引っ張る,触れる
+1	tractō	引っ張る,触れる,扱う
 1	adligō	結びつける,繋ぐ
 1	alligō	結びつける,繋ぐ
-1	mando	委ねる,託す,預ける
+1	mandō	委ねる,託す,預ける
 
 1	ōrnō	備える,飾る
 1	necō	殺す,滅ぼす
 1	servō	観察する,注意を払う,保存する
 1	notō	印をつける,指し示す
+1	errō	さまよう,ぶらつく,道を間違える
+1	cantō	歌う
 
 1	dō	dedī	datum	dare	与える
 
@@ -64,6 +68,7 @@
 3a	dēserō	dēseruī	dēsertum	dēcere	別れる,棄てる,見捨てる
 3a	flectō	flexī	flexum	flectere	曲げる,心を動かす
 3a	noscō	nōvī	nōtum	noscere	教わる,知る,学ぶ,習得する
+3a	trahō	traxī	tractum	trahere	引く,引っ張る,引き締めるo
 
 #3B
 3b	capiō	cēpī	captum	capere	捕える
@@ -88,17 +93,4 @@
 4	reperiō	repperī	repertum	reperīre	見つける
 4	sentiō	sēnsī	sēnsum	sentīre	思う
 
-# 4	redeō	rediī	reditum	redīre	帰る,戻る
-
-#	placent
-#	nōtī
-#	interrogāvī
-#	prob
-#	occupāta
-#	tractāvit
-#	sit
-#	servat
-#	mediō
-#	fuit
-#	dēvorābat
-#	aedificiī
+#4	redeō	rediī	reditum	redīre	帰る,戻る

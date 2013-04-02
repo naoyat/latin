@@ -1,3 +1,5 @@
+# A=ā E=ē I=ī O=ō U=ū Y=ȳ
+
 # bonus bona bonum
 1	bonus	良い
 1	malus	悪い
@@ -29,6 +31,9 @@
 #1	flexus	曲がった,屈折した
 1	lātus	広い,大きい
 1	hūmānus	人間の,人間味のある
+1	ingrātus	不愉快な,恩知らずな
+1	medius	真ん中の,中心の,半ばの
+1	herbōsus	草の生い茂った
 
 1	līber	lībera	līberum	自由な
 1	miser	misera	miserum	みじめな
@@ -72,5 +77,4 @@
 # vetus : Abl=vetere
 2	vetus	veteris	-	古い,老いた
 2	dīves	dīvitis	-	富める
-
 

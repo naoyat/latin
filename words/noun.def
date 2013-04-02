@@ -1,3 +1,5 @@
+# A=ā E=ē I=ī O=ō U=ū Y=ȳ
+
 1	rosa	f	バラ
 1	aqua	f	水
 1	vīta	f	人生
@@ -33,6 +35,7 @@
 1	victima	f	犠牲,被害者
 1	mora	f	遅れ,間
 1	vespera	f	夕刻
+1	Mycēna	f	ミュケナイ
 
 2	templum	n	神殿
 2	bellum	n	戦争
@@ -51,6 +54,10 @@
 2	fīlum	n	糸
 2	auxilium	n	助け,援助,救助
 2	aedificium	n	建物
+2	exemplum	n	例,サンプル
+2	praesidium	n	守備,護衛
+2	prātum	n	牧場,草原,野原
+2	frūmentum	n	麦の粒,穀粒,穀物
 
 2	dominus	m	主,主人
 2	amīcus	m	友人
@@ -148,20 +155,30 @@
 3-um	juvenis	juvenis	m	若者
 3-um	nāvis	nāvis	f	船
 
+3-um	fortitūdō	fortitūdinis	f	力,勇気
+3-um	māgnitūdō	māgnitūdinis	f	大きさ,偉大さ,多量,重要性
+#3-um	nēmō	nēminis	m	誰も〜ない
+3-um	ratiō	ratiōnis	f	計算,方法,理屈,分野
+3-um	commūtātio	commūtātiōnis	f	変化,変異
+3-um	Paris	Paridis	m	パリス
+
 # 3-um	plūs	plūris	n	(より多くの,沢山の)
 3-um	laus	laudis	f	称賛,名誉,名声
 3-um	hūmānitās	hūmānitātis	f	人間性,親切
 
-3-um	Agamemnōn	Agamemnonis	m	アガメムノン
-3-um	Agamemnō	Agamemnonis	m	アガメムノン
-3-um	Myrmidōn	Myrmidonis	m	ミュルミドン
+3-um	Agamemnōn	Agamemnonis	m	アガメムノーン
+3-um	Agamemnō	Agamemnonis	m	アガメムノーン
+3-um	Myrmidōn	Myrmidonis	m	ミュルミドーン
 3-um	Hector	Hectoris	m	ヘクトル
 3-um	Nestor	Nestoris	m	ネストル
+3-um	Cerēs	Cereris	m	ケレース
+
 
 3-um	mōs	mōris	m	意思,習慣,性格
 3-um	flōs	flōris	f	花
 3-um	odor	odōris	m	匂い,香り
 3-um	vesper	vesperis	m	夕方
+3-um	plūs	plūris	n	より多く
 
 4	manus	manūs	f	手
 4	cornū	cornūs	n	角(つの)
@@ -176,7 +193,9 @@
 4	fructus	fructūs	m	果実
 4	gradus	gradūs	m	階段,段階
 
-4	Ariadnē	Ariadnēs	f	アリアドネ(ミノスの娘)
+4	Ariadnē	Ariadnēs	f	アリアドネー(ミノスの娘)
+4	Mycēnē	Mycēnēs	f	ミュケーナイ
+4	Persephonē	Persephonēs	f	ペルセポネー
 
 5	diēs	diēī	mf	日,昼
 5	rēs	reī	f	物,事
