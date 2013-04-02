@@ -1,3 +1,5 @@
+#!/usr/bin/env sed -f
+
 s/A/ā/g; # 257
 s/E/ē/g; # 275
 s/I/ī/g; # 299
