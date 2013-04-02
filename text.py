@@ -10,6 +10,8 @@ def word_stream(file):
                     yield word[0]
                     word = word[1:]
 
+                if word == '---': continue
+
                 last_char = word[-1]
                 if not in_sentence:
                     yield "BOS"

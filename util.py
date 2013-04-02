@@ -14,7 +14,7 @@ def aggregate_dicts(*dicts):
         if len(d) > 0: dic.update(d)
     return dic
 
-def render(obj):
+def render(obj, newline=False):
     klass = obj.__class__.__name__
     if klass == 'int':
         return str(obj)
@@ -23,7 +23,10 @@ def render(obj):
     elif klass == 'unicode':
         return "'" + obj.encode('utf-8') + "'"
     elif klass == 'list':
-        return '[' + ',\n '.join(map(render, obj)) + ']'
+        if newline:
+            return '[' + ',\n '.join(map(render, obj)) + ']'
+        else:
+            return '[' + ', '.join(map(render, obj)) + ']'
     elif klass == 'tuple':
         return '(' + ', '.join(map(render, obj)) + ')'
     elif klass == 'dict':

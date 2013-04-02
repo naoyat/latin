@@ -30,7 +30,7 @@ def lookup(word):
     return []
 
 
-def render_info(item):
+def render_item(item):
     name = {'indicative':'直接法', 'subjunctive':'接続法', 'imperative':'命令法', 'infinitive':'不定法',
             'present':'現在', 'imperfect':'未完了', 'perfect':'完了', 'future':'未来',
             'past-perfect': '過去完了',
@@ -51,10 +51,10 @@ def render_info(item):
     elif pos == 'preposition':
         return 'prep<%s> %s' % (item['dominates'], item['ja'])
     else:
-        info = item.copy()
-        del info['surface'], info['pos'], info['ja']
-        if len(info) > 0:
-            return '%s %s %s' % (item['pos'], item['ja'], util.render(info))
+        item_ = item.copy()
+        del item_['surface'], item_['pos'], item_['ja']
+        if len(item_) > 0:
+            return '%s %s %s' % (item['pos'], item['ja'], util.render(item_))
         else:
             return '%s %s' % (item['pos'], item['ja'])
 
@@ -62,11 +62,11 @@ def render_info(item):
 def prep_constraint(res):
     # 前置詞の格支配を制約として可能性を絞り込む
     l = len(res)
-    for i, (word, info) in enumerate(res):
-        if info is None: continue
+    for i, (word, items) in enumerate(res):
+        if items is None: continue
         doms = set()
         non_prep_exists = False
-        for item in info:
+        for item in items:
             if item['pos'] == 'preposition':
                 doms.add(item['dominates'])
             else:
@@ -137,31 +137,69 @@ def analyse_sentence(sentence):
     def is_verb(r):
         word, items = r
         if items is None: return False
-        # util.pp(items)
         return any([item['pos'] == 'verb' for item in items])
 
-    def say_verb(verb_item):
-#        return ansi_color.underline(verb_item.encode('utf-8')) + ' (' + verb_item['ja'] + ')'
-        return ansi_color.underline(verb_item[0].encode('utf-8')) + ' (' + verb_item[1][0]['ja'] + ')'
+#    def say_verb(verb_item):
+#        word, items = verb_item
+#        return ansi_color.underline(word.encode('utf-8')) + ' (' + items[0]['ja'] + ')'
 
     verbs = filter(is_verb, res)
     num_verbs = len(verbs)
-    if num_verbs == 0:
-        print "no verbs"
-    elif num_verbs == 1:
-        print "1 verb:", say_verb(verbs[0])
-    else:
-        print "%d verbs:" % num_verbs,
-        print ' | '.join(map(say_verb, verbs))
+#    if num_verbs == 0:
+#        print "no verbs"
+#    elif num_verbs == 1:
+#        print "1 verb:", say_verb(verbs[0])
+#    else:
+#        print "%d verbs:" % num_verbs,
+#        print ' | '.join(map(say_verb, verbs))
+#    for i, verb in enumerate(verbs):
+#        print "  %d)" % (1+i), util.render(verb)
 
-    for surface, info in res:
-        print ansi_color.bold((u'  %*s ' % (-maxlen_uc, surface)).encode('utf-8')),
-        if info is None:
+    def match_case(item, pos, case):
+        return item['pos'] in pos and item.has_key('_') and any([it[0] == case for it in item['_']])
+    def has_subst_case(items, case):
+        subst = ['noun','pronoun','adj','participle']
+        # return items and any([match_case(item,subst,case) for item in items])
+        if not items: return False
+        elif any([match_case(item,subst,case) for item in items]): return True
+        elif any([item['pos'] == 'preposition' and item['dominates'] == case for item in items]): return True
+        else: return False
+
+    for surface, items in res:
+        is_verb = False
+        if items and any([item['pos'] == 'verb' for item in items]):
+            color = ansi_color.RED
+            is_verb = True
+#        elif items and any([item['pos'] in ['noun','pronoun'] for item in items]):
+        elif has_subst_case(items, 'Nom'):
+            color = ansi_color.BLUE
+        elif has_subst_case(items, 'Acc'):
+            color = ansi_color.BLACK
+        elif has_subst_case(items, 'Gen'):
+            color = ansi_color.GREEN
+        elif has_subst_case(items, 'Abl'):
+            color = ansi_color.YELLOW
+        elif has_subst_case(items, 'Dat'):
+            color = ansi_color.MAGENTA
+        else:
+            color = None # ansi_color.DEFAULT
+
+        text = surface.encode('utf-8')
+#1        print "/%s/ %s" % (text, str(color))
+        # text = (u'%*s' % (-maxlen_uc, surface)).encode('utf-8')
+        if color is not None:
+            text = ansi_color.bold(text, color)
+        if is_verb:
+            text = ansi_color.underline(text)
+
+        print '  ' + text + ' '*(maxlen_uc - len(surface) + 1),
+
+        if items is None:
             print
-        elif info == []:
+        elif items == []:
             print '(?)'
         else:
-            print ' | '.join(map(render_info, info))
+            print ' | '.join(map(render_item, items))
 
     print
 

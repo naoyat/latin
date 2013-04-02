@@ -57,8 +57,11 @@ ANSI_BGCOLOR_CYAN     = esc(BGCOLOR_OFFSET + CYAN)
 ANSI_BGCOLOR_WHITE    = esc(BGCOLOR_OFFSET + WHITE)
 ANSI_BGCOLOR_DEFAULT  = esc(BGCOLOR_OFFSET + DEFAULT)
 
-def bold(text):
-    return ANSI_BOLD_ON + text + ANSI_BOLD_OFF
+def bold(text, color=ANSI_FGCOLOR_DEFAULT):
+    if color == ANSI_FGCOLOR_DEFAULT:
+        return ANSI_BOLD_ON + text + ANSI_BOLD_OFF
+    else:
+        return ANSI_BOLD_ON + fgcolor(color, text) + ANSI_BOLD_OFF
 
 def italics(text):
     return ANSI_ITALICS_ON + text + ANSI_ITALICS_OFF
