@@ -37,7 +37,7 @@ latin_conjs_1 = [
     (u'vēro', 'しかし'),
     (u'at', 'これに反して'),
     (u'atquī', 'しかしそれでも'),
-    (u'tamen', 'それでも'),
+    (u'tamen', 'しかしながら,それでも'), # cependant
 
     # (4) 因由（原因・理由）
     (u'nam', 'というのは,すなわち'),
@@ -46,12 +46,12 @@ latin_conjs_1 = [
     (u'etenim', 'というのは,すなわち'),
 
     # (5) 結果
-    (u'itaque', '従って'),
-    (u'igitur', '従って'),
-    (u'ergō', '従って'),
-    (u'ideō', 'それゆえ'),
-    (u'quamobrem', 'それゆえ'),
-    (u'quārē', 'それゆえ'),
+    (u'itaque', 'こうして,だから,それ故に'), # et ainsi, et de cette maniere; donc, aussi, ainsi donc, 従って,だから
+    (u'igitur', 'そこで,だから,こうして'), # dans ces circonstances, alors
+    (u'ergō', 'それ故に,従って'), # a cause de ; donc, ainsi donc, par consequent
+    (u'ideō', 'それゆえ'), # pour cela, pour cette raison, a cause de cela
+    (u'quamobrem', 'なぜ,だから'), # pourquoi, c'est pourquoi
+    (u'quārē', 'どうやって,なぜ'), # par quoi, par quel moyen ? ; pourquoi,
     ]
 
 # <57> 従属接続詞

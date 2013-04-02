@@ -270,6 +270,69 @@ def quidam():
     return util.aggregate_cases(items)
 
 
+def decline_pronominal_adjective(nom_sg, ja):
+    nom_sg_m, nom_sg_f, nom_sg_n = nom_sg
+
+    items = []
+
+    stem1 = nom_sg_m[:-2]
+    stem2 = nom_sg_f[:-1]
+    if stem2 == u'ali':
+        gen_sg = u'alīus'
+    else:
+        gen_sg = stem2 + u'īus'
+    dat_sg = stem2 + u'ī'
+    abl_sg_mn = stem2 + u'ō'
+    abl_sg_f = stem2 + u'ā'
+    dat_abl_pl = stem2 + u'īs'
+
+    tags = {'pos':'pronoun', 'ja':ja}
+
+    forms = [nom_sg_m, stem2 + u'um', gen_sg, dat_sg, abl_sg_mn,
+             stem2 + u'ī', abl_sg_mn + u's', abl_sg_mn + u'rum', dat_abl_pl, dat_abl_pl]
+    items += decline(u'', tags, forms, latin_noun.case_tags_5x2, {'gender':'m'})
+
+    forms = [nom_sg_f, nom_sg_f + u'm', gen_sg, dat_sg, abl_sg_f,
+             nom_sg_f + u'e', abl_sg_f + u's', abl_sg_f + u'rum', dat_abl_pl, dat_abl_pl]
+    items += decline(u'', tags, forms, latin_noun.case_tags_5x2, {'gender':'f'})
+
+    forms = [nom_sg_n, nom_sg_n, gen_sg, dat_sg, abl_sg_mn,
+             nom_sg_f, nom_sg_f, abl_sg_mn + u'rum', dat_abl_pl, dat_abl_pl]
+    items += decline(u'', tags, forms, latin_noun.case_tags_5x2, {'gender':'n'})
+
+    # print ja, util.pp(items)
+    return items
+
+def pronominal_adjectives():
+    items = []
+    items += decline_pronominal_adjective((u'alius', u'alia', u'aliud'), '他の')
+    items += decline_pronominal_adjective((u'tōtus', u'tōta', u'tōtum'), '全体の')
+    items += decline_pronominal_adjective((u'ūnus', u'ūna', u'ūnum'), 'ひとつの') #数詞でもある
+    items += decline_pronominal_adjective((u'sōlus', u'sōla', u'sōlum'), '唯一の')
+    items += decline_pronominal_adjective((u'ūllus', u'ūlla', u'ūllum'), 'どれかひとつの') #any
+    items += decline_pronominal_adjective((u'nūllus', u'nūlla', u'nūllum'), 'ひとつも...ない')
+    items += decline_pronominal_adjective((u'alter', u'altera', u'alterum'), '(2つのうち)どれか一方の')
+    items += decline_pronominal_adjective((u'uter', u'utra', u'utrum'), '(2つのうち)どちらの？,(2つのうち)どちらかの')
+    items += decline_pronominal_adjective((u'neuter', u'neutra', u'neutrum'), '(2つのうち)どちらも...ない')
+
+    items += decline(u'', {},
+                     [u'nihil', u'nihil', (u'nūllīus reī', u'nihilī'), u'nūllī reī', (u'nūllā rē', u'nihilō')],
+                     latin_noun.case_tags_5x2[:5],
+                     {'pos':'pronoun', 'gender':'n', 'ja':'なにも...ない'}) # nothing
+    items += decline(u'', {},
+                     [u'nēmō', u'nēminem', u'nūllīus', u'nēminī', u'nūllō'],
+                     latin_noun.case_tags_5x2[:5],
+                     {'pos':'pronoun', 'gender':'m', 'ja':'だれも...ない'}) # no one, nobody
+    items += decline(u'', {},
+                     [u'nēmō', u'nēminem', u'nūllīus', u'nēminī', u'nūllō'],
+                     latin_noun.case_tags_5x2[:5],
+                     {'pos':'pronoun', 'gender':'f', 'ja':'だれも...ない'}) # no one, nobody
+    # util.pp(items)
+    return items
+
+
 def load():
     items = ego() + meus() + ipse() + is_ea_id() + hic() + ille() + idem() + qui() + quis() + quisque() + quidam()
+    items += pronominal_adjectives()
+
     latin.latindic_register_items(items)
