@@ -473,15 +473,16 @@ def load_verbs(file):
             if len(fs) < 3: continue
 
             type = fs[0]
-            pres1sg = fs[1].decode('utf-8')
             if len(fs) == 6:
-                perf1sg = fs[2].decode('utf-8')
-                supinum = fs[3].decode('utf-8')
-                inf = fs[4].decode('utf-8')
-                ja = fs[5]
+                pres1sg = fs[1].decode('utf-8')
+                inf     = fs[2].decode('utf-8')
+                perf1sg = fs[3].decode('utf-8')
+                supinum = fs[4].decode('utf-8')
+                ja      = fs[5]
             elif len(fs) == 3:
+                pres1sg = fs[1].decode('utf-8')
                 perf1sg = supinum = inf = None
-                ja = fs[2]
+                ja      = fs[2]
 
             tags = {'pos':'verb', 'pres1sg':pres1sg, 'ja':ja, 'type':type}
 

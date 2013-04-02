@@ -35,62 +35,62 @@
 1	errō	さまよう,ぶらつく,道を間違える
 1	cantō	歌う
 
-1	dō	dedī	datum	dare	与える
+1	dō	dare	dedī	datum	与える
 
 #2
-2	moneō	monuī	monitum	monēre	忠告する
-2	maneō	mānsī	mānsum	manēre	とどまる
-2	doceō	docuī	doctum	docēre	教える
-2	moveō	mōvī	mōtum	movēre	動かす
-2	pāreō	pāruī	pāritum	pārēre	現れる,従う
+2	moneō	monēre	monuī	monitum	忠告する
+2	maneō	manēre	mānsī	mānsum	とどまる
+2	doceō	docēre	docuī	doctum	教える
+2	moveō	movēre	mōvī	mōtum	動かす
+2	pāreō	pārēre	pāruī	pāritum	現れる,従う
 
-2	placeō	placuī	placitum	placēre	良いと思う
-2	habeō	habuī	habitum	habēre	持つ,所有する
+2	placeō	placēre	placuī	placitum	良いと思う
+2	habeō	habēre	habuī	habitum	持つ,所有する
 
 #3a
-3a	regō	rēxī	rēctum	regere	支配する
-3a	scrībō	scrīpsī	scrīptum	scrībere	書く
-3a	bibō	bibī	pōtum	bibere	飲む
-3a	vincō	vīcī	vīctum	vincere	勝つ
-3a	fallō	fefelli	falsum	fallere	だます
-3a	canō	cecinī	cantum	canere	歌う
-3a	legō	lēgī	lēctum	legere	読む
-3a	cēdō	cēssī	cēssum	cēdere	移る
-3a	dīcō	dīxī	dictum	dīcere	いう
-3a	laedō	laesī	laesum	laedere	たたく
-3a	lūdō	lūsī	lūsum	lūdere	遊ぶ
-3a	pellō	pepulī	pulsum	pellere	押す
-3a	vīvō	vīxī	vīctūrus	vīvere	生きる
-3a	edō	ēdī	ēsum	edere	食べる
-3a	dūcō	dūxī	ductum	dūcere	導く
-3a	emō	ēmī	emptum	emere	買う
-3a	agō	ēgī	āctum	agere	駆る
-3a	dēserō	dēseruī	dēsertum	dēcere	別れる,棄てる,見捨てる
-3a	flectō	flexī	flexum	flectere	曲げる,心を動かす
-3a	noscō	nōvī	nōtum	noscere	教わる,知る,学ぶ,習得する
-3a	trahō	traxī	tractum	trahere	引く,引っ張る,引き締めるo
+3a	regō	regere	rēxī	rēctum	支配する
+3a	scrībō	scrībere	scrīpsī	scrīptum	書く
+3a	bibō	bibere	bibī	pōtum	飲む
+3a	vincō	vincere	vīcī	vīctum	勝つ
+3a	fallō	fallere	fefelli	falsum	だます
+3a	canō	canere	cecinī	cantum	歌う
+3a	legō	legere	lēgī	lēctum	読む
+3a	cēdō	cēdere	cēssī	cēssum	移る
+3a	dīcō	dīcere	dīxī	dictum	いう
+3a	laedō	laedere	laesī	laesum	たたく
+3a	lūdō	lūdere	lūsī	lūsum	遊ぶ
+3a	pellō	pellere	pepulī	pulsum	押す
+3a	vīvō	vīvere	vīxī	vīctūrus	生きる
+3a	edō	edere	ēdī	ēsum	食べる
+3a	dūcō	dūcere	dūxī	ductum	導く
+3a	emō	emere	ēmī	emptum	買う
+3a	agō	agere	ēgī	āctum	駆る
+3a	dēserō	dēcere	dēseruī	dēsertum	別れる,棄てる,見捨てる
+3a	flectō	flectere	flexī	flexum	曲げる,心を動かす
+3a	noscō	noscere	nōvī	nōtum	教わる,知る,学ぶ,習得する
+3a	trahō	trahere	traxī	tractum	引く,引っ張る,引き締めるo
 
 #3B
-3b	capiō	cēpī	captum	capere	捕える
-3b	fugiō	fūgī	fugitum	fugere	逃げる
-3b	rapiō	rapuī	raptum	rapere	奪う
-3b	cupiō	cupīvī	cupītum	cupere	欲求する
-3b	faciō	fēcī	factum	facere	作る
-3b	accipiō	accēpī	acceptum	accipere	受け取る
-3b	jaciō	jēcī	jactum	jacere	投げる
+3b	capiō	capere	cēpī	captum	捕える
+3b	fugiō	fugere	fūgī	fugitum	逃げる
+3b	rapiō	rapere	rapuī	raptum	奪う
+3b	cupiō	cupere	cupīvī	cupītum	欲求する
+3b	faciō	facere	fēcī	factum	作る
+3b	accipiō	accipere	accēpī	acceptum	受け取る
+3b	jaciō	jacere	jēcī	jactum	投げる
 
 
 #4
-4	audiō	audīvī	audītum	audīre	聞く
-4	vestiō	vestīvī	vestītum	vestīre	着せる
-4	vinciō	vīnxī	vīnctum	vincīre	結ぶ
-4	saliō	saluī	saltum	salīre	跳ぶ
-4	pūniō	pūnīvī	pūnītum	pūnīre	罰する
-4	aperiō	aperuī	apertum	aperīre	開く
-4	veniō	vēnī	ventum	venīre	来る
-4	dormiō	dormīvī	dormītum	dormīre	眠る
+4	audiō	audīre	audīvī	audītum	聞く
+4	vestiō	vestīre	vestīvī	vestītum	着せる
+4	vinciō	vincīre	vīnxī	vīnctum	結ぶ
+4	saliō	salīre	saluī	saltum	跳ぶ
+4	pūniō	pūnīre	pūnīvī	pūnītum	罰する
+4	aperiō	aperīre	aperuī	apertum	開く
+4	veniō	venīre	vēnī	ventum	来る
+4	dormiō	dormīre	dormīvī	dormītum	眠る
 #4	feriō	*	*	ferīre	打つ
-4	reperiō	repperī	repertum	reperīre	見つける
-4	sentiō	sēnsī	sēnsum	sentīre	思う
+4	reperiō	reperīre	repperī	repertum	見つける
+4	sentiō	sentīre	sēnsī	sēnsum	思う
 
 #4	redeō	rediī	reditum	redīre	帰る,戻る
