@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latin
+import latindic
 
 def load_preps(file):
     with open(file, 'r') as fp:
@@ -15,7 +15,7 @@ def load_preps(file):
             word = fs[0].decode('utf-8')
             dom = fs[1]
             ja = fs[2]
-            latin.latindic_register(word, {'pos':'preposition', 'surface':word, 'base':word, 'dominates':dom, 'ja':ja})
+            latindic.register(word, {'pos':'preposition', 'surface':word, 'base':word, 'dominates':dom, 'ja':ja})
 
 def load():
     load_preps('words/prep.def')

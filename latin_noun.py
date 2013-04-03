@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latin
+import latindic
 import util
 
 #
@@ -235,7 +235,7 @@ def load_nouns(file):
 
             for item in table:
                 # print "noun>", util.render(item)
-                latin.latindic_register(item['surface'], item)
+                latindic.register(item['surface'], item)
 
 def load():
     load_nouns('words/noun.def')

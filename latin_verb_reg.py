@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latin
+import latindic
 import util
 
 import latin_adj
@@ -496,7 +496,7 @@ def load_verbs(file):
 
             if len(table) == 0: continue
 
-            latin.latindic_register_items(table)
+            latindic.register_items(table)
 
 
 def load():
@@ -505,4 +505,4 @@ def load():
 
 if __name__ == '__main__':
     load()
-    latin.latindic_dump()
+    latindic.dump()

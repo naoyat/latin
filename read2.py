@@ -6,27 +6,26 @@ import getopt
 
 import util
 import textutil
-import latin
 import latin_char
 import latin_noun
+import latindic
 
 import ansi_color
 
-latin.latindic_load()
 
 def lookup(word):
     if ord(word[0]) <= 64: return None
 
-    res = latin.latindic_lookup(word)
+    res = latindic.lookup(word)
     if res: return res
 
     if latin_char.isupper(word[0]):
         word_lower = latin_char.tolower(word)
-        res = latin.latindic_lookup(word_lower)
+        res = latindic.lookup(word_lower)
         if res: return res
 
     if word[-3:] == u'que':
-        res = latin.latindic_lookup(word[:-3])
+        res = latindic.lookup(word[:-3])
         if res: return res
 
     return []
@@ -268,6 +267,8 @@ def main():
         elif option in ('-h', '--help'):
             usage()
             sys.exit()
+
+    latindic.load()
 
     if len(args) == 0:
         # repl mode

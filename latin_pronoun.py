@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latin
+import latindic
 import latin_noun
 import latin_adj
 import util
@@ -335,4 +335,4 @@ def load():
     items = ego() + meus() + ipse() + is_ea_id() + hic() + ille() + idem() + qui() + quis() + quisque() + quidam()
     items += pronominal_adjectives()
 
-    latin.latindic_register_items(items)
+    latindic.register_items(items)

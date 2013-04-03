@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latin
+import latindic
 
 # <56> 等位接続詞
 latin_conjs_1 = [
@@ -120,7 +120,7 @@ latin_conjs_2 = [
 
 def load():
     for word, ja in latin_conjs_1:
-        latin.latindic_register(word, {'pos':'conj', 'surface':word, 'ja':ja})
+        latindic.register(word, {'pos':'conj', 'surface':word, 'ja':ja})
 
     for word, ja in latin_conjs_2:
-        latin.latindic_register(word, {'pos':'conj', 'surface':word, 'ja':ja})
+        latindic.register(word, {'pos':'conj', 'surface':word, 'ja':ja})

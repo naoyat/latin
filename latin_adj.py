@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latin
+import latindic
 import latin_noun
 import util
 
@@ -214,7 +214,7 @@ def load_adjs(file):
 
             # pp_adj_declension(table)
             for item in table:
-                latin.latindic_register(item['surface'], item)
+                latindic.register(item['surface'], item)
 
 
 def load():

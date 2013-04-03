@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latin
+import latindic
 import util
 
 from latin_verb_reg import *
@@ -96,7 +96,7 @@ def conjugate_verb_eo_composites():
     items += conjugate_verb_eo(u'', '行く')
     items += conjugate_verb_eo(u'red', '戻る,帰る')
 
-    latin.latindic_register_items(items)
+    latindic.register_items(items)
 
 
 def conjugate_verb_sum_composites():
@@ -111,7 +111,7 @@ def conjugate_verb_sum_composites():
     items += conjugate_verb_sum(u'pos', 'できる') # possum potuI posse
     items += conjugate_verb_sum(u'prō', '役に立つ') # prOsum prOfuI prOfutUrus prOdesse
 
-    latin.latindic_register_items(items)
+    latindic.register_items(items)
 
 
 def load():
@@ -128,4 +128,4 @@ def load():
 
 if __name__ == '__main__':
     load()
-    latin.latindic_dump()
+    latindic.dump()
