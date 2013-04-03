@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+import select
+import getopt
 
 import util
-import text
+import textutil
 import latin
 import latin_char
 import latin_noun
@@ -100,8 +102,6 @@ def prep_constraint(res):
 
 
 def analyse_sentence(sentence):
-    print ' '.join(sentence)
-
     # string(utf-8) --> unicode
     sentence_uc = [word.decode('utf-8') for word in sentence]
 
@@ -204,12 +204,86 @@ def analyse_sentence(sentence):
     print
 
 
+def trans(text):
+    trans_table = {'A':'ā', 'E':'ē', 'I':'ī', 'O':'ō', 'U':'ū', 'Y':'ȳ'}
+    trans_table_upper = {'A':'Ā', 'E':'Ē', 'I':'Ī', 'O':'Ō', 'U':'Ū', 'Y':'Ȳ'}
+    res = ''
+    caps = False
+    for ch in text:
+        if ch == '_':
+            caps = True
+        else:
+            if caps:
+                if trans_table.has_key(ch):
+                    res += trans_table_upper[ch]
+                else:
+                    res += ch.upper()
+                caps = False
+            else:
+                if trans_table.has_key(ch):
+                    res += trans_table[ch]
+                else:
+                    res += ch
+    return res
+
+
+def repl(do_trans=False, show_prompt=False):
+    while True:
+        if show_prompt:
+            sys.stdout.write("> ")
+            sys.stdout.flush()
+
+        line = sys.stdin.readline()
+        if not line: break
+
+        text = line.rstrip()
+        if do_trans:
+            text = trans(text)
+
+        textutil.analyse_text(text, analyse_sentence)
+
+    if show_prompt:
+        print
+
+
+def usage():
+    print "Usage: python %s [options] [FILENAME]" % sys.argv[0]
+    print "Options:"
+    print "  -t, --trans                        Truncate feature-collection at first."
+    print "  -r, --repl                         REPL mode."
+    print "  -h, --help                         Print this message and exit."
+
 def main():
-    if len(sys.argv) == 2:
-        file = sys.argv[1]
-        text.analyse_textfile(file, analyse_sentence)
+    try:
+        # opts, args = getopt.getopt(sys.argv[1:], "tri:h", ["trans", "repl", "input=", "help"])
+        opts, args = getopt.getopt(sys.argv[1:], "th", ["trans", "help"])
+    except getopt.GetoptError:
+        usage()
+        sys.exit()
+
+    do_trans = False
+    for option, arg in opts:
+        if option in ('-t', '--trans'):
+            do_trans = True
+        elif option in ('-h', '--help'):
+            usage()
+            sys.exit()
+
+    if len(args) == 0:
+        # repl mode
+        if select.select([sys.stdin,],[],[],0.0)[0]:
+            # have data
+            show_prompt = False
+        else:
+            # no data
+            show_prompt = True
+        repl(do_trans=do_trans, show_prompt=show_prompt)
     else:
-        print "usage: %s <filename>" % sys.argv[0]
+        # file mode
+        for file in args:
+            text = textutil.load_text_from_file(file)
+            textutil.analyse_text(text, analyse_sentence, echo_on=True)
+
 
 if __name__ == '__main__':
     main()

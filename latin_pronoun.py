@@ -328,7 +328,7 @@ def pronominal_adjectives():
                      latin_noun.case_tags_5x2[:5],
                      {'pos':'pronoun', 'gender':'f', 'ja':'だれも...ない'}) # no one, nobody
     # util.pp(items)
-    return items
+    return util.aggregate_cases(items)
 
 
 def load():
