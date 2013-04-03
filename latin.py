@@ -203,29 +203,6 @@ def analyse_sentence(sentence):
     print
 
 
-def trans(text):
-    trans_table = {'A':'ā', 'E':'ē', 'I':'ī', 'O':'ō', 'U':'ū', 'Y':'ȳ'}
-    trans_table_upper = {'A':'Ā', 'E':'Ē', 'I':'Ī', 'O':'Ō', 'U':'Ū', 'Y':'Ȳ'}
-    res = ''
-    caps = False
-    for ch in text:
-        if ch == '_':
-            caps = True
-        else:
-            if caps:
-                if trans_table.has_key(ch):
-                    res += trans_table_upper[ch]
-                else:
-                    res += ch.upper()
-                caps = False
-            else:
-                if trans_table.has_key(ch):
-                    res += trans_table[ch]
-                else:
-                    res += ch
-    return res
-
-
 def repl(do_trans=False, show_prompt=False):
     while True:
         if show_prompt:
@@ -237,7 +214,7 @@ def repl(do_trans=False, show_prompt=False):
 
         text = line.rstrip()
         if do_trans:
-            text = trans(text)
+            text = latin_char.trans(text)
 
         textutil.analyse_text(text, analyse_sentence)
 
@@ -251,6 +228,7 @@ def usage():
     print "  -t, --trans                        Truncate feature-collection at first."
     print "  -n, --no-macron                    No-macron mode."
     print "  -h, --help                         Print this message and exit."
+
 
 def main():
     try:
@@ -277,16 +255,18 @@ def main():
     if len(args) == 0:
         # repl mode
         if select.select([sys.stdin,],[],[],0.0)[0]:
-            # have data
+            # have data (no prompt)
             show_prompt = False
         else:
-            # no data
+            # no data (prompt mode)
             show_prompt = True
         repl(do_trans=do_trans, show_prompt=show_prompt)
     else:
         # file mode
         for file in args:
             text = textutil.load_text_from_file(file)
+            if do_trans:
+                text = latin_char.trans(text)
             textutil.analyse_text(text, analyse_sentence, echo_on=True)
 
 

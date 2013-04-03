@@ -44,3 +44,28 @@ def islower(char):
     else:
         return False
 
+def lengthen(ch):
+    trans_table = {'a':'ā', 'e':'ē', 'i':'ī', 'o':'ō', 'u':'ū', 'y':'ȳ',
+                   'A':'Ā', 'E':'Ē', 'I':'Ī', 'O':'Ō', 'U':'Ū', 'Y':'Ȳ'}
+    return ''.join([trans_table.get(ch, ch) for ch in text])
+
+def shorten(ch):
+    trans_table = {'ā':'a', 'ē':'e', 'ī':'i', 'ō':'o', 'ū':'u', 'ȳ':'y',
+                   'Ā':'A', 'Ē':'E', 'Ī':'I', 'Ō':'O', 'Ū':'U', 'Ȳ':'Y'}
+    return ''.join([trans_table.get(ch, ch) for ch in text])
+
+def trans(text):
+    trans_table = {'A':'ā', 'E':'ē', 'I':'ī', 'O':'ō', 'U':'ū', 'Y':'ȳ'}
+    trans_table_upper = {'A':'Ā', 'E':'Ē', 'I':'Ī', 'O':'Ō', 'U':'Ū', 'Y':'Ȳ'}
+    res = ''
+    caps = False
+    for ch in text:
+        if ch == '_':
+            caps = True
+        else:
+            if caps:
+                res += trans_table_upper.get(ch, ch.upper())
+                caps = False
+            else:
+                res += trans_table.get(ch, ch)
+    return res
