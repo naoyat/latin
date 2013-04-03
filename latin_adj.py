@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latindic
 import latin_noun
 import util
 
@@ -188,6 +187,8 @@ def pp_adj_declension(table):
 
 
 def load_adjs(file):
+    items = []
+
     with open(file, 'r') as fp:
         for line in fp:
             if line[0] == '#': continue
@@ -210,12 +211,10 @@ def load_adjs(file):
                 continue
 
             table = decline_adj(*args)
-            table = util.aggregate_cases(table)
+            items += util.aggregate_cases(table)
 
-            # pp_adj_declension(table)
-            for item in table:
-                latindic.register(item['surface'], item)
+    return items
 
 
 def load():
-    load_adjs('words/adj.def')
+    return load_adjs('words/adj.def')

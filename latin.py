@@ -249,26 +249,30 @@ def usage():
     print "Usage: python %s [options] [FILENAME]" % sys.argv[0]
     print "Options:"
     print "  -t, --trans                        Truncate feature-collection at first."
-    print "  -r, --repl                         REPL mode."
+    print "  -n, --no-macron                    No-macron mode."
     print "  -h, --help                         Print this message and exit."
 
 def main():
     try:
         # opts, args = getopt.getopt(sys.argv[1:], "tri:h", ["trans", "repl", "input=", "help"])
-        opts, args = getopt.getopt(sys.argv[1:], "th", ["trans", "help"])
+        opts, args = getopt.getopt(sys.argv[1:], "thn", ["trans", "help", "no-macron"])
     except getopt.GetoptError:
         usage()
         sys.exit()
 
     do_trans = False
+    no_macron_mode = False
+
     for option, arg in opts:
         if option in ('-t', '--trans'):
             do_trans = True
+        elif option in ('-n', '--no-macron'):
+            no_macron_mode = True
         elif option in ('-h', '--help'):
             usage()
             sys.exit()
 
-    latindic.load()
+    ld = latindic.load(no_macron_mode=no_macron_mode)
 
     if len(args) == 0:
         # repl mode

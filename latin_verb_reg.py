@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latindic
 import util
 
 import latin_adj
@@ -464,6 +463,8 @@ def conjugate_regular_verb(type, pres1sg, perf1sg, supinum, inf, ja, tags):
 
 
 def load_verbs(file):
+    items = []
+
     with open(file, 'r') as fp:
         for line in fp:
             if len(line) == 0: continue
@@ -496,13 +497,15 @@ def load_verbs(file):
 
             if len(table) == 0: continue
 
-            latindic.register_items(table)
+            items += table
+
+    return items
 
 
 def load():
-    load_verbs('words/verb.def')
+    return load_verbs('words/verb.def')
 
 
 if __name__ == '__main__':
     load()
-    latindic.dump()
+#    latindic.dump()

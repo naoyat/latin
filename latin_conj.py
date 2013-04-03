@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latindic
-
 # <56> 等位接続詞
 latin_conjs_1 = [
     # (1) 連結
@@ -118,9 +116,14 @@ latin_conjs_2 = [
     (u'quod', '〜すること[を]'), # (英:that)
     ]
 
+
 def load():
+    items = []
+
     for word, ja in latin_conjs_1:
-        latindic.register(word, {'pos':'conj', 'surface':word, 'ja':ja})
+        items.append({'pos':'conj', 'surface':word, 'ja':ja})
 
     for word, ja in latin_conjs_2:
-        latindic.register(word, {'pos':'conj', 'surface':word, 'ja':ja})
+        items.append({'pos':'conj', 'surface':word, 'ja':ja})
+
+    return items

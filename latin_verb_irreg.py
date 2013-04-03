@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latindic
 import util
 
 from latin_verb_reg import *
@@ -93,14 +92,16 @@ def conjugate_verb_sum(prefix=u'', ja=''):
 
 def conjugate_verb_eo_composites():
     items = []
+
     items += conjugate_verb_eo(u'', '行く')
     items += conjugate_verb_eo(u'red', '戻る,帰る')
 
-    latindic.register_items(items)
+    return items
 
 
 def conjugate_verb_sum_composites():
     items = []
+
     items += conjugate_verb_sum(u'', '〜である')
     items += conjugate_verb_sum(u'ab', '不在である,離れている')
     items += conjugate_verb_sum(u'ad', '出席している,助力する')
@@ -111,11 +112,13 @@ def conjugate_verb_sum_composites():
     items += conjugate_verb_sum(u'pos', 'できる') # possum potuI posse
     items += conjugate_verb_sum(u'prō', '役に立つ') # prOsum prOfuI prOfutUrus prOdesse
 
-    latindic.register_items(items)
+    return items
 
 
 def load():
-    conjugate_verb_sum_composites()
+    items = []
+
+    items += conjugate_verb_sum_composites()
     # items += conjugate_irregular_verb(u'edō', '食べる') # edO EdI Esum edere/Esse
     # items += conjugate_irregular_verb(u'eō', '行く') # eO IvI/iI itum Ire
     # items += conjugate_irregular_verb(u'ferō', '運ぶ') # ferO tulI lAtum ferre
@@ -123,9 +126,11 @@ def load():
     # items += conjugate_irregular_verb(u'volō', '欲する') # volO voluI velle
     # items += conjugate_irregular_verb(u'mālō', 'むしろ〜を欲する') # mAlO mAluI mAlle
     # items += conjugate_irregular_verb(u'nōlō', '欲しない') # nOlO nOluI nOlle
-    conjugate_verb_eo_composites()
+    items += conjugate_verb_eo_composites()
+
+    return items
 
 
 if __name__ == '__main__':
     load()
-    latindic.dump()
+#    latindic.dump()

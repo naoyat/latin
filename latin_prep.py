@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latindic
-
 def load_preps(file):
+    items = []
+
     with open(file, 'r') as fp:
         for line in fp:
             if len(line) == 0: continue
@@ -15,7 +15,11 @@ def load_preps(file):
             word = fs[0].decode('utf-8')
             dom = fs[1]
             ja = fs[2]
-            latindic.register(word, {'pos':'preposition', 'surface':word, 'base':word, 'dominates':dom, 'ja':ja})
+
+            items.append({'pos':'preposition', 'surface':word, 'base':word, 'dominates':dom, 'ja':ja})
+
+    return items
+
 
 def load():
-    load_preps('words/prep.def')
+    return load_preps('words/prep.def')

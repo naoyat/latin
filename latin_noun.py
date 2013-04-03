@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latindic
 import util
 
 #
@@ -174,6 +173,8 @@ def decline_noun_type5(nom_sg, gen_sg, gender, ja, tags={}):
 
 
 def load_nouns(file):
+    items = []
+
     with open(file, 'r') as fp:
         for line in fp:
             # print line[0],
@@ -231,11 +232,10 @@ def load_nouns(file):
 
             if len(table) == 0: continue
 
-            table = util.aggregate_cases(table)
+            items += util.aggregate_cases(table)
 
-            for item in table:
-                # print "noun>", util.render(item)
-                latindic.register(item['surface'], item)
+    return items
+
 
 def load():
-    load_nouns('words/noun.def')
+    return load_nouns('words/noun.def')
