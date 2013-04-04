@@ -54,6 +54,7 @@ def remove_matched_items(items, criteria):
     return filter(p, items)
 
 
+# 1階層だけ掘り下げる
 def flatten_1(items):
     res = []
     for item in items:
@@ -63,6 +64,8 @@ def flatten_1(items):
             res.append(item)
     return res
 
+
+# 語尾変化
 def variate(prefix, common_tags, suffices, suffices_tags):
     # def aggregate(a_prefix, a_suffix, suffix_tags):
     #    return aggregate_dicts(common_tags, {'surface':a_prefix + a_suffix}, suffix_tags)

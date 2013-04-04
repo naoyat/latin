@@ -4,33 +4,35 @@ import sys
 import select
 import getopt
 
-import latin.util
-import latin.textutil
-import latin.latin_char
-import latin.latin_noun
-import latin.latindic
+import latin.util as util
+import latin.textutil as textutil
+import latin.latin_char as char
+import latin.latin_noun as noun
+import latin.latindic as latindic
 
-import latin.ansi_color
+import latin.ansi_color as ansi_color
 
 
+# 辞書引き（記号のみから成る語を除く）
 def lookup(word):
     if ord(word[0]) <= 64: return None
 
-    res = latin.latindic.lookup(word)
+    res = latindic.lookup(word)
     if res: return res
 
-    if latin.latin_char.isupper(word[0]):
-        word_lower = latin.latin_char.tolower(word)
-        res = latin.latindic.lookup(word_lower)
+    if char.isupper(word[0]):
+        word_lower = char.tolower(word)
+        res = latindic.lookup(word_lower)
         if res: return res
 
     if word[-3:] == u'que':
-        res = latin.latindic.lookup(word[:-3])
+        res = latindic.lookup(word[:-3])
         if res: return res
 
     return []
 
 
+# itemをレンダリング
 def render_item(item):
     name = {'indicative':'直接法', 'subjunctive':'接続法', 'imperative':'命令法', 'infinitive':'不定法',
             'present':'現在', 'imperfect':'未完了', 'perfect':'完了', 'future':'未来',
@@ -55,47 +57,91 @@ def render_item(item):
         item_ = item.copy()
         del item_['surface'], item_['pos'], item_['ja']
         if len(item_) > 0:
-            return '%s %s %s' % (item['pos'], item['ja'], latin.util.render(item_))
+            return '%s %s %s' % (item['pos'], item['ja'], util.render(item_))
         else:
             return '%s %s' % (item['pos'], item['ja'])
 
 
+# 前置詞の格支配を制約として可能性を絞り込む
 def prep_constraint(res):
-    # 前置詞の格支配を制約として可能性を絞り込む
-    l = len(res)
+    end = len(res)
     for i, (word, items) in enumerate(res):
-        if items is None: continue
-        doms = set()
-        non_prep_exists = False
+        if i == end-1: break # これが最後の単語ならチェック不要
+        if items is None: continue # 句読点はスキップ
+
+        preps = []
+        non_preps = []
         for item in items:
             if item['pos'] == 'preposition':
-                doms.add(item['dominates'])
+                preps.append(item)
             else:
-                non_prep_exists = True
+                non_preps.append(item)
 
-        if len(doms) > 0:
-            actual = set()
-            if i+1 == l:
-                break
-            for item in res[i+1][1]:
-                if item.has_key('_'):
-                    for case, number, gender in item['_']:
-                        actual.add(case)
-            possible_cases = actual.intersection(doms)
+        if preps == []: continue
 
-            # constrain
-            if len(possible_cases) > 0:
-                def filter_prep(item):
-                    if item['pos'] != 'preposition': return True
-                    return (item['dominates'] in possible_cases)
-                res[i][1] = filter(filter_prep, res[i][1])
-                if not non_prep_exists:
-                    def filter_noun(item):
-                        if not item.has_key('_'): return None
-                        item['_'] = filter(lambda a:a[0] in possible_cases, item['_'])
-                        if item['_'] == []: return None
-                        return item
-                    res[i+1][1] = filter(lambda x:x is not None, map(filter_noun, res[i+1][1]))
+        dominates = set([item['dominates'] for item in preps])
+        non_prep_exists = False
+        if non_preps != []:
+            print "NON-PREP EXISTS:", [item['surface'].encode('utf-8') for item in non_preps]
+            non_prep_exists = True
+
+        if len(dominates) == 0 or non_prep_exists: continue
+
+        # Acc/Ablになり得ない語をスキップしながら。
+        actual = set()
+        targets = []
+        target_case = None
+        for j in range(i+1, end):
+            surface, items = res[j]
+            if items is None: continue #break
+            to_skip = to_stop = False
+            is_target = False
+            for item in items:
+                if item['pos'] in ['verb', 'preposition']: break
+                if item.has_key('_'): # subst
+                    cases = [case for case, number, gender in item['_']]
+                    if any([case == 'Gen' for case in cases]):
+                        to_skip = True
+                        break # skip this work
+                    if 'Abl' in dominates and any([case == 'Abl' for case in cases]):
+                        if target_case == 'Acc':
+                            to_stop = True
+                        else: # None or already 'Abl'
+                            is_target = True
+                            target_case = 'Abl'
+                        break
+                    if 'Acc' in dominates and any([case == 'Acc' for case in cases]):
+                        if target_case == 'Abl':
+                            to_stop = True
+                        else: # None or already 'Acc'
+                            is_target = True
+                            target_case = 'Acc'
+                        break
+                    if any([case in ['Nom','Acc'] for case in cases]):
+                        to_stop = True
+                        break
+            if to_stop: break
+            if to_skip: continue
+            if is_target:
+                targets.append(j)
+        #print "'%s' may dominate: %s" % (util.render(word), util.render([res[j][0] for j in targets]))
+
+        # prep側を絞る
+        def filter_prep(item):
+            if item['pos'] != 'preposition': return True
+            return (item['dominates'] == target_case)
+
+        res[i][1] = filter(filter_prep, res[i][1])
+
+        # target側を絞る
+        def filter_noun(item):
+            if not item.has_key('_'): return None
+            item['_'] = filter(lambda a:a[0] == target_case, item['_'])
+            if item['_'] == []: return None
+            return item
+
+        for j in targets:
+            res[j][1] = filter(lambda x:x is not None, map(filter_noun, res[j][1]))
 
     return res
 
@@ -121,8 +167,11 @@ def lookup_all_words(sentence_uc):
     return res
 
 
+def translate(res):
+    # assert(atmost only one predicate included in *res*)
+
 def dump_res(res):
-    # （表示の都合で）単語の最大長を得ておく
+    # （表示用に）単語の最大長を得ておく
     maxlen_uc = max(map(lambda r:len(r[0]), res))
 
     def match_case(item, pos, case):
@@ -140,31 +189,31 @@ def dump_res(res):
     for surface, items in res:
         is_verb = False
         if items and any([item['pos'] == 'verb' for item in items]):
-            color = latin.ansi_color.RED
+            color = ansi_color.RED
             is_verb = True
 #            if verb_count == 0:
 #                st['predicate'] = item
 #        elif items and any([item['pos'] in ['noun','pronoun'] for item in items]):
         elif has_subst_case(items, 'Nom'):
-            color = latin.ansi_color.BLUE
+            color = ansi_color.BLUE
         elif has_subst_case(items, 'Acc'):
-            color = latin.ansi_color.BLACK
+            color = ansi_color.BLACK
         elif has_subst_case(items, 'Gen'):
-            color = latin.ansi_color.GREEN
+            color = ansi_color.GREEN
         elif has_subst_case(items, 'Abl'):
-            color = latin.ansi_color.YELLOW
+            color = ansi_color.YELLOW
         elif has_subst_case(items, 'Dat'):
-            color = latin.ansi_color.MAGENTA
+            color = ansi_color.MAGENTA
         else:
-            color = None # latin.ansi_color.DEFAULT
+            color = None # ansi_color.DEFAULT
 
         text = surface.encode('utf-8')
 #1        print "/%s/ %s" % (text, str(color))
         # text = (u'%*s' % (-maxlen_uc, surface)).encode('utf-8')
         if color is not None:
-            text = latin.ansi_color.bold(text, color)
+            text = ansi_color.bold(text, color)
         if is_verb:
-            text = latin.ansi_color.underline(text)
+            text = ansi_color.underline(text)
 
         print '  ' + text + ' '*(maxlen_uc - len(surface) + 1),
 
@@ -177,6 +226,7 @@ def dump_res(res):
     print
 
 
+# １文に活用動詞が１つ（あるいは0）になるように分断する
 def split_sentence(res):
     verbs_indices = []
 
@@ -202,12 +252,17 @@ def split_sentence(res):
                 sentences.append(res[head:])
             else:
                 next_idx = verbs_indices[i+1]
+                # （次の動詞の手前までで）今の動詞の守備範囲を探る
                 tail = idx + 1
                 while tail < next_idx:
-                    if res[tail][1] is None:
+                    if res[tail][1] is None: # 句読点系
+                        sentences.append(res[head:tail+1])
                         break
                     tail += 1
-                sentences.append(res[head:tail+1])
+                if tail == next_idx:
+                    # 区切り（句読点）がない場合。とりあえず、次の動詞の直前まで取ってしまう
+                    # （あとで検討）
+                    sentences.append(res[head:next_idx])
                 head = tail + 1
 
     return sentences
@@ -222,16 +277,15 @@ def analyse_sentence(sentence):
     # util.pp(map(lambda r:r[0], res))
 
     for res in split_sentence(res):
-        # print "  ==="
-        # dump_res(res)
-
-        # 前置詞の各支配を利用して絞り込む
-        res = prep_constraint(res)
+        # 前置詞の格支配を利用して絞り込む
+        res_ = prep_constraint(res)
 
         print "  ---"
-        dump_res(res)
+        dump_res(res_)
+        translate(res_)
 
 
+# read-eval-print loop
 def repl(do_trans=False, show_prompt=False):
     while True:
         if show_prompt:
@@ -243,9 +297,9 @@ def repl(do_trans=False, show_prompt=False):
 
         text = line.rstrip()
         if do_trans:
-            text = latin.latin_char.trans(text)
+            text = char.trans(text)
 
-        latin.textutil.analyse_text(text, analyse_sentence)
+        textutil.analyse_text(text, analyse_sentence)
 
     if show_prompt:
         print
@@ -278,7 +332,7 @@ def main():
             usage()
             sys.exit()
 
-    latin.latindic.load(no_macron_mode=no_macron_mode)
+    latindic.load(no_macron_mode=no_macron_mode)
 
     if len(args) == 0:
         # repl mode
@@ -290,10 +344,10 @@ def main():
     else:
         # file mode
         for file in args:
-            text = latin.textutil.load_text_from_file(file)
+            text = textutil.load_text_from_file(file)
             if do_trans:
-                text = latin.latin_char.trans(text)
-            latin.textutil.analyse_text(text, analyse_sentence, echo_on=True)
+                text = char.trans(text)
+            textutil.analyse_text(text, analyse_sentence, echo_on=True)
 
 
 if __name__ == '__main__':
