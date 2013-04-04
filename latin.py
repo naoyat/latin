@@ -13,6 +13,8 @@ import latin.latindic as latindic
 import latin.ansi_color as ansi_color
 
 
+def is_not_none(x): return x is not None
+
 class Item:
     def __init__(self, item):
         self.item = item
@@ -35,7 +37,7 @@ class Item:
 #        return '<%s>'
 
     # itemをレンダリング
-    def render(self):
+    def description(self):
         name = {'indicative':'直説法', 'subjunctive':'接続法', 'imperative':'命令法', 'infinitive':'不定法',
                 'present':'現在', 'imperfect':'未完了', 'perfect':'完了', 'future':'未来',
                 'past-perfect': '過去完了',
@@ -98,9 +100,9 @@ class Word:
                 self._is_verb = any([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
         return self._is_verb
 
-    def render(self):
+    def description(self):
         if not self.items: return ''
-        return util.render(self.surface) +":"+ util.render([item.render() for item in self.items])
+        return util.render(self.surface) +":"+ util.render([item.description() for item in self.items])
 
 
 class Sentence:
@@ -241,7 +243,8 @@ class Sentence:
                             for t in targets:
                                 self.attach_modifier(t, (i,j))
                             valid_cngs.append(cng)
-                    word.items[j]._ = valid_cngs
+                    if valid_cngs != []:
+                        word.items[j]._ = valid_cngs
 
 
     def dump(self):
@@ -284,7 +287,7 @@ class Sentence:
             elif word.items == []:
                 print '(?)'
             else:
-                print ' | '.join([item.render() for item in word.items])
+                print ' | '.join([item.description() for item in word.items])
         print
 
 
@@ -295,6 +298,7 @@ class Sentence:
     def translate(self):
         # assert(atmost only one predicate included in *res*)
         used = set()
+        once_said = set()
 
         # 述語動詞と人称＆単複が一致したNomのみを主語としたい
         # A et B の場合複数形になるよね（未チェック）
@@ -308,20 +312,23 @@ class Sentence:
         else:
             predicate = None
 
+        def render_item(i, j):
+            if i in once_said: return None
+            target_item = self.item_at(i, j)
+            ja = target_item.ja
+            mods = [self.item_at(i,j).ja for i,j in target_item.modifiers]
+            [used.add(i) for i,j in target_item.modifiers]
+            if mods != []:
+                ja = '<' + '&'.join(mods) + '>' + ja
+            once_said.add(i)
+            return ja
+
         def translate_prep(i, j):
             prep_item = self.item_at(i, j)
+            used.add(i)
             prep_ja = prep_item.ja
             targets = prep_item.target
-            jas = []
-            for ti, tj in targets:
-                target_item = self.item_at(ti, tj)
-                ja = target_item.ja
-                mods = [self.item_at(i,j).ja for i,j in target_item.modifiers]
-                [used.add(i) for i,j in target_item.modifiers]
-                if mods != []:
-                    ja = '<' + '&'.join(mods) + '>' + ja
-                jas.append(ja)
-                used.add(ti)
+            jas = filter(is_not_none, [render_item(ti, tj) for ti, tj in targets])
             return '( ' + ' '.join(jas) + ' ) ' + prep_ja
 
         slot = {}
@@ -337,6 +344,13 @@ class Sentence:
                 elif item.pos == 'adv':
                     print '[adv] ' + item.ja
                     used.add(i)
+                    break
+                elif item.pos == 'conj':
+                    if item.surface == u'et':
+                        pass
+                    else:
+                        print '[conj] ' + item.ja
+                        used.add(i)
                     break
 
         # 動詞と合致した主格名詞を探す
@@ -356,9 +370,9 @@ class Sentence:
                                 if not slot.has_key('Nom'): slot['Nom'] = []
                                 slot['Nom'].append((i,j))
                                 used.add(i)
-                                to_skip = True
+                                # to_skip = True
                                 break
-                        if to_skip: break
+                        # if to_skip: break
 
         # （Nom, Vocを除く）
         for i, word in enumerate(self.words):
@@ -382,20 +396,13 @@ class Sentence:
             ids = slot.get(case, None)
             if ids is None: continue
 
-            jas = []
-            for i, j in ids:
-                target_item = self.item_at(i, j)
-                ja = target_item.ja
-                mods = [self.item_at(i,j).ja for i,j in target_item.modifiers]
-                [used.add(i) for i,j in target_item.modifiers]
-                if mods != []:
-                    ja = '<' + '&'.join(mods) + '>' + ja
-                jas.append(ja)
+#            ids_not_used = filter(lambda ij:ij[0] not in used, ids)
+            jas = filter(is_not_none, [render_item(i, j) for i, j in ids])
             if case == 'Nom' and jas != []:
                 subject_exists = True
-            print '(', '='.join(jas), ')', aux
+            if len(jas) > 0:
+                print '(', '='.join(jas), ')', aux
             del slot[case]
-
             [used.add(i) for i, j in ids]
 
         # prep
@@ -441,7 +448,7 @@ class Sentence:
             if i in used: continue
             word = self.words[i]
             if not word.items: continue
-            print '(', i, word.render(), ')'
+            print 'UNSOLVED (%d):' % i, word.description()
 
 
 def lookup_all(surfaces_uc):
