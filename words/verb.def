@@ -35,6 +35,8 @@
 1	errō	さまよう,ぶらつく,道を間違える
 1	cantō	歌う
 1	cōgitō	考える,思う
+1	adōrō	崇める
+1	glōrificō	頌徳する
 
 1	dō	dare	dedī	datum	与える
 
@@ -58,6 +60,7 @@
 3a	legō	legere	lēgī	lēctum	読む
 3a	cēdō	cēdere	cēssī	cēssum	移る
 3a	dīcō	dīcere	dīxī	dictum	いう
+3a	benedīcō	benedīcere	benedīxī	benedictum	祝福する
 3a	laedō	laedere	laesī	laesum	たたく
 3a	lūdō	lūdere	lūsī	lūsum	遊ぶ
 3a	pellō	pellere	pepulī	pulsum	押す
@@ -65,7 +68,7 @@
 3a	edō	edere	ēdī	ēsum	食べる
 3a	dūcō	dūcere	dūxī	ductum	導く
 3a	emō	emere	ēmī	emptum	買う
-3a	agō	agere	ēgī	āctum	駆る
+3a	agō	agere	ēgī	āctum	する,駆る
 3a	dēserō	dēcere	dēseruī	dēsertum	別れる,棄てる,見捨てる
 3a	flectō	flectere	flexī	flexum	曲げる,心を動かす
 3a	noscō	noscere	nōvī	nōtum	教わる,知る,学ぶ,習得する

@@ -37,8 +37,8 @@ def render(obj, newline=False):
 def render2(k, v):
     return render(k) + ':' + render(v)
 
-def pp(something):
-    print render(something)
+def pp(something, newline=False):
+    print render(something, newline=newline)
 
 
 #

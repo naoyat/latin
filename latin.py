@@ -45,9 +45,9 @@ def render_item(item):
     elif pos == 'verb':
         return 'v.%s %s%s %s.%s.%s' % (item['ja'],
                                        item['person'], item['number'],
-                                       name[item.get('mood','-')],
-                                       name[item.get('voice','-')],
-                                       name[item.get('tense','-')],
+                                       name[item.get('mood','indicative')],
+                                       name[item.get('voice','active')],
+                                       name[item.get('tense','present')],
                                        )
     elif pos == 'preposition':
         return 'prep<%s> %s' % (item['dominates'], item['ja'])
@@ -100,14 +100,10 @@ def prep_constraint(res):
     return res
 
 
-def analyse_sentence(sentence):
-    # string(utf-8) --> unicode
-    sentence_uc = [word.decode('utf-8') for word in sentence]
-
+def lookup_all_words(sentence_uc):
     res = []
     l = len(sentence_uc)
     i = 0
-    maxlen_uc = 0
     while i < l:
         word = sentence_uc[i]
         if i < l-1:
@@ -116,48 +112,25 @@ def analyse_sentence(sentence):
             # print "word2:", word2.encode('utf-8'), util.render(lu2)
             if lu2 is not None and len(lu2) > 0:
                 res.append([word2, lu2])
-                maxlen_uc = max(maxlen_uc, len(word2))
                 i += 2
                 continue
         lu = lookup(word)
         res.append([word, lu])
-        maxlen_uc = max(maxlen_uc, len(word))
         i += 1
 
+    return res
+
+
+def dump_res(res):
     # （表示の都合で）単語の最大長を得ておく
-    # maxlen_uc = max(map(len, sentence_uc))
-
-    # lookupした結果。{wc} = [[word1, [item1, item2, ...]], [word2, [...] ], ...]
-    # res = map(lambda word:[word, lookup(word)], sentence_uc) # 上書きするのでtupleでは駄目
-
-    # 前置詞の各支配を利用して絞り込む
-    res = prep_constraint(res)
-
-    def is_verb(r):
-        word, items = r
-        if items is None: return False
-        return any([item['pos'] == 'verb' for item in items])
-
-#    def say_verb(verb_item):
-#        word, items = verb_item
-#        return ansi_color.underline(word.encode('utf-8')) + ' (' + items[0]['ja'] + ')'
-
-    verbs = filter(is_verb, res)
-    num_verbs = len(verbs)
-#    if num_verbs == 0:
-#        print "no verbs"
-#    elif num_verbs == 1:
-#        print "1 verb:", say_verb(verbs[0])
-#    else:
-#        print "%d verbs:" % num_verbs,
-#        print ' | '.join(map(say_verb, verbs))
-#    for i, verb in enumerate(verbs):
-#        print "  %d)" % (1+i), util.render(verb)
+    maxlen_uc = max(map(lambda r:len(r[0]), res))
 
     def match_case(item, pos, case):
         return item['pos'] in pos and item.has_key('_') and any([it[0] == case for it in item['_']])
+
     def has_subst_case(items, case):
-        subst = ['noun','pronoun','adj','participle']
+        # subst = ['noun','pronoun','adj','participle']
+        subst = ['noun','pronoun']
         # return items and any([match_case(item,subst,case) for item in items])
         if not items: return False
         elif any([match_case(item,subst,case) for item in items]): return True
@@ -169,6 +142,8 @@ def analyse_sentence(sentence):
         if items and any([item['pos'] == 'verb' for item in items]):
             color = ansi_color.RED
             is_verb = True
+#            if verb_count == 0:
+#                st['predicate'] = item
 #        elif items and any([item['pos'] in ['noun','pronoun'] for item in items]):
         elif has_subst_case(items, 'Nom'):
             color = ansi_color.BLUE
@@ -199,8 +174,62 @@ def analyse_sentence(sentence):
             print '(?)'
         else:
             print ' | '.join(map(render_item, items))
-
     print
+
+
+def split_sentence(res):
+    verbs_indices = []
+
+    def is_verb(r):
+        word, items = r
+        if items is None: return False
+        return any([item['pos'] == 'verb' and item.get('mood','-') != 'infinitive' for item in items])
+
+    for i, r in enumerate(res):
+        if is_verb(r):
+            verbs_indices.append(i)
+    # verbs = filter(is_verb, res)
+    num_verbs = len(verbs_indices)
+
+    sentences = []
+
+    if num_verbs <= 1:
+        sentences.append(res)
+    else:
+        head = 0
+        for i, idx in enumerate(verbs_indices):
+            if i == num_verbs-1: # last one
+                sentences.append(res[head:])
+            else:
+                next_idx = verbs_indices[i+1]
+                tail = idx + 1
+                while tail < next_idx:
+                    if res[tail][1] is None:
+                        break
+                    tail += 1
+                sentences.append(res[head:tail+1])
+                head = tail + 1
+
+    return sentences
+
+
+def analyse_sentence(sentence):
+    # string(utf-8) --> unicode
+    sentence_uc = [word.decode('utf-8') for word in sentence]
+
+    res = lookup_all_words(sentence_uc)
+    # dump_res(res)
+    # util.pp(map(lambda r:r[0], res))
+
+    for res in split_sentence(res):
+        # print "  ==="
+        # dump_res(res)
+
+        # 前置詞の各支配を利用して絞り込む
+        res = prep_constraint(res)
+
+        print "  ---"
+        dump_res(res)
 
 
 def repl(do_trans=False, show_prompt=False):
@@ -232,7 +261,6 @@ def usage():
 
 def main():
     try:
-        # opts, args = getopt.getopt(sys.argv[1:], "tri:h", ["trans", "repl", "input=", "help"])
         opts, args = getopt.getopt(sys.argv[1:], "thn", ["trans", "help", "no-macron"])
     except getopt.GetoptError:
         usage()
@@ -250,17 +278,15 @@ def main():
             usage()
             sys.exit()
 
-    ld = latindic.load(no_macron_mode=no_macron_mode)
+    latindic.load(no_macron_mode=no_macron_mode)
 
     if len(args) == 0:
         # repl mode
         if select.select([sys.stdin,],[],[],0.0)[0]:
-            # have data (no prompt)
-            show_prompt = False
+            # have data from pipe. no prompt.
+            repl(do_trans=do_trans)
         else:
-            # no data (prompt mode)
-            show_prompt = True
-        repl(do_trans=do_trans, show_prompt=show_prompt)
+            repl(do_trans=do_trans, show_prompt=True)
     else:
         # file mode
         for file in args:

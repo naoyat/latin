@@ -36,6 +36,8 @@
 1	mora	f	遅れ,間
 1	vespera	f	夕刻
 1	Mycēna	f	ミュケナイ
+1	glōria	f	栄光
+1	grātia	f	感謝
 
 2	templum	n	神殿
 2	bellum	n	戦争
@@ -59,6 +61,7 @@
 2	prātum	n	牧場,草原,野原
 2	frūmentum	n	麦の粒,穀粒,穀物
 2	pōmum	n	果実
+2	excelsum	n	高み
 
 2	dominus	m	主,主人
 2	amīcus	m	友人
@@ -79,6 +82,7 @@
 2	Tenedus	m	テネドス
 2	gladius	m	剣
 2	Naxus	m	ナクソス
+2	Deus	m	神
 
 2	ager	agrī	m	畑
 2	liber	librī	m	本
@@ -156,6 +160,8 @@
 3-um	juvenis	juvenis	m	若者
 3-um	nāvis	nāvis	f	船
 
+3-um	pāx	pācis	m	(平和)
+
 3-um	fortitūdō	fortitūdinis	f	力,勇気
 3-um	māgnitūdō	māgnitūdinis	f	大きさ,偉大さ,多量,重要性
 #3-um	nēmō	nēminis	m	誰も〜ない
@@ -166,6 +172,7 @@
 # 3-um	plūs	plūris	n	(より多くの,沢山の)
 3-um	laus	laudis	f	称賛,名誉,名声
 3-um	hūmānitās	hūmānitātis	f	人間性,親切
+3-um	voluntās	voluntātis	f	意志
 
 3-um	Agamemnōn	Agamemnonis	m	アガメムノーン
 3-um	Agamemnō	Agamemnonis	m	アガメムノーン
