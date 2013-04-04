@@ -23,7 +23,7 @@ def ego():
     items = []
 
     # 一人称
-    common_tags = {'pos':'pronoun', 'person':1, 'ja':'私', 'desc':'人称代名詞'}
+    common_tags = {'pos':'pronoun', 'person':1, 'gender':'m', 'ja':'私', 'desc':'人称代名詞'} # genderは仮
     forms = [u'ego', u'mē', u'meī', u'mihi', u'mē',
              u'nōs', u'nōs', u'nostrī', u'nōbīs', u'nōbīs']
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2)
@@ -31,7 +31,7 @@ def ego():
     items += [util.aggregate_dicts({'surface':u'nostrum'}, common_tags, latin_noun.case_tags_5x2[7])]
 
     # 二人称
-    common_tags = {'pos':'pronoun', 'person':2, 'ja':'あなた', 'desc':'人称代名詞'}
+    common_tags = {'pos':'pronoun', 'person':2, 'gender':'m', 'ja':'あなた', 'desc':'人称代名詞'}
     forms = [u'tū', u'tē', u'tuī', u'tibi', u'tē',
              u'vōs', u'vōs', u'vestrī', u'vōbīs', u'vōbīs']
     items += decline(u'', common_tags, forms, latin_noun.case_tags_5x2)

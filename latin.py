@@ -22,6 +22,8 @@ class Item:
 
         self._ = item.get('_', None)
         self.dominates = item.get('dominates', None)
+        self.target = []
+        self.modifiers = []
 
     def attrib(self, name, default=None):
         return self.item.get(name, default)
@@ -29,24 +31,28 @@ class Item:
     def match_case(self, pos, case):
         return self.pos in pos and any([it[0] == case for it in self._])
 
+#    def modified(self):
+#        return '<%s>'
+
     # itemをレンダリング
     def render(self):
-        name = {'indicative':'直接法', 'subjunctive':'接続法', 'imperative':'命令法', 'infinitive':'不定法',
+        name = {'indicative':'直説法', 'subjunctive':'接続法', 'imperative':'命令法', 'infinitive':'不定法',
                 'present':'現在', 'imperfect':'未完了', 'perfect':'完了', 'future':'未来',
                 'past-perfect': '過去完了',
                 'active':'能動', 'passive':'受動',
                 '-':'-'}
         # pos = item['pos']
         if self.pos == 'noun':
-            return '%s %s' % (self.ja, self._)
+            return '%s %s' % (self.ja, self._) +' // '+ util.render(self.modifiers)
         elif self.pos == 'adj':
             return 'a.%s %s' % (self.ja, self._)
         elif self.pos == 'verb':
             return 'v.%s %s%s %s.%s.%s' % (self.ja,
-                                           self.item['person'], self.item['number'],
-                                           name[self.item.get('mood','indicative')],
-                                           name[self.item.get('voice','active')],
-                                           name[self.item.get('tense','present')],
+                                           self.item['person'],
+                                           self.item['number'],
+                                           name[self.item.get('mood', 'indicative')],
+                                           name[self.item.get('voice', 'active')],
+                                           name[self.item.get('tense', 'present')],
                                            )
         elif self.pos == 'preposition':
             return 'prep<%s> %s' % (self.dominates, self.ja)
@@ -62,13 +68,14 @@ class Item:
 class Word:
     # has surface
     # has items
-    def __init__(self, surface, items):
+    def __init__(self, surface, items=None, extra_info={}):
         self.surface = surface
         self.surface_len = len(surface)
-        if items:
-            self.items = [Item(item) for item in items]
+        if items is not None:
+            self.items = map(Item, items) # へぇーこれで行けるんだ
         else:
             self.items = None
+        self.extra_info = extra_info
         self._is_verb = None
 
     def has_subst_case(self, case):
@@ -91,17 +98,26 @@ class Word:
                 self._is_verb = any([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
         return self._is_verb
 
+    def render(self):
+        if not self.items: return ''
+        return util.render(self.surface) +":"+ util.render([item.render() for item in self.items])
+
 
 class Sentence:
     def __init__(self, words):
         self.len = len(words)
         self.words = words
+        self.pred_idx = None
+        for i, word in enumerate(words):
+            if word.is_verb():
+                self.pred_idx = i
+                break
+#        print self.pred_idx
 
     # 前置詞の格支配を制約として可能性を絞り込む
     def prep_constraint(self):
-        end = self.len
         for i, word in enumerate(self.words):
-            if i == end-1: break # これが最後の単語ならチェック不要
+            if i == self.len-1: break # これが最後の単語ならチェック不要
             if word.items is None: continue # 句読点はスキップ
 
             preps = []
@@ -120,18 +136,19 @@ class Sentence:
                 print "NON-PREP EXISTS:", [item.surface.encode('utf-8') for item in non_preps]
                 non_prep_exists = True
 
-            if len(dominates) == 0 or non_prep_exists: continue
+#            if len(dominates) == 0 or non_prep_exists: continue
+            if len(dominates) == 0: continue
 
             # Acc/Ablになり得ない語をスキップしながら。
             actual = set()
             targets = []
             target_case = None
-            for j in range(i+1, end):
+            for j in range(i+1, self.len):
                 word = self.words[j]
                 if word.items is None: continue #break
                 to_skip = to_stop = False
-                is_target = False
-                for item in word.items:
+                target = None
+                for k, item in enumerate(word.items):
                     if item.pos in ['verb', 'preposition']: break
                     if item._: # subst
                         cases = [case for case, number, gender in item._]
@@ -142,14 +159,14 @@ class Sentence:
                             if target_case == 'Acc':
                                 to_stop = True
                             else: # None or already 'Abl'
-                                is_target = True
+                                target = (j, k)
                                 target_case = 'Abl'
                             break
                         if 'Acc' in dominates and any([case == 'Acc' for case in cases]):
                             if target_case == 'Abl':
                                 to_stop = True
                             else: # None or already 'Acc'
-                                is_target = True
+                                target = (j, k)
                                 target_case = 'Acc'
                             break
                         if any([case in ['Nom','Acc'] for case in cases]):
@@ -157,8 +174,8 @@ class Sentence:
                             break
                 if to_stop: break
                 if to_skip: continue
-                if is_target:
-                    targets.append(j)
+                if target:
+                    targets.append(target)
             # print "'%s' may dominate: %s" % (util.render(word), util.render([res[j][0] for j in targets]))
 
             # prep側を絞る
@@ -177,8 +194,54 @@ class Sentence:
                 if item._ == []: return None
                 return item
 
-            for j in targets:
+            for j, k in targets:
                 self.words[j].items = filter(lambda x:x is not None, map(filter_noun, self.words[j].items))
+
+    def attach_modifier(self, target, modifier):
+        ti, tj = target
+        # mi, mj = modifier
+        if modifier not in self.words[ti].items[tj].modifiers:
+            self.words[ti].items[tj].modifiers.append(modifier)
+
+    # 形容詞などの性・数・格一致を利用して絞り込む
+    def modifier_constraint(self):
+        for i, word in enumerate(self.words):
+            if word.items is None: continue # 句読点はスキップ
+            for j, item in enumerate(word.items):
+                if item.pos in ['adj', 'participle']:
+                    # targets = []
+                    valid_cngs = []
+                    for cng in item._: # case, number, gender
+                        def find_targets(range_from, range_to):
+                            target = None
+                            if range_from < range_to:
+                                rng = range(range_from, range_to+1, 1)
+                            else:
+                                rng = range(range_from, range_to-1, -1)
+                            for i2 in rng:
+                                w = self.words[i2]
+                                if w.items is None: continue
+                                # stop_here = False
+                                for j2, item2 in enumerate(w.items):
+                                    if item2._ is None or item2._ == []: continue
+                                    if item2.pos not in ['noun']: continue
+                                    if cng in item2._:
+                                        target = (i2, j2)
+                                        return [target]
+                                        # stop_here = True
+                                        # break
+                                # if stop_here: break
+                            # return target
+                            return []
+                        targets = find_targets(i-1, 0) + find_targets(i+1, self.len-1)
+                        if targets != []:
+                            # valid cng
+                            print "%s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
+                                                           '.'.join(cng), util.render(targets))
+                            for t in targets:
+                                self.attach_modifier(t, (i,j))
+                            valid_cngs.append(cng)
+                    word.items[j]._ = valid_cngs
 
 
     def dump(self):
@@ -224,51 +287,203 @@ class Sentence:
                 print ' | '.join([item.render() for item in word.items])
         print
 
+
+    def item_at(self, i, j):
+        return self.words[i].items[j]
+
+
     def translate(self):
         # assert(atmost only one predicate included in *res*)
+        used = set()
+
+        # 述語動詞と人称＆単複が一致したNomのみを主語としたい
+        # A et B の場合複数形になるよね（未チェック）
+        pred_person = pred_number = None
+        if self.pred_idx is not None:
+            predicate = self.words[self.pred_idx]
+            pred_person = predicate.items[0].attrib('person')
+            pred_number = predicate.items[0].attrib('number')
+            # print "{%d, %s}" % (pred_person, pred_number)
+            used.add(self.pred_idx)
+        else:
+            predicate = None
+
+        def translate_prep(i, j):
+            prep_item = self.item_at(i, j)
+            prep_ja = prep_item.ja
+            targets = prep_item.target
+            jas = []
+            for ti, tj in targets:
+                target_item = self.item_at(ti, tj)
+                ja = target_item.ja
+                mods = [self.item_at(i,j).ja for i,j in target_item.modifiers]
+                [used.add(i) for i,j in target_item.modifiers]
+                if mods != []:
+                    ja = '<' + '&'.join(mods) + '>' + ja
+                jas.append(ja)
+                used.add(ti)
+            return '( ' + ' '.join(jas) + ' ) ' + prep_ja
+
+        slot = {}
+        # 前置詞とそれに支配された語
         for i, word in enumerate(self.words):
-            pass
+            if i in used: continue
+            if word.items is None: continue
+            for j, item in enumerate(word.items):
+                if item.pos == 'preposition':
+                    print translate_prep(i, j)
+                    used.add(i)
+                    break
+                elif item.pos == 'adv':
+                    print '[adv] ' + item.ja
+                    used.add(i)
+                    break
+
+        # 動詞と合致した主格名詞を探す
+        if predicate is not None:
+            for i, word in enumerate(self.words):
+                if i in used: continue
+                if word.items is None: continue
+                if not word.has_subst_case('Nom'): continue
+                for j, item in enumerate(word.items):
+                    to_skip = False
+                    if item.pos in ['noun', 'pronoun']:
+                        person = item.attrib('person')
+                        if person and person != pred_person: continue
+                        for case, number, gender in item._:
+                            if case == 'Nom' and number == pred_number:
+                                if gender == 'n': continue ## 中性主格をskipしているがこれはcase-by-case
+                                if not slot.has_key('Nom'): slot['Nom'] = []
+                                slot['Nom'].append((i,j))
+                                used.add(i)
+                                to_skip = True
+                                break
+                        if to_skip: break
+
+        # （Nom, Vocを除く）
+        for i, word in enumerate(self.words):
+            if i in used: continue
+            if word.items is None: continue
+            for j, item in enumerate(word.items):
+                if item.pos in ['noun', 'pronoun']:
+                    # print item._
+                    for case, number, gender in item._:
+                        # if predicate is not None:
+                        if predicate is not None and case in ['Nom', 'Voc']: continue
+                        if not slot.has_key(case):
+                            slot[case] = []
+                        slot[case].append((i,j))
+
+        # case, aux = ('Gen','の')
+
+        # output
+        subject_exists = False
+        for case, aux in [('Nom','が'), ('Dat','に'), ('Acc','を'), ('Abl','で')]:
+            ids = slot.get(case, None)
+            if ids is None: continue
+
+            jas = []
+            for i, j in ids:
+                target_item = self.item_at(i, j)
+                ja = target_item.ja
+                mods = [self.item_at(i,j).ja for i,j in target_item.modifiers]
+                [used.add(i) for i,j in target_item.modifiers]
+                if mods != []:
+                    ja = '<' + '&'.join(mods) + '>' + ja
+                jas.append(ja)
+            if case == 'Nom' and jas != []:
+                subject_exists = True
+            print '(', '='.join(jas), ')', aux
+            del slot[case]
+
+            [used.add(i) for i, j in ids]
+
+        # prep
+ #       for prep, ids in slot.items():
+ #           jas = [self.words[i].items[j].ja for i, j in ids]
+ #           print '(', '='.join(jas), ')',
+ #           i, j = prep_loc[prep]
+ #           prep_item = self.words[i].items[j]
+ #           print prep_item.ja
+
+        if predicate:
+            if not subject_exists:
+                ja = {'1sg':'私', '1pl':'我々',
+                      '2sg':'あなた', '2pl':'あなたがた',
+                      '3sg':'彼,彼女,それ', '3pl':'彼ら,彼女ら,それら'}
+                print '[' + ja['%d%s' % (pred_person, pred_number)] + ']が',
+            verb = predicate.items[0]
+            jas = verb.ja.split(',')
+            voice = verb.attrib('voice')
+            tense = verb.attrib('tense')
+            if tense in ['imperfect', 'perfect']:
+                if voice == 'passive':
+                    suffix = "された"
+                else:
+                    suffix = "した"
+            elif tense in ['future']:
+                if voice == 'passive':
+                    suffix = "されるだろう"
+                else:
+                    suffix = "するだろう"
+            else:
+                if voice == 'passive':
+                    suffix = "される"
+                else:
+                    suffix = "する"
+
+            print ','.join([ja + 'など' + suffix for ja in jas])
+        else:
+            print "NO VERB FOUND"
+
+        print
+        for i in range(self.len):
+            if i in used: continue
+            word = self.words[i]
+            if not word.items: continue
+            print '(', i, word.render(), ')'
 
 
-# 辞書引き（記号のみから成る語を除く）
-def lookup(word):
-    if ord(word[0]) <= 64: return None
+def lookup_all(surfaces_uc):
+    def lookup(surface):
+        items = latindic.lookup(surface)
+        if items: return Word(surface, items)
+        if char.isupper(surface[0]):
+            surface_lower = char.tolower(surface)
+            items = latindic.lookup(surface_lower)
+            if items: return Word(surface, items)
+        if surface[-3:] == u'que':
+            items = latindic.lookup(surface[:-3])
+            if items:
+                return Word(surface[:-3], items, {'enclitic':'que'})
+        return None
 
-    res = latindic.lookup(word)
-    if res: return res
+    words = []
 
-    if char.isupper(word[0]):
-        word_lower = char.tolower(word)
-        res = latindic.lookup(word_lower)
-        if res: return res
-
-    if word[-3:] == u'que':
-        res = latindic.lookup(word[:-3])
-        if res: return res
-
-    return []
-
-def lookup_all_words(words_uc):
-    res = []
-    l = len(words_uc)
+    l = len(surfaces_uc)
     i = 0
     while i < l:
-        word = words_uc[i]
+        surface = surfaces_uc[i]
+        if ord(surface[0]) <= 64: # 辞書引き（記号のみから成る語を除く）
+            words.append(Word(surface, None))
+            i += 1
+            continue
         if i < l-1:
-            word2 = word + u' ' + words_uc[i+1]
-            lu2 = lookup(word2)
+            surface2 = surface + u' ' + surfaces_uc[i+1]
+            word2 = lookup(surface2)
             # print "word2:", word2.encode('utf-8'), util.render(lu2)
-            if lu2 is not None and len(lu2) > 0:
-                res.append([word2, lu2])
+            if word2 is not None: # len(word2.items) > 0: #is not None: and len(lu2) > 0:
+                words.append(word2)
                 i += 2
                 continue
-        lu = lookup(word)
-        res.append([word, lu])
+        word = lookup(surface)
+        if word is not None:
+            words.append(word)
+        else:
+            words.append(Word(surface, []))
         i += 1
 
-    return res
-
-
+    return words
 
 
 # １文に活用動詞が１つ（あるいは0）になるように分断する
@@ -308,21 +523,29 @@ def split_sentence_by_verb(words):
     return sentences
 
 
-def analyse_sentence(words):
+def analyse_sentence(surfaces):
     # words: string(utf-8)
-    words_uc = [word.decode('utf-8') for word in words]
-    words = [Word(surface, items) for surface, items in lookup_all_words(words_uc)]
+    surfaces_uc = [surface.decode('utf-8') for surface in surfaces]
+    # words = [Word(surface, items) for surface, items in lookup_all_words(words_uc)]
+    words = lookup_all(surfaces_uc)
     # dump_res(res)
     # util.pp(map(lambda r:r[0], res))
 
     for sentence in split_sentence_by_verb(words):
         # 前置詞の格支配を利用して絞り込む
         sentence.prep_constraint()
+        # 形容詞などの性・数・格一致を利用して絞り込む
+        sentence.modifier_constraint()
         # sentence = prep_constraint(sentence)
 
-        print "  ---"
+        # print "  ---"
         sentence.dump()
+#        print ansi_color.ANSI_FGCOLOR_BLUE
+        print " ↓ "
         sentence.translate()
+#        print ansi_color.ANSI_FGCOLOR_DEFAULT
+        print
+        print
 
 
 # read-eval-print loop
