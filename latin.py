@@ -4,28 +4,28 @@ import sys
 import select
 import getopt
 
-import util
-import textutil
-import latin_char
-import latin_noun
-import latindic
+import latin.util
+import latin.textutil
+import latin.latin_char
+import latin.latin_noun
+import latin.latindic
 
-import ansi_color
+import latin.ansi_color
 
 
 def lookup(word):
     if ord(word[0]) <= 64: return None
 
-    res = latindic.lookup(word)
+    res = latin.latindic.lookup(word)
     if res: return res
 
-    if latin_char.isupper(word[0]):
-        word_lower = latin_char.tolower(word)
-        res = latindic.lookup(word_lower)
+    if latin.latin_char.isupper(word[0]):
+        word_lower = latin.latin_char.tolower(word)
+        res = latin.latindic.lookup(word_lower)
         if res: return res
 
     if word[-3:] == u'que':
-        res = latindic.lookup(word[:-3])
+        res = latin.latindic.lookup(word[:-3])
         if res: return res
 
     return []
@@ -55,7 +55,7 @@ def render_item(item):
         item_ = item.copy()
         del item_['surface'], item_['pos'], item_['ja']
         if len(item_) > 0:
-            return '%s %s %s' % (item['pos'], item['ja'], util.render(item_))
+            return '%s %s %s' % (item['pos'], item['ja'], latin.util.render(item_))
         else:
             return '%s %s' % (item['pos'], item['ja'])
 
@@ -140,31 +140,31 @@ def dump_res(res):
     for surface, items in res:
         is_verb = False
         if items and any([item['pos'] == 'verb' for item in items]):
-            color = ansi_color.RED
+            color = latin.ansi_color.RED
             is_verb = True
 #            if verb_count == 0:
 #                st['predicate'] = item
 #        elif items and any([item['pos'] in ['noun','pronoun'] for item in items]):
         elif has_subst_case(items, 'Nom'):
-            color = ansi_color.BLUE
+            color = latin.ansi_color.BLUE
         elif has_subst_case(items, 'Acc'):
-            color = ansi_color.BLACK
+            color = latin.ansi_color.BLACK
         elif has_subst_case(items, 'Gen'):
-            color = ansi_color.GREEN
+            color = latin.ansi_color.GREEN
         elif has_subst_case(items, 'Abl'):
-            color = ansi_color.YELLOW
+            color = latin.ansi_color.YELLOW
         elif has_subst_case(items, 'Dat'):
-            color = ansi_color.MAGENTA
+            color = latin.ansi_color.MAGENTA
         else:
-            color = None # ansi_color.DEFAULT
+            color = None # latin.ansi_color.DEFAULT
 
         text = surface.encode('utf-8')
 #1        print "/%s/ %s" % (text, str(color))
         # text = (u'%*s' % (-maxlen_uc, surface)).encode('utf-8')
         if color is not None:
-            text = ansi_color.bold(text, color)
+            text = latin.ansi_color.bold(text, color)
         if is_verb:
-            text = ansi_color.underline(text)
+            text = latin.ansi_color.underline(text)
 
         print '  ' + text + ' '*(maxlen_uc - len(surface) + 1),
 
@@ -243,9 +243,9 @@ def repl(do_trans=False, show_prompt=False):
 
         text = line.rstrip()
         if do_trans:
-            text = latin_char.trans(text)
+            text = latin.latin_char.trans(text)
 
-        textutil.analyse_text(text, analyse_sentence)
+        latin.textutil.analyse_text(text, analyse_sentence)
 
     if show_prompt:
         print
@@ -278,7 +278,7 @@ def main():
             usage()
             sys.exit()
 
-    latindic.load(no_macron_mode=no_macron_mode)
+    latin.latindic.load(no_macron_mode=no_macron_mode)
 
     if len(args) == 0:
         # repl mode
@@ -290,10 +290,10 @@ def main():
     else:
         # file mode
         for file in args:
-            text = textutil.load_text_from_file(file)
+            text = latin.textutil.load_text_from_file(file)
             if do_trans:
-                text = latin_char.trans(text)
-            textutil.analyse_text(text, analyse_sentence, echo_on=True)
+                text = latin.latin_char.trans(text)
+            latin.textutil.analyse_text(text, analyse_sentence, echo_on=True)
 
 
 if __name__ == '__main__':

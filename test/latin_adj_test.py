@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import strutil
 import unittest
 
-import latindic
-import latin_adj
-import util
+from latin.latin_adj import *
+import latin.latindic
+# import latin.util
+# import strutil
 
 def partial_surfaces(table, start, end):
     t = {'m':[], 'f':[], 'n':[]}
@@ -50,7 +50,7 @@ def transpose(expected):
 class StringTestCase(unittest.TestCase):
 
     def adj_decl_assertEqual(self, adj, expected):
-        table = latin_adj.decline_adj(*adj)
+        table = decline_adj(adj[0], adj[1].decode('utf-8'), adj[2].decode('utf-8'), adj[3].decode('utf-8'), adj[4])
         ss = partial_surfaces(table, 0, 12)
         tt = transpose(expected)
         # for g in ss:
@@ -60,7 +60,7 @@ class StringTestCase(unittest.TestCase):
         #    self.assertEqual(ss[g], tt[g])
         self.assertEqual(ss, tt)
 
-    def test_adj_declension(self):
+    def test_adj_declension_type1(self):
         self.adj_decl_assertEqual(
             ('1', 'bonus', 'bona', 'bonum', '良い'), {
                 'Nom':['bonus', 'bona', 'bonum', 'bonī', 'bonae', 'bona'],
@@ -91,6 +91,7 @@ class StringTestCase(unittest.TestCase):
                 'Voc':['pulcher', 'pulchra', 'pulchrum', 'pulchrī', 'pulchrae', 'pulchra']
                 })
 
+    def test_adj_declension_type2(self):
         self.adj_decl_assertEqual(
             ('2', 'fortis', 'fortis', 'forte', '勇敢な'), {
                 'Nom':['fortis', 'forte', 'fortēs', 'fortia'],
@@ -142,5 +143,5 @@ class StringTestCase(unittest.TestCase):
                 })
 
 if __name__ == '__main__':
-    latindic.load()
+    latin.latindic.load()
     unittest.main()

@@ -1,10 +1,10 @@
 .SUFFIXES:
 .SUFFIXES: .src .txt
 
-UTIL = ../../util
+TRANS_SED = ../../scripts/trans.sed
 
 .src.txt:
-	sed -f $(UTIL)/trans.sed $< > $@
+	sed -f $(TRANS_SED) $< > $@
 
 TEXTS = \
 	1.TESSEUS_ET_ARIADNE.txt \
