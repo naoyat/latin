@@ -1,0 +1,330 @@
+#	A=ā	E=ē	I=ī	O=ō	U=ū	Y=ȳ
+3
+
+#	<pāx>	-c-
+appendix	appendicis	f	付加物
+auspex	auspicis	c	占い師
+cervīx	cervīcis	f	首
+dux	ducis	c	指導者
+fax	facis	f	松明
+jūdex	judicis	c	審判者
+lanx	lancis	f	皿
+lūx	lūcis	f	光
+merx	mercis	f	商品
+nex	necis	f	殺害
+pāx	pācis	f	平和
+radīx	radīcis	f	根
+victrīx	victrīciss	f	勝利者
+#	*trīx	*trīciss	f	;;	-trīx
+vōx	vōcis	f	声
+
+#	例外
+arx	arcis	f	砦	;Gen.pl	-ium
+nox	noctis	f	夜	;Gen.pl	-ium
+nix	nivis	f	雪	;Gen.pl	-ium
+
+
+#	<lēx>	-g-
+coniūnx	coniugis	c	夫婦
+frūx	frūgis	f	果実
+grex	gregis	m	(羊,鳥の)群集
+lēx	lēgis	f	法律
+rēmex	rēmigis	m	漕ぎ手
+rēx	rēgis	m	王
+
+
+#	<prīnceps>	-p-
+auceps	aucupis	f	野鳥捕獲者
+daps	dapis	f	祝宴
+ops	opis	f	力,援助
+prīnceps	prīncipis	c	元首
+stips	stipis	f	寄付
+stirps	stirpis	f	株,枝
+
+
+#	<trabs>	-b-	
+ārabs	ārabis	c	アラビア人
+caelebs	caelebis	c	未婚者
+prebs	prebis	f	民衆(sgのみ)
+trabs	trabis	f	梁,木材
+;;	urbs	urbis	f	都市	;Gen.pl	-ium
+
+#	<aetās>	-t-
+adulēscēns	adulēscentis	c	青年
+aestās	aestātis	f	夏
+aetās	aetātis	f	年齢
+anas	anatis	f	あひる
+gigās	gigantis	m	巨人
+gruges	grugitis	m	渦,淵
+hospes	hospitis	m	客,主人
+interpres	interpretis	c	通訳
+mīles	mīlitis	c	兵士
+nepōs	nepōtis	m	孫
+puls	pultis	f	かゆ,スープ
+requiēs	requiētis	f	休息
+teges	tegetis	f	マット
+virtūs	virtūtis	f	勇気,徳
+
+#	Nom.sgにsが付かない3語
+caput	capitis	n	頭
+cor	cordis	n	心臓	;	Gen.plなし
+lac	lactis	?	ミルク
+
+#	-ās,	-ūs
+civitās	civitātis	f	国家,都市
+facultās	facultātis	f	能力
+honestās	honestātis	f	正直
+libertās	libertātis	f	自由
+pietās	pietātis	f	敬虔,忠誠
+vēritās	vēritātis	f	真理
+juventūs	juventūtis	f	若者
+salūs	salūtis	f	安全,あいさつ
+senectūs	senectūtis	f	老年
+
+#	例外
+parēns	parentis	c	親	;Gen.pl	-ium
+serpēns	serpentis	c	へび	;Gen.pl	-ium
+
+#	<pēs>	-d-
+cūstōs	cūstōdis	c	護衛
+fraus	fraudis	f	詐欺	;Gen.pl	-iumも
+herēs	herēdis	c	相続人
+_īlias	_īliadis	f	イーリアス
+lampas	lampadis	f	たいまつ
+lapis	lapidis	m	石
+laus	laudis	f	称賛
+mercēs	mercēdis	f	賃金,報酬
+obses	obsidis	c	人質,担保
+palūs	palūdis	f	沼地
+pecus	pecudis	f	羊,家畜
+pēs	pedis	f	足
+praeses	praesidis	c	守護者
+
+#	-ium型	:	幹末がニ子音で終わる単音節語に多い
+ars	artis	f	技,芸術
+frons	frontis	f	前面
+gēns	gēntis	f	種類,氏族,国
+mēns	mēntis	f	精神
+mors	mortis	f	死
+pars	partis	f	部分
+sors	sortis	f	運命,くじ
+nox	noctis	f	夜
+dens	dentis	m	歯
+fōns	fōntis	m	泉
+mōns	mōntis	m	山
+pōns	pōntis	m	橋
+
+;;	arx	arcis	f	砦	-既出
+;;	urbs	urbis	f	都市	-既出
+
+;;	nix	nivis	f	雪
+
+----------------------
+#	rhotacism
+
+#	<flōs>	-s(-r)-
+aes	aeris	n	青銅
+ās	assis	m	銅貨の一種	;;Gen.pl	-ium
+cinis	cineris	m	灰
+colōs(r)	colōris	m	色
+flōs	flōris	m	花
+lepōs	lepōris	m	魅力
+mōs	mōris	m	習慣
+os	ossis	n	骨	;;Gen.pl	-ium
+ōs	ōris	n	口,顔
+rōs	rōris	m	露
+vās	vāsis	n	容器
+	
+#	<tellūs>	大部分n
+crūs	crūris	n	脚
+jūs	jūris	n	法,権利
+pūs	pūris	n	腐敗物,膿
+rūs	rūris	n	田舎
+mūs	mūris	m	鼠
+tellūs	tellūris	f	土地
+
+#	<pondus>
+foedus	foederis	n	同盟,規約
+fūnus	fūneris	n	葬送
+genus	generis	n	種類
+(h)olus	(h)oleris	n	野菜
+latus	lateris	n	側面,脇,腹
+munus	muneris	n	務め,好意
+onus	oneris	n	重荷
+opus	operis	n	仕事,作品
+pondus	ponderis	n	重量,重さ
+scelus	sceleris	n	犯罪
+sīdus	sīderis	n	星(座)
+vulnus	vulneris	n	傷
+Venus	Veneris	f	ウェヌス(美女神)
+
+#	<corpus>	大部分n
+corpus	corporis	n	身体
+decus	decoris	n	飾り,栄誉
+facinus	facinoris	n	行為,行状
+lepus	leporis	m	野うさぎ
+lītus	lītoris	n	岸
+nemus	nemoris	n	森林
+pīgnus	pīgnoris	n	誓約,担保
+prīgus	prīgoris	n	寒冷
+tempus	temporis	n	時,機会,こめかみ
+
+;;	arbōs	>	arbor,	arboris
+;;	honōs	>	honor,	honōris
+
+
+---------------
+
+#	<cōnsul>	大部分m
+cōnsul	cōnsulis	m	執政官
+sāl	salis	m	塩	;;Sg.でn.も
+Hannibal	Hannibalis	m	ハンニバル
+vigil	vigilis	m	見張り,監視人
+sōl	sōlis	m	太陽
+exsul	exsulis	m	追放,流罪
+praesul	praesulis	m	踊り子
+
+#	-ll-	は	n.
+mel	mellis	n	蜂蜜
+
+#	-r	流音幹
+#	<hūmor>	大部分m
+(h)ūmor	(h)ūmōris	m	液体,湿気
+amor	amōris	m	愛
+angor	angōris	m	苦悩
+auctor	auctōris	m	作者,保証人
+calor	calōris	m	熱
+color	colōris	m	色
+clāmor	clāmōris	m	叫び
+error	errōris	m	迷い,過ち
+furor	furōris	m	狂気
+gladiātor	gladiātōris	m	剣士
+gubernātor	gubernātōris	m	舵手
+imperātor	imperātōris	m	指揮官,皇帝
+labor	labōris	m	苦労
+mercātor	mercātōris	m	商人
+ōrātor	ōrātōris	m	弁論家
+pāstor	pāstōris	m	牧人
+quaestor	quaestōris	m	財務官
+sapor	sapōris	m	味
+scriptor	scriptōris	m	筆者,作者
+sonor	sonōris	m	音
+terror	terrōris	m	恐怖
+timor	timōris	m	恐れ
+vēnātor	vēnātōris	m	猟師
+victor	victōris	m	勝利者
+arbor	arbōris	m	樹木
+
+soror	sorōris	f	姉妹
+uxor	uxōris	f	妻
+
+aequor	aequōris	n	海
+marmor	marmōris	n	大理石
+
+#	<āēr>	大部分m
+āēr	āeris	m	空気
+agger	aggeris	m	堆積
+ānser	ānseris	m	鵞鳥
+asser	asseris	m	棒
+cadāver	cadāveris	n	屍体
+cancer	canceris	m	かに(座)
+cicer	ciceris	n	豆
+iter	itineris	n	道,行程
+later	lateris	m	煉瓦
+mulier	mulieris	f	婦人
+passer	passeris	m	すずめ
+piper	piperis	n	胡椒
+sūber	sūberis	n	栓,コルク
+vēr	vēris	n	春
+
+#	<jubar>	大部分n
+//	āなのかaなのか...
+jubar	jubāris	n	光線
+nectar	nectaris	n	ネクタル,蜜
+salar	salaris	m	鱒
+Caesar	Caesaris	m	カエサル
+
+#	<sulfur>	大部分n
+fulgur	fulguris	n	稲妻
+fūr	fūris	mf	盗人
+guttur	gutturis	n	のど
+murmur	murmuris	n	ささやき
+furfur	furfuris	m	籾殻
+sulfur	sulfuris	n	硫黄
+turtur	turturis	m	山鳩
+vultur	vulturis	m	鷲
+
+ebur	eboris	象牙
+femur	femoris/feminis	腿
+jecur	jecoris/jecinoris	肝臓
+rōbur	rōboris	樫の木,力,強固
+
+frāter	frātris	m	兄弟
+māter	mātris	f	母
+pater	patris	m	父
+
+hiem(p)s	hiemis	f	冬
+
+#	<carmen>	大部分n
+carmen	carminis	n	歌
+abdōmen	abdōminis	n	腹部
+agmen	agminis	n	群,軍隊,行進
+crīmen	crīminis	n	訴訟,罪
+culmen	culminis	n	屋根,頂上
+exāmen	exāminis	n	群,調査
+flāmen	flāminis	n	突風,(神官,m)
+flūmen	flūminis	n	流れ,川
+germen	germinis	n	芽
+grāmen	grāminis	n	草
+glūten	glūtinis	n	膠,蜜蝋
+līmen	līminis	n	入り口,家
+lūmen	lūminis	n	光,灯火
+nōmen	nōminis	n	名前
+nūmen	nūminis	n	合図,神意,神
+ōmen	ōminis	n	きざし
+sēmen	sēminis	n	種子,血統
+pecten	pectinis	m	櫛
+splēn	splēnis	m	脾臓
+sanguis	sanguinis	m	血
+;;	sanguen	sanguinis
+
+#	<homō>	大部分m
+āpollō	āpollinis/āpollōnis	m	アポローン
+carnō	carninis	f	肉
+homō	hominis	c	人間
+sermō	serminis	m	ことば,会話
+turbō	turbinis	m	渦,動乱,旋風
+
+#	-dō,	-gō	はf
+cardō	cardinis	m	蝶番
+imāgō	imāginis	f	像,姿
+māgnitūdō	māgnitūdinis	f	大きさ,重要
+multitūdō	multitūdinis	f	多数,大衆
+ōrdō	ōrdinis	m	順序,秩序
+orīgō	orīginis	f	始源
+valētūdō	valētūdinis	f	健康
+virgō	virginis	f	乙女
+
+#	<leō>	大部分m
+leō	leōnis	m	ライオン
+latrō	latrōnis	m	傭兵,盗賊
+septentriō(septemtriō)	septentriōnis	m	北斗七星,大熊座
+
+#	-iō	はf
+āctiō	āctiōnis	f	行為,訴訟
+condiciō(-tiō)	condiciōnis	f	協定,条件,状態
+creātiō	creaātiōnis	f	創造,選択
+legiō	legiōnis	f	軍団
+nātiō	nātiōnis	f	生まれ,人種,国民
+occāsiō	occāsiōnis	f	好機
+opīniō	opīniōnis	f	意見
+ōrātiō	ōrātiōnis	f	談話,弁論
+quaestiō	quaestiōnis	f	質問,探求
+ratiō	ratiōnis	f	勘定,割合,比例,理性
+regiō	regiōnis	f	方向,線,地域
+religiō	religiōnis	f	配慮,宗教
+suspīciō	suspīciōnis	f	疑惑
+
+pūgiō	pūgiōnis	m	短剣
+vespertīliō	vespertīliōnis	m	こうもり
+

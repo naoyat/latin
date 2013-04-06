@@ -70,7 +70,7 @@
 2	carbasus	f	麻布
 2	capillus	m	毛髪
 2	colus	f	糸巻き棒
-2	deus	m	神
+#2	deus	m	神
 2	dominus	m	主,主人
 2	equus	m	馬
 2	fāgus	f	ブナの木(※木の実は中性)
@@ -334,3 +334,4 @@
 
 *	Iēsus:Iēsū:Iēsū:Iēsū:Iēsū:Iēsū	m	イエス
 2	Christus	m	キリスト
+*	deus:deus:deum:deī:deō:deō:dī,diī,deī:dī,diī,deī:deōs:deōrum,deūm:dīs,deīs,diīs:dīs,deīs,diīs	m	神

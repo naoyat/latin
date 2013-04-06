@@ -399,7 +399,7 @@ class Sentence:
         # （表示用に）単語の最大長を得ておく
         maxlen_uc = max([word.surface_len for word in self.words])
 
-        for word in self.words:
+        for i, word in enumerate(self.words):
             is_verb = False
             if word.is_verb():
                 color = ansi_color.RED
@@ -428,7 +428,7 @@ class Sentence:
             if is_verb:
                 text = ansi_color.underline(text)
 
-            print '  ' + text + ' '*(maxlen_uc - word.surface_len + 1),
+            print '  %2d  ' % (i) + text + ' '*(maxlen_uc - word.surface_len + 1),
 
             if word.items is None:
                 print
@@ -483,7 +483,7 @@ class Sentence:
             prep_ja = prep_item.ja
             targets = prep_item.target
             jas = filter(lambda x:x is not None, [render_item(ti, tj) for ti, tj in targets])
-            return '( ' + ' '.join(jas) + ' ) ' + prep_ja
+            return '( ' + ' / '.join(jas) + ' ) ' + prep_ja
 
         slot = {}
         # 前置詞とそれに支配された語

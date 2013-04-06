@@ -78,9 +78,17 @@ def decline_noun_type2(nom_sg, gen_sg, gender, ja, tags={}):
                     u'a', u'a', u'a', u'ōrum', u'īs', u'īs']
         stem1 = nom_sg[:-2]
     elif last2 == u'us':
-        suffices = [u'us', u'e', u'um', u'ī', u'ō', u'ō',
-                    u'ī', u'ī', u'ōs', u'ōrum', u'īs', u'īs']
-        stem1 = nom_sg[:-2]
+        if nom_sg[-3:] == u'ius':
+            suffices = [u'ius', u'ī', u'ium', (u'ī', u'iī'), u'iō', u'iō',
+                        u'iī', u'iī', u'iōs', u'iōrum', u'iīs', u'iīs']
+            stem1 = nom_sg[:-3]
+        else:
+            suffices = [u'us', u'e', u'um', u'ī', u'ō', u'ō',
+                        u'ī', u'ī', u'ōs', u'ōrum', u'īs', u'īs']
+            stem1 = nom_sg[:-2]
+            # if nom_sg in (u'deus'):
+            #    suffices[1] = u'us' ## 神聖視されるものはVoc=Nomとなる場合がある
+
     elif last2 in [u'er', u'ir']:
         # if gen_sg == nom_sg + u'ī': # puer / puerī
         # else: # ager / agrī
@@ -220,7 +228,7 @@ def load_nouns(file):
             elif type == '5':
                 decliner = decline_noun_type5
             elif type == '*':
-                forms = [f.decode('utf-8') for f in fs[1].split(':')]
+                forms = [[g.decode('utf-8') for g in f.split(',')] for f in fs[1].split(':')]
                 if len(forms) == 5:
                     forms = forms[0:1] + forms[0:1] + forms[1:5]
                     case_tags = case_tags_6x2[0:6]
@@ -232,12 +240,13 @@ def load_nouns(file):
                     case_tags = case_tags_6x2
                 else:
                     case_tags = case_tags_6x2
+                # util.pp(forms)
 
                 tags = {'pos':'noun', 'type':'*',
-                        'base':forms[0], 'gen_sg':forms[2], 'gender':gender,
+                        'base':forms[0][0], 'gen_sg':forms[2][0], 'gender':gender,
                         'ja':ja
                         }
-                table = util.variate(forms, tags, ['']*len(forms), case_tags)
+                table = util.variate(['']*len(forms), tags, forms, case_tags)
                 # util.pp(table)
                 items += util.aggregate_cases(table)
                 continue

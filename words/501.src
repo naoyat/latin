@@ -24,7 +24,7 @@
 22 affor, affArI, affAtus sum, * - speak to, address ; passive型
 23 aggredior, aggredI, aggressus sum, * - attack ; passive型
 24 agO, agere, EgI, Actum - do, drive
-25 AiO, *, *, * - say, affirm ; activeのみ|不規則
+25 AiO, *, *, * - say, affirm ; activeのみ,不規則
 26 alO, alere, aluI, altum - nourish, cherish
 27 ambiO, ambIre, ambiI | ambIvI, ambItum - go around, surround
 28 ambulO, ambulAre, ambulAvI, ambulAtum - walk, navigate
@@ -106,7 +106,7 @@
 103 custOdiO, custOdIre, custOdIvI | custOdiI, custOdItum - guard
 104 dEbeO, dEbEre, dEbuI, dEbitum - ought, owe
 105 dEcernO, dEcernere, dEcrEvI, dEcrEtum - decide, decree, resolve
-106 decet, decEre, decuit, * - is fitting, becomes (Impers.) ; active-3sgのみ
+106 decet, decEre, decuit, * - is fitting, becomes ; active-3sgのみ(impers.)
 107 dEclInO, dEclInAre, dEclInAvI, dEclInAtum - turn aside, lower, avoid
 108 dEfendO, dEfendere, dEfendI, dEfensum - defend
 109 dEferO, dEferre, dEtulI, dElAtum - bring down or away
@@ -134,7 +134,7 @@
 131 dUcO, dUcere, dUxI, ductum - lead
 132 dUrO, dUrAre, dUrAvI, dUrAtum - harden, remain
 133 EdO, Edere, EdidI, Editum - set forth, explain ; passiveは現在形3sgと接続法未完了3sgのみ
-134 edO, Esse (edere), EdI, Esum - eat
+134 edO, Esse | edere, EdI, Esum - eat
 135 effero | ecferO, efferre | ecferre, extulI, ElAtum - carry out, bury, raise up
 136 effugiO, effugere, effUgI, effugitUrus - escape, avoid ; passiveは完了なし
 137 effundO, effundere, effUdI, effUsum - pour out
@@ -200,309 +200,309 @@
 197 imbuO, imbuere, imbuI, imbUtum - dip, stain, inspire
 198 imitor, imitArI, imitAtus sum, * - imitate, represent ; passive型
 199 impediO, impedIre, impedIvI, impedItum - hinder
-200 impendeO, impendEre, *, * - hang over, threaten ; activeのみ、完了形なし
----- ここまでチェック済み ----
+200 impendeO, impendEre, *, * - hang over, threaten ; activeのみ,完了なし
 
 201 imperO, imperAre, imperAvI, imperAtum - command, order
 202 impleO, implEre, implEvI, implEtum - fill
 203 implicO, implicAre, implicAvI | implicuI, implicAtum | implicitum - enclose
-204 imcendO, incendere, incendI, incensum - set fire to, burn
+204 incendO, incendere, incendI, incensum - set fire to, burn
 205 incitO, incitAre, incitAvI, incitAtum - arouse
 206 inclUdO, inclUdere, inclUsI, inclUsum - enclose, hinder
-207 incumbO, incumbere, incubuI, incubitum - lean or recline, burden, choose
+207 incumbO, incumbere, incubuI, incubitum - lean or recline, burden, choose ; activeのみ
 208 indicO, indicAre, indicAvI, indicAtum - show
 209 induO, induere, induI, indUtum - put on (clothing or ornaments)
-210 ineO, inIre, iniI (inIvI), initum - enter
+210 ineO, inIre, iniI | inIvI, initum - enter
 211 inferO, inferre, intulI, illAtum - bring in, cause
 212 ingerO, ingerere, ingessI, ingestum - carry in, give, repeat
 213 ingredior, ingredI, ingressus sum, * - enter, engage in, begin
 214 iniciO, inicere, iniEcI, iniectum - throw in or on, cause
-215 inquam, *, *, * - say ;; defective
-216 insum, inesse, infuI, * - be in or upon
+215 inquam, *, *, * - say ; activeのみ [defective]
+216 insum, inesse, infuI, * - be in or upon ; activeのみ
 217 intellegO, intellegere, intellExI, intellEctum - realize, understand
-218 intereO, interIre, interiI | interIvI, interitum - go between, perish
+218 intereO, interIre, interiI | interIvI, interitum - go between, perish ; activeのみ
 219 interficiO, interficere, interfEcI, interfectum - kill
-220 intersum, interesse, interfuI, interfutUrus - be between, differ, attend
+220 intersum, interesse, interfuI, interfutUrus - be between, differ, attend ; activeのみ
 221 intrO, intrAre, intrAvI, intrAtum - enter, pierce
-222 introeO, introIre, introiI | introIvI, introitum - enter
+222 introeO, introIre, introiI | introIvI, introitum - enter ; passiveは3sgのみ
 223 inveniO, invenIre, invEnI, inventum - find, acquire
-224 IrAscor, IrAscI, IrAtus sum, * - be angry
+224 IrAscor, IrAscI, IrAtus sum, * - be angry ; passive型
 225 iubeO, iubEre, iussI, iussum - order
 226 iUdicO, iUdicAre, iUdicAvI, iUdicAtum - decide, judge
 227 iungO, iungere, iUnxI, iUnctum - join
 228 iUrO, iUrAre, iUrAvI, iUrAtum - swear
 229 iuvO, iuvAre, iUvI, iUtum - please, aid
-230 lAbor, lAbI, lapsus sum, * - slip, glide
-231 labOrO, labOrAre, labOrAvI, labOrAtum - work
+230 lAbor, lAbI, lapsus sum, * - slip, glide ; passive型
+231 labOrO, labOrAre, labOrAvI, labOrAtum - work ; passiveは3sg/3plのみ
 232 lacerO, lacerAre, lacerAvI, lacerAtum - mutilate, torture, ruin
 233 laedO, laedere, laesI, laesum - injure
 234 laetO, laetAre, laetAvI, laetAtum - make joyful (passive: rejoice)
-235 lateO, latEre, latuI, * - lie hidden
+235 lateO, latEre, latuI, * - lie hidden ; activeのみ
 236 laudO, laudAre, laudAvI, laudAtum - praise
 237 lavO, lavAre, lAvI, lautum | lavAtum | lOtum - wash
 238 legO, legere, lEgI, lEctum - choose, read
-239 libet, libEre, libuit, libitum est - it is pleasing
+239 libet, libEre, libuit, libitum est - it is pleasing ; 3sgのみ,passiveは完了のみ
 240 lIbO, lIbAre, lIbAvI, lIbAtum - taste, make a libation, dedicate, diminish
-241 licet, licEre, licuit, * - is allowed, is permitted, may (Impers.)
+241 licet, licEre, licuit, * - is allowed, is permitted, may ; activeの3sgのみ(impers.)
 242 ligO, ligAre, ligAvI, ligAtum - tie, bind
 243 linquO, linquere, lIquI, lictum - leave
 244 locO, locAre, locAvI, locAtum - place, lend
-245 loquor, loquI, locUtus sum, * - say, speak
+245 loquor, loquI, locUtus sum, * - say, speak ; passive型
 246 lUdO, lUdere, lUsI, lUsum - play
-247 lUgeO, lUgEre, luxI, luctum - mourn, lament
-248 luO, luere, luI, luitUrus - release, pay, undergo
-249 maereO, maerEre, maeruI, * - lament (passive: be sad)
-250 mAlO, mAlle, mAluI, * - choose, prefer
+247 lUgeO, lUgEre, luxI, luctum - mourn, lament ; passiveは完了なし
+248 luO, luere, luI, luitUrus - release, pay, undergo ; passiveは完了なし
+249 maereO, maerEre, maeruI, * - lament (passive: be sad) ; passiveは完了なし
+250 mAlO, mAlle, mAluI, * - choose, prefer ; activeのみ
 251 mandO, mandAre, mandAvI, mandAtum - entrust, order
-252 maneO, manEre, mAnsI, mAnsum - remain, stay
-253 meditor, meditArI, meditAtus sum, * - think, intend, practice
-254 *, *, meminI, meminisse - remember (Note: Perfect in form, Present in meaning)
+252 maneO, manEre, mAnsI, mAnsum - remain, stay ; passiveは3sgのみ
+253 meditor, meditArI, meditAtus sum, * - think, intend, practice ; passive型
+254 *, *, meminI, meminisse - remember ; activeのみ,完了のみ(perfect in form, present in meaning) 
 255 memorO, memorAre, memorAvI, memorAtum - mention, remind
-256 mentior, mentIrI, mentItus sum, * - lie
+256 mentior, mentIrI, mentItus sum, * - lie ; passive型
 257 mereO, merEre, meruI, meritum - deserve
 258 mergO, mergere, mersI, mersum - dip, sink
-259 mEtior, mEtIrI, mensus sum, * - measure
+259 mEtior, mEtIrI, mensus sum, * - measure ; passive型
 260 metO, metere, messuI, messum - reap, gather, mow down
-261 metuO, metuere, metuI, * - fear, be afraid
-262 minor, minArI, minAtus sum, * - project, threaten
+261 metuO, metuere, metuI, * - fear, be afraid ; activeのみ
+262 minor, minArI, minAtus sum, * - project, threaten ; passive型
 263 minuO, minuere, minuI, minUtum - lessen, make smaller
-264 mIror, mIrArI, mIrAtus sum, * - wonder, be amazed
+264 mIror, mIrArI, mIrAtus sum, * - wonder, be amazed ; passive型
 265 misceO, miscEre, miscuI, mixtum - confuse, mingle, mix
 266 misereO, miserEre, miseruI, miseritum - feel pity
 267 mittO, mittere, mIsI, missum - send
-268 mOlior, mOlIrI, mOlItus sum, * - set in motion, work, build, strive
+268 mOlior, mOlIrI, mOlItus sum, * - set in motion, work, build, strive ; passive型
 269 moneO, monEre, monuI, monitum - advise, warn
 270 monstrO, monstrAre, monstrAvI, monstrAtum - show
 271 mordeO, mordEre, momordI, morsum - bite
-272 morior, morI, mortuus sum, * - die
-273 moror, morArI, morAtus sum, * - delay, linger
+272 morior, morI, mortuus sum, * - die ; passive型
+273 moror, morArI, morAtus sum, * - delay, linger ; passive型
 274 moveO, movEre, mOvI, mOtum - move
 275 mulceO, mulcEre, mulsI, mulsum - stroke, soothe
 276 mUniO, mUnIre, mUnIvI, mUnItum - fortify, protect
 277 mUtO, mUtAre, mUtAvI, mUtAtum - change
-278 nancIscor, nancIscI, nactus | nanctus sum, * - find
+278 nancIscor, nancIscI, nactus | nanctus sum, * - find ; passive型
 279 narrO, narrAre, narrAvI, narrAtum - relate, tell
-280 nAscor, nAscI, nAtus sum, * - be born
-281 nAvigO, nAvigAre, nAvigAvI, nAvigAtum - sail
+280 nAscor, nAscI, nAtus sum, * - be born ; passive型
+281 nAvigO, nAvigAre, nAvigAvI, nAvigAtum - sail ; passiveは3sgのみ
 282 necO, necAre, necAvI, necAtum - kill
 283 nectO, nectere, nexuI | nexI, nexum - weave, bind, attach
 284 neglegO, neglegere, neglExI, neglEctum - neglect
 285 negO, negAre, negAvI, negAtum - deny
-286 nequeO, nequIre, nequIvI | nequiI, * - be unable
-287 nesciO, nescIre, nescIvI | nesciI, nescItum - not to know
-288 niteO, nitEre, *, * - shine, be beautiful
-289 nItor, nItI, nIsus | nIxus sum, * - strive, strain, rest upon
-290 nO, nAre, nAvI, * - swim, float
-291 noceO, nocEre, nocuI, nocitUrus - harm
-292 nOlO, nOlle, nOluI, * - be unwilling, not want
+286 nequeO, nequIre, nequIvI | nequiI, * - be unable ; activeのみ [defective]
+287 nesciO, nescIre, nescIvI | nesciI, nescItum - not to know ; passiveは3sgのみ
+288 niteO, nitEre, *, * - shine, be beautiful ; activeのみ,完了なし
+289 nItor, nItI, nIsus | nIxus sum, * - strive, strain, rest upon ; passive型
+290 nO, nAre, nAvI, * - swim, float ; activeのみ
+291 noceO, nocEre, nocuI, nocitUrus - harm ; activeのみ
+292 nOlO, nOlle, nOluI, * - be unwilling, not want ; activeのみ
 293 nOscO, nOscere, nOvI, nOtum - become acquainted, know
 294 nUbO, nUbere, nUpsI, nuptum - marry
 295 nUntiO, nUntiAre, nUntiAvI, nUntiAtum - announce
 296 nUtriO, nUtrIre, nUtrIvI, nUtrItum - nourish
-297 obeO, obIre, obiI | obIvI, obitum - meet, perish
+297 obeO, obIre, obiI | obIvI, obitum - meet, perish ; activeのみ
 298 obiciO, obicere, obiEcI, obiectum - throw in the way, expose, oppose
-299 oblIvIscor, oblIvIscI, oblItus sum, * - forget
-300 obsum, obesse, offuI | obuI, offutUrus - be against, hinder, injure
+299 oblIvIscor, oblIvIscI, oblItus sum, * - forget ; passive型
+300 obsum, obesse, offuI | obuI, offutUrus - be against, hinder, injure ; activeのみ
 
 301 occIdO, occIdere, occIdI, occIsum - kill
-302 
-303 
-304 
-305 
-306 
-307 
-308 
-309 
-310 
-311 
-312 
-313 
-314 
-315 
-316 
-317 
-318 
-319 
-320 
-321 
-322 
-323 
-324 
-325 
-326 
-327 
-328 
-329 
-330 
-331 
-332 
-333 
-334 
-335 
-336 
-337 
-338 
-339 
-340 
-341 
-342 
-343 
-344 
-345 
-346 
-347 
-348 
-349 
-350 
-351 
-352 
-353 
-354 
-355 
-356 
-357 
-358 
-359 
-360 
-361 
-362 
-363 
-364 
-365 
-366 
-367 
-368 
-369 
-370 
-371 
-372 
-373 
-374 
-375 
-376 
-377 
-378 
-379 
-380 
-381 
-382 
-383 
-384 
-385 
-386 
-387 
-388 
-389 
-390 
-391 
-392 
-393 
-394 
-395 
-396 
-397 
-398 
-399 
-400 
- 
-401 
-402 
-403 
-404 
-405 
-406 
-407 
-408 
-409 
-410 
-411 
-412 
-413 
-414 
-415 
-416 
-417 
-418 
-419 
-420 
-421 
-422 
-423 
-424 
-425 
-426 
-427 
-428 
-429 
-430 
-431 
-432 
-433 
-434 
-435 
-436 
-437 
-438 
-439 
-440 
-441 
-442 
-443 
-444 
-445 
-446 
-447 
-448 
-449 
-450 
-451 
-452 
-453 
-454 
-455 
-456 
-457 
-458 
-459 
-460 
-461 
-462 
-463 
-464 
-465 
-466 
-467 
-468 
-469 
-470 
-471 
-472 
-473 
-474 
-475 
-476 
-477 
-478 
-479 
-480 
-481 
-482 
-483 
-484 
-485 
-486 
-487 
-488 
-489 
-490 
-491 
-492 
-493 
-494 
-495 
-496 
-497 
-498 
-499 
-500 
-501 
+302 occulO, occulere, occuluI, occultum - conceal
+303 occupO, occupAre, occupAvI, occupAtum - seize
+304 occurrO, occurrere, occurrI, occursum - meet, counter, occur ; passiveが3sgのみ
+305 OdI, Odisse, *, * - hate ; activeの完了のみ(perfect in form, present in meaning)
+306 offerO, offerre, obtulI, oblAtum - bring before, offer, cause
+307 operor, operArI, operAtus sum, * - busy oneself ; passive型
+308 oportet, oportEre, oportuit, * - is fitting, ought ; activeの3sgのみ(impers.)
+309 opprimO, opprimere, oppressI, oppressum - crush, surprise
+310 optO, optAre, optAvI, optAtum - choose, wish for
+311 orior, orIrI, ortus sum, * - rise ; passive型
+312 OrO, OrAre, OrAvI, OrAtum - beg, plead
+313 ostendO, ostendere, ostendI, ostentum - show, hold out
+314 ovO, ovAre, ovAvI, ovAtum - celebrate a triumph, rejoice ; ほとんどない [defective]
+315 paenitet, paenitEre, paenituit, * - repent ; activeの3sgのみ(impers.)
+316 palleO, pallEre, palluI, * - be or grow pale ; activeのみ
+317 pandO, pandere, pandI, passum | pansum - spread out, open, explain
+318 pangO, pangere, panxI | pepigI | pEgI, panctum | pactum - fasten, drive in, fix, agree upon
+319 parcO, parcere, pepercI, parsum - spare ; passiveが3sgのみ
+320 pAreO, pArEre, pAruI, * - obey ; activeのみ
+321 pariO, parere, peperI, partum - give birth
+322 parO, parAre, parAvI, parAtum - prepare
+323 pascO, pascere, pAvI, pastum - feed, cherish
+324 pateO, patEre, patuI, * - lie open, extend ; activeのみ
+325 patior, patI, passus sum, * - allow, suffer ; passive型
+326 paveO, pavEre, pAvI, * - be afraid, tremble ; activeのみ
+327 pellO, pellere, pepulI, pulsum - drive, rout
+328 pendeO, pendEre, pependI, * - hang, float, be uncertain ; activeのみ
+329 pendO, pendere, pependI, pensum - weigh, pay, value
+330 percellO, percellere, perculI, perculsum - upset, ruin
+331 percutiO, percutere, percussI, percussum - strike, pierce, kill
+332 pereO, perIre, periI | perIvI, peritum - be lost, be wasted, perish ; activeのみ
+333 perferO, perferre, pertulI, perlAtum - carry through, endure
+334 pergO, pergere, perrExI, perrEctum - continue, wake up, proceed
+335 petO, petere, petIvI, petItum - ask for, seek
+336 pingO, pingere, pinxI, pictum - paint, embroider
+337 placeO, placEre, placuI, placitum - please
+338 plangO, plangere, planxI, planctum - beat, lament
+339 plaudO, plaudere, plausI, plausum - applaud, strike
+340 plOrO, plOrAre, plOrAvI, plOrAtum - cry out, lament
+341 polliceor, pollicErI, pollicitus sum, * - promise ; passive型
+342 pOnO, pOnere, posuI, positum - put, place
+343 porrigO, porrigere, porrExI, porrEctum - reach or stretch out
+344 portO, portAre, portAvI, portAtum - carry
+345 poscO, poscere, poposcI, * - demand, request ; passiveは完了なし
+346 possideO, possidEre, possEdI, possessum - own, occupy
+347 possum, posse, potuI, * - be able, can ; activeのみ
+348 postulO, postulAre, postulAvI, postulAtum - demand
+349 potior, potIrI, potItus sum, * - acquire, take possession of ; passive型
+350 praebeO, praebEre, praebuI, praebitum - supply, show, approve, allow
+351 praedIcO, praedIcere, praedIxI, praedIctum - foretell, appoint, warn
+352 praeeO, praeIre, praeiI | praeIvI, praeitum - meet, perish ; activeのみ
+353 praeferO, praeferre, praetulI, praelAtum - bring before, show, prefer
+354 praestO, praestAre, praestitI, praestitum - excel ; passiveは3sgのみ
+355 praesum, praeesse, praefuI, * - be in front, be in charge ; activeのみ
+356 praetereO, praeterIre, praeteriI | praeterIvI, praeteritum - pass by, omit, neglect, perish
+357 precor, precArI, precAtus sum, * - beg, pay, request ; passive型
+358 prehendO, prehendere, prehendI, prehensum - grasp
+359 premO, premere, pressI, pressum - press, oppress
+360 probO, probAre, probAvI, probAtum - test, try, prove, approve
+361 prOdeO, prOdIre, prOdiI, prOditum - go forth ; passiveは3sgのみ
+362 prOferO, prOferre, prOtulI, prOlAtum - bring forth, reveal, extend
+363 proficIscor, proficIscI, profectus sum, * - set out ; passive型
+364 prOiciO, prOicere, prOiEcI, prOiectum - throw forward, abandon
+365 properO, properAre, properAvI, properAtum - hurry ; passiveは3sgのみ
+366 prOsum, prOdesse, prOfuI, prOfutUrus - be useful, benefit, profit ; activeのみ
+367 pudet, pudEre, puduit, * - be ashamed (it shames) ; active,3sgのみ(impers.)
+368 pugnO, pugnAre, pugnAvI, pugnAtum - fight ; passiveは3sgのみ
+369 pUniO, pUnIre, pUnIvI | pUniI, pUnItum - punish, avenge
+370 putO, putAre, putAvI, putAtum - think
+371 quaerO, quaerere, quaesIvI, quaesItum - ask, seek
+372 quatiO, quatere, *, quassum - shake, beat ; 完了なし
+373 queO, quIre, quIvI | quiI, * - be able ; activeのみ [defective]
+374 queror, querI, questus sum, * - complain ; passive型
+375 quiEscO, quiEscere, quiEvI, quiEtum - rest, stop, be or make quiet
+376 rapiO, rapere, rapuI, raptum - carry off, snatch
+377 reddO, reddere, reddidI, redditum - give back, surrender, repeat
+378 redeO, redIre, rediI, reditum - return ; passiveは3sgのみ
+379 referO, referre, rettulI, relAtum - bring back, reply
+380 regO, regere, rExI, rEctum - rule, guide
+381 rEiciO, rEicere, rEiEcI, rEiectum - throw back, refuse
+382 relinquO, relinquere, relIquI, relictum - abandon, leave
+383 reor, rErI, ratus sum, * - believe, judge ; passive型
+384 reperiO, reperIre, repperI, repertum - find, learn
+385 requIrO, requIrere, requIsIvI | requIsiI, requIsItum - seek, ask, demand / passive:be required
+386 resIdO, resIdere, resEdI, * - sit down, settle ; activeのみ
+387 respiciO, respicere, respexI, respectum - look back, regard
+388 respondeO, respondEre, respondI, respOnsum - answer, reply
+389 rIdeO, rIdEre, rIsI, rIsum - laugh (at), smile
+390 rogO, rogAre, rogAvI, rogAtum - ask, beg
+391 rubeO, rubEre, *, * - be red, blush ; activeのみ,完了なし
+392 rumpO, rumpere, rUpI, ruptum - break, burst
+393 ruO, ruere, ruI, rutum - fall or cast down violently, rush
+394 sacrO, sacrAre, sacrAvI, sacrAtum - consecrate, condemn
+395 saeviO, saevIre, saeviI, saevItum - rage ; passiveは3sgのみ
+396 saliO, salIre, saluI, saltum - jump, leap ; activeのみ
+397 sanciO, sancIre, sanxI, sanctum - make sacred, appoint, decree
+398 sapiO, sapere, sapIvI | sapiI, * - taste, suggest, be wise ; activeのみ
+399 scandO, scandere, *, * - climb - activeのみ,完了なし
+400 scindO, scindere, scidI, scissum - cut, split, urge
+
+401 sciO, scIre, scIvI, scItum - know
+402 scrIbO, scrIbere, scrIpsI, scrIptum - write
+403 secO, secAre, secuI, sectum - cut
+404 sedeO, sedEre, sEdI, sessum - sit ; activeのみ
+405 sentiO, sentIre, sEnsI, sEnsum - feel, perceive
+406 sepeliO, sepelIre, sepelIvI | sepeliI, sepultum - bury, overwhelm
+407 sequor, sequI, secUtus sum, * - follow ; passive型
+408 serO, serere, sEvI, satum - sow, beget
+409 serO, serere, seruI, sertum - connect, braid
+410 serviO, servIre, servIvI, servItum - serve
+411 servO, servAre, servAvI, servAtum - save, keep
+412 signO, signAre, signAvI, signAtum - mark out
+413 sileO, silEre, siluI, * - keep still, be quiet ; passiveは3sgのみ,完了なし
+414 simulO, simulAre, simulAvI, simulAtum - imitate, pretend
+415 sinO, sinere, sIvI, situm - let, permit
+416 sistO, sistere, stitI, statum - place, stand still, stop
+417 soleO, solEre, solitus sum, * - be accustomed ; activeのみ
+418 sollicitO, sollicitAre, sollicitAvI, sollicitAtum - disturb
+419 sOlor, sOlArI, sOlAtus sum, * - comfort ; passive型
+420 solvO, solvere, solvI, solUtus - loosen, set sail, pay
+421 spargO, spargere, sparsI, sparsum - scatter, sprinkle, divide
+422 spectO, spectAre, spectAvI, spectAtum - look at
+423 spernO, spernere, sprEvI, sprEtum - despise
+424 spErO, spErAre, spErAvI, spErAtum - hope ; passiveは3sgのみ
+425 spIrO, spIrAre, spIrAvI, spIrAtum - breathe, blow, live ; activeのみ
+426 spondeO, spondEre, spopondI, sponsum - promise, betroth
+427 statuO, statuere, statuI, statUtum - decide, station
+428 sternO, sternere, strAvI, strAtum - stretch or spread out, cover
+429 stO, stAre, stetI, statum - stand ; activeのみ
+430 strepO, strepere, strepuI, * - make a noise ; activeのみ
+431 stringO, stringere, strinxI, strictum - draw, bind, touch, prune
+432 struO, struere, struxI, structum - pile up, build, prepare
+433 studeO, studEre, studuI, * - be eager for, desire ; activeのみ
+434 stupeO, stupEre, stupuI, * - be stunned ; activeのみ
+435 suAdeO, suAdEre, suAsI, suAsum - advise
+436 subeO, subIre, subiI | subIvI, subitum - approach, enter
+437 sUbiciO, sUbicere, sUbiEcI, sUbiectum - throw or place under, lift, substitute
+438 subsum, subesse, *, * - be under or close by ; activeのみ,完了なし
+439 suEscO, suEscere, suEvI, suEtum - become accustomed ; activeのみ
+440 sufferO, sufferre, sustulI, sublAtum - hold up, endure, suffer
+441 sum, esse, fuI, futUrus - be ; activeのみ
+442 sUmO, sUmere, sUmpsI, sUmptum - take
+443 superO, superAre, superAvI, superAtum - overcome, surpass
+444 supersum, superesse, superfuI, superfutUrus - be left over, survive, abound ; activeのみ
+445 surgO, surgere, surrExI, surrEctum - raise, stand up, ascend
+446 suspendO, suspendere, suspendI, suspensum - hang
+447 taceO, tacEre, tacuI, tacitum - be silent, keep still ; passiveは3sgのみ
+448 tangO, tangere, tetigI, tActum - touch
+449 tegO, tegere, tExI, tEctum - cover, conceal
+450 temptO, temptAre, temptAvI, temptAtum - try
+451 tendO, tendere, tetendI, tentum | tEnsum - stretch, strive, aim
+452 teneO, tenEre, tenuI, * - hold, keep ; passiveは完了なし
+453 terO, terere, trIvI, trItum - rub, wear down
+454 terreO, terrEre, terruI, territum - frighten
+455 texO, texere, texuI, textum - weave, braid
+456 timeO, timEre, timuI, * - fear ; passiveは完了なし
+457 tollO, tollere, sustulI, sublAtum - lift, raise
+458 tondeO, tondEre, totondI, tOnsum - shear, crop, shave, trim
+459 tonO, tonAre, tonuI, * - thunder ; activeのみ
+460 torqueO, torquEre, torsI, tortum - twist
+461 torreO, torrEre, torruI, tostum - burn, dry
+462 trahO, trahere, trAxI, tractum - drag, draw
+463 trAiciO, trAicere, trAiEcI, trAiectum - pierce
+464 transeO, transIre, transiI | transIvI, transitum - cross
+465 transferO, transferre, transtulI, translAtum - carry over
+466 tremO, tremere, tremuI, * - tremble ; activeのみ
+467 tribuO, tribuere, tribuI, tribUtum - assign, allow, give
+468 tueor, tuErI, tuitus sum, * - watch, protect ; passive型
+469 tundO, tundere, tutudI, tUnsum | tUssum | tUsum ; strike
+470 turbO, turbAre, turbAvI, turbAtum - disturb, throw into confusion
+471 ulcIscor, ulcIscI, ultus sum, * - avenge, punish ; passive型
+472 urgeO, urgEre, ursI, * - drive, burden ; passiveは完了なし
+473 UrO, Urere, ussI, ustum - burn
+474 Utor, UtI, Usus sum, * - use ; passive型
+475 vAdO, vAdere, *, * - go, walk ; activeのみ,完了なし
+476 valeO, valEre, valuI, valitUrus - be well, be strong ; activeのみ
+477 vehO, vehere, vExI, vectum - bear, draw
+478 vellO, vellere, vulsI | vellI, vulsum - pluck
+479 vendO, vendere, vendidI, venditum - sell, betray ; passive現在と未完了のみ
+480 vEneO, vEnIre, vEniI | vEnIvI, vEnitum - be sold ; activeのみ
+481 veneror, venerArI, venerAtus sum, * - worship, beg ; passive型
+482 veniO, venIre, vEnI, ventum - come ; passiveは3sgのみ
+483 vereor, verErI, veritus sum - fear, respect ; passive型
+484 verrO, verrere, verrI | versI, versum - sweep, cover
+485 versO, versAre, versAvI, versAtum - turn, twist (often or violently)
+486 vertO, vertere, vertI, versum - turn
+487 vescor, vescI, *, * - eat ; passive型,完了なし
+488 vetO, vetAre, vetuI, vetitum - forbid
+489 videO, vidEre, vIdI, vIsum - see, seem (in passive)
+490 vigeO, vigEre, *, * - thrive ; activeのみ,完了なし
+491 vigilO, vigilAre, vigilAvI, vigilAtum - keep awake, watch
+492 vinciO, vincIre, vinxI, vinctum - bind, compress
+493 vincO, vincere, vIcI, victum - conquer
+494 vireO, virEre, viruI, * - flourish, be green ; activeのみ
+495 vIvO, vIvere, vIxI, vIctum - live, be alive ; passiveは3sgのみ
+496 vocO, vocAre, vocAvI, vocAtum - call
+497 volO, volAre, volAvI, volAtum - fly ; activeのみ
+498 volO, velle, voluI, * - wish ; activeのみ
+499 volvO, volvere, volvI, volUtum - roll, unroll, ponder
+500 voveO, vovEre, vOvI, vOtum - vow, consecrate
+
+501 vulnerO, vulnerAre, vulnerAvI, vulnerAtum - wound
