@@ -219,6 +219,28 @@ def load_nouns(file):
                 decliner = decline_noun_type4
             elif type == '5':
                 decliner = decline_noun_type5
+            elif type == '*':
+                forms = [f.decode('utf-8') for f in fs[1].split(':')]
+                if len(forms) == 5:
+                    forms = forms[0:1] + forms[0:1] + forms[1:5]
+                    case_tags = case_tags_6x2[0:6]
+                elif len(forms) == 6:
+                    case_tags = case_tags_6x2[0:6]
+                elif len(forms) == 10:
+                    forms = forms[0:1] + forms[0:1] + forms[1:5] \
+                        + forms[5:6] + forms[5:6] + forms[6:10]
+                    case_tags = case_tags_6x2
+                else:
+                    case_tags = case_tags_6x2
+
+                tags = {'pos':'noun', 'type':'*',
+                        'base':forms[0], 'gen_sg':forms[2], 'gender':gender,
+                        'ja':ja
+                        }
+                table = util.variate(forms, tags, ['']*len(forms), case_tags)
+                # util.pp(table)
+                items += util.aggregate_cases(table)
+                continue
             else:
                 continue
 
@@ -228,7 +250,6 @@ def load_nouns(file):
                     }
             # util.pp( tags )
             table = decliner(nom_sg, gen_sg, gender, ja, tags)
-            # util.pp(table)
 
             if len(table) == 0: continue
 

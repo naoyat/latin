@@ -1,96 +1,215 @@
 # A=ā E=ē I=ī O=ō U=ū Y=ȳ
 
-1	rosa	f	バラ
-1	aqua	f	水
-1	vīta	f	人生
-1	terra	f	地,大地
-1	preada	f	戦利品
-1	puella	f	少女
-1	agricola	m	農夫
-1	herba	f	草
-1	dea	f	女神
-1	via	f	道
-1	Graecia	f	ギリシア
-1	Rōma	f	ローマ
-1	poēta	m	詩人
-
+1	Adria	m	アドリア海
 1	Crēta	f	クレタ
-1	schola	f	学校
-1	fīlia	f	娘
-1	incola	f	住人
-1	rēgīna	f	女王
-1	laetitia	f	喜び
-1	prūdentia	f	思慮深さ
-1	patria	f	故郷,祖国
-1	īnsula	f	島
-1	Thessalia	f	テッサリア
-1	Phthia	f	プティア
-1	Trōja	f	トロヤ
-1	memoria	f	記憶
-1	fōrma	f	形,型,姿
-1	sapientia	f	知識,良識,知恵
-1	sententia	f	意見,考え
-1	misericordia	f	慈悲,憐憫
-1	porta	f	扉
-1	victima	f	犠牲,被害者
-1	mora	f	遅れ,間
-1	vespera	f	夕刻
+1	Graecia	f	ギリシア
 1	Mycēna	f	ミュケナイ
+1	Phthia	f	プティア
+1	Rōma	f	ローマ
+1	Thessalia	f	テッサリア
+1	Trōja	f	トロヤ
+1	agricola	m	農夫
+1	aqua	f	水
+1	causa	f	原因
+1	dea	f	女神
+1	epistula	f	手紙
+1	femina	f	女性
+1	fīlia	f	娘
+1	fōrma	f	形,型,姿
 1	glōria	f	栄光
 1	grātia	f	感謝
+1	herba	f	草
+1	hōra	f	時(じ)
+1	incola	f	住人
+1	īnsula	f	島
+1	īra	f	怒り
+1	laetitia	f	喜び
+1	lūna	f	月
+1	memoria	f	記憶
+1	mēnsa	f	食卓
+1	misericordia	f	慈悲,憐憫
+1	mora	f	遅れ,間
+1	nauta	m	水夫
+1	patria	f	故郷,祖国
+1	poēta	m	詩人
+1	porta	f	門,扉
+1	preada	f	戦利品
+1	prūdentia	f	思慮深さ
+1	puella	f	少女
+1	rēgīna	f	女王
+1	rosa	f	バラ
+1	rota	f	車輪
+1	sapientia	f	知識,良識,知恵
+1	schola	f	学校
+1	scrība	m	書記
+1	sententia	f	意見,考え
+1	silva	f	森
+1	stella	f	星
+1	terra	f	地,大地
+1	unda	f	波
+1	vespera	f	晩,夜の時間
+1	via	f	道
+1	victima	f	犠牲,被害者
+1	vīta	f	人生
 
-2	templum	n	神殿
-2	bellum	n	戦争
-2	dōnum	n	贈物
-2	saeculum	n	時代
-2	gaudium	n	喜び
-2	vīnum	n	ワイン
-2	ōvum	n	卵
-2	oppidum	n	町
-2	rēgnum	n	王国
-2	ingenium	n	才能
-2	studium	n	努力,研究
-2	labyrinthum	n	迷宮
-2	mōnstrum	n	怪物
-2	medium	n	真ん中
-2	fīlum	n	糸
-2	auxilium	n	助け,援助,救助
+2	Corinthus	f	コリントス
+2	Daedalus	m	ダエダルス
+2	Homērus	m	ホメルス
+2	Naxus	m	ナクソス
+2	Samus	f	サモス島
+2	Tenedus	m	テネドス
+2	Thēseus	m	テセウス
+2	agnus	m	小羊
+2	alvus	f	胃腸
+2	amīcus	m	友人
+2	animus	m	心,考え
+2	annus	m	年,季節
+2	arctus	f	大熊座
+2	atomus	f	原子
+2	campus	m	平野
+2	carbasus	f	麻布
+2	capillus	m	毛髪
+2	colus	f	糸巻き棒
+2	deus	m	神
+2	dominus	m	主,主人
+2	equus	m	馬
+2	fāgus	f	ブナの木(※木の実は中性)
+2	famulus	m	奉公人
+2	focus	m	炉,家庭
+2	fīlius	m	息子
+2	fluvius	m	流れ,川
+2	gladius	m	剣
+2	hortus	m	庭
+2	humus	f	大地
+2	laulus	f	月桂樹
+2	lectus	m	寝台
+2	locus	m	場所
+2	lūdus	m	遊戯
+2	lupus	m	狼
+2	mālus	f	林檎の木(※木の実は中性)
+2	methodus	f	方法
+2	mōrbus	m	病気
+2	mōrus	f	桑の木(※木の実は中性)
+2	mūrus	m	壁
+2	modus	m	制限,方法
+2	mundus	m	世界,宇宙
+2	nimbus	m	雨
+2	numerus	m	数,測定
+2	nuntius	m	使者
+2	oculus	m	目
+2	pelagus	n	大海
+2	periodus	f	文,ピリオド
+2	pīnus	f	松の木(※木の実は中性)
+2	pirus	f	梨の木(※木の実は中性)
+2	populus	m	人民,民衆
+2	radius	m	光線
+2	rāmus	m	枝
+2	rēgulus	m	王子
+2	rīvus	m	小川
+2	servus	m	奴隷
+2	socius	m	同僚,仲間
+2	somnus	m	睡眠
+2	sonus	m	音,声
+2	taurus	m	雄牛
+2	titulus	m	碑銘,題字
+2	triumphus	m	勝利
+2	ulmus	f	ニレの木
+2	umerus	m	肩
+2	vanus	f	箕
+2	ventus	m	風
+2	vīrus	n	毒,ウィルス
+2	vulgus	n	群衆
+
 2	aedificium	n	建物
+2	aevum	n	時代
+2	argentum	n	銀
+2	ātrium	n	広間,前室
+2	aurum	n	金
+2	auxilium	n	助け,援助,救助
+2	bellum	n	戦争
+2	bracchium	n	腕
+2	caelum	n	天空
+2	collum	n	首
+2	commercium	n	交際
+2	coniungium	n	結婚
+2	cōnsilium	n	意図,相談
+2	damnum	n	損失
+2	dictum	n	発言,演説
+2	documentum	n	証拠,教訓
+2	dōnum	n	贈物
+2	ēloquium	n	雄弁,修辞
+2	excelsum	n	高み
 2	exemplum	n	例,サンプル
+2	factum	n	行為
+2	fātum	n	運命
+2	ferrum	n	鉄,剣
+2	festum	n	祝祭
+2	fīlum	n	糸
+2	forum	n	市場,広場
+2	frūmentum	n	麦の粒,穀粒,穀物
+2	gaudium	n	喜び
+2	gremium	n	胸,ひざ
+2	hospitium	n	歓待
+2	incendium	n	火事
+2	ingenium	n	才能,能力,性格
+2	inventum	n	工夫,考案
+2	labyrinthum	n	迷宮
+2	līlium	n	ゆり
+2	linteum	n	麻布,帆
+2	medium	n	真ん中
+2	membrum	n	四肢,(pl.)体
+2	meritum	n	奉仕,功績
+2	monitum	n	忠告
+2	mōnstrum	n	怪物
+2	officium	n	義務
+2	oppidum	n	町
+2	osculum	n	キス
+2	ostium	n	口,入口
+2	ōtium	n	暇,休日
+2	ōvum	n	卵
+2	peccātum	n	罪
+2	perīculum	n	危険
 2	praesidium	n	守備,護衛
 2	prātum	n	牧場,草原,野原
-2	frūmentum	n	麦の粒,穀粒,穀物
+2	principium	n	最初
+2	proelium	n	戦闘
 2	pōmum	n	果実
-2	excelsum	n	高み
+2	rēgnum	n	支配,王権,王国
+2	saeculum	n	時代,世代
+2	signum	n	印,標準,像
+2	silentium	n	沈黙
+2	solstitium	n	真夏
+2	solum	n	土地
+2	spatium	n	空間,期間,暇
+2	studium	n	努力,熱意,追求,研究
+2	taedium	n	疲労
+2	tectum	n	屋根,家
+2	tentōrium	n	テント
+2	templum	n	神殿
+2	tergum	n	背中
+2	verbum	n	言葉
+2	vīnum	n	ワイン
+2	vitium	n	欠点
+2	vōtum	n	誓約,祈り
+2	ōvum	n	卵
 
-2	dominus	m	主,主人
-2	amīcus	m	友人
-2	famulus	m	奉公人
-2	servus	m	奴隷
-2	populus	m	人民
-2	campus	m	平原
-2	mundus	m	世界
-2	Aegyptus	f	エジプト
-2	fīlius	m	息子
-2	animus	m	精神
-2	Homērus	m	ホメルス
-2	Thēseus	m	テセウス
-2	taurus	m	雄牛
-2	Daedalus	m	ダエダルス
-2	pīnus	f	松
-2	rēgulus	m	王子
-2	Tenedus	m	テネドス
-2	gladius	m	剣
-2	Naxus	m	ナクソス
-2	Deus	m	神
-
-2	ager	agrī	m	畑
-2	liber	librī	m	本
-2	faber	fabrī	m	職人
 2	Alexander	Alexandrī	m	アレクサンダー
-2	magister	magistrī	m	先生
+2	ager	agrī	m	畑
+2	aper	aprī	m	野猪
+2	arbiter	arbitrī	m	証人,裁判官
+2	culter	cultri	m	ナイフ
+2	faber	fabrī	m	職人
+2	liber	librī	m	本,書物
+2	magister	magistrī	m	教師,先生
+2	minister	ministri	m	召使
 
 2	puer	puerī	m	少年
+2	gener	generī	m	娘婿
+2	socer	socerī	m	義父
+2	vesper	vesperī	m	夕方,晩,夜
+2	signifer	signiferī	m	旗手
+2	armiger	armigerī	m	よろい持ち(従者)
+
 2	vir	virī	m	男,夫
 
 # III -ium (a)
@@ -166,8 +285,9 @@
 3-um	māgnitūdō	māgnitūdinis	f	大きさ,偉大さ,多量,重要性
 #3-um	nēmō	nēminis	m	誰も〜ない
 3-um	ratiō	ratiōnis	f	計算,方法,理屈,分野
-3-um	commūtātio	commūtātiōnis	f	変化,変異
+3-um	commūtātiō	commūtātiōnis	f	変化,変異
 3-um	Paris	Paridis	m	パリス
+3-um	dēprecātiō	dēprecātiōnis	f	哀願
 
 # 3-um	plūs	plūris	n	(より多くの,沢山の)
 3-um	laus	laudis	f	称賛,名誉,名声
@@ -181,34 +301,36 @@
 3-um	Nestor	Nestoris	m	ネストル
 3-um	Cerēs	Cereris	m	ケレース
 
-
 3-um	mōs	mōris	m	意思,習慣,性格
 3-um	flōs	flōris	f	花
 3-um	odor	odōris	m	匂い,香り
 3-um	vesper	vesperis	m	夕方
 3-um	plūs	plūris	n	より多く
 
-4	manus	manūs	f	手
-4	cornū	cornūs	n	角(つの)
-4	exercitus	exercitūs	m	軍隊
-4	cursus	cursūs	m	コース
-4	domus	domūs	f	家
-4	senātus	senātūs	m	元老院
-4	currus	currūs	m	馬車
-4	adventus	adventūs	m	到着
-4	genū	genūs	n	ひざ
-4	specus	specūs	m	洞穴
-4	fructus	fructūs	m	果実
-4	gradus	gradūs	m	階段,段階
-
 4	Ariadnē	Ariadnēs	f	アリアドネー(ミノスの娘)
 4	Mycēnē	Mycēnēs	f	ミュケーナイ
 4	Persephonē	Persephonēs	f	ペルセポネー
+4	adventus	adventūs	m	到着
+4	cornū	cornūs	n	角(つの)
+4	currus	currūs	m	馬車
+4	cursus	cursūs	m	コース
+4	domus	domūs	f	家
+4	exercitus	exercitūs	m	軍隊
+4	fructus	fructūs	m	果実
+4	genū	genūs	n	ひざ
+4	gradus	gradūs	m	階段,段階
+4	manus	manūs	f	手
+4	senātus	senātūs	m	元老院
+4	specus	specūs	m	洞穴
+4	spīritus	spīritūs	m	霊
 
-5	diēs	diēī	mf	日,昼
-5	rēs	reī	f	物,事
-5	spēs	speī	f	希望
 5	aciēs	aciēī	f	戦列
+5	diēs	diēī	mf	日,昼
 5	faciēs	faciēī	f	顔
-5	speciēs	speciēī	f	姿
+5	rēs	reī	f	物,事
 5	seriēs	seriēī	f	連続,シリーズ
+5	speciēs	speciēī	f	姿
+5	spēs	speī	f	希望
+
+*	Iēsus:Iēsū:Iēsū:Iēsū:Iēsū:Iēsū	m	イエス
+2	Christus	m	キリスト

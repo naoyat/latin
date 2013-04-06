@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+import os
 import select
 import getopt
 
@@ -12,8 +13,6 @@ import latin.latindic as latindic
 
 import latin.ansi_color as ansi_color
 
-
-def is_not_none(x): return x is not None
 
 class Item:
     def __init__(self, item):
@@ -38,11 +37,19 @@ class Item:
 
     # itemをレンダリング
     def description(self):
-        name = {'indicative':'直説法', 'subjunctive':'接続法', 'imperative':'命令法', 'infinitive':'不定法',
-                'present':'現在', 'imperfect':'未完了', 'perfect':'完了', 'future':'未来',
-                'past-perfect': '過去完了',
-                'active':'能動', 'passive':'受動',
-                '-':'-'}
+        name = {
+            # tense
+            'present':'現在', 'future':'未来', # 'past':'過去',
+            'imperfect':'未完了', 'perfect':'完了', 'past-perfect': '過去完了',
+            # mode
+            'indicative':'直説法', 'subjunctive':'接続法', 'imperative':'命令法', 'infinitive':'不定法',
+            #
+            'participle':'分詞', 'gerundium':'動名詞',
+            # 数
+            'sg':'単数', 'pl':'複数',
+            # (態:Genus)
+            'active':'能動', 'passive':'受動',
+            '-':'-'}
         # pos = item['pos']
         if self.pos == 'noun':
             return '%s %s' % (self.ja, self._) +' // '+ util.render(self.modifiers)
@@ -50,8 +57,8 @@ class Item:
             return 'a.%s %s' % (self.ja, self._)
         elif self.pos == 'verb':
             return 'v.%s %s%s %s.%s.%s' % (self.ja,
-                                           self.item['person'],
-                                           self.item['number'],
+                                           self.item.get('person', 0),
+                                           self.item.get('number', '-'),
                                            name[self.item.get('mood', 'indicative')],
                                            name[self.item.get('voice', 'active')],
                                            name[self.item.get('tense', 'present')],
@@ -97,6 +104,7 @@ class Word:
             if self.items is None:
                 self._is_verb = False
             else:
+#                util.pp((self.surface, [item.attrib('mood','*') if item.pos == 'verb' else '-' for item in self.items]))
                 self._is_verb = any([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
         return self._is_verb
 
@@ -115,6 +123,104 @@ class Sentence:
                 self.pred_idx = i
                 break
 #        print self.pred_idx
+
+    def count_patterns(self):
+        patterns = 1
+        for i, word in enumerate(self.words):
+            if word.items is None: continue
+            cnt = 0
+            for j, item in enumerate(word.items):
+                if item._ is not None and item._ != []:
+                    cnt += len(item._)
+                else:
+                    cnt += 1
+            print "%s(%d)" % (word.surface.encode('utf-8'), cnt),
+            patterns *= cnt
+        print " -> %d PATTERNS" % patterns
+
+    # 属格支配をする形容詞
+    def genitive_domination(self):
+        for i, word in enumerate(self.words):
+            if i == self.len-1: break # これが最後の単語ならチェック不要
+            if word.items is None: continue # 句読点はスキップ
+
+            for j, item in enumerate(word.items):
+                if item.pos == 'adj' and item.attrib('base') == u'plēnus':
+                    # util.pp(("DETECTED:", word.surface, item.attrib('base')))
+                    def find_targets(range_from, range_to):
+                        target = None
+                        if range_from < range_to:
+                            rng = range(range_from, range_to+1, 1)
+                        else:
+                            rng = range(range_from, range_to-1, -1)
+                        for i2 in rng:
+                            w = self.words[i2]
+                            if w.items is None: continue
+                            if w.surface == u'et': continue
+                            for j2, item2 in enumerate(w.items):
+                                if item2._ is None or item2._ == []: continue
+                                if item2.pos not in ['noun']: continue
+#                                if cng in item2._:
+#                                    pass
+                    targets = find_targets(i+1, self.len-1)
+
+    dot_file_count = 0
+
+    # dotファイルを吐く
+    def dot(self, name):
+#        self.dot_file_count += 1
+#        outfile = '%03d.dot' % self.dot_file_count
+        with open('tmp/' + name + '.dot', 'w') as fp:
+            fp.write('graph aaa {\n')
+#            fp.write('  graph [ center = "false", ordering = out, ranksep = 0.2, nodesep = 0.5 ];\n')
+            fp.write('  graph [ rankdir = LR ];\n')
+#            fp.write('  node [ fontname = "Courier", fontsize = 11, shape = circle, width = 0.2, height = 0.2, margin = 0.01 ];\n')
+            fp.write('  node [ fontname = "Courier", fontsize = 11, shape = circle, width = 0.2, height = 0.2 ];\n')
+            fp.write('  edge [ color = black, weight = -1 ];\n')
+
+            last_ks = 0
+            for i, word in enumerate(self.words):
+                surface = word.surface.encode('utf-8')
+                k = 0
+                if word.items is None:
+                    fp.write('  W%d_0 [ label = "%s" ];\n' % (i, surface))
+                    k += 1
+                else:
+                    for j, item in enumerate(word.items):
+                        if isinstance(item._, list):
+                            for it in item._:
+                                info = '-'.join(it)
+                                node = """
+  W%d_%d [
+    label = "%s\\n%s"
+    pos = "%d,%d!"
+  ];
+""" % (i, k, surface, info, i*2, k*2)
+                                fp.write(node)
+                                k += 1
+                        else:
+                            info = item.pos[:4]
+                            node = """
+  W%d_%d [
+    label = "%s\\n%s"
+    pos = "%d,%d!"
+  ];
+""" % (i, k, surface, info, i*2, k*2)
+                            fp.write(node)
+                            k += 1
+
+                if i > 1:
+                    for ki in range(1):#last_ks):
+                        for kj in range(k):
+                            fp.write('  W%d_%d -- W%d_%d;\n' % (i-2, ki, i, kj))
+                last_ks = k
+#            fp.write('L2 [ shape = box, width = 0.1, height = 0.1, label = "" ];\n')
+#            fp.write('N2 -- L2;\n')
+#            fp.write('R2 [ shape = box, width = 0.1, height = 0.1, label = "" ];\n')
+#            fp.write('N2 -- R2;\n')
+
+            fp.write('}\n')
+        os.system("dot -Kfdp -n -Tpng -o tmp/%s.png tmp/%s.dot" % (name, name))
 
     # 前置詞の格支配を制約として可能性を絞り込む
     def prep_constraint(self):
@@ -247,6 +353,48 @@ class Sentence:
                         word.items[j]._ = valid_cngs
 
 
+    def genitive_constraint(self):
+        for i, word in enumerate(self.words):
+            if word.items is None: continue # 句読点はスキップ
+            if not word.has_subst_case('Gen'): continue
+            gen_j = None
+            for j, item in enumerate(word.items):
+                if not item._: continue
+                for cng in item._:
+                    if cng[0] == 'Gen':
+                        gen_j = j
+                        break
+                if gen_j is not None: break
+            if gen_j is None: continue
+
+            def find_targets(range_from, range_to):
+                target = None
+                if range_from < range_to:
+                    rng = range(range_from, range_to+1, 1)
+                else:
+                    rng = range(range_from, range_to-1, -1)
+                for i2 in rng:
+                    w = self.words[i2]
+                    if w.items is None: continue
+                    blocked = True
+                    for j2, item2 in enumerate(w.items):
+                        # if item2._ is None or item2._ == []: continue
+                        if item2._ is not None and item2.pos in ['noun', 'participle']:
+                            blocked = False
+                            target = (i2, j2)
+                            return [target]
+                    if blocked: break
+                return []
+
+            targets = find_targets(i-1, 0) + find_targets(i+1, self.len-1)
+
+            print "%s(%d,%d)<Gen> -> %s" % (word.surface.encode('utf-8'), i, gen_j,
+                                            util.render(targets))
+            if targets != []:
+                for t in targets:
+                    self.attach_modifier(t, (i,gen_j))
+
+
     def dump(self):
         # （表示用に）単語の最大長を得ておく
         maxlen_uc = max([word.surface_len for word in self.words])
@@ -305,8 +453,8 @@ class Sentence:
         pred_person = pred_number = None
         if self.pred_idx is not None:
             predicate = self.words[self.pred_idx]
-            pred_person = predicate.items[0].attrib('person')
-            pred_number = predicate.items[0].attrib('number')
+            pred_person = predicate.items[0].attrib('person', 0)
+            pred_number = predicate.items[0].attrib('number', '*')
             # print "{%d, %s}" % (pred_person, pred_number)
             used.add(self.pred_idx)
         else:
@@ -316,8 +464,14 @@ class Sentence:
             if i in once_said: return None
             target_item = self.item_at(i, j)
             ja = target_item.ja
-            mods = [self.item_at(i,j).ja for i,j in target_item.modifiers]
-            [used.add(i) for i,j in target_item.modifiers]
+            mods = []
+            for mi, mj in target_item.modifiers:
+                item = self.item_at(mi, mj)
+                if item._ and any([it[0] == 'Gen' for it in item._]):
+                    mods.append(item.ja + '-の')
+                else:
+                    mods.append(item.ja)
+                used.add(mi)
             if mods != []:
                 ja = '<' + '&'.join(mods) + '>' + ja
             once_said.add(i)
@@ -328,7 +482,7 @@ class Sentence:
             used.add(i)
             prep_ja = prep_item.ja
             targets = prep_item.target
-            jas = filter(is_not_none, [render_item(ti, tj) for ti, tj in targets])
+            jas = filter(lambda x:x is not None, [render_item(ti, tj) for ti, tj in targets])
             return '( ' + ' '.join(jas) + ' ) ' + prep_ja
 
         slot = {}
@@ -397,7 +551,7 @@ class Sentence:
             if ids is None: continue
 
 #            ids_not_used = filter(lambda ij:ij[0] not in used, ids)
-            jas = filter(is_not_none, [render_item(i, j) for i, j in ids])
+            jas = filter(lambda x:x is not None, [render_item(i, j) for i, j in ids])
             if case == 'Nom' and jas != []:
                 subject_exists = True
             if len(jas) > 0:
@@ -417,7 +571,8 @@ class Sentence:
             if not subject_exists:
                 ja = {'1sg':'私', '1pl':'我々',
                       '2sg':'あなた', '2pl':'あなたがた',
-                      '3sg':'彼,彼女,それ', '3pl':'彼ら,彼女ら,それら'}
+                      '3sg':'彼,彼女,それ', '3pl':'彼ら,彼女ら,それら',
+                      '0*':''}
                 print '[' + ja['%d%s' % (pred_person, pred_number)] + ']が',
             verb = predicate.items[0]
             jas = verb.ja.split(',')
@@ -538,21 +693,30 @@ def analyse_sentence(surfaces):
     # dump_res(res)
     # util.pp(map(lambda r:r[0], res))
 
-    for sentence in split_sentence_by_verb(words):
+    for i, sentence in enumerate(split_sentence_by_verb(words)):
+        # sentence.count_patterns()
         # 前置詞の格支配を利用して絞り込む
         sentence.prep_constraint()
+
+        # sentence.dot('_'.join([word.surface.encode('utf-8') for word in sentence.words]))
+
+        # 属格支配する形容詞
+        sentence.genitive_domination()
         # 形容詞などの性・数・格一致を利用して絞り込む
         sentence.modifier_constraint()
-        # sentence = prep_constraint(sentence)
+#        sentence.count_patterns()
+        # 属格がどこにかかるか
+        sentence.genitive_constraint()
 
-        # print "  ---"
+        print "  ---"
         sentence.dump()
 #        print ansi_color.ANSI_FGCOLOR_BLUE
         print " ↓ "
         sentence.translate()
 #        print ansi_color.ANSI_FGCOLOR_DEFAULT
         print
-        print
+
+    print "========"
 
 
 # read-eval-print loop

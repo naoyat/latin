@@ -29,7 +29,7 @@ def word_stream_from_text(text):
         else:
             end_quote = None
 
-        if last_char in ['.', ';', '?', '!']:
+        if last_char in ['.', ';', ':', '?', '!']:
             yield word[:-1]
             yield last_char
             yield "EOS"

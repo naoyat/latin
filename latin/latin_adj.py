@@ -35,7 +35,7 @@ def decline_adj_type1(nom_sg_m, nom_sg_f, tags, comp=True):
     if suffix == u'us':
         stem1 = nom_sg_m[:-2]
         stem2 = stem1 # + u'ī'
-    elif suffix == u'er':
+    elif suffix in [u'er', u'ur']: # ur for "satur"
         if nom_sg_m[-3:] == nom_sg_f[-4:-1]:
             # lī-ber lī-ber-a
             stem1 = nom_sg_m
@@ -43,6 +43,9 @@ def decline_adj_type1(nom_sg_m, nom_sg_f, tags, comp=True):
         else:
             stem1 = nom_sg_m
             stem2 = nom_sg_m[:-2] + u'r'
+#    else:
+#        print "decline_adj_type1(%s, %s, %s, %s)" % (str(nom_sg_m), str(nom_sg_f), str(tags), str(comp))
+#        return []
 
     my_tags = util.aggregate_dicts({'pos':'adj', 'base':nom_sg_m, 'type':'I'}, tags)
 
