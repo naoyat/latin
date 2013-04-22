@@ -105,7 +105,7 @@ class Word:
                 self._is_verb = False
             else:
 #                util.pp((self.surface, [item.attrib('mood','*') if item.pos == 'verb' else '-' for item in self.items]))
-                self._is_verb = any([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
+                self._is_verb = all([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
         return self._is_verb
 
     def description(self):
@@ -321,12 +321,14 @@ class Sentence:
                     valid_cngs = []
                     for cng in item._: # case, number, gender
                         def find_targets(range_from, range_to):
+                            print "- find_targets(%d, %d) within %d" % (range_from, range_to, len(self.words))
                             target = None
                             if range_from < range_to:
                                 rng = range(range_from, range_to+1, 1)
                             else:
                                 rng = range(range_from, range_to-1, -1)
                             for i2 in rng:
+                                if i2 < 0 or len(self.words) <= i2: continue
                                 w = self.words[i2]
                                 if w.items is None: continue
                                 # stop_here = False
