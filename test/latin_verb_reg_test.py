@@ -14,7 +14,11 @@ def decode_utf8(s):
     return None
 #    else:
 
+#1
 AMO = ('amō', 'amāvī', 'amātum', 'amāre')
+MUTO = ('mūtō', 'mūtāvī', 'mūtātum', 'mūtāre')
+LAUDO = ('laudō', 'laudāvī', 'laudātum', 'laudāre')
+#2
 MONEO = ('moneō', 'monuī', 'monitum', 'monēre')
 REGO = ('regō', 'rēxī', 'rēctum', 'regere')
 CAPIO = ('capiō', 'cēpī', 'captum', 'capere')
@@ -85,6 +89,14 @@ class PresentTestCase(LatinVerbTestCase):
                 'active':['amō', 'amās', 'amat', 'amāmus', 'amātis', 'amant'],
                 'passive':['amor', ('amāris', 'amāre'), 'amātur', 'amāmur', 'amāminī', 'amantur']
                 })
+        self.assert_present_conjugation(CONJ_1, LAUDO, {
+                'active':['laudō', 'laudās', 'laudat', 'laudāmus', 'laudātis', 'laudant'],
+                'passive':['laudor', ('laudāris', 'laudāre'), 'laudātur', 'laudāmur', 'laudāminī', 'laudantur']
+                })
+#        self.assert_present_conjugation(CONJ_1, MUTO, {
+#                'active':['mūtō', 'mūtās', 'mūtat', 'mūtāmus', 'mūtātis', 'mūtant'],
+#                'passive':['mūtor', ('mūtāris', 'mūtāre'), 'mūtātur', 'mūtāmur', 'mūtāminī', 'mūtantur']
+#                })
 
     def test_present_type2(self):
         self.assert_present_conjugation(CONJ_2, MONEO, {
@@ -123,6 +135,12 @@ class ImperativeTestCase(LatinVerbTestCase):
                                          None, 'amātō', 'amātō', None, 'amātōte', 'amantō'],
                                'passive':[None, 'amāre', None, None, 'amāminī', None,
                                           None, 'amātor', 'amātor', None, None, 'amantor']
+                               })
+        self.assert_imperative_conjugation(CONJ_1, LAUDO, {
+                               'active':[None, 'laudā', None, None, 'laudāte', None,
+                                         None, 'laudātō', 'laudātō', None, 'laudātōte', 'laudantō'], #
+                               'passive':[None, 'laudāre', None, None, 'laudāminī', None,
+                                          None, 'laudātor', 'laudātor', None, None, 'laudantor'] #
                                })
 
     def test_imperative_type2(self):
@@ -169,6 +187,10 @@ class ImperfectTestCase(LatinVerbTestCase):
                 'active':['amābam', 'amābās', 'amābat', 'amābāmus', 'amābātis', 'amābant'],
                 'passive':['amābar', ('amābāris', 'amābāre'), 'amābātur', 'amābāmur', 'amābāminī', 'amābantur']
                 })
+        self.assert_imperfect_conjugation(CONJ_1, LAUDO, {
+                'active':['laudābam', 'laudābās', 'laudābat', 'laudābāmus', 'laudābātis', 'laudābant'],
+                'passive':['laudābar', ('laudābāris', 'laudābāre'), 'laudābātur', 'laudābāmur', 'laudābāminī', 'laudābantur']
+                })
 
     def test_imperfect_type2(self):
         self.assert_imperfect_conjugation(CONJ_2, MONEO, {
@@ -206,6 +228,10 @@ class FutureTestCase(LatinVerbTestCase):
                 'active':['amābō', 'amābis', 'amābit', 'amābimus', 'amābitis', 'amābunt'],
                 'passive':['amābor', ('amāberis', 'amābere'), 'amābitur', 'amābimur', 'amābiminī', 'amābuntur']
                 })
+        self.assert_future_conjugation(CONJ_1, LAUDO, {
+                'active':['laudābō', 'laudābis', 'laudābit', 'laudābimus', 'laudābitis', 'laudābunt'],
+                'passive':['laudābor', ('laudāberis', 'laudābere'), 'laudābitur', 'laudābimur', 'laudābiminī', 'laudābuntur']
+                })
 
     def test_future_type2(self):
         self.assert_future_conjugation(CONJ_2, MONEO, {
@@ -241,6 +267,9 @@ class PerfectTestCase(LatinVerbTestCase):
     def test_perfect_type1(self):
         self.assert_perfect_conjugation(CONJ_1, AMO, {
                 'active':['amāvī', 'amāvistī', 'amāvit', 'amāvimus', 'amāvistis', ('amāvērunt', 'amāvēre')],
+                })
+        self.assert_perfect_conjugation(CONJ_1, LAUDO, {
+                'active':['laudāvī', 'laudāvistī', 'laudāvit', 'laudāvimus', 'laudāvistis', ('laudāvērunt', 'laudāvēre')],
                 })
 
     def test_perfect_type2(self):
@@ -478,6 +507,10 @@ class InfinitiveTestCase(LatinVerbTestCase):
                 'active':['amāre', 'amāvisse', ('amātūrus esse', 'amātūra esse', 'amātūrum esse')],
                 'passive':['amārī', ('amātus esse', 'amāta esse', 'amātum esse'), 'amātum īrī']
                 })
+#        self.assert_infinitive_conjugation(CONJ_1, MUTO, {
+#                'active':['mūtāre', 'mūtāvisse', (None, None, None)],
+#                'passive':[None, (None, None, None), None]
+#                })
 
     def test_infinitive_type3a(self):
         self.assert_infinitive_conjugation(CONJ_3A, REGO, {
