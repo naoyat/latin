@@ -58,7 +58,7 @@ def remove_matched_items(items, criteria):
 def flatten_1(items):
     res = []
     for item in items:
-        if isinstance(item, list):
+        if isinstance(item, list) or isinstance(item, tuple):
             res += item
         else:
             res.append(item)

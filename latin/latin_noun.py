@@ -79,15 +79,18 @@ def decline_noun_type2(nom_sg, gen_sg, gender, ja, tags={}):
         suffices = [u'um', u'um', u'um', u'ī', u'ō', u'ō',
                     u'a', u'a', u'a', u'ōrum', u'īs', u'īs']
         stem1 = nom_sg[:-2]
+        stem2 = gen_sg[:-1]
     elif last2 == u'us':
         if nom_sg[-3:] == u'ius':
             suffices = [u'ius', u'ī', u'ium', (u'ī', u'iī'), u'iō', u'iō',
                         u'iī', u'iī', u'iōs', u'iōrum', u'iīs', u'iīs']
             stem1 = nom_sg[:-3]
+            stem2 = gen_sg[:-2]
         else:
             suffices = [u'us', u'e', u'um', u'ī', u'ō', u'ō',
                         u'ī', u'ī', u'ōs', u'ōrum', u'īs', u'īs']
             stem1 = nom_sg[:-2]
+            stem2 = gen_sg[:-1]
             # if nom_sg in (u'deus'):
             #    suffices[1] = u'us' ## 神聖視されるものはVoc=Nomとなる場合がある
 
@@ -97,10 +100,10 @@ def decline_noun_type2(nom_sg, gen_sg, gender, ja, tags={}):
         suffices = [u'', u'', u'um', u'ī', u'ō', u'ō',
                     u'ī', u'ī', u'ōs', u'ōrum', u'īs', u'īs']
         stem1 = nom_sg
+        stem2 = gen_sg[:-1]
     else:
         return []
 
-    stem2 = gen_sg[:-1]
     return declension_table(stem1, stem2, suffices, tags)
 
 
@@ -250,7 +253,6 @@ def load_nouns(file):
             if line[0] == '#': continue
 
             fs = line.rstrip().split()
-            # print len(fs)
             if len(fs) == 4:
                 args = (fs[0], # type
                         fs[1].decode('utf-8'), # nom_sg
@@ -267,9 +269,8 @@ def load_nouns(file):
                 continue
 
             table = decline_noun(*args)
-            if len(table) == 0: continue
-
-            items += util.aggregate_cases(table)
+            if table is not None and len(table) > 0:
+                items += util.aggregate_cases(table)
 
     return items
 

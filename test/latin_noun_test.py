@@ -5,7 +5,8 @@ import unittest
 
 from latin.latin_noun import *
 import latin.latindic
-
+import latin.util
+import sys
 
 class StringTestCase(unittest.TestCase):
 
@@ -16,12 +17,11 @@ class StringTestCase(unittest.TestCase):
                              noun[3],
                              noun[4])
         ss = [item['surface'].encode('utf-8') for item in table]
-        tt = expected['sg'] + expected['pl'] # Nom Voc Acc Gen Dat Abl
-        # for g in ss:
-        #     print "[%s]" % g
-        #     print "  ACTUAL  :", util.render(ss[g])
-        #     print "  EXPECTED:", util.render(tt[g])
-        #    self.assertEqual(ss[g], tt[g])
+        tt = util.flatten_1(expected['sg'] + expected['pl']) # Nom Voc Acc Gen Dat Abl
+#        for i in xrange(len(ss)):
+#            sys.stderr.write("[%d]\n" % i)
+#            sys.stderr.write("  ACTUAL  : %s\n" % util.render(ss[i]))
+#            sys.stderr.write("  EXPECTED: %s\n" % util.render(tt[i]))
         self.assertEqual(ss, tt)
 
     def test_noun_declension_type1(self):
@@ -36,7 +36,7 @@ class StringTestCase(unittest.TestCase):
                 'pl':['aquae', 'aquae', 'aquās', 'aquārum', 'aquīs', 'aquīs']
                 })
 
-    def test_noun_declension_type1_exception(self):
+    def test_noun_declension_type1_exceptional(self):
         self.noun_decl_assertEqual(
             ('1', 'dea', None, 'f', '女神'), {
                 'sg':['dea', 'dea', 'deam', 'deae', 'deae', 'deā'],
@@ -47,7 +47,13 @@ class StringTestCase(unittest.TestCase):
                 'sg':['fīlia', 'fīlia', 'fīliam', 'fīliae', 'fīliae', 'fīliā'],
                 'pl':['fīliae', 'fīliae', 'fīliās', 'fīliārum', 'fīliābus', 'fīliābus'] # fīliābus, not fīliīs
                 })
-        
+
+    def test_noun_declension_type1(self):
+        self.noun_decl_assertEqual(
+            ('2', 'gladius', None, 'm', '剣'), {
+                'sg':['gladius', 'gladī', 'gladium', ('gladī', 'gladiī'), 'gladiō', 'gladiō'],
+                'pl':['gladiī', 'gladiī', 'gladiōs', 'gladiōrum', 'gladiīs', 'gladiīs']
+                })
 
 
 if __name__ == '__main__':

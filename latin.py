@@ -321,14 +321,14 @@ class Sentence:
                     valid_cngs = []
                     for cng in item._: # case, number, gender
                         def find_targets(range_from, range_to):
-                            print "- find_targets(%d, %d) within %d" % (range_from, range_to, len(self.words))
+                            # print "- find_targets(%d, %d) within %d" % (range_from, range_to, len(self.words))
                             target = None
                             if range_from < range_to:
                                 rng = range(range_from, range_to+1, 1)
                             else:
                                 rng = range(range_from, range_to-1, -1)
                             for i2 in rng:
-                                if i2 < 0 or len(self.words) <= i2: continue
+                                # if i2 < 0 or len(self.words) <= i2: continue
                                 w = self.words[i2]
                                 if w.items is None: continue
                                 # stop_here = False
@@ -455,10 +455,13 @@ class Sentence:
         pred_person = pred_number = None
         if self.pred_idx is not None:
             predicate = self.words[self.pred_idx]
-            pred_person = predicate.items[0].attrib('person', 0)
-            pred_number = predicate.items[0].attrib('number', '*')
-            # print "{%d, %s}" % (pred_person, pred_number)
-            used.add(self.pred_idx)
+            if len(predicate.items) > 0:
+                pred_person = predicate.items[0].attrib('person', 0)
+                pred_number = predicate.items[0].attrib('number', '*')
+                # print "{%d, %s}" % (pred_person, pred_number)
+                used.add(self.pred_idx)
+            else:
+                predicate = None
         else:
             predicate = None
 
