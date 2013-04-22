@@ -67,6 +67,8 @@ def declension_table(stem1, stem2, suffices, tags):
 def decline_noun_type1(nom_sg, gen_sg, gender, ja, tags={}):
     suffices = [u'a', u'a', u'am', u'ae', u'ae', u'ā',
                 u'ae', u'ae', u'ās', u'ārum', u'īs', u'īs']
+    if nom_sg in [u'dea', u'fīlia']:
+        suffices[10] = suffices[11] = u'ābus'
     return declension_table(nom_sg[:-1], gen_sg[:-2], suffices, tags)
 
 
@@ -179,6 +181,64 @@ def decline_noun_type5(nom_sg, gen_sg, gender, ja, tags={}):
     return declension_table(stem, stem, suffices, tags)
 
 
+def decline_noun(type, nom_sg, gen_sg, gender, ja):
+    if type == '1':
+        decliner = decline_noun_type1
+        if gen_sg is None:
+            gen_sg = nom_sg + u'e'
+    elif type == '2':
+        decliner = decline_noun_type2
+        if gen_sg is None:
+            if nom_sg[-2:] in [u'us', u'um']:
+                gen_sg = nom_sg[:-2] + u'ī'
+            else: # 'er', 'ir'
+                print "(", nom_sg, ")"
+                return None
+    elif type == '3-ium':
+        decliner = decline_noun_type3_ium
+    elif type == '3-um':
+        decliner = decline_noun_type3_um
+    elif type == '4':
+        decliner = decline_noun_type4
+    elif type == '5':
+        decliner = decline_noun_type5
+    elif type == '*':
+#        forms = [[g.decode('utf-8') for g in f.split(',')] for f in fs[1].split(':')]
+        forms = [f.split(',') for f in nom_sg.split(':')]
+        if len(forms) == 5:
+            forms = forms[0:1] + forms[0:1] + forms[1:5]
+            case_tags = case_tags_6x2[0:6]
+        elif len(forms) == 6:
+            case_tags = case_tags_6x2[0:6]
+        elif len(forms) == 10:
+            forms = forms[0:1] + forms[0:1] + forms[1:5] \
+                + forms[5:6] + forms[5:6] + forms[6:10]
+            case_tags = case_tags_6x2
+        else:
+            case_tags = case_tags_6x2
+            # util.pp(forms)
+
+        tags = {'pos':'noun', 'type':'*',
+                'base':forms[0][0], 'gen_sg':forms[2][0], 'gender':gender,
+                'ja':ja
+                }
+        table = util.variate(['']*len(forms), tags, forms, case_tags)
+        # util.pp(table)
+        return table
+#        items = util.aggregate_cases(table)
+#        return items
+    else:
+        return None
+
+    tags = {'pos':'noun', 'type':type,
+            'base':nom_sg, 'gen_sg':gen_sg, 'gender':gender,
+            'ja':ja
+            }
+    # util.pp( tags )
+
+    table = decliner(nom_sg, gen_sg, gender, ja, tags)
+    return table
+
 
 def load_nouns(file):
     items = []
@@ -192,74 +252,21 @@ def load_nouns(file):
             fs = line.rstrip().split()
             # print len(fs)
             if len(fs) == 4:
-                type = fs[0]
-                nom_sg = fs[1].decode('utf-8')
-                # gen_sg is omitted
-                gen_sg = None
-                gender = fs[2]
-                ja = fs[3]
+                args = (fs[0], # type
+                        fs[1].decode('utf-8'), # nom_sg
+                        None, # gen_sg
+                        fs[2], # gender,
+                        fs[3]) # ja
             elif len(fs) == 5:
-                type = fs[0]
-                nom_sg = fs[1].decode('utf-8')
-                gen_sg = fs[2].decode('utf-8')
-                gender = fs[3]
-                ja = fs[4]
+                args = (fs[0], # type
+                        fs[1].decode('utf-8'), # nom_sg
+                        fs[2].decode('utf-8'), # gen_sg
+                        fs[3], # gender
+                        fs[4]) # ja
             else:
                 continue
 
-            if type == '1':
-                decliner = decline_noun_type1
-                if not gen_sg:
-                    gen_sg = nom_sg + u'e'
-            elif type == '2':
-                decliner = decline_noun_type2
-                if not gen_sg:
-                    if nom_sg[-2:] in [u'us', u'um']:
-                        gen_sg = nom_sg[:-2] + u'ī'
-                    else: # 'er', 'ir'
-                        print "(", nom_sg, ")"
-                        continue
-            elif type == '3-ium':
-                decliner = decline_noun_type3_ium
-            elif type == '3-um':
-                decliner = decline_noun_type3_um
-            elif type == '4':
-                decliner = decline_noun_type4
-            elif type == '5':
-                decliner = decline_noun_type5
-            elif type == '*':
-                forms = [[g.decode('utf-8') for g in f.split(',')] for f in fs[1].split(':')]
-                if len(forms) == 5:
-                    forms = forms[0:1] + forms[0:1] + forms[1:5]
-                    case_tags = case_tags_6x2[0:6]
-                elif len(forms) == 6:
-                    case_tags = case_tags_6x2[0:6]
-                elif len(forms) == 10:
-                    forms = forms[0:1] + forms[0:1] + forms[1:5] \
-                        + forms[5:6] + forms[5:6] + forms[6:10]
-                    case_tags = case_tags_6x2
-                else:
-                    case_tags = case_tags_6x2
-                # util.pp(forms)
-
-                tags = {'pos':'noun', 'type':'*',
-                        'base':forms[0][0], 'gen_sg':forms[2][0], 'gender':gender,
-                        'ja':ja
-                        }
-                table = util.variate(['']*len(forms), tags, forms, case_tags)
-                # util.pp(table)
-                items += util.aggregate_cases(table)
-                continue
-            else:
-                continue
-
-            tags = {'pos':'noun', 'type':type,
-                    'base':nom_sg, 'gen_sg':gen_sg, 'gender':gender,
-                    'ja':ja
-                    }
-            # util.pp( tags )
-            table = decliner(nom_sg, gen_sg, gender, ja, tags)
-
+            table = decline_noun(*args)
             if len(table) == 0: continue
 
             items += util.aggregate_cases(table)
