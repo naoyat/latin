@@ -214,6 +214,8 @@ def load_adjs(file):
                 continue
 
             table = decline_adj(*args)
+            if len(table) == 0: continue
+
             items += util.aggregate_cases(table)
 
     return items
