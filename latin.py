@@ -32,9 +32,6 @@ class Item:
     def match_case(self, pos, case):
         return self.pos in pos and any([it[0] == case for it in self._])
 
-#    def modified(self):
-#        return '<%s>'
-
     # itemをレンダリング
     def description(self):
         name = {
@@ -51,10 +48,13 @@ class Item:
             'active':'能動', 'passive':'受動',
             '-':'-'}
         # pos = item['pos']
+        def short_(_):
+            return '|'.join(map(lambda s:'.'.join(s), _))
+
         if self.pos == 'noun':
-            return '%s %s' % (self.ja, self._) +' // '+ util.render(self.modifiers)
-        elif self.pos == 'adj':
-            return 'a.%s %s' % (self.ja, self._)
+            return '%s [%s]' % (self.ja, short_(self._)) +' // '+ util.render(self.modifiers)
+        elif self.pos in ['adj', 'participle']:
+            return '%s.%s [%s]' % (self.pos[0], self.ja, short_(self._))
         elif self.pos == 'verb':
             return 'v.%s %s%s %s.%s.%s' % (self.ja,
                                            self.item.get('person', 0),
@@ -293,7 +293,8 @@ class Sentence:
                 return (item.dominates == target_case)
 
             self.words[i].items = filter(filter_prep, self.words[i].items)
-            self.words[i].items[0].target = targets # メモしておく
+            if self.words[i].items and len(self.words[i].items) > 0:
+                self.words[i].items[0].target = targets # メモしておく
 
             # target側を絞る
             def filter_noun(item):
@@ -328,7 +329,7 @@ class Sentence:
                             else:
                                 rng = range(range_from, range_to-1, -1)
                             for i2 in rng:
-                                # if i2 < 0 or len(self.words) <= i2: continue
+                                if i2 < 0 or len(self.words) <= i2: continue
                                 w = self.words[i2]
                                 if w.items is None: continue
                                 # stop_here = False
@@ -399,7 +400,7 @@ class Sentence:
 
     def dump(self):
         # （表示用に）単語の最大長を得ておく
-        maxlen_uc = max([word.surface_len for word in self.words])
+        maxlen_uc = max([0] + [word.surface_len for word in self.words])
 
         for i, word in enumerate(self.words):
             is_verb = False
@@ -560,7 +561,7 @@ class Sentence:
             if case == 'Nom' and jas != []:
                 subject_exists = True
             if len(jas) > 0:
-                print '(', '='.join(jas), ')', aux
+                print '(', ' == '.join(jas), ')', aux
             del slot[case]
             [used.add(i) for i, j in ids]
 
