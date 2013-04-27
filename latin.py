@@ -377,6 +377,7 @@ class Sentence:
                 else:
                     rng = range(range_from, range_to-1, -1)
                 for i2 in rng:
+                    if i2 < 0 or len(self.words) <= i2: continue
                     w = self.words[i2]
                     if w.items is None: continue
                     blocked = True

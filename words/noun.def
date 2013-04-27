@@ -8,6 +8,7 @@
 1	Rōma	f	ローマ
 1	Thessalia	f	テッサリア
 1	Trōja	f	トロヤ
+1	Sicilia	f	シチリア
 1	agricola	m	農夫
 1	aqua	f	水
 1	causa	f	原因
@@ -119,6 +120,7 @@
 2	ventus	m	風
 2	vīrus	n	毒,ウィルス
 2	vulgus	n	群衆
+2	patruus	m	(父方の)叔父
 
 2	aedificium	n	建物
 2	aevum	n	時代
@@ -262,6 +264,8 @@
 3-um	sōl	sōlis	m	太陽
 3-um	homō	hominis	m	人間
 3-um	imāgō	imāginis	f	像,似姿
+3-um	Plūtō	Plūtōnis	m	プルート
+
 # III -um (b)
 3-um	corpus	corporis	n	身体
 3-um	nōmen	nōminis	n	名
@@ -335,3 +339,5 @@
 *	Iēsus:Iēsū:Iēsū:Iēsū:Iēsū:Iēsū	m	イエス
 2	Christus	m	キリスト
 *	deus:deus:deum:deī:deō:deō:dī,diī,deī:dī,diī,deī:deōs:deōrum,deūm:dīs,deīs,diīs:dīs,deīs,diīs	m	神
+
+*	*:*:*:*:*:*:īnferi:īnferi:īnferōs:īnferōrum:*:*	m	地獄,黄泉
