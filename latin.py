@@ -347,7 +347,7 @@ class Sentence:
                         targets = find_targets(i-1, 0) + find_targets(i+1, self.len-1)
                         if targets != []:
                             # valid cng
-                            print "%s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
+                            print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
                                                            '.'.join(cng), util.render(targets))
                             for t in targets:
                                 self.attach_modifier(t, (i,j))
@@ -392,7 +392,7 @@ class Sentence:
 
             targets = find_targets(i-1, 0) + find_targets(i+1, self.len-1)
 
-            print "%s(%d,%d)<Gen> -> %s" % (word.surface.encode('utf-8'), i, gen_j,
+            print "  // %s(%d,%d)<Gen> -> %s" % (word.surface.encode('utf-8'), i, gen_j,
                                             util.render(targets))
             if targets != []:
                 for t in targets:
@@ -507,11 +507,11 @@ class Sentence:
                     used.add(i)
                     break
                 elif item.pos == 'conj':
-                    if item.surface == u'et':
-                        pass
-                    else:
-                        print '[conj] ' + item.ja
-                        used.add(i)
+#                    if item.surface == u'et':
+#                        pass
+#                    else:
+                    print '[conj] ' + item.ja
+                    used.add(i)
                     break
 
         # 動詞と合致した主格名詞を探す
@@ -671,8 +671,11 @@ def split_sentence_by_verb(words):
         sentences.append(Sentence(words))
     else:
         head = 0
+        tail = len(words) - 1
+        next_idx = tail + 1
         for i, idx in enumerate(verbs_indices):
             if i == num_verbs-1: # last one
+                # print words[idx].surface.encode('utf-8')
                 sentences.append(Sentence(words[head:]))
             else:
                 next_idx = verbs_indices[i+1]
@@ -682,12 +685,22 @@ def split_sentence_by_verb(words):
                     if words[tail].items is None: # 句読点系
                         sentences.append(Sentence(words[head:tail+1]))
                         break
+                    elif words[tail].surface == u'et':
+                        tail -= 1
+                        sentences.append(Sentence(words[head:tail+1]))
+                        break
                     tail += 1
                 if tail == next_idx:
                     # 区切り（句読点）がない場合。とりあえず、次の動詞の直前まで取ってしまう
                     # （あとで検討）
                     sentences.append(Sentence(words[head:next_idx]))
                 head = tail + 1
+
+#    for s in sentences:
+#        print "  -",
+#        for w in s.words:
+#            print w.surface.encode('utf-8'),
+#        print
 
     return sentences
 
