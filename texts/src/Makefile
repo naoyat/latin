@@ -15,7 +15,8 @@ TEXTS = \
 	6.CERES_ET_PERSEPHONE_3.txt \
 	7.CERES_ET_PERSEPHONE_4.txt \
 	8.CERES_ET_PERSEPHONE_5.txt \
-	GLORIA.txt
+	GLORIA.txt \
+	RIMINI.txt
 
 all: $(TEXTS)
 
