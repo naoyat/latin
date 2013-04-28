@@ -11,6 +11,7 @@
 1	Sicilia	f	シチリア
 1	agricola	m	農夫
 1	aqua	f	水
+1	casa	f	あばら屋
 1	causa	f	原因
 1	dea	f	女神
 1	epistula	f	手紙
@@ -24,6 +25,7 @@
 1	incola	f	住人
 1	īnsula	f	島
 1	īra	f	怒り
+1	lacrima	f	涙
 1	laetitia	f	喜び
 1	lūna	f	月
 1	memoria	f	記憶
@@ -59,11 +61,13 @@
 
 2	Corinthus	f	コリントス
 2	Daedalus	m	ダエダルス
+2	Graecus	m	ギリシア人
 2	Homērus	m	ホメルス
 2	Naxus	m	ナクソス
 2	Samus	f	サモス島
 2	Tenedus	m	テネドス
 2	Thēseus	m	テセウス
+2	Trōjānus	m	トロヤ人
 2	agnus	m	小羊
 2	alvus	f	胃腸
 2	amīcus	m	友人
@@ -266,7 +270,7 @@
 3-um	ōrātor	ōrātōris	m	弁論家
 3-um	pēs	pedis	m	足
 3-um	Plūtō	Plūtōnis	m	プルート
-3-um	rēx	rēgis	m	指導者
+3-um	rēx	rēgis	m	王,指導者
 3-um	sōl	sōlis	m	太陽
 3-um	uxor	uxōris	f	妻
 3-um	vōx	vōcis	f	声

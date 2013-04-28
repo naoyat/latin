@@ -46,18 +46,23 @@ class Item:
         def short_(_):
             return '|'.join(map(lambda s:'.'.join(s), _))
 
+        def get_base(key):
+            base = self.item.get(key)
+            if base is None: return ''
+            return ansi_color.ANSI_FGCOLOR_YELLOW + '(' + base.encode('utf-8') + ')' + ansi_color.ANSI_FGCOLOR_DEFAULT + ' '
+
         if self.pos == 'noun':
-            return '%s [%s]' % (self.ja, short_(self._)) +' // '+ util.render(self.modifiers)
+            return get_base('base') + '%s [%s]' % (self.ja, short_(self._)) +' // '+ util.render(self.modifiers)
         elif self.pos in ['adj', 'participle']:
-            return '%s.%s [%s]' % (self.pos[0], self.ja, short_(self._))
+            return get_base('base') + '%s.%s [%s]' % (self.pos[0], self.ja, short_(self._))
         elif self.pos == 'verb':
-            return 'v.%s %s%s %s.%s.%s' % (self.ja,
-                                           self.item.get('person', 0),
-                                           self.item.get('number', '-'),
-                                           name[self.item.get('mood', 'indicative')],
-                                           name[self.item.get('voice', 'active')],
-                                           name[self.item.get('tense', 'present')],
-                                           )
+            return get_base('pres1sg') + 'v.%s %s%s %s.%s.%s' % (self.ja,
+                                                                 self.item.get('person', 0),
+                                                                 self.item.get('number', '-'),
+                                                                 name[self.item.get('mood', 'indicative')],
+                                                                 name[self.item.get('voice', 'active')],
+                                                                 name[self.item.get('tense', 'present')],
+                                                                 )
         elif self.pos == 'preposition':
             return 'prep<%s> %s' % (self.dominates, self.ja)
         else:
@@ -244,13 +249,12 @@ class Sentence:
                 print "NON-PREP EXISTS:", [item.surface.encode('utf-8') for item in non_preps]
                 non_prep_exists = True
 
-#            if len(dominates) == 0 or non_prep_exists: continue
             if len(dominates) == 0: continue
 
             # Acc/Ablになり得ない語をスキップしながら。
             actual = set()
             targets = []
-            target_case = None
+            target_case = target_number = target_gender = None
             for j in range(i+1, self.len):
                 word = self.words[j]
                 if word.items is None: continue #break
@@ -259,32 +263,51 @@ class Sentence:
                 for k, item in enumerate(word.items):
                     if item.pos in ['verb', 'preposition']: break
                     if item._: # subst
-                        cases = [case for case, number, gender in item._]
-                        if any([case == 'Gen' for case in cases]):
-                            to_skip = True
-                            break # skip this work
-                        if 'Abl' in dominates and any([case == 'Abl' for case in cases]):
-                            if target_case == 'Acc':
+                        if item.pos == 'adj': continue ###
+                        here = False
+                        for case, number, gender in item._:
+                            if case == 'Gen':
+                                to_skip = True
+                                break # skip this work
+                            elif case == 'Acc':
+                                if target_case is None:
+                                    target = (j, k)
+                                    here = True
+                                    target_case, target_number, target_gender = (case, number, gender)
+                                elif target_case == 'Acc':
+                                    if number == target_number and gender == target_gender:
+                                        target = (j, k)
+                                        here = True
+                                    else:
+                                        to_skip = True
+                                        break
+                                elif target_case == 'Abl':
+                                    to_skip = True
+                                    break
+                            elif case == 'Abl':
+                                if target_case is None:
+                                    target = (j, k)
+                                    here = True
+                                    target_case, target_number, target_gender = (case, number, gender)
+                                elif target_case == 'Acc':
+                                    to_skip = True
+                                    break
+                                elif target_case == 'Abl':
+                                    if number == target_number and gender == target_gender:
+                                        target = (j, k)
+                                        here = True
+                                    else:
+                                        to_skip = True
+                                        break
+                            elif case in ['Nom','Acc']:
                                 to_stop = True
-                            else: # None or already 'Abl'
-                                target = (j, k)
-                                target_case = 'Abl'
-                            break
-                        if 'Acc' in dominates and any([case == 'Acc' for case in cases]):
-                            if target_case == 'Abl':
-                                to_stop = True
-                            else: # None or already 'Acc'
-                                target = (j, k)
-                                target_case = 'Acc'
-                            break
-                        if any([case in ['Nom','Acc'] for case in cases]):
-                            to_stop = True
-                            break
-                if to_stop: break
+#                                break
+                            else:
+                                pass
+                if to_stop and not here: break
                 if to_skip: continue
                 if target:
                     targets.append(target)
-            # print "'%s' may dominate: %s" % (util.render(word), util.render([res[j][0] for j in targets]))
 
             # prep側を絞る
             def filter_prep(item):
@@ -343,7 +366,7 @@ class Sentence:
 
                     targets_backward = []
                     for cng in item._: # case, number, gender
-                        found = find_targets(i-1, 0, cng)
+                        found = find_targets(i-1, 0, cng) if i > 0 else []
                         targets_backward += [(f,cng) for f in found]
                     if targets_backward != []:
                         targets_backward.sort()
@@ -355,17 +378,11 @@ class Sentence:
                                 targets.append(target)
                             if target == nearest:
                                 self.attach_modifier(target, (i,j))
-                                print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
-                                                                    '.'.join(cng), util.render(target))
+                                # print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
+                                #                                     '.'.join(cng), util.render(target))
                                 valid_cngs.append(cng)
                             else:
                                 break
-
-#                        if targets != []:
-#                            # valid cng
-#                            for t in targets:
-#                                self.attach_modifier(t, (i,j))
-#                            valid_cngs.append(cng)
 
                     targets_forward = []
                     if targets == []:
@@ -381,19 +398,11 @@ class Sentence:
                                     targets.append(target)
                                 if target == nearest:
                                     self.attach_modifier(target, (i,j))
-                                    print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
-                                                                        '.'.join(cng), util.render(target))
+                                    # print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
+                                    #                                     '.'.join(cng), util.render(target))
                                     valid_cngs.append(cng)
                                 else:
                                     break
-
-#                        if targets != []:
-#                            # valid cng
-#                            print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
-#                                                           '.'.join(cng), util.render(targets))
-#                            for t in targets:
-#                                self.attach_modifier(t, (i,j))
-#                            valid_cngs.append(cng)
 
                     if valid_cngs != []:
                         word.items[j]._ = valid_cngs
@@ -426,20 +435,46 @@ class Sentence:
                     blocked = True
                     for j2, item2 in enumerate(w.items):
                         # if item2._ is None or item2._ == []: continue
-                        if item2._ is not None and item2.pos in ['noun', 'participle']:
+                        if item2._ is None:
+                            if item2.pos == 'verb':
+                                blocked = False
+                            pass
+                        elif item2.pos in ['noun', 'participle']:
                             blocked = False
                             target = (i2, j2)
                             return [target]
+                        elif item2.pos in ['adj']:
+                            if item2.attrib('base') == u'plēnus':
+                                print "|> plein de "+ word.surface.encode('utf-8')
+                                target = (i2, j2)
+                                return [target]
+                            blocked = False
+                        elif item2.pos in ['pronoun']:
+                            blocked = False
                     if blocked: break
                 return []
 
-            targets = find_targets(i-1, 0) + find_targets(i+1, self.len-1)
+            targets = []
+            targets_backward = find_targets(i-1, 0) if i > 0 else []
+#            print "BW", targets_backward
+            if targets_backward != []:
+                targets_backward.sort()
+                targets_backward.reverse()
+                targets.append(targets_backward[0])
+            else:
+                targets_forward = find_targets(i+1, self.len-1)
+                if targets_forward != []:
+                    targets_forward.sort()
+                    targets.append(targets_forward[0])
+            for t in targets:
+                self.attach_modifier(t, (i,gen_j))
+            # targets = find_targets(i-1, 0) + find_targets(i+1, self.len-1)
 
-            print "  // %s(%d,%d)<Gen> -> %s" % (word.surface.encode('utf-8'), i, gen_j,
-                                            util.render(targets))
-            if targets != []:
-                for t in targets:
-                    self.attach_modifier(t, (i,gen_j))
+            # print "  // %s(%d,%d)<Gen> -> %s" % (word.surface.encode('utf-8'), i, gen_j,
+            #                                 util.render(targets))
+#            if targets != []:
+#                for t in targets:
+#                    self.attach_modifier(t, (i,gen_j))
 
 
     def dump(self):
