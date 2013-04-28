@@ -2,6 +2,7 @@
 
 1	Atticus	アッティカの
 1	Graecus	ギリシアの
+1	Ītalicus	イタリアの
 1	Rōmānus	ローマの
 1	Trōjānus	トロヤの
 1	aequus	等しい
@@ -24,6 +25,7 @@
 1	cupidus	熱望する
 1	dignus	価する
 1	dīversus	さまざまな
+1	dīvīnus	神の,素晴らしい
 1	doctus	学識ある
 1	dūrus	かたい,荒い
 1	falsus	偽りの
@@ -32,10 +34,12 @@
 1	flexuōsus	曲がりくねった
 1	foedus	醜い,恐ろしい
 1	frīgidus	冷たい
+1	gelidus	凍った,氷の
 1	grātus	楽しい,感謝の
 1	herbōsus	草の生い茂った
 1	honestus	名誉ある
 1	hūmānus	人間の,人間味のある
+1	īgnōtus	未知の
 1	ingrātus	不愉快な,恩知らずな
 1	inimīcus	敵対する
 1	īrātus	怒った
@@ -46,6 +50,7 @@
 1	largus	豊かな
 1	lātus	広い,大きい
 1	longus	長い,広い
+1	maestus	悲嘆に暮れた
 1	māgnus	大きな
 1	magnus	大きな
 1	malus	悪い
@@ -68,6 +73,7 @@
 1	rapidus	速い
 1	rēctus	まっすぐな
 1	relinquus	残った
+1	rūsticus	田舎の
 1	saevus	激怒した
 1	sanctus	聖なる
 1	sānus	健全な
@@ -77,6 +83,7 @@
 1	tūtus	安全な
 1	ultimus	最後の
 1	ūnigenitus	一人っ子の
+1	validus	強い,頑丈な
 1	vānus	空虚な
 1	varius	様々な
 1	vastus	空の,誰もいない,荒涼とした
@@ -86,6 +93,9 @@
 
 1	flāvus	黄色い,黄金色の
 1	caeruleus	青い
+
+# 再帰的所有形容詞
+1	suus	自分の
 
 #1	flexus	曲がった,屈折した
 

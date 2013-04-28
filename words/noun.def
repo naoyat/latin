@@ -3,6 +3,7 @@
 1	Adria	m	アドリア海
 1	Crēta	f	クレタ
 1	Graecia	f	ギリシア
+1	Metanīra	f	メタニラ
 1	Mycēna	f	ミュケナイ
 1	Phthia	f	プティア
 1	Rōma	f	ローマ
@@ -13,8 +14,11 @@
 1	aqua	f	水
 1	casa	f	あばら屋
 1	causa	f	原因
+1	cēna	f	食事
+1	cūna	f	ゆりかご,巣
 1	dea	f	女神
 1	epistula	f	手紙
+1	familia	f	家族
 1	femina	f	女性
 1	fīlia	f	娘
 1	fōrma	f	形,型,姿
@@ -59,14 +63,18 @@
 1	vīnea	f	ぶどうの木,ぶどう畑
 1	vīta	f	人生
 
+# pl. only
+2	Ītalus	m	イタリア人
+2	Graecus	m	ギリシア人
+
 2	Corinthus	f	コリントス
 2	Daedalus	m	ダエダルス
-2	Graecus	m	ギリシア人
 2	Homērus	m	ホメルス
 2	Naxus	m	ナクソス
 2	Samus	f	サモス島
 2	Tenedus	m	テネドス
 2	Thēseus	m	テセウス
+2	Triptolemus	m	トリプトレムス
 2	Trōjānus	m	トロヤ人
 2	agnus	m	小羊
 2	alvus	f	胃腸
@@ -109,6 +117,7 @@
 2	numerus	m	数,測定
 2	nuntius	m	使者
 2	oculus	m	目
+2	ōsculum	n	くちづけ
 2	patruus	m	(父方の)叔父
 2	pelagus	n	大海
 2	periodus	f	文,ピリオド
@@ -189,6 +198,7 @@
 2	pōmum	n	果実
 2	rēgnum	n	支配,王権,王国
 2	saeculum	n	時代,世代
+2	saxum	n	岩
 2	signum	n	印,標準,像
 2	silentium	n	沈黙
 2	solstitium	n	真夏
@@ -275,7 +285,6 @@
 3-um	uxor	uxōris	f	妻
 3-um	vōx	vōcis	f	声
 
-
 # III -um (b)
 3-um	canis	canis	m	犬
 3-um	cor	cordis	n	心,心臓
@@ -301,6 +310,7 @@
 #3-um	nēmō	nēminis	m	誰も〜ない
 3-um	Paris	Paridis	m	パリス
 3-um	ratiō	ratiōnis	f	計算,方法,理屈,分野
+#3-um	Ītalis	Ītalidis	m	イタリア人
 
 # 3-um	plūs	plūris	n	(より多くの,沢山の)
 3-um	hūmānitās	hūmānitātis	f	人間性,親切

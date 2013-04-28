@@ -445,7 +445,7 @@ class Sentence:
                             return [target]
                         elif item2.pos in ['adj']:
                             if item2.attrib('base') == u'plēnus':
-                                print "|> plein de "+ word.surface.encode('utf-8')
+                                # print "|> plenty of "+ word.surface.encode('utf-8')
                                 target = (i2, j2)
                                 return [target]
                             blocked = False
