@@ -98,7 +98,7 @@ class Word:
                 self._is_verb = False
             else:
 #                util.pp((self.surface, [item.attrib('mood','*') if item.pos == 'verb' else '-' for item in self.items]))
-                self._is_verb = all([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
+                self._is_verb = len(self.items) > 0 and all([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
         return self._is_verb
 
     def description(self):
@@ -111,15 +111,16 @@ class Sentence:
         self.len = len(words)
         self.words = words
         self.pred_idx = None
-        self.pred_word = None
+        self.pred_word_item = None
         self.pred_sum = False
         for i, word in enumerate(words):
             if word.is_verb():
                 self.pred_idx = i
-                self.pred_word = word
-                if word.items[0].item.get('pres1sg', None) == 'sum':
-                    self.pred_sum = True
-                break
+                if len(word.items) >= 1:
+                    self.pred_word_item = word.items[0]
+                    if self.pred_word_item.item.get('pres1sg', None) == 'sum':
+                        self.pred_sum = True
+                        break
 #        print self.pred_idx
 
     def count_patterns(self):
@@ -484,10 +485,9 @@ class Sentence:
         # 述語動詞と人称＆単複が一致したNomのみを主語としたい
         # A et B の場合複数形になるよね（未チェック）
         predicate = pred_person = pred_number = None
-        if self.pred_idx is not None:
-            predicate = self.pred_word
-            pred_person = predicate.items[0].attrib('person', 0)
-            pred_number = predicate.items[0].attrib('number', '*')
+        if self.pred_idx is not None and self.pred_word_item:
+            pred_person = self.pred_word_item.attrib('person', 0)
+            pred_number = self.pred_word_item.attrib('number', '*')
             used.add(self.pred_idx)
 
         def render_item(i, j):
@@ -600,14 +600,14 @@ class Sentence:
  #           prep_item = self.words[i].items[j]
  #           print prep_item.ja
 
-        if predicate:
+        if self.pred_word_item:
             if not subject_exists:
                 ja = {'1sg':'私', '1pl':'我々',
                       '2sg':'あなた', '2pl':'あなたがた',
                       '3sg':'彼,彼女,それ', '3pl':'彼ら,彼女ら,それら',
                       '0*':''}
                 print '[' + ja['%d%s' % (pred_person, pred_number)] + ']が',
-            verb = predicate.items[0]
+            verb = self.pred_word_item
             jas = verb.ja.split(',')
             voice = verb.attrib('voice')
             tense = verb.attrib('tense')
