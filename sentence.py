@@ -4,6 +4,8 @@
 import latin.util as util
 import latin.ansi_color as ansi_color
 
+from japanese import JaVerb
+
 class Item:
     def __init__(self, item):
         self.item = item
@@ -610,23 +612,33 @@ class Sentence:
             jas = verb.ja.split(',')
             voice = verb.attrib('voice')
             tense = verb.attrib('tense')
-            if tense in ['imperfect', 'perfect']:
-                if voice == 'passive':
-                    suffix = "された"
-                else:
-                    suffix = "した"
-            elif tense in ['future']:
-                if voice == 'passive':
-                    suffix = "されるだろう"
-                else:
-                    suffix = "するだろう"
-            else:
-                if voice == 'passive':
-                    suffix = "される"
-                else:
-                    suffix = "する"
 
-            print ','.join([ja + 'など' + suffix for ja in jas])
+            def conj_form(ja):
+                v = JaVerb(ja)
+                if tense in ['imperfect', 'perfect']:
+                    if voice == 'passive':
+                        ja_conj = v.perfect_passive_form()
+                        # suffix = "された"
+                    else:
+                        ja_conj = v.perfect_active_form()
+                        # suffix = "した"
+                elif tense in ['future']:
+                    if voice == 'passive':
+                        ja_conj = v.future_passive_form()
+                        # suffix = "されるだろう"
+                    else:
+                        ja_conj = v.future_active_form()
+                        # suffix = "するだろう"
+                else:
+                    if voice == 'passive':
+                        ja_conj = v.present_passive_form()
+                        # suffix = "される"
+                    else:
+                        ja_conj = v.present_active_form()
+                        # suffix = "する"
+                return ja_conj
+
+            print ','.join([conj_form(ja) for ja in jas])
         else:
             print "NO VERB FOUND"
 
