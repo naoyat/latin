@@ -347,13 +347,19 @@ class Sentence:
                         targets_backward += [(f,cng) for f in found]
                     if targets_backward != []:
                         targets_backward.sort()
-                        #targets_backward.reverse()
-                        target, cng = targets_backward[-1]
-                        self.attach_modifier(target, (i,j))
-                        print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
-                                                            '.'.join(cng), util.render(target))
-                        targets.append(target)
-                        valid_cngs.append(cng)
+                        targets_backward.reverse()
+                        nearest = None
+                        for target, cng in targets_backward:
+                            if nearest is None:
+                                nearest = target
+                                targets.append(target)
+                            if target == nearest:
+                                self.attach_modifier(target, (i,j))
+                                print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
+                                                                    '.'.join(cng), util.render(target))
+                                valid_cngs.append(cng)
+                            else:
+                                break
 
 #                        if targets != []:
 #                            # valid cng
@@ -368,12 +374,18 @@ class Sentence:
                             targets_forward += [(f,cng) for f in found]
                         if targets_forward != []:
                             targets_forward.sort()
-                            target, cng = targets_forward[0]
-                            self.attach_modifier(target, (i,j))
-                            print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
-                                                                '.'.join(cng), util.render(target))
-                            targets.append(target)
-                            valid_cngs.append(cng)
+                            nearest = None
+                            for target, cng in targets_forward:
+                                if nearest is None:
+                                    nearest = target
+                                    targets.append(target)
+                                if target == nearest:
+                                    self.attach_modifier(target, (i,j))
+                                    print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
+                                                                        '.'.join(cng), util.render(target))
+                                    valid_cngs.append(cng)
+                                else:
+                                    break
 
 #                        if targets != []:
 #                            # valid cng
@@ -485,7 +497,7 @@ class Sentence:
 
         # 述語動詞と人称＆単複が一致したNomのみを主語としたい
         # A et B の場合複数形になるよね（未チェック）
-        predicate = pred_person = pred_number = None
+        pred_person = pred_number = None
         if self.pred_idx is not None and self.pred_word_item:
             pred_person = self.pred_word_item.attrib('person', 0)
             pred_number = self.pred_word_item.attrib('number', '*')
@@ -517,7 +529,10 @@ class Sentence:
             jas = filter(lambda x:x is not None, [render_item(ti, tj) for ti, tj in targets])
             return '( ' + ' / '.join(jas) + ' ) ' + prep_ja
 
+
         slot = {}
+        advs = []
+
         # 前置詞とそれに支配された語
         for i, word in enumerate(self.words):
             if i in used: continue
@@ -528,19 +543,20 @@ class Sentence:
                     used.add(i)
                     break
                 elif item.pos == 'adv':
-                    print '[adv] ' + item.ja
+                    advs.append(item.ja)
+                    # print '[adv] ' + item.ja
                     used.add(i)
                     break
                 elif item.pos == 'conj':
-#                    if item.surface == u'et':
-#                        pass
-#                    else:
-                    print '[conj] ' + item.ja
+                    if word.surface == u'et':
+                        print '[conj] そして'
+                    else:
+                        print '[conj] ' + item.ja
                     used.add(i)
                     break
 
         # 動詞と合致した主格名詞を探す
-        if predicate is not None:
+        if self.pred_word_item is not None:
             for i, word in enumerate(self.words):
                 if i in used: continue
                 if word.items is None: continue
@@ -552,7 +568,7 @@ class Sentence:
                             if person and person != pred_person: continue
                         for case, number, gender in item._:
                             if case == 'Nom' and (self.pred_sum or number == pred_number):
-                                if not self.pred_sum and gender == 'n': continue ## 中性主格をskipしているがこれはcase-by-case
+                                if (not self.pred_sum) and gender == 'n': continue ## 中性主格をskipしているがこれはcase-by-case
                                 if not slot.has_key('Nom'): slot['Nom'] = []
                                 slot['Nom'].append((i,j))
                                 used.add(i)
@@ -567,7 +583,7 @@ class Sentence:
                     # print item._
                     for case, number, gender in item._:
                         # if predicate is not None:
-                        if predicate is not None and case in ['Nom', 'Voc']: continue
+                        if self.pred_word_item is not None and case in ['Nom', 'Voc']: continue
                         if not slot.has_key(case):
                             slot[case] = []
                         slot[case].append((i,j))
@@ -588,8 +604,13 @@ class Sentence:
             jas = filter(lambda x:x is not None, [render_item(i, j) for i, j in ids])
             if case == 'Nom' and jas != []:
                 subject_exists = True
+
             if len(jas) > 0:
-                print '(', ' == '.join(jas), ')', aux
+                if case == 'Nom':
+                    joint = ' == '
+                else:
+                    joint = ' / '
+                print '(', joint.join(jas), ')', aux
             del slot[case]
             [used.add(i) for i, j in ids]
 
@@ -607,7 +628,12 @@ class Sentence:
                       '2sg':'あなた', '2pl':'あなたがた',
                       '3sg':'彼,彼女,それ', '3pl':'彼ら,彼女ら,それら',
                       '0*':''}
-                print '[' + ja['%d%s' % (pred_person, pred_number)] + ']が',
+                subject = '[' + ja['%d%s' % (pred_person, pred_number)] + ']'
+                if self.pred_sum:
+                    subject += ' は'
+                else:
+                    subject += ' が'
+                print subject
             verb = self.pred_word_item
             jas = verb.ja.split(',')
             voice = verb.attrib('voice')
@@ -618,26 +644,22 @@ class Sentence:
                 if tense in ['imperfect', 'perfect']:
                     if voice == 'passive':
                         ja_conj = v.perfect_passive_form()
-                        # suffix = "された"
                     else:
                         ja_conj = v.perfect_active_form()
-                        # suffix = "した"
                 elif tense in ['future']:
                     if voice == 'passive':
                         ja_conj = v.future_passive_form()
-                        # suffix = "されるだろう"
                     else:
                         ja_conj = v.future_active_form()
-                        # suffix = "するだろう"
                 else:
                     if voice == 'passive':
                         ja_conj = v.present_passive_form()
-                        # suffix = "される"
                     else:
                         ja_conj = v.present_active_form()
-                        # suffix = "する"
                 return ja_conj
 
+            if advs != []:
+                print "{", ', '.join(advs), "}",
             print ','.join([conj_form(ja) for ja in jas])
         else:
             print "NO VERB FOUND"
