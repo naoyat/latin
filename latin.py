@@ -502,19 +502,20 @@ class Sentence:
 
         def render_item(i, j):
             if i in once_said: return None
+            once_said.add(i)
             item = self.item_at(i, j)
             ja = item.ja
             mods = []
             for mi, mj in item.modifiers:
                 item_m = self.item_at(mi, mj)
                 rendered = render_item(mi, mj)
+                if rendered is None: continue
                 if item_m.can_be_genitive() and not item.can_be_genitive():
                     rendered += '-の'
                 mods.append(rendered)
                 used.add(mi)
             if mods != []:
                 ja = '<' + '&'.join(mods) + '>' + ja
-            once_said.add(i)
             return ja
 
         def translate_prep(i, j):
