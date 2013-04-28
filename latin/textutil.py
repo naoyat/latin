@@ -59,8 +59,6 @@ def sentence_stream(ws):
             sentence.append(word)
 
 
-def analyse_text(text, analyser, echo_on=False):
-    for sentence in sentence_stream(word_stream_from_text(text)):
-        if echo_on:
-            print ' '.join(sentence)
-        analyser(sentence)
+#def analyse_text(text, analyser, options=options):
+#    for sentence in sentence_stream(word_stream_from_text(text)):
+#        analyser(sentence, options)

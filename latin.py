@@ -7,10 +7,10 @@ import getopt
 
 from sentence import Word, Sentence
 
+import latin.ansi_color as ansi_color
 import latin.textutil as textutil
 import latin.latin_char as char
 import latin.latindic as latindic
-
 
 def lookup_all(surfaces_uc):
     def lookup(surface):
@@ -98,8 +98,15 @@ def split_sentence_by_verb(words):
     return sentences
 
 
-def analyse_sentence(surfaces):
+def analyse_sentence(surfaces, options=None):
     # words: string(utf-8)
+    if options.echo_on:
+        text = ' '.join(surfaces)
+        print ansi_color.ANSI_UNDERLINE_ON + ansi_color.ANSI_BOLD_ON + \
+            text + \
+            ansi_color.ANSI_BOLD_OFF + ansi_color.ANSI_UNDERLINE_OFF
+        print
+
     surfaces_uc = [surface.decode('utf-8') for surface in surfaces]
     # words = [Word(surface, items) for surface, items in lookup_all_words(words_uc)]
     words = lookup_all(surfaces_uc)
@@ -112,7 +119,6 @@ def analyse_sentence(surfaces):
         sentence.prep_constraint()
 
         # sentence.dot('_'.join([word.surface.encode('utf-8') for word in sentence.words]))
-
         # 属格支配する形容詞
         sentence.genitive_domination()
         # 形容詞などの性・数・格一致を利用して絞り込む
@@ -121,19 +127,18 @@ def analyse_sentence(surfaces):
         # 属格がどこにかかるか
         sentence.genitive_constraint()
 
-        print "  ---"
-        sentence.dump()
-#        print ansi_color.ANSI_FGCOLOR_BLUE
-        print " ↓ "
-        sentence.translate()
-#        print ansi_color.ANSI_FGCOLOR_DEFAULT
+        if options and options.do_translation:
+            sentence.translate()
+
+        if options and options.show_word_detail:
+            if options.do_translation:
+                print "  ---"
+            sentence.dump()
+
         print
 
-    print "========"
-
-
 # read-eval-print loop
-def repl(do_trans=False, show_prompt=False):
+def repl(options=None, show_prompt=False):
     while True:
         if show_prompt:
             sys.stdout.write("> ")
@@ -143,58 +148,79 @@ def repl(do_trans=False, show_prompt=False):
         if not line: break
 
         text = line.rstrip()
-        if do_trans:
+        if options and options.macron_in_capital:
             text = char.trans(text)
 
-        textutil.analyse_text(text, analyse_sentence)
+        # textutil.analyse_text(text, analyse_sentence)
+        for sentence in textutil.sentence_stream(textutil.word_stream_from_text(text)):
+            analyse_sentence(sentence, options=None)
 
     if show_prompt:
         print
 
 
-def usage():
-    print "Usage: python %s [options] [FILENAME]" % sys.argv[0]
-    print "Options:"
-    print "  -t, --trans                        Truncate feature-collection at first."
-    print "  -n, --no-macron                    No-macron mode."
-    print "  -h, --help                         Print this message and exit."
+
+class Options:
+    def __init__(self, args):
+        try:
+            opts, self.args = getopt.getopt(args,
+                                            "wtchn",
+                                            ["word-detail", "translate", "macron-in-capital", "help", "no-macron"])
+        except getopt.GetoptError:
+            self.usage()
+            sys.exit()
+
+        self.macron_in_capital = False
+        self.no_macron_mode = False
+        self.do_translation = False
+        self.show_word_detail = False
+
+        for option, arg in opts:
+            if option in ('-w', '--word-detail'):
+                self.show_word_detail = True
+            elif option in ('-t', '--translate'):
+                self.do_translation = True
+            elif option in ('-c', '--macron-in-capital'):
+                self.macron_in_capital = True
+            elif option in ('-n', '--no-macron'):
+                self.no_macron_mode = True
+            elif option in ('-h', '--help'):
+                self.usage()
+                sys.exit()
+
+    def usage():
+        print "Usage: python %s [options] [FILENAME]" % sys.argv[0]
+        print "Options:"
+        print "  -w, --word-detail                  Show word details."
+        print "  -t, --translate                    Translate (into Japanese)."
+        print "  -c, --macron-in-capital            [REPL only] Treat capitalized vowels as macron."
+        print "  -n, --no-macron                    No-macron mode."
+        print "  -h, --help                         Print this message and exit."
 
 
 def main():
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "thn", ["trans", "help", "no-macron"])
-    except getopt.GetoptError:
-        usage()
-        sys.exit()
+    options = Options(sys.argv[1:])
 
-    do_trans = False
-    no_macron_mode = False
+    latindic.load(no_macron_mode=options.no_macron_mode)
 
-    for option, arg in opts:
-        if option in ('-t', '--trans'):
-            do_trans = True
-        elif option in ('-n', '--no-macron'):
-            no_macron_mode = True
-        elif option in ('-h', '--help'):
-            usage()
-            sys.exit()
-
-    latindic.load(no_macron_mode=no_macron_mode)
-
-    if len(args) == 0:
+    if len(options.args) == 0:
         # repl mode
         if select.select([sys.stdin,],[],[],0.0)[0]:
             # have data from pipe. no prompt.
-            repl(do_trans=do_trans)
+            repl(options=options)
         else:
-            repl(do_trans=do_trans, show_prompt=True)
+            repl(options=options, show_prompt=True)
     else:
         # file mode
-        for file in args:
+        for file in options.args:
             text = textutil.load_text_from_file(file)
-            if do_trans:
+            if options.macron_in_capital:
                 text = char.trans(text)
-            textutil.analyse_text(text, analyse_sentence, echo_on=True)
+
+            options.echo_on = True
+            # textutil.analyse_text(text, analyse_sentence, options=options)
+            for sentence in textutil.sentence_stream(textutil.word_stream_from_text(text)):
+                analyse_sentence(sentence, options=options)
 
 
 if __name__ == '__main__':

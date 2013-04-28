@@ -589,6 +589,10 @@ class Sentence:
                         print '[conj] ' + item.ja
                     used.add(i)
                     break
+                elif item.pos == 'indecl':
+                    print '[indecl] ' + item.ja
+                    used.add(i)
+                    break
 
         # 動詞と合致した主格名詞を探す
         if self.pred_word_item is not None:
@@ -697,11 +701,11 @@ class Sentence:
                 print "{", ', '.join(advs), "}",
             print ','.join([conj_form(ja) for ja in jas])
         else:
-            print "NO VERB FOUND"
+            print "\n // NO VERB FOUND"
 
         print
         for i in range(self.len):
             if i in used: continue
             word = self.words[i]
             if not word.items: continue
-            print 'UNSOLVED (%d):' % i, word.description()
+            print ' // UNSOLVED (%d):' % i, word.description()
