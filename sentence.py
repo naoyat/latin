@@ -97,7 +97,6 @@ class Word:
             if self.items is None:
                 self._is_verb = False
             else:
-#                util.pp((self.surface, [item.attrib('mood','*') if item.pos == 'verb' else '-' for item in self.items]))
                 self._is_verb = len(self.items) > 0 and all([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
         return self._is_verb
 
