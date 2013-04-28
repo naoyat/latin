@@ -32,6 +32,9 @@ class Item:
     def match_case(self, pos, case):
         return self.pos in pos and any([it[0] == case for it in self._])
 
+    def can_be_genitive(self):
+        return self._ and any([it[0] == 'Gen' for it in self._])
+
     # itemをレンダリング
     def description(self):
         name = {
@@ -118,9 +121,14 @@ class Sentence:
         self.len = len(words)
         self.words = words
         self.pred_idx = None
+        self.pred_word = None
+        self.pred_sum = False
         for i, word in enumerate(words):
             if word.is_verb():
                 self.pred_idx = i
+                self.pred_word = word
+                if word.items[0].item.get('pres1sg', None) == 'sum':
+                    self.pred_sum = True
                 break
 #        print self.pred_idx
 
@@ -318,40 +326,71 @@ class Sentence:
             if word.items is None: continue # 句読点はスキップ
             for j, item in enumerate(word.items):
                 if item.pos in ['adj', 'participle']:
-                    # targets = []
-                    valid_cngs = []
-                    for cng in item._: # case, number, gender
-                        def find_targets(range_from, range_to):
+                    def find_targets(range_from, range_to, cng):
                             # print "- find_targets(%d, %d) within %d" % (range_from, range_to, len(self.words))
-                            target = None
-                            if range_from < range_to:
-                                rng = range(range_from, range_to+1, 1)
-                            else:
-                                rng = range(range_from, range_to-1, -1)
-                            for i2 in rng:
-                                if i2 < 0 or len(self.words) <= i2: continue
-                                w = self.words[i2]
-                                if w.items is None: continue
-                                # stop_here = False
-                                for j2, item2 in enumerate(w.items):
-                                    if item2._ is None or item2._ == []: continue
-                                    if item2.pos not in ['noun']: continue
-                                    if cng in item2._:
-                                        target = (i2, j2)
-                                        return [target]
-                                        # stop_here = True
-                                        # break
-                                # if stop_here: break
-                            # return target
-                            return []
-                        targets = find_targets(i-1, 0) + find_targets(i+1, self.len-1)
-                        if targets != []:
-                            # valid cng
+                        target = None
+                        if range_from < range_to:
+                            rng = range(range_from, range_to+1, 1)
+                        else:
+                            rng = range(range_from, range_to-1, -1)
+                        for i2 in rng:
+                            if i2 < 0 or len(self.words) <= i2: continue
+                            w = self.words[i2]
+                            if w.items is None: continue
+                            # stop_here = False
+                            for j2, item2 in enumerate(w.items):
+                                if item2._ is None or item2._ == []: continue
+                                if item2.pos not in ['noun']: continue
+                                if cng in item2._:
+                                    target = (i2, j2)
+                                    return [target]
+                        return []
+
+                    targets = []
+                    valid_cngs = []
+
+                    targets_backward = []
+                    for cng in item._: # case, number, gender
+                        found = find_targets(i-1, 0, cng)
+                        targets_backward += [(f,cng) for f in found]
+                    if targets_backward != []:
+                        targets_backward.sort()
+                        #targets_backward.reverse()
+                        target, cng = targets_backward[-1]
+                        self.attach_modifier(target, (i,j))
+                        print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
+                                                            '.'.join(cng), util.render(target))
+                        targets.append(target)
+                        valid_cngs.append(cng)
+
+#                        if targets != []:
+#                            # valid cng
+#                            for t in targets:
+#                                self.attach_modifier(t, (i,j))
+#                            valid_cngs.append(cng)
+
+                    targets_forward = []
+                    if targets == []:
+                        for cng in item._: # case, number, gender
+                            found = find_targets(i+1, self.len-1, cng)
+                            targets_forward += [(f,cng) for f in found]
+                        if targets_forward != []:
+                            targets_forward.sort()
+                            target, cng = targets_forward[0]
+                            self.attach_modifier(target, (i,j))
                             print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
-                                                           '.'.join(cng), util.render(targets))
-                            for t in targets:
-                                self.attach_modifier(t, (i,j))
+                                                                '.'.join(cng), util.render(target))
+                            targets.append(target)
                             valid_cngs.append(cng)
+
+#                        if targets != []:
+#                            # valid cng
+#                            print "  // %s(%d,%d)<%s> -> %s" % (word.surface.encode('utf-8'), i, j,
+#                                                           '.'.join(cng), util.render(targets))
+#                            for t in targets:
+#                                self.attach_modifier(t, (i,j))
+#                            valid_cngs.append(cng)
+
                     if valid_cngs != []:
                         word.items[j]._ = valid_cngs
 
@@ -454,30 +493,24 @@ class Sentence:
 
         # 述語動詞と人称＆単複が一致したNomのみを主語としたい
         # A et B の場合複数形になるよね（未チェック）
-        pred_person = pred_number = None
+        predicate = pred_person = pred_number = None
         if self.pred_idx is not None:
-            predicate = self.words[self.pred_idx]
-            if len(predicate.items) > 0:
-                pred_person = predicate.items[0].attrib('person', 0)
-                pred_number = predicate.items[0].attrib('number', '*')
-                # print "{%d, %s}" % (pred_person, pred_number)
-                used.add(self.pred_idx)
-            else:
-                predicate = None
-        else:
-            predicate = None
+            predicate = self.pred_word
+            pred_person = predicate.items[0].attrib('person', 0)
+            pred_number = predicate.items[0].attrib('number', '*')
+            used.add(self.pred_idx)
 
         def render_item(i, j):
             if i in once_said: return None
-            target_item = self.item_at(i, j)
-            ja = target_item.ja
+            item = self.item_at(i, j)
+            ja = item.ja
             mods = []
-            for mi, mj in target_item.modifiers:
-                item = self.item_at(mi, mj)
-                if item._ and any([it[0] == 'Gen' for it in item._]):
-                    mods.append(item.ja + '-の')
-                else:
-                    mods.append(item.ja)
+            for mi, mj in item.modifiers:
+                item_m = self.item_at(mi, mj)
+                rendered = render_item(mi, mj)
+                if item_m.can_be_genitive() and not item.can_be_genitive():
+                    rendered += '-の'
+                mods.append(rendered)
                 used.add(mi)
             if mods != []:
                 ja = '<' + '&'.join(mods) + '>' + ja
@@ -521,19 +554,17 @@ class Sentence:
                 if word.items is None: continue
                 if not word.has_subst_case('Nom'): continue
                 for j, item in enumerate(word.items):
-                    to_skip = False
                     if item.pos in ['noun', 'pronoun']:
                         person = item.attrib('person')
-                        if person and person != pred_person: continue
+                        if not self.pred_sum:
+                            if person and person != pred_person: continue
                         for case, number, gender in item._:
-                            if case == 'Nom' and number == pred_number:
-                                if gender == 'n': continue ## 中性主格をskipしているがこれはcase-by-case
+                            if case == 'Nom' and (self.pred_sum or number == pred_number):
+                                if not self.pred_sum and gender == 'n': continue ## 中性主格をskipしているがこれはcase-by-case
                                 if not slot.has_key('Nom'): slot['Nom'] = []
                                 slot['Nom'].append((i,j))
                                 used.add(i)
-                                # to_skip = True
                                 break
-                        # if to_skip: break
 
         # （Nom, Vocを除く）
         for i, word in enumerate(self.words):
@@ -553,7 +584,11 @@ class Sentence:
 
         # output
         subject_exists = False
-        for case, aux in [('Nom','が'), ('Dat','に'), ('Acc','を'), ('Abl','で')]:
+        if self.pred_sum:
+            case_and_aux = [('Nom','*'), ('Dat','に'), ('Acc','を'), ('Abl','で')]
+        else:
+            case_and_aux = [('Nom','が'), ('Dat','に'), ('Acc','を'), ('Abl','で')]
+        for case, aux in case_and_aux:
             ids = slot.get(case, None)
             if ids is None: continue
 

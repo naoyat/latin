@@ -6,7 +6,7 @@ import util
 from latin_verb_reg import *
 
 def conjugate_verb_eo(prefix=u'', ja=''):
-    tags = {'pos':'verb', 'ja':ja}
+    tags = {'pos':'verb', 'pres1sg':prefix+u'eō', 'ja':ja}
 
     inf = u'īre'
     # pres_stem = u''
@@ -35,7 +35,7 @@ def conjugate_verb_eo(prefix=u'', ja=''):
 
 
 def conjugate_verb_fero(prefix=u'', ja=''):
-    tags = {'pos':'verb', 'ja':ja}
+    tags = {'pos':'verb', 'pres1sg':prefix+u'ferō', 'ja':ja}
 
     inf = prefix + u'ferre'
     pres_stem = prefix + u'fer'
@@ -92,7 +92,7 @@ def conjugate_verb_fero(prefix=u'', ja=''):
 
 
 def conjugate_verb_sum(prefix=u'', ja=''):
-    tags = {'pos':'verb', 'ja':ja}
+    tags = {'pos':'verb', 'pres1sg':prefix+u'sum', 'ja':ja}
 
     inf = prefix + u'esse'
     pres_stem = prefix + u'et'
@@ -176,7 +176,7 @@ def conjugate_verb_sum_composites():
     items += conjugate_verb_sum(u'ob', '妨げになる')
     items += conjugate_verb_sum(u'prae', '先頭に立つ')
     items += conjugate_verb_sum(u'pos', 'できる') # possum potuī posse
-    items += conjugate_verb_sum(u'prō', '役に立つ') # prOsum prOfuī prOfutUrus prOdesse
+    items += conjugate_verb_sum(u'prō', '役に立つ') # prōsum prōfuī prōfutUrus prōdesse
 
     return items
 
@@ -185,18 +185,18 @@ def load():
     items = []
 
     items += conjugate_verb_sum_composites()
-    # items += conjugate_irregular_verb(u'edō', '食べる') # edO ēdī ēsum edere/ēsse
+    # items += conjugate_irregular_verb(u'edō', '食べる') # edō ēdī ēsum edere/ēsse
 
-    # items += conjugate_irregular_verb(u'eō', '行く') # eO īvī/iī itum īre
+    # items += conjugate_irregular_verb(u'eō', '行く') # eō īvī/iī itum īre
     items += conjugate_verb_eo_composites()
 
-    # items += conjugate_irregular_verb(u'ferō', '運ぶ') # ferO tulī lAtum ferre
+    # items += conjugate_irregular_verb(u'ferō', '運ぶ') # ferō tulī lAtum ferre
     items += conjugate_verb_fero_composites()
 
-    # items += conjugate_irregular_verb(u'fīō', '成る,生ずる') # fīO factus sum, fierī
-    # items += conjugate_irregular_verb(u'volō', '欲する') # volO voluī velle
-    # items += conjugate_irregular_verb(u'mālō', 'むしろ〜を欲する') # mAlO mAluī mAlle
-    # items += conjugate_irregular_verb(u'nōlō', '欲しない') # nOlO nOluī nOlle
+    # items += conjugate_irregular_verb(u'fīō', '成る,生ずる') # fīō factus sum, fierī
+    # items += conjugate_irregular_verb(u'volō', '欲する') # volō voluī velle
+    # items += conjugate_irregular_verb(u'mālō', 'むしろ〜を欲する') # mAlō mAluī mAlle
+    # items += conjugate_irregular_verb(u'nōlō', '欲しない') # nōlō nōluī nōlle
 
     return items
 
