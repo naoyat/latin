@@ -7,6 +7,7 @@
 1	aedificō	建てる
 1	alligō	結びつける,繋ぐ
 1	amō	愛する
+1	arō	耕す
 1	appellō	訴える
 1	cantō	歌う
 1	cēlō	隠す
@@ -74,8 +75,7 @@
 2	placeō	placēre	placuī	placitum	良いと思う
 2	pāreō	pārēre	pāruī	pāritum	現れる,従う
 2	misereō	miserēre	miseruī	miseritum	憐れむ
-2	sedeō	sedēre	sEdī	sessum	座る
-
+2	sedeō	sedēre	sēdī	sessum	座る
 
 3a	agō	agere	ēgī	āctum	する,駆る
 3a	benedīcō	benedīcere	benedīxī	benedictum	祝福する
@@ -96,10 +96,13 @@
 3a	pellō	pellere	pepulī	pulsum	押す
 3a	regō	regere	rēxī	rēctum	支配する
 3a	scrībō	scrībere	scrīpsī	scrīptum	書く
-3a	trahō	trahere	traxī	tractum	引く,引っ張る,引き締めるo
+3a	trahō	trahere	traxī	tractum	引く,引っ張る,引き締める
 3a	vincō	vincere	vīcī	vīctum	勝つ
 3a	vīvō	vīvere	vīxī	vīctūrus	生きる
 3a	tollō	tollere	sustulī	sublātum	取り去る
+
+#3a	pandō	pandere	pandī	pAnsum	広げる,開ける
+3a	pandō	pandere	pandī	passum	広げる,開ける
 
 3b	accipiō	accipere	accēpī	acceptum	受け取る
 3b	capiō	capere	cēpī	captum	捕える
