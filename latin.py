@@ -153,7 +153,7 @@ def repl(options=None, show_prompt=False):
 
         # textutil.analyse_text(text, analyse_sentence)
         for sentence in textutil.sentence_stream(textutil.word_stream_from_text(text)):
-            analyse_sentence(sentence, options=None)
+            analyse_sentence(sentence, options=options)
 
     if show_prompt:
         print
@@ -164,7 +164,7 @@ class Options:
     def __init__(self, args):
         try:
             opts, self.args = getopt.getopt(args,
-                                            "wtchn",
+                                            "dtchn",
                                             ["word-detail", "translate", "macron-in-capital", "help", "no-macron"])
         except getopt.GetoptError:
             self.usage()
@@ -174,9 +174,10 @@ class Options:
         self.no_macron_mode = False
         self.do_translation = False
         self.show_word_detail = False
+        self.echo_on = True
 
         for option, arg in opts:
-            if option in ('-w', '--word-detail'):
+            if option in ('-d', '--word-detail'):
                 self.show_word_detail = True
             elif option in ('-t', '--translate'):
                 self.do_translation = True
@@ -188,10 +189,10 @@ class Options:
                 self.usage()
                 sys.exit()
 
-    def usage():
+    def usage(self):
         print "Usage: python %s [options] [FILENAME]" % sys.argv[0]
         print "Options:"
-        print "  -w, --word-detail                  Show word details."
+        print "  -d, --word-detail                  Show word details."
         print "  -t, --translate                    Translate (into Japanese)."
         print "  -c, --macron-in-capital            [REPL only] Treat capitalized vowels as macron."
         print "  -n, --no-macron                    No-macron mode."
@@ -217,7 +218,6 @@ def main():
             if options.macron_in_capital:
                 text = char.trans(text)
 
-            options.echo_on = True
             # textutil.analyse_text(text, analyse_sentence, options=options)
             for sentence in textutil.sentence_stream(textutil.word_stream_from_text(text)):
                 analyse_sentence(sentence, options=options)

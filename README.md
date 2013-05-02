@@ -4,7 +4,7 @@
 
 ## usage
 ```
-python latin.py texts/4.CERES_ET_PERSEPHONE_1.txt | less -R
+python latin.py -t -d texts/4.CERES_ET_PERSEPHONE_1.txt | less -R
 ```
 
 ## Author
