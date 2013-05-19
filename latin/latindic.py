@@ -55,7 +55,7 @@ def load_def(file, tags={}):
             if len(line) == 0: continue
             if line[0] == '#': continue
 
-            fs = line.rstrip().split()
+            fs = line.rstrip().split('\t')
             if len(fs) < 3: continue
 
             surface = fs[0].decode('utf-8')
