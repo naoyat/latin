@@ -60,7 +60,7 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
                         return (u'い', False) # イ音便
                 elif row == u'ガ':
                     return (u'い', True) # イ音便
-                elif row in (u'ナ', u'マ'):
+                elif row in (u'ナ', u'マ', u'バ'):
                     return (u'ん', True) # 撥音便
                 elif row in (u'タ', u'ラ', u'ワ'):
                     return (u'っ', False) # 促音便
@@ -194,7 +194,8 @@ if __name__ == '__main__':
     for s in ('建てる', '住む', '飲み込む', '〜である', '与える', '入る', '貫く',
               '結びつける', '繋ぐ', '救う', '保つ', '観察する', '注意を払う',
               '殺す', '滅ぼす', '逃げる', '来る',
-              '別れる', '棄てる', '見捨てる', '戻る', '帰る', '書く', '行く'):
+              '別れる', '棄てる', '見捨てる', '戻る', '帰る', '書く', '行く',
+              '叫ぶ'):
         v_with_mecab = JaVerb(s, use_mecab=True)
         v_without_mecab = JaVerb(s, use_mecab=False)
         print v_with_mecab.description()

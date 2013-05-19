@@ -14,7 +14,7 @@ import util
 
 class LatinDic:
     dic = {}
-    no_macron_mode = False
+    auto_macron_mode = False
 
 
 def flatten(text):
@@ -24,7 +24,7 @@ def flatten(text):
 def register(surface, info):
     if not info.has_key('pos'): return
 
-    if LatinDic.no_macron_mode:
+    if LatinDic.auto_macron_mode:
         surface = flatten(surface)
 
     if LatinDic.dic.has_key(surface):
@@ -67,9 +67,8 @@ def load_def(file, tags={}):
     return items
 
 
-def load(no_macron_mode=False):
-#    ld = LatinDic(no_macron_mode=no_macron_mode)
-    LatinDic.no_macron_mode = no_macron_mode
+def load(auto_macron_mode=False):
+    LatinDic.auto_macron_mode = auto_macron_mode
 
     items = []
 

@@ -6,7 +6,9 @@
 1	adōrō	崇める
 1	aedificō	建てる
 1	alligō	結びつける,繋ぐ
+1	ambulō	行き来する,歩く,散歩する
 1	amō	愛する
+1	apportō	連れて来る,運ぶ
 1	arō	耕す
 1	appellō	訴える
 1	cantō	歌う
@@ -14,14 +16,17 @@
 1	cantō	歌う
 1	clāmō	叫ぶ
 1	cōgitō	考える,思う
+1	convocō	呼ぶ,招集する
 1	creō	創造する,選ぶ
 1	dēmōnstrō	示す
 1	dēlectō	喜ばす
+1	dēsīderō	望む
 1	dēvorō	飲み込む
 1	dō	dare	dedī	datum	与える
 1	dormītō	まどろむ,居眠りをする
 1	dubitō	ためらう
 1	errō	さまよう,ぶらつく,道を間違える
+1	ēvolō	飛び立つ,飛び出る
 1	existimō	考慮する
 1	expūgnō	襲撃する
 1	glōrificō	頌徳する
@@ -29,12 +34,16 @@
 1	imperō	命じる
 1	interrogō	尋ねる,質問する
 1	intrō	入る,貫く
+1	jactō	投げる
 1	lacrimō	泣く
 1	laudō	称賛する,ほめる
+1	laxō	拡げる,ゆるめる
 1	līberō	自由にする
+1	mactō	敬う
 1	mandō	委ねる,託す,預ける
 1	mōnstrō	示す,見せる
 1	mūtō	変える,(移り)変わる
+1	nārrō	語る,話す,言う
 1	nāvigō	航海する
 1	necō	殺す,滅ぼす
 1	notō	印をつける,指し示す
@@ -52,6 +61,7 @@
 1	pūgnō	戦う
 1	putō	思う,考える
 1	rogō	尋ねる
+1	scelerō	汚す
 1	servō	救う,保つ,観察する,注意を払う
 1	stō	stāre	stetī	statum	立つ
 1	superō	超える,上を行く,打ち勝つ
@@ -68,19 +78,34 @@
 
 1	dō	dare	dedī	datum	与える
 
-1	perterreō	perterrēre	perterruī	perterritum	おののかせる
 2	doceō	docēre	docuī	doctum	教える
+2	fleō	flēre	flēvī	flētum	泣く,涙を流す
+2	flōreō	flōrēre	flōruī	******	花が咲く
+2	fulgeō	fulgēre	fulsī	******	照らす,光る,輝く
 2	habeō	habēre	habuī	habitum	持つ,所有する
+2	jaceō	jacēre	jacuī jacitūrus	横たわる
 2	maneō	manēre	mānsī	mānsum	とどまる
 2	moneō	monēre	monuī	monitum	忠告する
 2	moveō	movēre	mōvī	mōtum	動かす
-2	placeō	placēre	placuī	placitum	良いと思う
+2	doceō	docēre	docuī	doctum	教える
+2	fleō	flēre	flēvī	flētum	泣く,涙を流す
+2	flōreō	flōrēre	flōruī	******	花が咲く
+2	fulgeō	fulgēre	fulsī	******	照らす,光る,輝く
+2	habeō	habēre	habuī	habitum	持つ,所有する
+2	jaceō	jacēre	jacuī jacitūrus	横たわる
+2	maneō	manēre	mānsī	mānsum	とどまる
+2	moneō	monēre	monuī	monitum	忠告する
+2	moveō	movēre	mōvī	mōtum	動かす
 2	pāreō	pārēre	pāruī	pāritum	現れる,従う
+2	perterreō	perterrēre	perterruī	perterritum	おののかせる
+2	placeō	placēre	placuī	placitum	良いと思う
 2	misereō	miserēre	miseruī	miseritum	憐れむ
 2	sedeō	sedēre	sēdī	sessum	座る
-2	jaceō	jacēre	jacuī jacitūrus	横たわる
-2	valeō	valēre	valuī valitum	強い,元気な
 2	teneō	tenēre	tenuī	tentum	(手に)持つ,とどめる
+2	timeō	timēre	timuī	******	恐れる
+2	valeō	valēre	valuī valitum	強い,元気な
+2	videō	vidēre	vīdī	vīsum	見る
+
 
 3a	agō	agere	ēgī	āctum	する,駆る
 3a	benedīcō	benedīcere	benedīxī	benedictum	祝福する

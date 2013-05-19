@@ -22,6 +22,24 @@ case_tags_6x2 = [
     {'case':'Abl', 'number':'pl'}
     ]
 
+case_tags_7x2 = [
+    {'case':'Nom', 'number':'sg'},
+    {'case':'Voc', 'number':'sg'},
+    {'case':'Acc', 'number':'sg'},
+    {'case':'Gen', 'number':'sg'},
+    {'case':'Dat', 'number':'sg'},
+    {'case':'Abl', 'number':'sg'},
+    {'case':'Loc', 'number':'sg'},
+
+    {'case':'Nom', 'number':'pl'},
+    {'case':'Voc', 'number':'pl'},
+    {'case':'Acc', 'number':'pl'},
+    {'case':'Gen', 'number':'pl'},
+    {'case':'Dat', 'number':'pl'},
+    {'case':'Abl', 'number':'pl'},
+    {'case':'Loc', 'number':'pl'}
+    ]
+
 case_tags_5sg = [
     {'case':'Nom', 'number':'sg'},
     {'case':'Acc', 'number':'sg'},
@@ -61,7 +79,11 @@ def declension_table(stem1, stem2, suffices, tags):
         # Acc = Nom (= Voc)
         stems[2] = stems[0]
 
-    return util.variate(stems, tags, suffices, case_tags_6x2)
+    if len(suffices) == 14:
+        stems = stems[0:6] + [stem2] + stems[6:12] + [stem2]
+        return util.variate(stems, tags, suffices, case_tags_7x2) # with locative
+    else:
+        return util.variate(stems, tags, suffices, case_tags_6x2)
 
 
 def decline_noun_type1(nom_sg, gen_sg, gender, ja, tags={}):
@@ -93,6 +115,9 @@ def decline_noun_type2(nom_sg, gen_sg, gender, ja, tags={}):
             stem2 = gen_sg[:-1]
             # if nom_sg in (u'deus'):
             #    suffices[1] = u'us' ## 神聖視されるものはVoc=Nomとなる場合がある
+
+        if nom_sg == u'humus':
+            suffices = suffices[0:6] + [u'ī'] + suffices[6:12] + [u''] # jacere humi
 
     elif last2 in [u'er', u'ir']:
         # if gen_sg == nom_sg + u'ī': # puer / puerī

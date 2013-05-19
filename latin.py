@@ -127,11 +127,11 @@ def analyse_sentence(surfaces, options=None):
         # 属格がどこにかかるか
         sentence.genitive_constraint()
 
-        if options and options.do_translation:
+        if options and options.show_translation:
             sentence.translate()
 
         if options and options.show_word_detail:
-            if options.do_translation:
+            if options.show_translation:
                 print "  ---"
             sentence.dump()
 
@@ -148,7 +148,7 @@ def repl(options=None, show_prompt=False):
         if not line: break
 
         text = line.rstrip()
-        if options and options.macron_in_capital:
+        if options and not options.strict_macron_mode:
             text = char.trans(text)
 
         # textutil.analyse_text(text, analyse_sentence)
@@ -164,27 +164,31 @@ class Options:
     def __init__(self, args):
         try:
             opts, self.args = getopt.getopt(args,
-                                            "dtchn",
-                                            ["word-detail", "translate", "macron-in-capital", "help", "no-macron"])
+                                            "wqmah",
+                                            ["no-word-detail",
+                                             "no-translation",
+                                             "strict-macron",
+                                             "auto-macron",
+                                             "help"])
         except getopt.GetoptError:
             self.usage()
             sys.exit()
 
-        self.macron_in_capital = False
-        self.no_macron_mode = False
-        self.do_translation = False
-        self.show_word_detail = False
+        self.show_word_detail = True
+        self.show_translation = True
+        self.strict_macron_mode = False
+        self.auto_macron_mode = False
         self.echo_on = True
 
         for option, arg in opts:
-            if option in ('-d', '--word-detail'):
-                self.show_word_detail = True
-            elif option in ('-t', '--translate'):
-                self.do_translation = True
-            elif option in ('-c', '--macron-in-capital'):
-                self.macron_in_capital = True
-            elif option in ('-n', '--no-macron'):
-                self.no_macron_mode = True
+            if option in ('-w', '--no-word-detail'):
+                self.show_word_detail = False
+            elif option in ('-q', '--no-translation'):
+                self.show_translation = False
+            elif option in ('-m', '--strict-macron'):
+                self.strict_macron_mode = True
+            elif option in ('-a', '--auto-macron'):
+                self.auto_macron_mode = True
             elif option in ('-h', '--help'):
                 self.usage()
                 sys.exit()
@@ -192,17 +196,17 @@ class Options:
     def usage(self):
         print "Usage: python %s [options] [FILENAME]" % sys.argv[0]
         print "Options:"
-        print "  -d, --word-detail                  Show word details."
-        print "  -t, --translate                    Translate (into Japanese)."
-        print "  -c, --macron-in-capital            [REPL only] Treat capitalized vowels as macron."
-        print "  -n, --no-macron                    No-macron mode."
+        print "  -w, --no-word-detail               Don't show word details."
+        print "  -q, --no-translation               Don't show the translation (Japanese)."
+        print "  -m, --strict-macron                [REPL] Ignore capitalized transcriptions."
+        print "  -a, --auto-macron                  Automatically add macrons."
         print "  -h, --help                         Print this message and exit."
 
 
 def main():
     options = Options(sys.argv[1:])
 
-    latindic.load(no_macron_mode=options.no_macron_mode)
+    latindic.load(auto_macron_mode=options.auto_macron_mode)
 
     if len(options.args) == 0:
         # repl mode
@@ -215,7 +219,7 @@ def main():
         # file mode
         for file in options.args:
             text = textutil.load_text_from_file(file)
-            if options.macron_in_capital:
+            if options.strict_macron_mode:
                 text = char.trans(text)
 
             # textutil.analyse_text(text, analyse_sentence, options=options)

@@ -12,6 +12,7 @@
 1	Sicilia	f	シチリア
 1	agricola	m	農夫
 1	aqua	f	水
+1	āra	f	祭壇
 1	casa	f	あばら屋
 1	causa	f	原因
 1	cēna	f	食事
@@ -19,8 +20,9 @@
 1	dea	f	女神
 1	epistula	f	手紙
 1	familia	f	家族
-1	femina	f	女性
+1	fēmina	f	女性
 1	fīlia	f	娘
+1	flamma	f	炎,火
 1	fōrma	f	形,型,姿
 1	glōria	f	栄光
 1	grātia	f	感謝
@@ -66,10 +68,12 @@
 # pl. only
 2	Ītalus	m	イタリア人
 2	Graecus	m	ギリシア人
+2	cēterus	m	他の全て
 
 2	Corinthus	f	コリントス
 2	Daedalus	m	ダエダルス
 2	Homērus	m	ホメルス
+2	Mercurius	m	メルクリウス
 2	Naxus	m	ナクソス
 2	Samus	f	サモス島
 2	Tenedus	m	テネドス
@@ -329,6 +333,8 @@
 3-um	odor	odōris	m	匂い,香り
 3-um	plūs	plūris	n	より多く
 3-um	vesper	vesperis	m	夕方
+
+3-um	Juppiter	Jovis	m	ユピテル
 
 
 4	Ariadnē	Ariadnēs	f	アリアドネー(ミノスの娘)

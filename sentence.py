@@ -632,9 +632,9 @@ class Sentence:
         # output
         subject_exists = False
         if self.pred_sum:
-            case_and_aux = [('Nom','*'), ('Dat','に'), ('Acc','を'), ('Abl','で')]
+            case_and_aux = [('Nom','*'), ('Dat','に'), ('Acc','を'), ('Abl','で'), ('Voc','よ')]
         else:
-            case_and_aux = [('Nom','が'), ('Dat','に'), ('Acc','を'), ('Abl','で')]
+            case_and_aux = [('Nom','が'), ('Dat','に'), ('Acc','を'), ('Abl','で'), ('Voc','よ')]
         for case, aux in case_and_aux:
             ids = slot.get(case, None)
             if ids is None: continue
@@ -667,7 +667,7 @@ class Sentence:
                       '2sg':'あなた', '2pl':'あなたがた',
                       '3sg':'彼,彼女,それ', '3pl':'彼ら,彼女ら,それら',
                       '0*':''}
-                subject = '[' + ja['%d%s' % (pred_person, pred_number)] + ']'
+                subject = '※ ( ' + ja['%d%s' % (pred_person, pred_number)] + ' )'
                 if self.pred_sum:
                     subject += ' は'
                 else:

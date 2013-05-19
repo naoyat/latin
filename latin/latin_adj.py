@@ -52,6 +52,9 @@ def decline_adj_type1(nom_sg_m, nom_sg_f, tags, comp=True):
     table = []
     my_tags['gender'] = 'm'
     table += latin_noun.decline_noun_type2(nom_sg_m, stem2 + u'ī', 'm', ja, my_tags)
+    if nom_sg_m == 'meus':
+        table[1]['surface'] = u'mī'  # Voc
+
     my_tags['gender'] = 'f'
     table += latin_noun.decline_noun_type1(nom_sg_f, stem2 + u'ae', 'f', ja, my_tags)
     my_tags['gender'] = 'n'
