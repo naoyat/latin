@@ -123,6 +123,8 @@ def analyze_latin_word_phonemes(word_uc, debug_mode=False):
                      u'x', u'X' ):
                 # longer
                 duration = latin_time_unit * 2
+            # elif c in (u't', u'T'):
+            #    duration = latin_time_unit * 1.25
             else:
                 # shorter
                 duration = latin_time_unit

@@ -215,7 +215,7 @@ class Options:
         print "  -q, --no-translation               Don't show the translation (Japanese)."
         print "  -m, --strict-macron                [REPL] Ignore capitalized transcriptions."
         print "  -a, --auto-macron                  Automatically add macrons."
-        print "  -s, --speech                       Speak latin."
+        print "  -s, --speech                       Speak latin. (MacOS only)"
         print "  -h, --help                         Print this message and exit."
 
 

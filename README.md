@@ -2,10 +2,26 @@
 
 初級ラテン語リーディングに参加しながらラテン語そしてPythonと親しんでみた
 
+## demo
+
+```
+python latin.py -s texts/1.TESSEUS_ET_ARIADNE.txt | less -R
+```
+
 ## usage
+
 ```
-python latin.py texts/4.CERES_ET_PERSEPHONE_1.txt | less -R
+使い方: python ./latin.py [オプション] [ファイル名]
+オプション:
+  -w, --no-word-detail               単語の詳細を表示しない
+  -q, --no-translation               日本語訳を表示しない
+  -m, --strict-macron                [REPL] 大文字でのマクロン入力を行わない
+  -a, --auto-macron                  マクロンなしでも何とかする
+  -s, --speech                       合成音声で音読する (MacOS only)
+  -h, --help                         オプション解説など表示して終了
 ```
+
+音読機能（-s）は、北米英語の音素で無理やり読ませているのでアメリカ英語訛りです。
 
 ## Author
 
