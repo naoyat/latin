@@ -28,10 +28,21 @@ def joint(chunk):
         # consonant
         return [CONSONANT] + cc(chunk[1], chunk[2])
     elif chunk_len == 3:
-        if chunk[0] == VOWEL: raise "Too long vowel chunk"
+        if chunk[0] == VOWEL:
+            if chunk[2] == u'a' and chunk[3] == u'e':
+                return [VOWEL, chunk[1], u'ae']
+            print chunk
+            raise "Too long vowel chunk"
         # consonant
         return [CONSONANT, chunk[1]] + cc(chunk[2], chunk[3])
+    elif chunk_len == 4:
+        if chunk[0] == VOWEL:
+            print chunk
+            raise "Too long vowel chunk"
+        # consonant
+        return [CONSONANT, chunk[1], chunk[2]] + cc(chunk[3], chunk[4])
     else:
+        print chunk
         raise "Too long chunk"
 
 
@@ -91,7 +102,10 @@ def separate_syllaba(word_uc):
     if vowel != []:
         res.append(pre + vowel)
     elif pre != []:
-        res[-1] += pre
+        if res:
+            res[-1] += pre
+        else:
+            res = pre
     # caesar: [c ae] [s a r]
     # novembris: [n o] [v e m] [br i s]
     # deus: [d e] [u s]

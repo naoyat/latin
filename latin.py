@@ -12,6 +12,8 @@ import latin.textutil as textutil
 import latin.latin_char as char
 import latin.latindic as latindic
 
+import speak_latin
+
 def lookup_all(surfaces_uc):
     def lookup(surface):
         items = latindic.lookup(surface)
@@ -100,12 +102,17 @@ def split_sentence_by_verb(words):
 
 def analyse_sentence(surfaces, options=None):
     # words: string(utf-8)
+    text = ' '.join(surfaces)
+
     if options.echo_on:
-        text = ' '.join(surfaces)
         print ansi_color.ANSI_UNDERLINE_ON + ansi_color.ANSI_BOLD_ON + \
             text + \
             ansi_color.ANSI_BOLD_OFF + ansi_color.ANSI_UNDERLINE_OFF
         print
+
+    if options.speech_mode:
+        speak_latin.say_latin(text.decode('utf-8'))
+
 
     surfaces_uc = [surface.decode('utf-8') for surface in surfaces]
     # words = [Word(surface, items) for surface, items in lookup_all_words(words_uc)]
@@ -164,11 +171,12 @@ class Options:
     def __init__(self, args):
         try:
             opts, self.args = getopt.getopt(args,
-                                            "wqmah",
+                                            "wqmash",
                                             ["no-word-detail",
                                              "no-translation",
                                              "strict-macron",
                                              "auto-macron",
+                                             "speech",
                                              "help"])
         except getopt.GetoptError:
             self.usage()
@@ -178,6 +186,7 @@ class Options:
         self.show_translation = True
         self.strict_macron_mode = False
         self.auto_macron_mode = False
+        self.speech_mode = False
         self.echo_on = True
 
         for option, arg in opts:
@@ -189,6 +198,8 @@ class Options:
                 self.strict_macron_mode = True
             elif option in ('-a', '--auto-macron'):
                 self.auto_macron_mode = True
+            elif option in ('-s', '--speech'):
+                self.speech_mode = True
             elif option in ('-h', '--help'):
                 self.usage()
                 sys.exit()
@@ -200,11 +211,14 @@ class Options:
         print "  -q, --no-translation               Don't show the translation (Japanese)."
         print "  -m, --strict-macron                [REPL] Ignore capitalized transcriptions."
         print "  -a, --auto-macron                  Automatically add macrons."
+        print "  -s, --speech                       Speak latin."
         print "  -h, --help                         Print this message and exit."
 
 
 def main():
     options = Options(sys.argv[1:])
+    if options.speech_mode:
+        speak_latin.init_synth('Alex')
 
     latindic.load(auto_macron_mode=options.auto_macron_mode)
 
