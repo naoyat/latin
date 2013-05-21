@@ -57,7 +57,7 @@ latin_phoneme_dic = {
     u'i':'IY', u'ī':'IY', u'I':'IY', u'Ī':'IY', # IY in beet
     u'o':'OW', u'ō':'OW', u'O':'OW', u'Ō':'OW', # OW in boat
     u'u':'UW', u'ū':'UW', u'U':'UW', u'Ū':'UW', # UW in boot
-    u'y':'y', u'ȳ':'y', u'Y':'y', u'Ȳ':'y',
+    u'y':'yUW', u'ȳ':'yUW', u'Y':'yUW', u'Ȳ':'yUW', # emulated by [ju:]
     u'v':'w', u'V':'w',
 
     u'æ':'AAEH', u'Æ':'AAEH',
@@ -69,7 +69,7 @@ latin_phoneme_dic = {
     u'x':'ks', u'X':'ks',
 
     u'j':'y', u'J':'Y',
-    u't':'t', u'T':'t',
+    u't':'~t', u'T':'~t',
     u'd':'d', u'D':'d',
 
     u'p':'p', u'P':'p',
@@ -113,7 +113,7 @@ def analyze_latin_word_phonemes(word_uc, debug_mode=False):
                      u'ȳ', u'Ȳ',
                      u'æ', u'Æ',
                      u'œ', u'Œ',
-                     u'x', u'X'):
+                     u'x', u'X' ):
                 # longer
                 duration = latin_time_unit * 2
             else:
