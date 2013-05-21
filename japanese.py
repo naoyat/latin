@@ -51,7 +51,7 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
         if conj_form == MIZEN:
             return (kana[row][0], False) # ァ
         elif conj_form == RENYOU:
-            if after in (u'た', u'て'):
+            if after[0] in (u'た', u'て'):
                 if row == u'カ':
                     if conjug_type == u'五段・カ行促音便': # 行く→「行って」
                         return (u'っ', False) # 促音便
@@ -145,6 +145,22 @@ class JaVerb:
         conj, _vocalize = self.conjugate(SHUUSHI)
         return conj
 
+    def active_ing_stem(self):
+        if self.use_mecab:
+            conj, vocalize = self.conjugate(RENYOU, u'てい')
+            if vocalize:
+                return conj + 'でい'
+            else:
+                return conj + 'てい'
+        else:
+            return self.stop_form + "などしてい"
+
+    def present_active_form_ing(self):
+        if self.body in ('ある'):
+            return self.present_active_form()
+        else:
+            return self.active_ing_stem() + 'る'
+
     def perfect_active_form(self):
         if self.use_mecab:
             conj, vocalize = self.conjugate(RENYOU, u'た')
@@ -155,12 +171,24 @@ class JaVerb:
         else:
             return self.stop_form + "などした"
 
+    def imperfect_active_form(self):
+        if self.body in ('ある'):
+            return self.perfect_active_form()
+        else:
+            return self.active_ing_stem() + 'た'
+
     def future_active_form(self):
         if self.use_mecab:
             conj, _vocalize = self.conjugate(SHUUSHI)
             return conj + 'だろう'
         else:
             return self.stop_form + "だろう"
+
+    def future_active_form_ing(self):
+        if self.body in ('ある'):
+            return self.future_active_form()
+        else:
+            return self.active_ing_stem() + 'るだろう'
 
     def imperative_active_form(self):
         if self.use_mecab:
@@ -173,21 +201,38 @@ class JaVerb:
     def present_passive_form(self):
         return self.passive_stem() + 'る'
 
+    def passive_ing_stem(self):
+        return self.passive_stem() + 'てい'
+
+    def present_passive_form_ing(self):
+        return self.passive_ing_stem() + 'る'
+
     def perfect_passive_form(self):
         return self.passive_stem() + 'た'
 
+    def imperfect_passive_form(self):
+        return self.passive_ing_stem() + 'た'
+
     def future_passive_form(self):
         return self.passive_stem() + 'るだろう'
+
+    def future_passive_form_ing(self):
+        return self.passive_ing_stem() + 'るだろう'
 
     def imperative_passive_form(self):
         return self.passive_stem() + 'ろ'
 
     #
     def description(self):
-        return "%s <%s> | %s %s | %s %s | %s %s" % (self.stop_form, self.conjug_type.encode('utf-8'),
-                                                    self.present_active_form(), self.present_passive_form(),
-                                                    self.perfect_active_form(), self.perfect_passive_form(),
-                                                    self.future_active_form(), self.future_passive_form())
+        return "%s <%s>\n - %s %s %s %s %s %s\n - %s %s %s %s %s %s" % (
+            self.stop_form, self.conjug_type.encode('utf-8'),
+            self.present_active_form(), self.present_active_form_ing(),
+            self.perfect_active_form(), self.imperfect_active_form(),
+            self.future_active_form(), self.future_active_form_ing(),
+            self.present_passive_form(), self.present_passive_form_ing(),
+            self.perfect_passive_form(), self.imperfect_passive_form(),
+            self.future_passive_form(), self.future_passive_form_ing(),
+            )
 
 
 if __name__ == '__main__':
