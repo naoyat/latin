@@ -3,8 +3,7 @@
 
 import latin.util as util
 import latin.ansi_color as ansi_color
-
-from japanese import JaVerb
+import japanese
 
 class Item:
     def __init__(self, item):
@@ -31,8 +30,8 @@ class Item:
     def description(self):
         name = {
             # tense
-            'present':'現在', 'future':'未来', # 'past':'過去',
-            'imperfect':'未完了', 'perfect':'完了', 'past-perfect': '過去完了',
+            'present':'現在', 'imperfect':'未完了', 'future':'未来', # 'past':'過去',
+            'perfect':'完了', 'past-perfect': '過去完了', 'future-perfect': '未来完了',
             # mode
             'indicative':'直説法', 'subjunctive':'接続法', 'imperative':'命令法', 'infinitive':'不定法',
             #
@@ -86,6 +85,7 @@ class Word:
             self.items = None
         self.extra_info = extra_info
         self._is_verb = None
+        self._is_subj_verb = None
 
     def has_subst_case(self, case):
 #        def match_case(item, pos, case):
@@ -104,8 +104,19 @@ class Word:
             if self.items is None:
                 self._is_verb = False
             else:
-                self._is_verb = len(self.items) > 0 and all([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
+#                self._is_verb = len(self.items) > 0 and all([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
+                self._is_verb = len(self.items) > 0 and all([item.pos == 'verb' and item.attrib('mood') == 'indicative' for item in self.items])
         return self._is_verb
+
+    # 接続法動詞ならtrue
+    def is_subj_verb(self):
+        if self._is_subj_verb is None: # memoize
+            if self.items is None:
+                self._is_subj_verb = False
+            else:
+#                self._is_verb = len(self.items) > 0 and all([item.pos == 'verb' and item.attrib('mood') != 'infinitive' for item in self.items])
+                self._is_subj_verb = len(self.items) > 0 and all([item.pos == 'verb' and item.attrib('mood') == 'subjunctive' for item in self.items])
+        return self._is_subj_verb
 
     def description(self):
         if not self.items: return ''
@@ -679,22 +690,27 @@ class Sentence:
             tense = verb.attrib('tense')
 
             def conj_form(ja):
-                v = JaVerb(ja)
-                if tense in ['imperfect', 'perfect']:
+                v = japanese.JaVerb(ja)
+                if tense in ['imperfect']:
                     if voice == 'passive':
-                        ja_conj = v.perfect_passive_form()
+                        ja_conj = v.form(japanese.INDICATIVE_PASSIVE_IMPERFECT)
                     else:
-                        ja_conj = v.perfect_active_form()
+                        ja_conj = v.form(japanese.INDICATIVE_ACTIVE_IMPERFECT)
+                elif tense in ['perfect']:
+                    if voice == 'passive':
+                        ja_conj = v.form(japanese.INDICATIVE_PASSIVE_PERFECT)
+                    else:
+                        ja_conj = v.form(japanese.INDICATIVE_ACTIVE_PERFECT)
                 elif tense in ['future']:
                     if voice == 'passive':
-                        ja_conj = v.future_passive_form()
+                        ja_conj = v.form(japanese.INDICATIVE_PASSIVE_FUTURE)
                     else:
-                        ja_conj = v.future_active_form()
+                        ja_conj = v.form(japanese.INDICATIVE_ACTIVE_FUTURE)
                 else:
                     if voice == 'passive':
-                        ja_conj = v.present_passive_form()
+                        ja_conj = v.form(japanese.INDICATIVE_PASSIVE_PRESENT)
                     else:
-                        ja_conj = v.present_active_form()
+                        ja_conj = v.form(japanese.INDICATIVE_ACTIVE_PRESENT)
                 return ja_conj
 
             if advs != []:

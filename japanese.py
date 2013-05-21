@@ -43,6 +43,33 @@ kana = {
     u'ワ': u"わいうえお"
     }
 
+IMPERATIVE  = 512
+INDICATIVE  = 256
+PASSIVE     =  16
+ING         =   8
+FUTURE      =   4
+PAST        =   2
+PERFECT     =   1
+
+INDICATIVE_ACTIVE_PRESENT         = INDICATIVE          #| PRESENT
+INDICATIVE_ACTIVE_IMPERFECT       = INDICATIVE           | PAST   | ING
+INDICATIVE_ACTIVE_FUTURE          = INDICATIVE           | FUTURE
+INDICATIVE_ACTIVE_PERFECT         = INDICATIVE                    | PERFECT
+INDICATIVE_ACTIVE_PAST_PERFECT    = INDICATIVE           | PAST   | PERFECT
+INDICATIVE_ACTIVE_FUTURE_PERFECT  = INDICATIVE           | FUTURE | PERFECT
+INDICATIVE_PASSIVE_PRESENT        = INDICATIVE | PASSIVE #| PRESENT
+INDICATIVE_PASSIVE_IMPERFECT      = INDICATIVE | PASSIVE | PAST   | ING
+INDICATIVE_PASSIVE_FUTURE         = INDICATIVE | PASSIVE | FUTURE
+INDICATIVE_PASSIVE_PERFECT        = INDICATIVE | PASSIVE          | PERFECT
+INDICATIVE_PASSIVE_PAST_PERFECT   = INDICATIVE | PASSIVE | PAST   | PERFECT
+INDICATIVE_PASSIVE_FUTURE_PERFECT = INDICATIVE | PASSIVE | FUTURE | PERFECT
+
+IMPERATIVE_ACTIVE_PRESENT         = IMPERATIVE           #| PRESENT
+IMPERATIVE_ACTIVE_FUTURE          = IMPERATIVE           | FUTURE
+IMPERATIVE_PASSIVE_PRESENT        = IMPERATIVE | PASSIVE #| PRESENT
+IMPERATIVE_PASSIVE_FUTURE         = IMPERATIVE | PASSIVE | FUTURE
+
+
 def conj_form(suffix_uc, conjug_type, conj_form, after=None):
     conjug_group = conjug_type[:2]
 
@@ -73,12 +100,16 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
     elif conjug_group == u'一段':
         if conj_form in [SHUUSHI, RENTAI]:
             return (u'る', False)
+        elif conj_form == MEIREI:
+            return (u'ろ', False)
         else:
             return (u'', False)
 
     elif conjug_group == u'サ変':
         if conj_form in [SHUUSHI, RENTAI]:
             return (u'する', False)
+        elif conj_form == MEIREI:
+            return (u'しろ', False)
         else:
             if after == u'れる':
                 return (u'さ', False)
@@ -88,6 +119,8 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
     elif conjug_group == u'カ変':
         if conj_form in [SHUUSHI, RENTAI]:
             return (u'る', False)
+        elif conj_form == MEIREI:
+            return (u'い', False)
         else:
             return (u'', False)
 
@@ -130,6 +163,7 @@ class JaVerb:
             conj = self.prefix + self.body_stem + form_uc.encode('utf-8')
         return (conj, vocalize)
 
+
     def passive_stem(self):
         if self.use_mecab:
             conj, vocalize = self.conjugate(MIZEN, u'れる')
@@ -139,11 +173,6 @@ class JaVerb:
                 return conj + 'られ'
         else:
             return self.stop_form + "などされ"
-
-    # 能動
-    def present_active_form(self):
-        conj, _vocalize = self.conjugate(SHUUSHI)
-        return conj
 
     def active_ing_stem(self):
         if self.use_mecab:
@@ -155,13 +184,7 @@ class JaVerb:
         else:
             return self.stop_form + "などしてい"
 
-    def present_active_form_ing(self):
-        if self.body in ('ある'):
-            return self.present_active_form()
-        else:
-            return self.active_ing_stem() + 'る'
-
-    def perfect_active_form(self):
+    def past_form(self):
         if self.use_mecab:
             conj, vocalize = self.conjugate(RENYOU, u'た')
             if vocalize:
@@ -171,68 +194,120 @@ class JaVerb:
         else:
             return self.stop_form + "などした"
 
-    def imperfect_active_form(self):
-        if self.body in ('ある'):
-            return self.perfect_active_form()
+    def form(self, flag):
+        if flag & INDICATIVE:
+            # 直説法
+            if flag & PASSIVE:
+                # 受動態
+                stem = self.passive_stem()
+#                if flag & ING or not flag & PERFECT:
+                if flag & ING: # or (flag & PAST and not flag & PERFECT):
+                    stem += 'てい' # ing-stem
+
+                if flag & PAST: # or flag & PERFECT:
+                    # 過去
+                    if flag & PERFECT:
+                        return stem + 'た'
+                    else:
+                        return stem + 'た'
+                elif flag & FUTURE:
+                    # 未来
+                    if flag & PERFECT:
+                        return stem + 'ただろう'
+                    else:
+                        return stem + 'るだろう'
+                else:
+                    # 現在
+                    if flag & PERFECT:
+                        return stem + 'た'
+                    else:
+                        return stem + 'る'
+            else:
+                # 能動態
+                # stem = self.present_active_form()
+                if flag & ING and self.body in ('ある'):
+                    flag -= ING
+
+                if flag & ING:
+                    ing_stem = self.active_ing_stem()
+
+                # past-form
+                past = self.past_form()
+
+                if flag & PAST: # or flag & PERFECT:
+                    # 過去
+                    if flag & PERFECT:
+                        return past
+                    elif flag & ING:
+                        return ing_stem + 'た'
+                    else:
+                        return past
+                elif flag & FUTURE:
+                    # 未来
+                    if flag & PERFECT:
+                        return past + 'だろう'
+                    elif flag & ING:
+                        return ing_stem + 'るだろう'
+                    else:
+                        return self.stop_form + 'だろう'
+                else:
+                    # 現在
+                    if flag & PERFECT:
+                        return past
+                    elif flag & ING:
+                        return ing_stem + 'る'
+                    else:
+                        return self.stop_form
+
+        elif flag & IMPERATIVE:
+            # 命令法
+            if flag & PASSIVE:
+                # 受動態
+                stem = self.passive_stem()
+                return stem + 'ろ'
+            else:
+                # 能動態
+                if self.use_mecab:
+                    conj, _vocalize = self.conjugate(MEIREI)
+                    return conj
+                else:
+                    return self.stop_form + "などしろ"
         else:
-            return self.active_ing_stem() + 'た'
-
-    def future_active_form(self):
-        if self.use_mecab:
-            conj, _vocalize = self.conjugate(SHUUSHI)
-            return conj + 'だろう'
-        else:
-            return self.stop_form + "だろう"
-
-    def future_active_form_ing(self):
-        if self.body in ('ある'):
-            return self.future_active_form()
-        else:
-            return self.active_ing_stem() + 'るだろう'
-
-    def imperative_active_form(self):
-        if self.use_mecab:
-            conj, _vocalize = self.conjugate(SHUUSHI)
-            return conj + 'だろう'
-        else:
-            return self.stop_form + "などしろ"
-
-    # 受動
-    def present_passive_form(self):
-        return self.passive_stem() + 'る'
-
-    def passive_ing_stem(self):
-        return self.passive_stem() + 'てい'
-
-    def present_passive_form_ing(self):
-        return self.passive_ing_stem() + 'る'
-
-    def perfect_passive_form(self):
-        return self.passive_stem() + 'た'
-
-    def imperfect_passive_form(self):
-        return self.passive_ing_stem() + 'た'
-
-    def future_passive_form(self):
-        return self.passive_stem() + 'るだろう'
-
-    def future_passive_form_ing(self):
-        return self.passive_ing_stem() + 'るだろう'
-
-    def imperative_passive_form(self):
-        return self.passive_stem() + 'ろ'
+            pass
+        return '?'
 
     #
     def description(self):
-        return "%s <%s>\n - %s %s %s %s %s %s\n - %s %s %s %s %s %s" % (
-            self.stop_form, self.conjug_type.encode('utf-8'),
-            self.present_active_form(), self.present_active_form_ing(),
-            self.perfect_active_form(), self.imperfect_active_form(),
-            self.future_active_form(), self.future_active_form_ing(),
-            self.present_passive_form(), self.present_passive_form_ing(),
-            self.perfect_passive_form(), self.imperfect_passive_form(),
-            self.future_passive_form(), self.future_passive_form_ing(),
-            )
+        d = '%s <%s>\n' % (self.stop_form, self.conjug_type.encode('utf-8'))
+        d += ' - '+ ' '.join([
+            self.form( INDICATIVE_ACTIVE_PRESENT ), self.form( INDICATIVE_ACTIVE_PRESENT | ING ),
+            self.form( INDICATIVE_ACTIVE_IMPERFECT ),
+            self.form( INDICATIVE_ACTIVE_FUTURE ), self.form( INDICATIVE_ACTIVE_FUTURE | ING ),
+            self.form( INDICATIVE_ACTIVE_PERFECT ),
+            self.form( INDICATIVE_ACTIVE_PAST_PERFECT ),
+            self.form( INDICATIVE_ACTIVE_FUTURE_PERFECT ),
+            ]) + '\n'
+        d += ' - '+ ' '.join([
+            self.form( INDICATIVE_PASSIVE_PRESENT ), self.form( INDICATIVE_PASSIVE_PRESENT | ING ),
+            self.form( INDICATIVE_PASSIVE_IMPERFECT ),
+            self.form( INDICATIVE_PASSIVE_FUTURE ), self.form( INDICATIVE_PASSIVE_FUTURE | ING ),
+            self.form( INDICATIVE_PASSIVE_PERFECT ),
+            self.form( INDICATIVE_PASSIVE_PAST_PERFECT ),
+            self.form( INDICATIVE_PASSIVE_FUTURE_PERFECT ),
+            ]) + '\n'
+        d += ' - '+ ' '.join([
+            self.form( IMPERATIVE_ACTIVE_PRESENT ),
+            # self.form( IMPERATIVE_ACTIVE_FUTURE ),
+            self.form( IMPERATIVE_PASSIVE_PRESENT ),
+            # self.form( INDICATIVE_PASSIVE_FUTURE )
+            ]) + '\n'
+        return d
+#            self.present_active_form(), self.present_active_form_ing(),
+#            self.perfect_active_form(), self.imperfect_active_form(),
+#            self.future_active_form(), self.future_active_form_ing(),
+#            self.present_passive_form(), self.present_passive_form_ing(),
+#            self.perfect_passive_form(), self.imperfect_passive_form(),
+#            self.future_passive_form(), self.future_passive_form_ing(),
 
 
 if __name__ == '__main__':
