@@ -144,6 +144,10 @@ def analyse_sentence(surfaces, options=None):
 
         print
 
+    if options.speech_mode:
+        speak_latin.pause_while_speaking()
+
+
 # read-eval-print loop
 def repl(options=None, show_prompt=False):
     while True:

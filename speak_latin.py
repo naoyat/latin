@@ -40,7 +40,13 @@ def init_synth(voice=None):
         synth = init_(voice1) or init_(voice2)
 
 
-def say(text, input='TEXT', show_phonemes=False):
+def pause_while_speaking():
+    if synth is None: return
+    while synth.isSpeaking():
+        time.sleep(0.1)
+
+
+def say(text, input='TEXT', show_phonemes=False, pause=False):
     if synth is None: return None
     # print text
     if input in ('PHON', 'TUNE'):
@@ -48,8 +54,9 @@ def say(text, input='TEXT', show_phonemes=False):
     if show_phonemes:
         print synth.phonemesFromText_(text)
     synth.startSpeakingString_(text)
-    while synth.isSpeaking():
-        time.sleep(0.1)
+    if pause:
+        pause_while_speaking()
+
 
 latin_phoneme_dic = {
     u'a':'AA', u'ā':'AA', u'A':'AA', u'Ā':'AA', # AA in father
@@ -145,14 +152,14 @@ def analyze_latin_sentence(sentence_uc, debug_mode=False):
     return phonemes
 
 
-def say_latin(text_uc, debug_mode=False):
+def say_latin(text_uc, debug_mode=False, pause=False):
     phonemes = analyze_latin_sentence(text_uc, debug_mode)
     tune_text = ''.join(phonemes)
-    say(tune_text, input='TUNE', show_phonemes=False)
+    say(tune_text, input='TUNE', show_phonemes=False, pause=pause)
 
 
 if __name__ == '__main__':
     init_synth('Alex')
     # init_synth('Victoria')
     text = u'In Crētā īnsulā māgnum labyrinthum Daedalus aedificāvit plēnum viārum flexuōsārum.'
-    say_latin(text, debug_mode=False)
+    say_latin(text, debug_mode=False, pause=True)
