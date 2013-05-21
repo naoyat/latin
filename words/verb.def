@@ -132,7 +132,7 @@
 3a	tollō	tollere	sustulī	sublātum	取り去る
 #3a	ignoscō	ignoscere	ignōvī	ignōtum	許す
 
-#3a	pandō	pandere	pandī	pAnsum	広げる,開ける
+#3a	pandō	pandere	pandī	pānsum	広げる,開ける
 3a	pandō	pandere	pandī	passum	広げる,開ける
 
 3b	accipiō	accipere	accēpī	acceptum	受け取る
@@ -154,3 +154,5 @@
 4	veniō	venīre	vēnī	ventum	来る
 4	vestiō	vestīre	vestīvī	vestītum	着せる
 4	vinciō	vincīre	vīnxī	vīnctum	結ぶ
+4	sciō	scīre	scīvī	scītum	知る
+4	nesciō	nescīre	nescīvī	nescītum	¬知る

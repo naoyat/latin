@@ -15,14 +15,19 @@ def decode_utf8(s):
 #    else:
 
 #1
-AMO = ('amō', 'amāvī', 'amātum', 'amāre')
-MUTO = ('mūtō', 'mūtāvī', 'mūtātum', 'mūtāre')
-LAUDO = ('laudō', 'laudāvī', 'laudātum', 'laudāre')
+AMO = ('amō', 'amāre', 'amāvī', 'amātum')
+MUTO = ('mūtō', 'mūtāre', 'mūtāvī', 'mūtātum')
+LAUDO = ('laudō', 'laudāre', 'laudāvī', 'laudātum')
 #2
-MONEO = ('moneō', 'monuī', 'monitum', 'monēre')
-REGO = ('regō', 'rēxī', 'rēctum', 'regere')
-CAPIO = ('capiō', 'cēpī', 'captum', 'capere')
-AUDIO = ('audiō', 'audīvī', 'audītum', 'audīre')
+MONEO = ('moneō', 'monēre', 'monuī', 'monitum')
+#3a
+REGO = ('regō', 'regere', 'rēxī', 'rēctum')
+#3
+CAPIO = ('capiō', 'capere', 'cēpī', 'captum')
+FACIO = ('faciō', 'facere', 'fēcī', 'factum')
+#4 
+AUDIO = ('audiō', 'audīre', 'audīvī', 'audītum')
+
 
 class LatinVerbTestCase(unittest.TestCase):
     def assert_conjugation_with_voice(self, actual, expected, sine_qua_non):
@@ -80,7 +85,7 @@ class LatinVerbTestCase(unittest.TestCase):
 
 class PresentTestCase(LatinVerbTestCase):
     def assert_present_conjugation(self, type, params, expected):
-        pres1sg, _perf1sg, _supinum, _inf = map(decode_utf8, params)
+        pres1sg, _inf, _perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_present(type, pres1sg)
         self.assert_conjugation_with_voice(actual, expected, {'tense':'present'})
 
@@ -125,7 +130,7 @@ class PresentTestCase(LatinVerbTestCase):
 
 class ImperativeTestCase(LatinVerbTestCase):
     def assert_imperative_conjugation(self, type, params, expected):
-        pres1sg, _perf1sg, _supinum, _inf = map(decode_utf8, params)
+        pres1sg, _inf, _perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_imperative(type, pres1sg)
         self.assert_conjugation_with_voice(actual, expected, {'mood':'imperative'})
 
@@ -178,7 +183,7 @@ class ImperativeTestCase(LatinVerbTestCase):
 
 class ImperfectTestCase(LatinVerbTestCase):
     def assert_imperfect_conjugation(self, type, params, expected):
-        pres1sg, _perf1sg, _supinum, _inf = map(decode_utf8, params)
+        pres1sg, _inf, _perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_imperfect(type, pres1sg)
         self.assert_conjugation_with_voice(actual, expected, {'tense':'imperfect'})
 
@@ -219,7 +224,7 @@ class ImperfectTestCase(LatinVerbTestCase):
 
 class FutureTestCase(LatinVerbTestCase):
     def assert_future_conjugation(self, type, params, expected):
-        pres1sg, _perf1sg, _supinum, _inf = map(decode_utf8, params)
+        pres1sg, _inf, _perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_future(type, pres1sg)
         self.assert_conjugation_with_voice(actual, expected, {'tense':'future'})
 
@@ -260,7 +265,7 @@ class FutureTestCase(LatinVerbTestCase):
 
 class PerfectTestCase(LatinVerbTestCase):
     def assert_perfect_conjugation(self, type, params, expected):
-        _pres1sg, perf1sg, _supinum, _inf = map(decode_utf8, params)
+        _pres1sg, _inf, perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_perfect(perf1sg)
         self.assert_conjugation_with_voice(actual, expected, {'tense':'perfect'})
 
@@ -299,7 +304,7 @@ class PerfectTestCase(LatinVerbTestCase):
 
 class PastPerfectTestCase(LatinVerbTestCase):
     def assert_past_perfect_conjugation(self, type, params, expected):
-        _pres1sg, perf1sg, _supinum, _inf = map(decode_utf8, params)
+        _pres1sg, _inf, perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_past_perfect(perf1sg)
         self.assert_conjugation_with_voice(actual, expected, {'tense':'past-perfect'})
 
@@ -311,7 +316,7 @@ class PastPerfectTestCase(LatinVerbTestCase):
 
 class FuturePerfectTestCase(LatinVerbTestCase):
     def assert_future_perfect_conjugation(self, type, params, expected):
-        _pres1sg, perf1sg, _supinum, _inf = map(decode_utf8, params)
+        _pres1sg, _inf, perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_future_perfect(perf1sg)
         self.assert_conjugation_with_voice(actual, expected, {'tense':'future-perfect'})
 
@@ -323,7 +328,7 @@ class FuturePerfectTestCase(LatinVerbTestCase):
 
 class PassivePerfectTestCase(LatinVerbTestCase):
     def assert_passive_perfect_conjugation(self, type, params, expected):
-        _pres1sg, _perf1sg, supinum, _inf = map(decode_utf8, params)
+        _pres1sg, _inf, _perf1sg, supinum = map(decode_utf8, params)
         actual = conjugate_passive_perfect(supinum)
         self.assert_conjugation_with_gender(actual, expected, {'voice':'passive', 'tense':'perfect'})
 
@@ -337,7 +342,7 @@ class PassivePerfectTestCase(LatinVerbTestCase):
 
 class PassivePastPerfectTestCase(LatinVerbTestCase):
     def assert_passive_past_perfect_conjugation(self, type, params, expected):
-        _pres1sg, _perf1sg, supinum, _inf = map(decode_utf8, params)
+        _pres1sg, _inf, _perf1sg, supinum = map(decode_utf8, params)
         actual = conjugate_passive_past_perfect(supinum)
         self.assert_conjugation_with_gender(actual, expected, {'voice':'passive', 'tense':'past-perfect'})
 
@@ -351,7 +356,7 @@ class PassivePastPerfectTestCase(LatinVerbTestCase):
 
 class PassiveFuturePerfectTestCase(LatinVerbTestCase):
     def assert_passive_future_perfect_conjugation(self, type, params, expected):
-        _pres1sg, _perf1sg, supinum, _inf = map(decode_utf8, params)
+        _pres1sg, _inf, _perf1sg, supinum = map(decode_utf8, params)
         actual = conjugate_passive_future_perfect(supinum)
         self.assert_conjugation_with_gender(actual, expected, {'voice':'passive', 'tense':'future-perfect'})
 
@@ -365,7 +370,7 @@ class PassiveFuturePerfectTestCase(LatinVerbTestCase):
 
 class SubjunctivePresentTestCase(LatinVerbTestCase):
     def assert_subjunctive_present_conjugation(self, type, params, expected):
-        pres1sg, _perf1sg, _supinum, _inf = map(decode_utf8, params)
+        pres1sg, _inf, _perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_subjunctive_active_present(type, pres1sg) \
             + conjugate_subjunctive_passive_present(type, pres1sg)
         self.assert_conjugation_with_voice(actual, expected, {'mood':'subjunctive', 'tense':'present'})
@@ -393,6 +398,10 @@ class SubjunctivePresentTestCase(LatinVerbTestCase):
                 'active':['capiam', 'capiās', 'capiat', 'capiāmus', 'capiātis', 'capiant'],
                 'passive':['capiar', ('capiāris', 'capiāre'), 'capiātur', 'capiāmur', 'capiāminī', 'capiantur']
                 })
+        self.assert_subjunctive_present_conjugation(CONJ_3B, FACIO, {
+                'active':['faciam', 'faciās', 'faciat', 'faciāmus', 'faciātis', 'faciant'],
+                'passive':['faciar', ('faciāris', 'faciāre'), 'faciātur', 'faciāmur', 'faciāminī', 'faciantur']
+                })
 
     def test_subjunctive_present_type4(self):
         self.assert_subjunctive_present_conjugation(CONJ_4, AUDIO, {
@@ -403,7 +412,7 @@ class SubjunctivePresentTestCase(LatinVerbTestCase):
 
 class SubjunctiveImperfectTestCase(LatinVerbTestCase):
     def assert_subjunctive_imperfect_conjugation(self, type, params, expected):
-        _pres1sg, _perf1sg, _supinum, inf = map(decode_utf8, params)
+        _pres1sg, inf, _perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_subjunctive_active_imperfect(inf) \
             + conjugate_subjunctive_passive_imperfect(inf)
         self.assert_conjugation_with_voice(actual, expected, {'mood':'subjunctive', 'tense':'imperfect'})
@@ -441,7 +450,7 @@ class SubjunctiveImperfectTestCase(LatinVerbTestCase):
 
 class SubjunctivePerfectTestCase(LatinVerbTestCase):
     def assert_subjunctive_perfect_conjugation(self, type, params, expected):
-        _pres1sg, perf1sg, supinum, _inf = map(decode_utf8, params)
+        _pres1sg, _inf, perf1sg, supinum = map(decode_utf8, params)
         actual = conjugate_subjunctive_active_perfect(perf1sg)
         self.assert_conjugation_with_voice(actual,
                                            {'active':expected['active'], 'passive':[]},
@@ -462,7 +471,7 @@ class SubjunctivePerfectTestCase(LatinVerbTestCase):
 
 class SubjunctivePastPerfectTestCase(LatinVerbTestCase):
     def assert_subjunctive_past_perfect_conjugation(self, type, params, expected):
-        _pres1sg, perf1sg, supinum, _inf = map(decode_utf8, params)
+        _pres1sg, _inf, perf1sg, supinum = map(decode_utf8, params)
         actual = conjugate_subjunctive_active_past_perfect(perf1sg)
         self.assert_conjugation_with_voice(actual,
                                            {'active':expected['active'], 'passive':[]},
@@ -484,7 +493,7 @@ class GerundiveTestCase(LatinVerbTestCase):
     def assert_gerundive_conjugation(self, type, params, expected):
         def forms(actual):
             return [item['surface'] for item in actual]
-        pres1sg, _perf1sg, _supinum, _inf = map(decode_utf8, params)
+        pres1sg, _inf, _perf1sg, _supinum = map(decode_utf8, params)
         actual = conjugate_gerundive(type, pres1sg)
         self.assertEqual(forms(actual), map(decode_utf8, expected['gerundive']))
         actual = conjugate_gerund(type, pres1sg)
@@ -498,7 +507,7 @@ class GerundiveTestCase(LatinVerbTestCase):
 
 class InfinitiveTestCase(LatinVerbTestCase):
     def assert_infinitive_conjugation(self, type, params, expected):
-        pres1sg, perf1sg, supinum, inf = map(decode_utf8, params)
+        pres1sg, inf, perf1sg, supinum = map(decode_utf8, params)
         actual = conjugate_infinitive(type, inf, perf1sg, supinum)
         self.assert_conjugation_with_voice(actual, expected, {'mood':'infinitive'})
 
@@ -521,7 +530,7 @@ class InfinitiveTestCase(LatinVerbTestCase):
 
 class ParticipleTestCase(LatinVerbTestCase):
     def assert_participle_conjugation(self, type, params, expected):
-        pres1sg, perf1sg, supinum, inf = map(decode_utf8, params)
+        pres1sg, inf, perf1sg, supinum = map(decode_utf8, params)
         actual = conjugate_participle(type, inf, perf1sg, supinum)
         self.assert_conjugation_with_voice(actual, expected, {'pos':'participle'})
 

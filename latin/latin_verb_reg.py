@@ -65,9 +65,9 @@ def conjugate_present(type, pres1sg, tags={}):
     passive_present_suffices = [x + u'or', (y + u'ris', y + u're'), long + u'tur',
                                 long + u'mur', long + u'minī', nt + u'ntur']
 
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
+    items += conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'present'}),
                        active_present_suffices)
-    items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present'}),
+    items += conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'present'}),
                        passive_present_suffices)
     return items
 
@@ -129,9 +129,9 @@ def conjugate_imperfect(type, pres1sg, tags={}):
     elif type == CONJ_4:
         stem = pres1sg[:-2] + u'iē'
 
-    return conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'imperfect'}),
+    return conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'imperfect'}),
                      [u'bam', u'bās', u'bat', u'bāmus', u'bātis', u'bant']) + \
-           conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'imperfect'}),
+           conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'imperfect'}),
                      [u'bar', (u'bāris', u'bāre'), u'bātur', u'bāmur', u'bāminī', u'bantur'])
 
 # 未来
@@ -149,15 +149,15 @@ def conjugate_future(type, pres1sg, tags={}):
 
     items = []
     if type in [CONJ_1, CONJ_2]:
-        items += conjugate(pres_stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future'}),
+        items += conjugate(pres_stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'future'}),
                            [u'bō', u'bis', u'bit', u'bimus', u'bitis', u'bunt'])
-        items += conjugate(pres_stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future'}),
+        items += conjugate(pres_stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'future'}),
                            [u'bor', (u'beris', u'bere'), u'bitur', u'bimur', u'biminī', u'buntur'])
     else:
         stem = pres_stem[:-1]
-        items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future'}),
+        items += conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'future'}),
                            [u'am', u'ēs', u'et', u'ēmus', u'ētis', u'ent'])
-        items += conjugate(stem, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future'}),
+        items += conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'future'}),
                            [u'ar', (u'ēris', u'ēre'), u'ētur', u'ēmur', u'ēminī', u'entur'])
     # util.pp(items)
     return items
@@ -166,19 +166,19 @@ def conjugate_future(type, pres1sg, tags={}):
 # 完了
 def conjugate_perfect(perf1sg, tags={}):
     stem = perf1sg[:-1]
-    return conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'perfect'}),
+    return conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'perfect'}),
                      [u'ī', u'istī', u'it', u'imus', u'istis', (u'ērunt', u'ēre')])
 
 # 過去完了
 def conjugate_past_perfect(perf1sg, tags={}):
     stem = perf1sg[:-1]
-    return conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'past-perfect'}),
+    return conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'past-perfect'}),
                      [u'eram', u'erās', u'erat', u'erāmus', u'erātis', u'erānt'])
 
 # 未来完了
 def conjugate_future_perfect(perf1sg, tags={}):
     stem = perf1sg[:-1]
-    return conjugate(stem, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future-perfect'}),
+    return conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'future-perfect'}),
                      [u'erō', u'eris', u'erit', u'erimus', u'eritis', u'erint'])
 
 
@@ -205,17 +205,17 @@ def conjugate_passive_perfect_(supinum, sum, tags={}):
 def conjugate_passive_perfect(supinum, tags={}):
     return conjugate_passive_perfect_(supinum,
                                       [u'sum', u'es', u'est', u'sumus', u'estis', u'sunt'],
-                                      util.aggregate_dicts(tags, {'voice':'passive', 'tense':'perfect'}))
+                                      util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'perfect'}))
 
 def conjugate_passive_past_perfect(supinum, tags={}):
     return conjugate_passive_perfect_(supinum,
                                       [u'eram', u'erās', u'erat', u'erāmus', u'erātis', u'erant'],
-                                      util.aggregate_dicts(tags, {'voice':'passive', 'tense':'past-perfect'}))
+                                      util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'past-perfect'}))
 
 def conjugate_passive_future_perfect(supinum, tags={}):
     return conjugate_passive_perfect_(supinum,
                                       [u'erō', u'eris', u'erit', u'erimus', u'eritis', u'erunt'],
-                                      util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future-perfect'}))
+                                      util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'future-perfect'}))
 
 
 def conjugate_subjunctive_active_present(type, pres1sg, tags={}):

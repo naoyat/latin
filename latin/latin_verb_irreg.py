@@ -14,11 +14,11 @@ def conjugate_verb_eo(prefix=u'', ja=''):
     # īvī iī
     # itum
     items = []
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'present'}),
                        [u'eō', u'īs', u'it', u'īmus', u'ītis', u'eunt'])
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'imperfect'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'imperfect'}),
                        [u'ībam', u'ībās', u'ībat', u'ībāmus', u'ībātis', u'ībant'])
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'future'}),
                        [u'ībō', u'ībis', u'ībit', u'ībimus', u'ībitis', u'ībunt'])
 
     # 命令形
@@ -53,11 +53,11 @@ def conjugate_verb_fero(prefix=u'', ja=''):
                        [u'lātūrus esse'], [{}])
 
     # 能動態 現在・過去・未来
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'present'}),
                        [u'ferō', u'fers', u'fert', u'ferimus', u'fertis', u'ferunt'])
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'imperfect'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'imperfect'}),
                        [u'ferēbam', u'ferēbās', u'ferēbat', u'ferēbāmus', u'ferēbātis', u'ferēbant'])
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'future'}),
                        [u'feram', u'ferēs', u'feret', u'ferēmus', u'ferētis', u'ferent'])
 
     # 能動態 完了
@@ -66,11 +66,11 @@ def conjugate_verb_fero(prefix=u'', ja=''):
     items += conjugate_future_perfect(perf1sg, tags)
 
     # 受動態 現在・過去・未来
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'present'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'present'}),
                        [u'feror', u'ferris', u'fertur', u'ferimur', u'feriminī', u'feruntur'])
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'imperfect'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'imperfect'}),
                        [u'ferēbar', u'ferēbāris', u'ferēbātur', u'ferēbāmur', u'ferēbāminī', u'ferēbantur'])
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'passive', 'tense':'future'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'passive', 'tense':'future'}),
                        [u'ferar', u'ferēris', u'ferētur', u'ferēmur', u'ferēminī', u'ferentur'])
 
     # 命令形
@@ -108,11 +108,11 @@ def conjugate_verb_sum(prefix=u'', ja=''):
                        [u'tūrus esse'], [{}])
 
     # 能動態 現在・過去・未来
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'present'}),
                        [u'sum', u'es', u'est', u'sumus', u'estis', u'sunt'])
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'imperfect'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'imperfect'}),
                        [u'eram', u'erās', u'erat', u'erāmus', u'erātis', u'erant'])
-    items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'future'}),
+    items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'future'}),
                        [u'erō', u'eris', u'erit', u'erimus', u'eritis', u'erunt'])
 
     # 能動態 完了
