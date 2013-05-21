@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import Verb
 
 # MeCab
 try:
@@ -43,31 +44,6 @@ kana = {
     u'ワ': u"わいうえお"
     }
 
-IMPERATIVE  = 512
-INDICATIVE  = 256
-PASSIVE     =  16
-ING         =   8
-FUTURE      =   4
-PAST        =   2
-PERFECT     =   1
-
-INDICATIVE_ACTIVE_PRESENT         = INDICATIVE          #| PRESENT
-INDICATIVE_ACTIVE_IMPERFECT       = INDICATIVE           | PAST   | ING
-INDICATIVE_ACTIVE_FUTURE          = INDICATIVE           | FUTURE
-INDICATIVE_ACTIVE_PERFECT         = INDICATIVE                    | PERFECT
-INDICATIVE_ACTIVE_PAST_PERFECT    = INDICATIVE           | PAST   | PERFECT
-INDICATIVE_ACTIVE_FUTURE_PERFECT  = INDICATIVE           | FUTURE | PERFECT
-INDICATIVE_PASSIVE_PRESENT        = INDICATIVE | PASSIVE #| PRESENT
-INDICATIVE_PASSIVE_IMPERFECT      = INDICATIVE | PASSIVE | PAST   | ING
-INDICATIVE_PASSIVE_FUTURE         = INDICATIVE | PASSIVE | FUTURE
-INDICATIVE_PASSIVE_PERFECT        = INDICATIVE | PASSIVE          | PERFECT
-INDICATIVE_PASSIVE_PAST_PERFECT   = INDICATIVE | PASSIVE | PAST   | PERFECT
-INDICATIVE_PASSIVE_FUTURE_PERFECT = INDICATIVE | PASSIVE | FUTURE | PERFECT
-
-IMPERATIVE_ACTIVE_PRESENT         = IMPERATIVE           #| PRESENT
-IMPERATIVE_ACTIVE_FUTURE          = IMPERATIVE           | FUTURE
-IMPERATIVE_PASSIVE_PRESENT        = IMPERATIVE | PASSIVE #| PRESENT
-IMPERATIVE_PASSIVE_FUTURE         = IMPERATIVE | PASSIVE | FUTURE
 
 
 def conj_form(suffix_uc, conjug_type, conj_form, after=None):
@@ -195,73 +171,73 @@ class JaVerb:
             return self.stop_form + "などした"
 
     def form(self, flag):
-        if flag & INDICATIVE:
+        if flag & Verb.INDICATIVE:
             # 直説法
-            if flag & PASSIVE:
+            if flag & Verb.PASSIVE:
                 # 受動態
                 stem = self.passive_stem()
-#                if flag & ING or not flag & PERFECT:
-                if flag & ING: # or (flag & PAST and not flag & PERFECT):
+#                if flag & Verb.ING or not flag & Verb.PERFECT:
+                if flag & Verb.ING:
                     stem += 'てい' # ing-stem
 
-                if flag & PAST: # or flag & PERFECT:
+                if flag & Verb.PAST: # or flag & PERFECT:
                     # 過去
-                    if flag & PERFECT:
+                    if flag & Verb.PERFECT:
                         return stem + 'た'
                     else:
                         return stem + 'た'
-                elif flag & FUTURE:
+                elif flag & Verb.FUTURE:
                     # 未来
-                    if flag & PERFECT:
+                    if flag & Verb.PERFECT:
                         return stem + 'ただろう'
                     else:
                         return stem + 'るだろう'
                 else:
                     # 現在
-                    if flag & PERFECT:
+                    if flag & Verb.PERFECT:
                         return stem + 'た'
                     else:
                         return stem + 'る'
             else:
                 # 能動態
                 # stem = self.present_active_form()
-                if flag & ING and self.body in ('ある'):
-                    flag -= ING
+                if flag & Verb.ING and self.body in ('ある'):
+                    flag -= Verb.ING
 
-                if flag & ING:
+                if flag & Verb.ING:
                     ing_stem = self.active_ing_stem()
 
                 # past-form
                 past = self.past_form()
 
-                if flag & PAST: # or flag & PERFECT:
+                if flag & Verb.PAST: # or flag & PERFECT:
                     # 過去
-                    if flag & PERFECT:
+                    if flag & Verb.PERFECT:
                         return past
-                    elif flag & ING:
+                    elif flag & Verb.ING:
                         return ing_stem + 'た'
                     else:
                         return past
-                elif flag & FUTURE:
+                elif flag & Verb.FUTURE:
                     # 未来
-                    if flag & PERFECT:
+                    if flag & Verb.PERFECT:
                         return past + 'だろう'
-                    elif flag & ING:
+                    elif flag & Verb.ING:
                         return ing_stem + 'るだろう'
                     else:
                         return self.stop_form + 'だろう'
                 else:
                     # 現在
-                    if flag & PERFECT:
+                    if flag & Verb.PERFECT:
                         return past
-                    elif flag & ING:
+                    elif flag & Verb.ING:
                         return ing_stem + 'る'
                     else:
                         return self.stop_form
 
-        elif flag & IMPERATIVE:
+        elif flag & Verb.IMPERATIVE:
             # 命令法
-            if flag & PASSIVE:
+            if flag & Verb.PASSIVE:
                 # 受動態
                 stem = self.passive_stem()
                 return stem + 'ろ'
@@ -280,26 +256,26 @@ class JaVerb:
     def description(self):
         d = '%s <%s>\n' % (self.stop_form, self.conjug_type.encode('utf-8'))
         d += ' - '+ ' '.join([
-            self.form( INDICATIVE_ACTIVE_PRESENT ), self.form( INDICATIVE_ACTIVE_PRESENT | ING ),
-            self.form( INDICATIVE_ACTIVE_IMPERFECT ),
-            self.form( INDICATIVE_ACTIVE_FUTURE ), self.form( INDICATIVE_ACTIVE_FUTURE | ING ),
-            self.form( INDICATIVE_ACTIVE_PERFECT ),
-            self.form( INDICATIVE_ACTIVE_PAST_PERFECT ),
-            self.form( INDICATIVE_ACTIVE_FUTURE_PERFECT ),
+            self.form( Verb.INDICATIVE_ACTIVE_PRESENT ), self.form( Verb.INDICATIVE_ACTIVE_PRESENT | Verb.ING ),
+            self.form( Verb.INDICATIVE_ACTIVE_IMPERFECT ),
+            self.form( Verb.INDICATIVE_ACTIVE_FUTURE ), self.form( Verb.INDICATIVE_ACTIVE_FUTURE | Verb.ING ),
+            self.form( Verb.INDICATIVE_ACTIVE_PERFECT ),
+            self.form( Verb.INDICATIVE_ACTIVE_PAST_PERFECT ),
+            self.form( Verb.INDICATIVE_ACTIVE_FUTURE_PERFECT ),
             ]) + '\n'
         d += ' - '+ ' '.join([
-            self.form( INDICATIVE_PASSIVE_PRESENT ), self.form( INDICATIVE_PASSIVE_PRESENT | ING ),
-            self.form( INDICATIVE_PASSIVE_IMPERFECT ),
-            self.form( INDICATIVE_PASSIVE_FUTURE ), self.form( INDICATIVE_PASSIVE_FUTURE | ING ),
-            self.form( INDICATIVE_PASSIVE_PERFECT ),
-            self.form( INDICATIVE_PASSIVE_PAST_PERFECT ),
-            self.form( INDICATIVE_PASSIVE_FUTURE_PERFECT ),
+            self.form( Verb.INDICATIVE_PASSIVE_PRESENT ), self.form( Verb.INDICATIVE_PASSIVE_PRESENT | Verb.ING ),
+            self.form( Verb.INDICATIVE_PASSIVE_IMPERFECT ),
+            self.form( Verb.INDICATIVE_PASSIVE_FUTURE ), self.form( Verb.INDICATIVE_PASSIVE_FUTURE | Verb.ING ),
+            self.form( Verb.INDICATIVE_PASSIVE_PERFECT ),
+            self.form( Verb.INDICATIVE_PASSIVE_PAST_PERFECT ),
+            self.form( Verb.INDICATIVE_PASSIVE_FUTURE_PERFECT ),
             ]) + '\n'
         d += ' - '+ ' '.join([
-            self.form( IMPERATIVE_ACTIVE_PRESENT ),
-            # self.form( IMPERATIVE_ACTIVE_FUTURE ),
-            self.form( IMPERATIVE_PASSIVE_PRESENT ),
-            # self.form( INDICATIVE_PASSIVE_FUTURE )
+            self.form( Verb.IMPERATIVE_ACTIVE_PRESENT ),
+            # self.form( Verb.IMPERATIVE_ACTIVE_FUTURE ),
+            self.form( Verb.IMPERATIVE_PASSIVE_PRESENT ),
+            # self.form( Verb.IMPERATIVE_PASSIVE_FUTURE )
             ]) + '\n'
         return d
 #            self.present_active_form(), self.present_active_form_ing(),

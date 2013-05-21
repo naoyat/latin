@@ -3,7 +3,8 @@
 
 import latin.util as util
 import latin.ansi_color as ansi_color
-import japanese
+from japanese import JaVerb
+import Verb
 
 class Item:
     def __init__(self, item):
@@ -686,36 +687,24 @@ class Sentence:
                 print subject
             verb = self.pred_word_item
             jas = verb.ja.split(',')
-            voice = verb.attrib('voice')
-            tense = verb.attrib('tense')
 
-            def conj_form(ja):
-                v = japanese.JaVerb(ja)
-                if tense in ['imperfect']:
-                    if voice == 'passive':
-                        ja_conj = v.form(japanese.INDICATIVE_PASSIVE_IMPERFECT)
-                    else:
-                        ja_conj = v.form(japanese.INDICATIVE_ACTIVE_IMPERFECT)
-                elif tense in ['perfect']:
-                    if voice == 'passive':
-                        ja_conj = v.form(japanese.INDICATIVE_PASSIVE_PERFECT)
-                    else:
-                        ja_conj = v.form(japanese.INDICATIVE_ACTIVE_PERFECT)
-                elif tense in ['future']:
-                    if voice == 'passive':
-                        ja_conj = v.form(japanese.INDICATIVE_PASSIVE_FUTURE)
-                    else:
-                        ja_conj = v.form(japanese.INDICATIVE_ACTIVE_FUTURE)
-                else:
-                    if voice == 'passive':
-                        ja_conj = v.form(japanese.INDICATIVE_PASSIVE_PRESENT)
-                    else:
-                        ja_conj = v.form(japanese.INDICATIVE_ACTIVE_PRESENT)
-                return ja_conj
+            # flags
+            flag = Verb.INDICATIVE
+
+            if verb.attrib('voice') == 'passive':
+                flag |= Verb.PASSIVE
+
+            tense = verb.attrib('tense')
+            if tense == 'imperfect':
+                flag |= Verb.PAST
+            elif tense == 'perfect':
+                flag |= Verb.PERFECT
+            elif tense == 'future':
+                flag |= Verb.FUTURE
 
             if advs != []:
                 print "{", ', '.join(advs), "}",
-            print ','.join([conj_form(ja) for ja in jas])
+            print ','.join([JaVerb(ja).form(flag) for ja in jas])
         else:
             print "\n // NO VERB FOUND"
 
