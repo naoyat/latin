@@ -67,6 +67,7 @@ latin_phoneme_dic = {
     u'g':'g', u'G':'g',
     u'x':'ks', u'X':'ks',
 
+    u'j':'y', u'J':'Y',
     u't':'t', u'T':'t',
     u'd':'d', u'D':'d',
 
