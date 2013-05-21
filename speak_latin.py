@@ -64,6 +64,7 @@ latin_phoneme_dic = {
     u'œ':'OWEH', u'Œ':'OWEH',
 
     u'c':'k', u'C':'k',
+    u'q':'k', u'Q':'k',
     u'g':'g', u'G':'g',
     u'x':'ks', u'X':'ks',
 
