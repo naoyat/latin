@@ -52,7 +52,10 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
     if conjug_group == u'五段':
         row = conjug_type[3:4]
         if conj_form == MIZEN:
-            return (kana[row][0], False) # ァ
+            if after[0] == u'う':
+                return (kana[row][4], False) # ォ
+            else:
+                return (kana[row][0], False) # ァ
         elif conj_form == RENYOU:
             if after[0] in (u'た', u'て'):
                 if row == u'カ':
@@ -74,7 +77,12 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
             return (kana[row][3], False) # ェ
 
     elif conjug_group == u'一段':
-        if conj_form in [SHUUSHI, RENTAI]:
+        if conj_form == MIZEN:
+            if after[0] == u'う':
+                return (u'よ', False)
+            else:
+                return (u'', False)
+        elif conj_form in [SHUUSHI, RENTAI]:
             return (u'る', False)
         elif conj_form == MEIREI:
             return (u'ろ', False)
@@ -82,7 +90,12 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
             return (u'', False)
 
     elif conjug_group == u'サ変':
-        if conj_form in [SHUUSHI, RENTAI]:
+        if conj_form == MIZEN:
+            if after[0] == u'う':
+                return (u'しよ', False)
+            else:
+                return (u'し', False)
+        elif conj_form in [SHUUSHI, RENTAI]:
             return (u'する', False)
         elif conj_form == MEIREI:
             return (u'しろ', False)
@@ -93,7 +106,12 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
                 return (u'し', False)
 
     elif conjug_group == u'カ変':
-        if conj_form in [SHUUSHI, RENTAI]:
+        if conj_form == MIZEN:
+            if after[0] == u'う':
+                return (u'よ', False)
+            else:
+                return (u'', False)
+        elif conj_form in [SHUUSHI, RENTAI]:
             return (u'る', False)
         elif conj_form == MEIREI:
             return (u'い', False)
@@ -171,7 +189,19 @@ class JaVerb:
             return self.stop_form + "などした"
 
     def form(self, flag):
-        if flag & Verb.INDICATIVE:
+        if flag & Verb.PARTICIPLE:
+            if flag & Verb.FUTURE:
+                # return "<p+しようとしている>"
+                conj, vocalize = self.conjugate(MIZEN, u'う')
+                return conj + 'うとしている'
+            elif flag & Verb.PERFECT:
+                stem = self.passive_stem()
+                return stem + 'た'
+            else:
+                conj, vocalize = self.conjugate(RENYOU, u'つつ')
+                return conj + 'つつある'
+            # return "<p+しつつある>"
+        elif flag & Verb.INDICATIVE:
             # 直説法
             if flag & Verb.PASSIVE:
                 # 受動態

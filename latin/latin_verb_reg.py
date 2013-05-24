@@ -5,6 +5,8 @@ import util
 
 import latin_adj
 import latin_pronoun
+from japanese import JaVerb
+import Verb
 
 CONJ_1 = '1'
 CONJ_2 = '2'
@@ -374,7 +376,10 @@ def conjugate_infinitive(type, inf, perf1sg, supinum, ja='', tags={}):
 def conjugate_participle(pres_stem, supinum, tags={}):
     items = []
 
-    ja = tags.get('ja', '')
+    jas = tags.get('ja', '').split(',')
+    javs = map(JaVerb, jas)
+    def forms(flag):
+        return ','.join([jav.form(flag) for jav in javs])
 
     # 現在分詞
     # prūdēns型; 〜しつつある
@@ -387,7 +392,7 @@ def conjugate_participle(pres_stem, supinum, tags={}):
         gen_sg = pres_stem[:-1] + u'entis'
     items += latin_adj.decline_adj_type2(nom_sg_m, gen_sg, '-',
                                          util.aggregate_dicts(tags, {'pos':'participle', 'tense':'present',
-                                                                     'ja':ja+'+しつつある'}))
+                                                                     'ja':forms(Verb.PARTICIPLE_PRESENT)}))
     # 未来分詞
     if supinum == 'es##':
         nom_sg_m = supinum[:-2] + u'urus'
@@ -396,14 +401,14 @@ def conjugate_participle(pres_stem, supinum, tags={}):
     nom_sg_f = nom_sg_m[:-2] + u'a'
     items += latin_adj.decline_adj_type1(nom_sg_m, nom_sg_f,
                                          util.aggregate_dicts(tags, {'pos':'participle', 'tense':'future',
-                                                                     'ja':ja+'+しようとしている'}))
+                                                                     'ja':forms(Verb.PARTICIPLE_FUTURE)}))
 
     # 完了分詞
     nom_sg_m = supinum[:-2] + u'us'
     nom_sg_f = nom_sg_m[:-2] + u'a'
     items += latin_adj.decline_adj_type1(nom_sg_m, nom_sg_f,
                                          util.aggregate_dicts(tags, {'pos':'participle', 'tense':'past',
-                                                                     'ja':ja+'+された'}))
+                                                                     'ja':forms(Verb.PARTICIPLE_PERFECT)}))
 
     return util.aggregate_cases(items)
 
