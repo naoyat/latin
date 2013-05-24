@@ -71,6 +71,7 @@ latin_phoneme_dic = {
     u'œ':'OWEH', u'Œ':'OWEH',
 
     u'c':'k', u'C':'k',
+    u'k':'k', u'K':'k',
     u'q':'k', u'Q':'k',
     u'g':'g', u'G':'g',
     u'x':'ks', u'X':'ks',
@@ -100,6 +101,7 @@ def analyze_latin_word_phonemes(word_uc, debug_mode=False):
     acc_idx = locate_accent(syllables)
 
     if debug_mode:
+#    if True:
         syllables_ = [u'[' + syl + u']' if i == acc_idx else syl for i, syl in enumerate(syllables)]
         print '\n>', u'-'.join(syllables_).encode('utf-8')
 
@@ -110,6 +112,18 @@ def analyze_latin_word_phonemes(word_uc, debug_mode=False):
             pitch = latin_freq_high
         else:
             pitch = latin_freq_low
+
+        # qu [kw]
+        syl.replace(u'QU', u'kv')
+        syl.replace(u'qu', u'kv')
+        # gu [gw]
+        syl.replace(u'GU', u'gv')
+        syl.replace(u'gu', u'gv')
+
+        # bs [ps], bt [pt]
+        if syl[-1] in (u'B', u'b') and i < len(syllables)-1:
+            if syllables[i+1][0] in (u's', u'S', u't', u'T'):
+                syl[-1] = u'p'
 
         for c in syl:
             # print acc_idx, i, syl, c, pitch
