@@ -240,18 +240,52 @@ def detect_and_or(words):
 
     detect(u'aut')
 
+    def same(word1, word2):
+        if not word1.items or not word2.items:
+            return False
+        item1 = word1.items[0]
+        item2 = word2.items[0]
+        if item1.pos != item2.pos:
+            return False
+        if item1.pos == 'verb':
+            return False
+        cases1 = [x[0] for x in item1._]
+        cases2 = [x[0] for x in item2._]
+        cases = filter(lambda case:case in cases2, cases1)
+        if cases:
+            return True
+        return False
+
+
 #    print
     for i, word in enumerate(words):
         if i in visited: continue
         if not word.items: continue
 
+        def bind_two_if_same():
+            word1 = words[i-1]
+            word2 = words[i+1]
+            if same(word1, word2):
+                print "// #%d ET #%d: %s == %s" % (i-1, i+1, word1.surface_utf8(), word2.surface_utf8())
+                cl = AndOr(u'et')
+                cl.add([word1])
+                cl.add([word2])
+                for j in range(i-1, i+2):
+                    visited.add(j)
+                words[i-1] = cl
+                ao_loc.add(i-1)
+
         surface = word.surface
         if surface == u'et' and i+1 < len(words):
-            print "// %d ET %s" % (i, words[i+1].surface_utf8())
+            # print "// %d ET %s" % (i, words[i+1].surface_utf8())
+            if i >= 1:
+                bind_two_if_same()
 
         if surface[-3:] == u'que':
             if surface.lower() not in (u'neque', u'itaque', u'quoque'):
-                print "// %d %s-QUE" % (i, surface[:-3].encode('utf-8'))
+                # print "// %d %s-QUE" % (i, surface[:-3].encode('utf-8'))
+                if i >= 1:
+                    bind_two_if_same()
 
     visited_ix = filter(lambda ix:ix not in ao_loc, visited)#[ix for ix in visited])
     return (words, visited_ix)
@@ -289,8 +323,9 @@ def detect_adj_correspondances(words):
         if isinstance(word, Predicate):
             blocks[i] = word
         elif isinstance(word, AndOr):
-            # nouns[i] = word._
-            pass
+            if word.pos == 'adj':
+                # print "ADJ.", i, word._
+                adjs.append((i, word._))
         elif isinstance(word, Word):
             if not word.items: continue
             if word.surface in (u'et', u'neque') or word.items[0].pos == 'preposition':
@@ -336,7 +371,7 @@ def detect_adj_correspondances(words):
     as_noun = set()
 
     for adj_ix, _ in adjs:
-        print "ADJ#%d (%s)" % (adj_ix, words[adj_ix].surface_utf8()),
+        print "// ADJ#%d (%s)" % (adj_ix, words[adj_ix].surface_utf8()),
         noun_ix = find_target(adj_ix, _)
         if noun_ix >= 0:
             print "-> NOUN#%d (%s)" % (noun_ix, words[noun_ix].surface_utf8())
@@ -414,7 +449,7 @@ def detect_genitive_correspondances(words):
     non_gen = set()
 
     for gen_ix in gen:
-        print "GEN#%d (%s)" % (gen_ix, words[gen_ix].surface_utf8()),
+        print "// GEN#%d (%s)" % (gen_ix, words[gen_ix].surface_utf8()),
         target_ix = find_target(gen_ix)
         if target_ix >= 0:
             print "-> TARGET#%d (%s)" % (target_ix, words[target_ix].surface_utf8())
@@ -517,11 +552,12 @@ def translate(obj):
         return ' // '.join([translate(item) for item in obj])
     elif isinstance(obj, Predicate):
         return obj.translate()
-    elif isinstance(obj, Word):
-        if not obj.items:
-            return ""
-        else:
-            return obj.items[0].ja
+    elif isinstance(obj, Word) or isinstance(obj, AndOr):
+        return obj.translate()[0]
+#        if not obj.items:
+#            return ""
+#        else:
+#            return obj.translate() # obj.items[0].ja
     else:
         print "？？？"
 
@@ -579,17 +615,17 @@ def analyse_text(text, options=None):
                 verbs_ix.append(i)
                 verb_count += 1
 
-        verb_surfaces = ', '.join([words[ix].surface_utf8() for ix in verbs_ix])
+        verb_surfaces = ', '.join([ansi_color.bold(words[ix].surface_utf8()) for ix in verbs_ix])
         M = len(words)
         groups = []
         if verb_count == 0:
-            print "NO VERB FOUND."
+            print ansi_color.underline("NO VERB FOUND.")
             groups.append( range(M) )
         elif verb_count == 1:
-            print "1 VERB FOUND:", verb_surfaces
+            print ansi_color.underline("1 VERB FOUND:") + ' ' + verb_surfaces
             groups.append( range(M) )
         else:
-            print "%d VERBS FOUND:" % verb_count, verb_surfaces
+            print ansi_color.underline("%d VERBS FOUND:" % verb_count) + ' ' + verb_surfaces
             groups.append( range(verbs_ix[0]+1) ) # [0..ix0]
             for i in range(1, verb_count-1):
                 groups.append( [verbs_ix[i]] )

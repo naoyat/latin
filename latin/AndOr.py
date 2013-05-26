@@ -28,18 +28,19 @@ def group_pos(words):
         if item._ is not None:
             cases = [x[0] for x in item._]
             genders = uniq([x[2] for x in item._])
-            return ('noun', (cases, genders))
+            return (item.pos, (cases, genders))
         else:
             return (item.pos, None)
 
     surface = u' '.join([word.surface for word in words])
-    _s = [word.items[0]._ for word in words]
+    first_item = word.items[0]
+    _s = [first_item._ for word in words]
     # _: [('Nom', 'sg', 'f'), ('Voc', 'sg', 'f')]
     _sg = filter(non_genitive, _s)
     if _sg:
-        return ('noun', case_intersection(_sg))
+        return (first_item.pos, case_intersection(_sg))
     else:
-        return ('noun', case_intersection(_s))
+        return (first_item.pos, case_intersection(_s))
 
 
 class AndOr (LatinObject):
@@ -65,11 +66,11 @@ class AndOr (LatinObject):
         # print " // GROUP POS:", pos, info
         if self.pos is None:
             self.pos = pos
-            if self.pos == 'noun':
+            if self.pos in ('noun', 'pronoun', 'adj'):
                 self.cases, self.genders = info
             else:
                 self.info = info
-        elif self.pos == 'noun':
+        elif self.pos in ('noun', 'pronoun', 'adj'):
             cases, genders = info
             self.cases = filter(lambda case:case in cases, self.cases)
             self.genders = uniq(self.genders + genders)
@@ -85,12 +86,26 @@ class AndOr (LatinObject):
         self.surface = u' '.join(self.surfaces)
         self.surface_len = len(self.surface)
 
-        if len(self.genders) >= 2:
-            gender = 'm'
-        else:
-            gender = self.genders[0]
 
-        self._ = [(case, 'pl', gender) for case in self.cases]
+        # print self.surface_utf8()
+        if self.cases:
+            if self.pos == 'adj':
+                # sgとは限らない
+                self._ = []
+                for case in self.cases:
+                    for number in ['sg', 'pl']:
+                        for gender in self.genders:
+                            self._.append((case, number, gender))
+            else:
+                if not self.genders:
+                    gender = None
+                elif len(self.genders) >= 2:
+                    gender = 'm'
+                else:
+                    gender = self.genders[0]
+                self._ = [(case, 'pl', gender) for case in self.cases]
+        else:
+            self._ = []
 
 
     def dump(self):
@@ -102,7 +117,8 @@ class AndOr (LatinObject):
         return False
 
     def has_subst_case(self, case):
-        if self.pos != 'noun': return False
+        if self.pos not in ('noun', 'adj'):
+            return False
         return case in self.cases
 
     def detail(self):
@@ -125,9 +141,15 @@ class AndOr (LatinObject):
             for word in words:
                 word.restrict_cases([x[0] for x in self._])
 
+    def restrict_cases(self, possible_cases):
+        self.cases = filter(lambda case:case in possible_cases, self.cases)
+
     def translate(self):
         tr = []
         for words in self.words_slots:
             # tr.append(' '.join([word.translate() for word in words]))
             tr.append(words[0].translate()[0])
-        return ('と'.join(tr), self.and_or_word in (u'neque'))
+        if self.pos == 'adj':
+            return ('、かつ'.join(tr), self.and_or_word in (u'neque'))
+        else:
+            return ('と'.join(tr), self.and_or_word in (u'neque'))
