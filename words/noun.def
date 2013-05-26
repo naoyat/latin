@@ -66,8 +66,8 @@
 1	vīta	f	人生
 
 # pl. only
-2	Ītalus	m	イタリア人
-2	Graecus	m	ギリシア人
+#2	Ītalus	m	イタリア人
+#2	Graecus	m	ギリシア人
 2	cēterus	m	他の全て
 
 2	Corinthus	f	コリントス
@@ -79,7 +79,7 @@
 2	Tenedus	m	テネドス
 2	Thēseus	m	テセウス
 2	Triptolemus	m	トリプトレムス
-2	Trōjānus	m	トロヤ人
+#2	Trōjānus	m	トロヤ人
 2	agnus	m	小羊
 2	alvus	f	胃腸
 2	amīcus	m	友人
