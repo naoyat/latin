@@ -77,15 +77,15 @@ class Word (LatinObject):
 
     def translate(self):
         if self.items is None:
-            return ''
+            return ('', False)
         else:
             tr = []
             for gen in self.genitives:
-                tr.append(gen.translate() + 'の')
+                tr.append(gen.translate()[0] + 'の')
             for mod in self.modifiers:
-                tr.append(mod.translate())
+                tr.append(mod.translate()[0])
             # tr.append(  )
             s = self.items[0].ja
             if tr:
                 s = '{' + ' & '.join(tr) + '}' + s
-            return s
+            return (s, False)

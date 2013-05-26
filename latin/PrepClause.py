@@ -20,6 +20,6 @@ class PrepClause (LatinObject):
         self.surface_len = len(self.surface)
 
     def translate(self):
-        s = ' '.join([word.translate() for word in self.words])
+        s = ' '.join([word.translate()[0] for word in self.words])
         s = '{' + s + '}' + self.item.ja
-        return s
+        return (s, False)

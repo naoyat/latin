@@ -129,5 +129,5 @@ class AndOr (LatinObject):
         tr = []
         for words in self.words_slots:
             # tr.append(' '.join([word.translate() for word in words]))
-            tr.append(words[0].translate())
-        return 'と'.join(tr)
+            tr.append(words[0].translate()[0])
+        return ('と'.join(tr), self.and_or_word in (u'neque'))

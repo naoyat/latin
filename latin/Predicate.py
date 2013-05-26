@@ -46,6 +46,7 @@ class Predicate (LatinObject):
 
     def translate(self):
         tr = []
+        negated = False
 
         cases_ja = {'Nom':'が', 'Acc':'を', 'Gen':'の', 'Dat':'に', 'Abl':'で', 'Voc':'よ', 'Loc':'で'}
 
@@ -55,7 +56,8 @@ class Predicate (LatinObject):
             nom_objs = self.case_slot['Nom']
             self.case_slot['Nom'] = []
             for obj in nom_objs:
-                nom = obj.translate()
+                nom, neg = obj.translate()
+                if neg: negated = True
                 if isinstance(obj, Word) and obj.items[0].pos != 'noun':
                     nom += '(人,物)'
                 noms.append(nom)
@@ -76,14 +78,14 @@ class Predicate (LatinObject):
                 case_ja = '' # case.encode('utf-8')
             else:
                 case_ja = cases_ja[case]
-            trs = [obj.translate() for obj in objs]
+            trs = [obj.translate()[0] for obj in objs]
             tr.append('='.join(trs) + case_ja)
 
         # Accusative
         if self.case_slot.has_key('Acc'):
             acc_objs = self.case_slot['Acc']
             self.case_slot['Acc'] = []
-            accs = [obj.translate() for obj in acc_objs]
+            accs = [obj.translate()[0] for obj in acc_objs]
             accs = [acc[:-3] if acc[-3:] == 'が' else acc for acc in accs]
             tr.append('='.join(accs) + 'を') #[acc for acc in accs]))
 
@@ -103,7 +105,7 @@ class Predicate (LatinObject):
 
         tense = verb.attrib('tense')
         if tense == 'imperfect':
-            flag |= Verb.PAST
+            flag |= Verb.PAST | Verb.ING
         elif tense == 'perfect':
             flag |= Verb.PERFECT
         elif tense == 'future':
@@ -111,7 +113,10 @@ class Predicate (LatinObject):
 
 #        if advs != []:
 #            print "{", ', '.join(advs), "}",
-        tr.append( ','.join([JaVerb(ja).form(flag) for ja in jas]) )
+        verb_tr = ','.join([JaVerb(ja).form(flag) for ja in jas])
+        if negated:
+            verb_tr = '¬'+ verb_tr
+        tr.append(verb_tr)
 
 #        tr.append(self.first_item.ja )
 
