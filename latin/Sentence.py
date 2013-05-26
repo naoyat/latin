@@ -6,7 +6,6 @@ from japanese import JaVerb
 import Verb
 
 from latin.AndOr import AndOr
-from latin.CasedClause import CasedClause
 from latin.Word import Word
 from latin.Predicate import Predicate
 

@@ -124,3 +124,10 @@ class AndOr (LatinObject):
         for words in self.words_slots:
             for word in words:
                 word.restrict_cases([x[0] for x in self._])
+
+    def translate(self):
+        tr = []
+        for words in self.words_slots:
+            # tr.append(' '.join([word.translate() for word in words]))
+            tr.append(words[0].translate())
+        return 'と'.join(tr)

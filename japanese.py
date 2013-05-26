@@ -93,6 +93,8 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
         if conj_form == MIZEN:
             if after[0] == u'う':
                 return (u'しよ', False)
+            elif after[0] == u'れ':
+                return (u'さ', False)
             else:
                 return (u'し', False)
         elif conj_form in [SHUUSHI, RENTAI]:
@@ -100,7 +102,7 @@ def conj_form(suffix_uc, conjug_type, conj_form, after=None):
         elif conj_form == MEIREI:
             return (u'しろ', False)
         else:
-            if after == u'れる':
+            if after[0] == u'れ':
                 return (u'さ', False)
             else:
                 return (u'し', False)

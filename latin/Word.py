@@ -22,9 +22,13 @@ class Word (LatinObject):
 #        self.negated = False
         self.index = None
         self.modifiers = []
+        self.genitives = []
 
     def add_modifier(self, word):
         self.modifiers.append(word)
+
+    def add_genitive(self, word):
+        self.genitives.append(word)
 
     def has_subst_case(self, case):
         # subst = ['noun','pronoun','adj','participle']
@@ -70,3 +74,18 @@ class Word (LatinObject):
         if not self.items: return
         for item in self.items:
             item._ = filter(lambda x:x[0] in possible_cases, item._)
+
+    def translate(self):
+        if self.items is None:
+            return ''
+        else:
+            tr = []
+            for gen in self.genitives:
+                tr.append(gen.translate() + 'の')
+            for mod in self.modifiers:
+                tr.append(mod.translate())
+            # tr.append(  )
+            s = self.items[0].ja
+            if tr:
+                s = '{' + ' & '.join(tr) + '}' + s
+            return s
