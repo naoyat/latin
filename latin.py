@@ -240,12 +240,12 @@ def detect_and_or(words):
 
     detect(u'aut')
 
-    def same(word1, word2):
+    def same(word1, word2, pos_check=True):
         if not word1.items or not word2.items:
             return False
         item1 = word1.items[0]
         item2 = word2.items[0]
-        if item1.pos != item2.pos:
+        if pos_check and item1.pos != item2.pos:
             return False
         if item1.pos == 'verb':
             return False
@@ -262,6 +262,7 @@ def detect_and_or(words):
         if i in visited: continue
         if not word.items: continue
 
+        # A et B
         def bind_two_if_same():
             word1 = words[i-1]
             word2 = words[i+1]
@@ -274,18 +275,60 @@ def detect_and_or(words):
                     visited.add(j)
                 words[i-1] = cl
                 ao_loc.add(i-1)
+                return True
+            else:
+                return False
+
+        # A [adj] et B [adj]
+        def bind_more_if_same():
+            word1 = words[i-2]
+            word1a = words[i-1]
+            if not word1a.items or word1a.items[0].pos != 'adj':
+                return False
+            if not same(word1, word1a, pos_check=False):
+                return False
+
+            word2 = words[i+1]
+            with_2a = False
+            if i+2 < M:
+                word2a = words[i+2]
+                if word2a.items and word2a.items[0].pos == 'adj':
+                    if same(word2, word2a, pos_check=False):
+                        with_2a = True
+
+            if same(word1, word2):
+                print "// #%d #%d ET #%d (#%d): %s == %s" % (i-2, i-1, i+1, i+2, word1.surface_utf8(), word2.surface_utf8())
+                cl = AndOr(u'et')
+                word1.add_modifier(word1a)
+                cl.add([word1])
+                visited.add(i-2)
+                visited.add(i-1)
+
+                if with_2a:
+                    word2.add_modifier(word2a)
+                    visited.add(i+2)
+                cl.add([word2])
+                visited.add(i+1)
+
+                words[i-2] = cl
+                ao_loc.add(i-2)
+                return True
+            else:
+                return False
 
         surface = word.surface
         if surface == u'et' and i+1 < len(words):
             # print "// %d ET %s" % (i, words[i+1].surface_utf8())
             if i >= 1:
-                bind_two_if_same()
+                if not bind_two_if_same() and i >= 2:
+                    bind_more_if_same()
 
         if surface[-3:] == u'que':
             if surface.lower() not in (u'neque', u'itaque', u'quoque'):
                 # print "// %d %s-QUE" % (i, surface[:-3].encode('utf-8'))
                 if i >= 1:
-                    bind_two_if_same()
+                    if not bind_two_if_same() and i >= 2:
+                        bind_more_if_same()
 
     visited_ix = filter(lambda ix:ix not in ao_loc, visited)#[ix for ix in visited])
     return (words, visited_ix)
@@ -333,7 +376,10 @@ def detect_adj_correspondances(words):
                 continue
 
             first_item = word.items[0]
-            if first_item.pos in ('adj', 'pp'):
+            if first_item.pos == 'verb':
+                blocks[i] = word
+                continue
+            elif first_item.pos in ('adj', 'pp'):
                 adjs.append((i, first_item._))
             elif first_item.pos == 'noun':
                 nouns[i] = first_item._
@@ -521,6 +567,8 @@ def render_with_indent(indent, obj):
             text = obj.surface.encode('utf-8')
             text = ansi_color.underline(ansi_color.bold(text, ansi_color.RED))
             print ' '*indent + text, "(%s %s%s)" % (obj.mood(), str(obj.person()), obj.number())
+            if obj.conjunction:
+                render_with_indent(indent+2, obj.conjunction)
             for mod in obj.modifiers:
                 render_with_indent(indent+2, mod)
             for case, objs in obj.case_slot.items():
@@ -552,7 +600,7 @@ def translate(obj):
         return ' // '.join([translate(item) for item in obj])
     elif isinstance(obj, Predicate):
         return obj.translate()
-    elif isinstance(obj, Word) or isinstance(obj, AndOr):
+    elif isinstance(obj, Word) or isinstance(obj, AndOr) or isinstance(obj, PrepClause):
         return obj.translate()[0]
 #        if not obj.items:
 #            return ""
@@ -675,7 +723,7 @@ def analyse_text(text, options=None):
                 # words_in_group = [words[ix] for ix in group]
                 verb_ix = verbs_ix[i]
                 pred = words[verb_ix] # predicate
-                for ix in group:
+                for j, ix in enumerate(group):
                     if ix == verb_ix: continue
                     word = words[ix]
                     if isinstance(word, AndOr):
@@ -685,25 +733,44 @@ def analyse_text(text, options=None):
                     elif isinstance(word, Word):
                         if not word.items: continue
                         first_item = word.items[0]
-                        if first_item.pos == 'adv':
-                            pred.add_modifier(word)
+                        if j == 0 and word.surface in (u'quod', u'ut'):
+                            if word.items[1].pos == 'conj':
+                                first_item = word.items[1]
+                                word.items = word.items[1:]
+                        if first_item.pos == 'conj':
+                            if j < 2 and not pred.conjunction:
+                                pred.conjunction = word
+                            else:
+                                not_solved.append(word)
+                        elif first_item.pos == 'adv':
+                            if j < 2 and not pred.conjunction:
+                                pred.conjunction = word
+                            elif word.surface in (u'ō', u'Ō'):
+                                # 二重になってないかチェックする or conjunction を複数取る
+                                pred.conjunction = word
+                            else:
+                                pred.add_modifier(word)
                         elif first_item._:
-                            case = None
-                            case_n = None
-                            for x in first_item._:
-                                if x[0] in ('Nom', 'Voc'):
-                                    if x[2] != 'n':
+                            cases = [x[0] for x in first_item._]
+                            if 'Voc' in cases and ix > 0 and words[ix-1].surface in (u'ō', u'Ō'):
+                                case = 'Voc'
+                                # 形的にVocしかありえないケースも拾いたい
+                            else:
+                                for x in first_item._:
+                                    if x[0] == 'Nom':
+                                        if x[2] == 'n':
+                                            case = 'Nom/Acc'
+                                        else:
+                                            case = x[0]
+                                        break
+                                    elif x[0] == 'Acc':
                                         case = x[0]
                                         break
-                                    elif not case_n:
-                                        case_n = x[0]
-                                elif x[0] == 'Acc':
-                                    case = x[0]
-                                    break
-                                else:
-                                    case = x[0]
+                                    else:
+                                        if not case:
+                                            case = x[0]
 
-                            if not case: case = case_n
+                            # if not case: case = case_n
                             pred.add_nominal(case, word)
                         else:
                             # print "not solved += ", word.surface_utf8()

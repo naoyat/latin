@@ -15,6 +15,8 @@ class Predicate (LatinObject):
         self.first_item = verb.items[0]
         self.surface = verb.surface
         self.surface_len = len(self.surface)
+        self.conjunction = None
+        self.is_sum = self.first_item.item.get('pres1sg', None) == u'sum'
 
     def add_nominal(self, case, obj):
         # self.objects[case] = self.objects.get(case, []).append(obj)
@@ -48,30 +50,72 @@ class Predicate (LatinObject):
         tr = []
         negated = False
 
+        verb = self.first_item
+
+        if self.conjunction:
+            if self.conjunction.surface == u'et':
+                t = 'そして'
+            else:
+                t, neg = self.conjunction.translate()
+                if neg: negated = True
+            tr.append(t)
+
         cases_ja = {'Nom':'が', 'Acc':'を', 'Gen':'の', 'Dat':'に', 'Abl':'で', 'Voc':'よ', 'Loc':'で'}
 
+        sum_complement = []
         # Nominative
         noms = []
-        if self.case_slot.has_key('Nom'):
-            nom_objs = self.case_slot['Nom']
-            self.case_slot['Nom'] = []
+        nom_acc_objs = []
+        if self.case_slot.has_key('Nom') or self.case_slot.has_key('Nom/Acc'):
+            nom_objs = self.case_slot.get('Nom', [])
+            nom_acc_objs = self.case_slot.get('Nom/Acc', [])
+
+            demand = 2 if self.is_sum else 1
+            supply = len(nom_objs)
+            if supply < demand and nom_acc_objs:
+                insufficient = demand - supply
+                nom_objs += nom_acc_objs[0:insufficient]
+                nom_acc_objs = nom_acc_objs[insufficient:]
+
             for obj in nom_objs:
                 nom, neg = obj.translate()
                 if neg: negated = True
-                if isinstance(obj, Word) and obj.items[0].pos != 'noun':
-                    nom += '(人,物)'
-                noms.append(nom)
-        else:
+
+                if self.is_sum:
+                    # 形容詞（修飾語）の場合
+                    if isinstance(obj, Word) and obj.items[0].pos != 'noun':
+                        # sum なら補語として
+                        sum_complement.append(nom)
+                    elif (len(noms) > 0 or len(nom_objs) == 1):
+                        sum_complement.append(nom)
+                    else:
+                        noms.append(nom)
+                else:
+                    # 形容詞（修飾語）の場合
+                    if isinstance(obj, Word) and obj.items[0].pos != 'noun':
+                        # sumでなければそういう人や物として
+                        nom += '(人,物)'
+                    noms.append(nom)
+
+        if nom_acc_objs:
+            self.case_slot['Acc'] = self.case_slot.get('Acc', []) + nom_acc_objs
+            self.case_slot['Nom/Acc'] = []
+
+        if not noms and verb.attrib('mood') != 'imperative':
             pn = str(self.person()) + str(self.number())
             subj_ja = {'1sg':'私', '2sg':'あなた', '3sg':'彼,彼女,それ',
                        '1pl':'我々', '2pl':'あなた方', '3pl':'彼ら,彼女ら,それら'}
             if subj_ja.has_key(pn):
                 noms.append(subj_ja[pn])
-#        tr.append(','.join([nom + 'が' for nom in noms]))
-        tr.append('='.join(noms) + 'が')
+
+        if noms:
+            nom_case_ja = 'が'
+            if self.is_sum:
+                nom_case_ja = 'は'
+            tr.append('='.join(noms) + nom_case_ja)
 
         for case, objs in self.case_slot.items():
-            if case == 'Acc': continue
+            if case in ('Nom', 'Nom/Acc', 'Acc'): continue
             if not objs: continue
             if isinstance(case, unicode):
                 # prep-clause
@@ -94,11 +138,15 @@ class Predicate (LatinObject):
             s = adv.items[0].ja
             tr.append(s)
 
-        verb = self.first_item
         jas = verb.ja.split(',')
 
         # flags
-        flag = Verb.INDICATIVE
+        if verb.attrib('mood') == 'imperative':
+            flag = Verb.IMPERATIVE
+        else:
+        # elif verb.attrib('mood') == 'indicative':
+            # とりあえず直説法で出しておく
+            flag = Verb.INDICATIVE
 
         if verb.attrib('voice') == 'passive':
             flag |= Verb.PASSIVE
@@ -116,6 +164,11 @@ class Predicate (LatinObject):
         verb_tr = ','.join([JaVerb(ja).form(flag) for ja in jas])
         if negated:
             verb_tr = '¬'+ verb_tr
+
+        if self.is_sum and sum_complement:
+            adj = ','.join(sum_complement)
+            verb_tr = verb_tr.replace('〜', adj)
+
         tr.append(verb_tr)
 
 #        tr.append(self.first_item.ja )
