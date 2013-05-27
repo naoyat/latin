@@ -5,7 +5,11 @@
 ## demo
 
 ```
-python latin.py -s texts/1.TESSEUS_ET_ARIADNE.txt | less -R
+# 音読あり
+$ python latin.py -s texts/1.TESSEUS_ET_ARIADNE.txt
+
+# 音読なし
+$ python latin.py texts/1.TESSEUS_ET_ARIADNE.txt | less -R
 ```
 
 ## usage
