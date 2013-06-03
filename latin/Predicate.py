@@ -51,6 +51,7 @@ class Predicate (LatinObject):
         negated = False
 
         verb = self.first_item
+        person = verb.attrib('person', 0)
 
         if self.conjunction:
             if self.conjunction.surface == u'et':
@@ -65,10 +66,10 @@ class Predicate (LatinObject):
         sum_complement = []
         # Nominative
         noms = []
-        nom_acc_objs = []
-        if self.case_slot.has_key('Nom') or self.case_slot.has_key('Nom/Acc'):
+        nom_acc_objs = self.case_slot.get('Nom/Acc', [])
+        if self.case_slot.has_key('Nom') or (person == 3 and nom_acc_objs):
             nom_objs = self.case_slot.get('Nom', [])
-            nom_acc_objs = self.case_slot.get('Nom/Acc', [])
+            # nom_acc_objs = self.case_slot.get('Nom/Acc', [])
 
             demand = 2 if self.is_sum else 1
             supply = len(nom_objs)
@@ -173,4 +174,4 @@ class Predicate (LatinObject):
 
 #        tr.append(self.first_item.ja )
 
-        return ' / '.join(tr)
+        return (' / '.join(tr), False)

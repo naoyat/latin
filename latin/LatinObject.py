@@ -12,4 +12,4 @@ class LatinObject:
         return self.surface.encode('utf-8')
 
     def translate(self):
-        return '？？'
+        return ('*', False)
