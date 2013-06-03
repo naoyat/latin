@@ -8,18 +8,48 @@ from latin_verb_reg import *
 def conjugate_verb_eo(prefix=u'', ja=''):
     tags = {'pos':'verb', 'pres1sg':prefix+u'eō', 'ja':ja}
 
-    inf = u'īre'
+    inf = prefix + u'īre'
+    perf1sg = prefix + u'iī'
+
     # pres_stem = u''
     # pf_stem = u''
     # īvī iī
     # itum
     items = []
+    items += conjugate(prefix + u'', util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'present'}),
+                       [inf], [{}])
+    items += conjugate(prefix + u'', util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'perfect'}),
+                       [(u'īsse', u'īvisse')], [{}])
+    items += conjugate(prefix + u'', util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'future'}),
+                       [u'itūrus esse'], [{}])
+
+
+    # 能動態 現在・過去・未来
     items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'present'}),
                        [u'eō', u'īs', u'it', u'īmus', u'ītis', u'eunt'])
     items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'imperfect'}),
                        [u'ībam', u'ībās', u'ībat', u'ībāmus', u'ībātis', u'ībant'])
     items += conjugate(prefix, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'future'}),
                        [u'ībō', u'ībis', u'ībit', u'ībimus', u'ībitis', u'ībunt'])
+
+    # 能動態 完了
+    items += conjugate_perfect(perf1sg, tags)
+    items += conjugate_past_perfect(perf1sg, tags)
+    items += conjugate_future_perfect(perf1sg, tags)
+
+    # 接続法
+    items += conjugate(prefix,
+                       util.aggregate_dicts(tags, {'mood':'subjunctive', 'voice':'active', 'tense':'present'}),
+                       [u'eam', u'eāe', u'eas', u'eāmus', u'eātis', u'eant'])
+    items += conjugate(prefix,
+                       util.aggregate_dicts(tags, {'mood':'subjunctive', 'voice':'active', 'tense':'imperfect'}),
+                       [u'īrem', u'īrēs', u'īret', u'īrēmus', u'īrētis', u'īrent'])
+    items += conjugate(prefix,
+                       util.aggregate_dicts(tags, {'mood':'subjunctive', 'voice':'active', 'tense':'perfect'}),
+                       [u'ierim', u'ieris', u'ierit', u'ierimus', u'ieritis', u'ierint'])
+    items += conjugate(prefix,
+                       util.aggregate_dicts(tags, {'mood':'subjunctive', 'voice':'active', 'tense':'past-perfect'}),
+                       [u'īssem', u'īssēs', u'īsset', u'īssēmus', u'īssētis', u'īssent'])
 
     # 命令形
     items += conjugate(prefix, util.aggregate_dicts(tags, {'voice':'active', 'tense':'present', 'mood':'imperative'}),
@@ -28,7 +58,7 @@ def conjugate_verb_eo(prefix=u'', ja=''):
                        [None, u'ītō', u'ītō', None, u'ītōte', u'euntō'])
 
     # 分詞
-    items += conjugate_participle(u'iē', u'itum', tags) # no supinum for 'sum'
+    items += conjugate_participle(u'iē', u'itum', tags)
 
     # print "(eo)", util.render(items)
     return items
@@ -100,11 +130,11 @@ def conjugate_verb_sum(prefix=u'', ja=''):
     pf_stem = perf1sg[:-1]
 
     items = []
-    items += conjugate('', util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'present'}),
+    items += conjugate(prefix + u'', util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'present'}),
                        [inf], [{}])
-    items += conjugate(pf_stem, util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'perfect'}),
+    items += conjugate(prefix + pf_stem, util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'perfect'}),
                        [u'isse'], [{}])
-    items += conjugate(pf_stem, util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'future'}),
+    items += conjugate(prefix + pf_stem, util.aggregate_dicts(tags, {'voice':'active', 'mood':'infinitive', 'tense':'future'}),
                        [u'tūrus esse'], [{}])
 
     # 能動態 現在・過去・未来
@@ -190,12 +220,12 @@ def load():
     # items += conjugate_irregular_verb(u'eō', '行く') # eō īvī/iī itum īre
     items += conjugate_verb_eo_composites()
 
-    # items += conjugate_irregular_verb(u'ferō', '運ぶ') # ferō tulī lAtum ferre
+    # items += conjugate_irregular_verb(u'ferō', '運ぶ') # ferō tulī lātum ferre
     items += conjugate_verb_fero_composites()
 
     # items += conjugate_irregular_verb(u'fīō', '成る,生ずる') # fīō factus sum, fierī
     # items += conjugate_irregular_verb(u'volō', '欲する') # volō voluī velle
-    # items += conjugate_irregular_verb(u'mālō', 'むしろ〜を欲する') # mAlō mAluī mAlle
+    # items += conjugate_irregular_verb(u'mālō', 'むしろ〜を欲する') # mālō māluī mālle
     # items += conjugate_irregular_verb(u'nōlō', '欲しない') # nōlō nōluī nōlle
 
     return items

@@ -175,7 +175,7 @@ def conjugate_perfect(perf1sg, tags={}):
 def conjugate_past_perfect(perf1sg, tags={}):
     stem = perf1sg[:-1]
     return conjugate(stem, util.aggregate_dicts(tags, {'mood':'indicative', 'voice':'active', 'tense':'past-perfect'}),
-                     [u'eram', u'erās', u'erat', u'erāmus', u'erātis', u'erānt'])
+                     [u'eram', u'erās', u'erat', u'erāmus', u'erātis', u'erant'])
 
 # 未来完了
 def conjugate_future_perfect(perf1sg, tags={}):
