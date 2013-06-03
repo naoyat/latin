@@ -808,12 +808,15 @@ def do_command(line, options=None):
             surface = char.trans(surface)
         return surface
 
+    # 辞書検索
     if cmd in ('l', 'lookup'):
         surface = surface_tr()
         print "lookup", surface,
 
         items = latindic.lookup(surface.decode('utf-8'))
         util.pp(items)
+
+    # 動詞の活用を見る
     elif cmd in ('c', 'conjug'):
         surface_uc = surface_tr().decode('utf-8')
         table = {}
@@ -834,7 +837,19 @@ def do_command(line, options=None):
                     tenses.add(mood + voice + tense)
                     person = item.get('person', None)
                     number = item.get('number', None)
-                    table[(mood,voice,tense,person,number)] = item['surface']
+                    key = (mood,voice,tense,person,number)
+                    item_surface = item['surface']
+                    if table.has_key(key):
+                        table[key].append(item_surface)
+                    else:
+                        table[key] = [item_surface]
+
+        def surfaces(key):
+            if table.has_key(key):
+                return ', '.join([surface.encode('utf-8') for surface in table[key]])
+            else:
+                return '-'
+
         print "%s, %s" % (surface_uc.encode('utf-8'), ja)
         for mood in ['indicative', 'subjunctive', 'imperative']:
             if mood not in moods: continue
@@ -851,8 +866,13 @@ def do_command(line, options=None):
                         for person in [1,2,3]:
                             key = (mood, voice, tense, person, number)
                             if table.has_key(key):
-                                print "          %d: %s" % (person, table[key].encode('utf-8'))
-#        util.pp(table)
+                                print "          %d: %s" % (person, surfaces(key))
+        print "  infinitive"
+        print "    present: %s" % surfaces(('infinitive','active','present',None,None))
+        print "    perfect: %s" % surfaces(('infinitive','active','perfect',None,None))
+        print "    future: %s" % surfaces(('infinitive','active','future',None,None))
+
+    # 名詞の変化形を見る
     elif cmd in ('d', 'decl'):
         surface_uc = surface_tr().decode('utf-8')
         table = {}
@@ -865,23 +885,34 @@ def do_command(line, options=None):
                 item_base = item.get('base', None)
                 if item_base == surface_uc:
                     for case, number, gender in item['_']:
-                        table[(case,number,gender)] = item['surface']
+                        key = (case,number,gender)
+                        item_surface = item['surface']
+                        if table.has_key(item_surface):
+                            table[key].append(item_surface)
+                        else:
+                            table[key] = [item_surface]
                         if not pos:
                             pos = item['pos']
                             gender = item['_'][0][2]
                             base = item['base']
                             ja = item['ja']
+        def surfaces(key):
+            if table.has_key(key):
+                return ', '.join([surface.encode('utf-8') for surface in table[key]])
+            else:
+                return '-'
+
         if pos == 'noun':
             print "%s (%s, %s), %s" % (base.encode('utf-8'), pos, gender, ja)
             for number in ['sg', 'pl']:
                 print "  %s:" % number
                 for case in ['Nom', 'Voc', 'Acc', 'Gen', 'Dat', 'Abl', 'Loc']:
-                    cng = (case, number, gender)
-                    if table.has_key(cng):
-                        print "    %s: %s" % (case, table[cng].encode('utf-8'))
-#            print
+                    key = (case, number, gender)
+                    if table.has_key(key):
+                        print "    %s: %s" % (case, surfaces(key))
+
     else:
-        print cmd, ",", fs[1:]
+        print "COMMAND NOT SUPPORTED: %s, with \"%s\"" % (cmd, surface_tr())
 
 # read-eval-print loop
 def repl(options=None, show_prompt=False):
