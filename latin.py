@@ -11,6 +11,7 @@ import latin.latin_char as char
 import latin.latindic as latindic
 import latin.util as util
 
+from latin.LatinObject import LatinObject
 from latin.Word import Word
 from latin.Predicate import Predicate
 from latin.AndOr import AndOr, non_genitive
@@ -585,7 +586,7 @@ def render_with_indent(indent, obj):
 #        elif isinstance(obj, unicode):
 #            print ' '*indent + obj.encode('utf-8')
 
-#        else:
+        #        else:
 #            print ' '*indent + str(obj)
 
 
@@ -598,10 +599,12 @@ def dump(obj, initial_indent=2):
 def translate(obj):
     if isinstance(obj, list):
         return ' // '.join([translate(item) for item in obj])
-    elif isinstance(obj, Predicate):
-        return obj.translate()
-    elif isinstance(obj, Word) or isinstance(obj, AndOr) or isinstance(obj, PrepClause):
+    elif isinstance(obj, LatinObject):
         return obj.translate()[0]
+#    elif isinstance(obj, Predicate):
+#        return obj.translate()
+#    elif isinstance(obj, Word) or isinstance(obj, AndOr) or isinstance(obj, PrepClause):
+#        return obj.translate()[0]
 #        if not obj.items:
 #            return ""
 #        else:
@@ -795,6 +798,91 @@ def analyse_text(text, options=None):
             speak_latin.pause_while_speaking()
 
 
+def do_command(line, options=None):
+    fs = line.split(' ')
+    cmd = fs[0]
+
+    def surface_tr():
+        surface = ' '.join(fs[1:])
+        if options and not options.strict_macron_mode:
+            surface = char.trans(surface)
+        return surface
+
+    if cmd in ('l', 'lookup'):
+        surface = surface_tr()
+        print "lookup", surface,
+
+        items = latindic.lookup(surface.decode('utf-8'))
+        util.pp(items)
+    elif cmd in ('c', 'conjug'):
+        surface_uc = surface_tr().decode('utf-8')
+        table = {}
+        ja = None
+        moods = set()
+        voices = set()
+        tenses = set()
+        for word, items in latindic.LatinDic.dic.items():
+            for item in items:
+                pres1sg = item.get('pres1sg', None)
+                if pres1sg == surface_uc:
+                    if not ja: ja = item['ja']
+                    mood = item.get('mood', '-')
+                    moods.add(mood)
+                    voice = item.get('voice', '-')
+                    voices.add(mood + voice)
+                    tense = item.get('tense', '-')
+                    tenses.add(mood + voice + tense)
+                    person = item.get('person', None)
+                    number = item.get('number', None)
+                    table[(mood,voice,tense,person,number)] = item['surface']
+        print "%s, %s" % (surface_uc.encode('utf-8'), ja)
+        for mood in ['indicative', 'subjunctive', 'imperative']:
+            if mood not in moods: continue
+            print "  %s" % mood
+            for voice in ['active', 'passive']:
+                if mood + voice not in voices: continue
+                print "    %s" % voice
+                for tense in ['present', 'imperfect', 'future',
+                              'perfect', 'past-perfect', 'future-perfect']:
+                    if mood + voice + tense not in tenses: continue
+                    print "      %s" % tense
+                    for number in ['sg','pl']:
+                        print "        %s" % number
+                        for person in [1,2,3]:
+                            key = (mood, voice, tense, person, number)
+                            if table.has_key(key):
+                                print "          %d: %s" % (person, table[key].encode('utf-8'))
+#        util.pp(table)
+    elif cmd in ('d', 'decl'):
+        surface_uc = surface_tr().decode('utf-8')
+        table = {}
+        base = None
+        ja = None
+        pos = None
+        gender = None
+        for word, items in latindic.LatinDic.dic.items():
+            for item in items:
+                item_base = item.get('base', None)
+                if item_base == surface_uc:
+                    for case, number, gender in item['_']:
+                        table[(case,number,gender)] = item['surface']
+                        if not pos:
+                            pos = item['pos']
+                            gender = item['_'][0][2]
+                            base = item['base']
+                            ja = item['ja']
+        if pos == 'noun':
+            print "%s (%s, %s), %s" % (base.encode('utf-8'), pos, gender, ja)
+            for number in ['sg', 'pl']:
+                print "  %s:" % number
+                for case in ['Nom', 'Voc', 'Acc', 'Gen', 'Dat', 'Abl', 'Loc']:
+                    cng = (case, number, gender)
+                    if table.has_key(cng):
+                        print "    %s: %s" % (case, table[cng].encode('utf-8'))
+#            print
+    else:
+        print cmd, ",", fs[1:]
+
 # read-eval-print loop
 def repl(options=None, show_prompt=False):
     while True:
@@ -806,10 +894,12 @@ def repl(options=None, show_prompt=False):
         if not line: break
 
         text = line.rstrip()
-        if options and not options.strict_macron_mode:
-            text = char.trans(text)
-
-        analyse_text(text, options)
+        if text[0] == '.':
+            do_command(text[1:], options=options)
+        else:
+            if options and not options.strict_macron_mode:
+                text = char.trans(text)
+            analyse_text(text, options)
 
     if show_prompt:
         print
@@ -882,7 +972,7 @@ def main():
         # file mode
         for file in options.args:
             text = textutil.load_text_from_file(file)
-            if options.strict_macron_mode:
+            if options and not options.strict_macron_mode:
                 text = char.trans(text)
 
             analyse_text(text, options)

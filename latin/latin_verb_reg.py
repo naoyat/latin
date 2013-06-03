@@ -467,6 +467,37 @@ def conjugate_regular_verb(type, pres1sg, perf1sg, supinum, inf, ja, tags):
     return items
 
 
+def load_a_verb(line):
+    fs = line.split()
+    if len(fs) < 3: return None
+
+    type = fs[0]
+    if len(fs) == 6:
+        pres1sg = fs[1].decode('utf-8')
+        inf     = fs[2].decode('utf-8')
+        perf1sg = fs[3].decode('utf-8')
+        supinum = fs[4].decode('utf-8')
+        ja      = fs[5]
+    elif len(fs) == 3:
+        pres1sg = fs[1].decode('utf-8')
+        perf1sg = supinum = inf = None
+        ja      = fs[2]
+
+    tags = {'pos':'verb', 'pres1sg':pres1sg, 'ja':ja, 'type':type}
+
+    if type == CONJ_1:
+        stem = pres1sg[:-1]
+        if perf1sg is None: perf1sg = stem + u'āvī'
+        if supinum is None: supinum = stem + u'ātum'
+        if inf is None: inf = stem + u'āre'
+
+    table = conjugate_regular_verb(type, pres1sg, perf1sg, supinum, inf, ja, tags)
+
+    if len(table) == 0: return None
+
+    return table
+
+
 def load_verbs(file):
     items = []
 
@@ -475,34 +506,9 @@ def load_verbs(file):
             if len(line) == 0: continue
             if line[0] == '#': continue
 
-            fs = line.rstrip().split()
-            if len(fs) < 3: continue
-
-            type = fs[0]
-            if len(fs) == 6:
-                pres1sg = fs[1].decode('utf-8')
-                inf     = fs[2].decode('utf-8')
-                perf1sg = fs[3].decode('utf-8')
-                supinum = fs[4].decode('utf-8')
-                ja      = fs[5]
-            elif len(fs) == 3:
-                pres1sg = fs[1].decode('utf-8')
-                perf1sg = supinum = inf = None
-                ja      = fs[2]
-
-            tags = {'pos':'verb', 'pres1sg':pres1sg, 'ja':ja, 'type':type}
-
-            if type == CONJ_1:
-                stem = pres1sg[:-1]
-                if perf1sg is None: perf1sg = stem + u'āvī'
-                if supinum is None: supinum = stem + u'ātum'
-                if inf is None: inf = stem + u'āre'
-
-            table = conjugate_regular_verb(type, pres1sg, perf1sg, supinum, inf, ja, tags)
-
-            if len(table) == 0: continue
-
-            items += table
+            table = load_a_verb(line.rstrip())
+            if table:
+                items += table
 
     return items
 
@@ -513,4 +519,3 @@ def load():
 
 if __name__ == '__main__':
     load()
-#    latindic.dump()

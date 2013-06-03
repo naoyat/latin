@@ -49,7 +49,7 @@ def lengthen(ch):
                    'A':'Ā', 'E':'Ē', 'I':'Ī', 'O':'Ō', 'U':'Ū', 'Y':'Ȳ'}
     return ''.join([trans_table.get(ch, ch) for ch in text])
 
-def shorten(ch):
+def shorten(ch): # I know this doesn't work becase text is str
     trans_table = {'ā':'a', 'ē':'e', 'ī':'i', 'ō':'o', 'ū':'u', 'ȳ':'y',
                    'Ā':'A', 'Ē':'E', 'Ī':'I', 'Ō':'O', 'Ū':'U', 'Ȳ':'Y'}
     return ''.join([trans_table.get(ch, ch) for ch in text])
