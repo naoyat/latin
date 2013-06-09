@@ -804,7 +804,7 @@ def do_command(line, options=None):
 
     def surface_tr():
         surface = ' '.join(fs[1:])
-        if options and not options.strict_macron_mode:
+        if options and options.capital_to_macron_mode:
             surface = char.trans(surface)
         return surface
 
@@ -928,7 +928,7 @@ def repl(options=None, show_prompt=False):
         if text[0] == '.':
             do_command(text[1:], options=options)
         else:
-            if options and not options.strict_macron_mode:
+            if options and options.capital_to_macron_mode:
                 text = char.trans(text)
             analyse_text(text, options)
 
@@ -944,7 +944,7 @@ class Options:
                                             "wqmash",
                                             ["no-word-detail",
                                              "no-translation",
-                                             "strict-macron",
+                                             "capital-to-macron",
                                              "auto-macron",
                                              "speech",
                                              "help"])
@@ -954,7 +954,7 @@ class Options:
 
         self.show_word_detail = True
         self.show_translation = True
-        self.strict_macron_mode = False
+        self.capital_to_macron_mode = False
         self.auto_macron_mode = False
         self.speech_mode = False
         self.echo_on = True
@@ -964,8 +964,8 @@ class Options:
                 self.show_word_detail = False
             elif option in ('-q', '--no-translation'):
                 self.show_translation = False
-            elif option in ('-m', '--strict-macron'):
-                self.strict_macron_mode = True
+            elif option in ('-m', '--capital-to-macron'):
+                self.capital_to_macron_mode = True
             elif option in ('-a', '--auto-macron'):
                 self.auto_macron_mode = True
             elif option in ('-s', '--speech'):
@@ -979,7 +979,7 @@ class Options:
         print "Options:"
         print "  -w, --no-word-detail               Don't show word details."
         print "  -q, --no-translation               Don't show the translation (Japanese)."
-        print "  -m, --strict-macron                [REPL] Ignore capitalized transcriptions."
+        print "  -m, --capital-to-macron            [REPL] read capitalized vowels as macrons."
         print "  -a, --auto-macron                  Automatically add macrons."
         print "  -s, --speech                       Speak latin. (MacOS only)"
         print "  -h, --help                         Print this message and exit."
@@ -1003,7 +1003,7 @@ def main():
         # file mode
         for file in options.args:
             text = textutil.load_text_from_file(file)
-            if options and not options.strict_macron_mode:
+            if options and options.capital_to_macron_mode:
                 text = char.trans(text)
 
             analyse_text(text, options)
