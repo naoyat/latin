@@ -755,6 +755,7 @@ def analyse_text(text, options=None):
                                 pred.add_modifier(word)
                         elif first_item._:
                             cases = [x[0] for x in first_item._]
+                            case = None
                             if 'Voc' in cases and ix > 0 and words[ix-1].surface in (u'ō', u'Ō'):
                                 case = 'Voc'
                                 # 形的にVocしかありえないケースも拾いたい
