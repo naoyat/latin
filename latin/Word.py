@@ -85,7 +85,10 @@ class Word (LatinObject):
             for mod in self.modifiers:
                 tr.append(mod.translate()[0])
             # tr.append(  )
-            s = self.items[0].ja
-            if tr:
-                s = '{' + ' & '.join(tr) + '}' + s
-            return (s, False)
+            if self.items:
+                s = self.items[0].ja
+                if tr:
+                    s = '{' + ' & '.join(tr) + '}' + s
+                return (s, False)
+            else:
+                return ('(?)', False)
