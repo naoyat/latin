@@ -39,7 +39,7 @@
 1	laudō	称賛する,ほめる
 1	laxō	拡げる,ゆるめる
 1	līberō	自由にする
-1	mactō	敬う
+1	mactō	敬う,生贄に捧げる
 1	mandō	委ねる,託す,預ける
 1	mōnstrō	示す,見せる
 1	mūtō	変える,(移り)変わる
@@ -127,6 +127,9 @@
 #3a	ignoscō	ignoscere	ignōvī	ignōtum	許す
 3a	expellō	expellere	expepulī	expulsum	追い出す,追放する
 3a	contendō	contendere	contendī	contentum	張る,力む
+
+3a	revertō	revertere	revertī	reversum	引き返す,戻る
+3a	revortō	revortere	revortī	revorsum	引き返す,戻る
 
 #3a	pandō	pandere	pandī	pānsum	広げる,開ける
 3a	pandō	pandere	pandī	passum	広げる,開ける

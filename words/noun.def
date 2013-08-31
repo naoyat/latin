@@ -65,7 +65,7 @@
 1	ūva	f	ぶどうの実,ぶどうの房
 1	vespera	f	晩,夜の時間
 1	via	f	道
-1	victima	f	犠牲,被害者
+1	victima	f	犠牲,いけにえ,被害者
 1	vīnea	f	ぶどうの木,ぶどう畑
 1	vīta	f	人生
 1	superbia	f	傲慢
@@ -286,6 +286,8 @@
 3-ium	plēbs	plēbis	f	民衆
 3-ium	Mārs	Mārtis	m	マルス
 
+3-ium	hiems	hiemis	f	冬
+
 # III -ium (c)
 3-ium	cubīle	cubīlis	n	寝台
 3-ium	exemplar	exemplāris	n	模範
@@ -293,7 +295,7 @@
 
 # III -um (a)
 3-um	amor	amōris	m	愛
-3-um	cīvitās	cīvitātis	f	国歌
+3-um	cīvitās	cīvitātis	f	国家
 3-um	color	colōris	m	色
 3-um	dux	ducis	m	指導者
 3-um	homō	hominis	m	人間
