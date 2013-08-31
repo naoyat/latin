@@ -175,7 +175,7 @@ def say_latin(text_uc, debug_mode=False, pause=False):
 
 
 if __name__ == '__main__':
-    init_synth('Alex')
-    # init_synth('Victoria')
+    # init_synth('Alex')
+    init_synth('Victoria')
     text = u'In Crētā īnsulā māgnum labyrinthum Daedalus aedificāvit plēnum viārum flexuōsārum.'
     say_latin(text, debug_mode=False, pause=True)

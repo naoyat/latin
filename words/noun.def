@@ -10,6 +10,10 @@
 1	Thessalia	f	テッサリア
 1	Trōja	f	トロヤ
 1	Sicilia	f	シチリア
+1	Volumnia	f	ウォルムニア
+1	Veturia	f	ウェトゥリア
+1	Sabīna	f	サビーナ人
+
 1	agricola	m	農夫
 1	aqua	f	水
 1	āra	f	祭壇
@@ -64,6 +68,9 @@
 1	victima	f	犠牲,被害者
 1	vīnea	f	ぶどうの木,ぶどう畑
 1	vīta	f	人生
+1	superbia	f	傲慢
+1	cōpia	f	豊富,軍勢
+1	hasta	f	槍
 
 # pl. only
 #2	Ītalus	m	イタリア人
@@ -71,15 +78,18 @@
 2	cēterus	m	他の全て
 
 2	Corinthus	f	コリントス
+2	Coriolānus	m	コリオラヌス
 2	Daedalus	m	ダエダルス
 2	Homērus	m	ホメルス
 2	Mercurius	m	メルクリウス
 2	Naxus	m	ナクソス
+2	Rōmulus	m	ロムルス
 2	Samus	f	サモス島
 2	Tenedus	m	テネドス
 2	Thēseus	m	テセウス
 2	Triptolemus	m	トリプトレムス
 #2	Trōjānus	m	トロヤ人
+2	Volscus	m	ウォルスキ人
 2	agnus	m	小羊
 2	alvus	f	胃腸
 2	amīcus	m	友人
@@ -145,6 +155,9 @@
 2	ventus	m	風
 2	vīrus	n	毒,ウィルス
 2	vulgus	n	群衆
+2	lēgātus	m	議員,使節,大使
+
+2	summum	n	頂上
 
 2	aedificium	n	建物
 2	aevum	n	時代
@@ -218,6 +231,10 @@
 2	vīnum	n	ワイン
 2	vitium	n	欠点
 2	vōtum	n	誓約,祈り
+2	scūtum	n	盾
+
+2	armum	n	道具,武器
+# ↑複数形で
 
 2	Alexander	Alexandrī	m	アレクサンダー
 2	ager	agrī	m	畑
@@ -252,6 +269,8 @@
 3-ium	tēstis	tēstis	m	証人
 3-ium	Ulixēs	Ulixis	m	ウリクセス
 
+3-ium	imperātor	imperātōris	m	将軍
+
 # III -ium (b)
 3-ium	ars	artis	f	術
 3-ium	dēns	dentis	m	歯
@@ -264,6 +283,8 @@
 3-ium	pars	partis	f	部分
 3-ium	pōns	pontis	m	橋
 3-ium	urbs	urbis	f	都市
+3-ium	plēbs	plēbis	f	民衆
+3-ium	Mārs	Mārtis	m	マルス
 
 # III -ium (c)
 3-ium	cubīle	cubīlis	n	寝台
@@ -288,6 +309,10 @@
 3-um	sōl	sōlis	m	太陽
 3-um	uxor	uxōris	f	妻
 3-um	vōx	vōcis	f	声
+3-um	precēs	precum	f	祈り,願い
+3-um	mulier	mulieris	f	婦人
+3-um	prōditor	prōditōris	m	反逆者,裏切り者
+3-um	soror	sorōris	f	姉,妹
 
 # III -um (b)
 3-um	canis	canis	m	犬
@@ -306,6 +331,9 @@
 3-um	pater	patris	m	父
 3-um	pāx	pācis	f	平和
 3-um	tempus	temporis	n	時
+
+3-um	virgo	virginis	f	乙女
+
 
 3-um	commūtātiō	commūtātiōnis	f	変化,変異
 3-um	dēprecātiō	dēprecātiōnis	f	哀願

@@ -75,16 +75,9 @@
 1	exclāmō	叫ぶ
 1	incitō	駆る
 1	raptō	連れ去る
+1	implōrō	嘆願する
+1	invītō	招く
 
-2	doceō	docēre	docuī	doctum	教える
-2	fleō	flēre	flēvī	flētum	泣く,涙を流す
-2	flōreō	flōrēre	flōruī	******	花が咲く
-2	fulgeō	fulgēre	fulsī	******	照らす,光る,輝く
-2	habeō	habēre	habuī	habitum	持つ,所有する
-2	jaceō	jacēre	jacuī jacitūrus	横たわる
-2	maneō	manēre	mānsī	mānsum	とどまる
-2	moneō	monēre	monuī	monitum	忠告する
-2	moveō	movēre	mōvī	mōtum	動かす
 2	doceō	docēre	docuī	doctum	教える
 2	fleō	flēre	flēvī	flētum	泣く,涙を流す
 2	flōreō	flōrēre	flōruī	******	花が咲く
@@ -104,7 +97,9 @@
 2	valeō	valēre	valuī valitum	元気である
 #2	valeō	valēre	valuī valitum	強い,元気な
 2	videō	vidēre	vīdī	vīsum	見る
-
+2	invideō	invidēre	invīdī	invīsum	憎む
+2	commoveō	commovēre	commōvī	commōtum	動かす
+2	removeō	removēre	remōvī	remōtum	遠ざける
 
 3a	agō	agere	ēgī	āctum	する,駆る
 3a	benedīcō	benedīcere	benedīxī	benedictum	祝福する
@@ -130,6 +125,8 @@
 3a	vīvō	vīvere	vīxī	vīctūrus	生きる
 3a	tollō	tollere	sustulī	sublātum	取り去る
 #3a	ignoscō	ignoscere	ignōvī	ignōtum	許す
+3a	expellō	expellere	expepulī	expulsum	追い出す,追放する
+3a	contendō	contendere	contendī	contentum	張る,力む
 
 #3a	pandō	pandere	pandī	pānsum	広げる,開ける
 3a	pandō	pandere	pandī	passum	広げる,開ける
@@ -142,6 +139,7 @@
 3b	jaciō	jacere	jēcī	jactum	投げる
 3b	rapiō	rapere	rapuī	raptum	奪う
 3b	suscipiō	suscipere	suscēpī	susceptum	引き受ける
+3b	interficiō	interficiere	interfēcī	interfectum	破壊する,滅ぼす
 
 4	aperiō	aperīre	aperuī	apertum	開く
 4	audiō	audīre	audīvī	audītum	聞く

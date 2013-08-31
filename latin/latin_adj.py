@@ -68,10 +68,10 @@ def decline_adj_type1(nom_sg_m, nom_sg_f, tags, comp=True):
         # 最上級
         tags_s = {'pos':'adj', 'base':nom_sg_m, 'ja':'最も'+my_tags['ja'], 'type':'I', 'rank':'++'}
         if nom_sg_m[-1] == 'r':
-            base = nom_sg_m + 'rimus'
+            base = nom_sg_m + u'rimus'
         else:
             base = stem2 + u'issimus'
-            table += decline_adj_superlative(base, tags_s)
+        table += decline_adj_superlative(base, tags_s)
 
     return table
 

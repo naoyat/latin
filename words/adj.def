@@ -5,6 +5,7 @@
 1	Ītalicus	イタリアの
 1	Rōmānus	ローマの
 1	Trōjānus	トロヤの
+1	Sabīnus	サビーナの
 1	aequus	等しい
 1	aeternus	永遠の
 1	albus	白い
@@ -75,7 +76,7 @@
 1	rēctus	まっすぐな
 1	relinquus	残った
 1	rūsticus	田舎の
-1	saevus	激怒した
+1	saevus	激怒した,残酷な
 1	sanctus	聖なる
 1	sānus	健全な
 1	sōlus	孤独な,唯一の,孤立した
@@ -91,9 +92,11 @@
 1	vērus	本当の
 1	cārus	かわいい,大切な
 1	laetus	うれしい,愉快な
+1	prīmus	最初の
 
 1	flāvus	黄色い,黄金色の
 1	caeruleus	青い
+1	fīnitimum	隣りの
 
 # 再帰的所有形容詞
 1	suus	自分の
