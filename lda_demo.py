@@ -128,14 +128,12 @@ def show_title(title):
 
 
 def main():
-    infile = sys.argv[1]
-
     latindic.load(auto_macron_mode=False)
 
 
     show_title('original text')
 
-    text = textutil.load_text_from_file(infile)
+    text = textutil.load_text_from_file('./latin.txt')
     print text[:1000], '...'
     print
 

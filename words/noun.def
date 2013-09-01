@@ -118,7 +118,7 @@
 2	laulus	f	月桂樹
 2	lectus	m	寝台
 2	locus	m	場所
-2	lūdus	m	遊戯
+2	lūdus	m	遊戯,競技会
 2	lupus	m	狼
 2	mālus	f	林檎の木(※木の実は中性)
 2	methodus	f	方法
@@ -315,6 +315,7 @@
 3-um	mulier	mulieris	f	婦人
 3-um	prōditor	prōditōris	m	反逆者,裏切り者
 3-um	soror	sorōris	f	姉,妹
+3-um	vēritās	vēritātis	f	真実
 
 # III -um (b)
 3-um	canis	canis	m	犬
