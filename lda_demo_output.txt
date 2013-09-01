@@ -1,0 +1,167 @@
+
+  #
+  # original text
+  #
+
+Thēseus et Ariadnē. In Crētā īnsulā māgnum labyrinthum Daedalus aedificāvit plēnum viārum flexuōsārum. In mediō labyrinthō foedum mōnstrum, taurus partim, partim homō, habitābat. Mōnstrum, fīlius rēgis Crētae saevum captīvōs dēvorābat. Inter miserandās illās victimās quondam erat Thēseus, rēgulus Atticus. Ariadnē autem, fīlia rēgis, plēna misericordiae et amōris, juvenī fīlum longum mīrumque gladium dat. Intrat igitur labyrinthum, fīlumque ad portam alligat. Itaque juvenis auxiliō fīliae certam viam in vastī aedificiī flexūrīs servat. Tum gladiō mōnstrum fēlīciter necat. Nec longa mora fuit. Thēseus cum fīliā rēgis nāvī trāns lātum mare fugit. Vespere autem ad Naxum īnsulam veniunt. Mediā tamen nocte Thēseus ingrātus juvenis, puellam fīdam et amantem dēserit; sōlusque ad patriam redit. Rōmulus et Sabīnae 1. Rōmulus erat Mārtis fīlius. Mārs est deus bellī et armōrum. Mīlitēs Rōmānī Mārtem adōrābant et in Mā ...
+
+
+  #
+  # texts in base-form
+  #
+
+Thēseus Ariadnē
+Crēta īnsula māgnus labyrinthum Daedalus aedificō plēnus via flexuōsus
+medius labyrinthum foedus mōnstrum taurus homō habitō
+mōnstrum fīlius rēx Crēta saevus captīvus dēvorō
+miserandus victima Thēseus rēgulus Atticus
+Ariadnē fīlia rēx plēnus misericordia amor juvenis fīlum longus mīrus gladius dō
+intrō labyrinthum fīlum porta alligō
+juvenis auxilium fīlia certus via vastus aedificium flectō servō
+gladius mōnstrum necō
+longus mora
+Thēseus fīlia rēx nāvis ferō mare fugiō
+vesper Naxus īnsula veniō
+medius nox Thēseus ingrātus juvenis puella fīdus amō dēserō
+sōlus patria redeō
+Rōmulus Sabīnus
+Rōmulus Mārs fīlius
+Mārs deus bellum armum
+mīles Rōmānus Mārs adōrō Mārs āra victima mactō
+Rōmulus mīles armum amō
+urbs Rōma prīmus rēx
+...
+
+
+  #
+  # [gensim] dictionary
+  #
+
+{ "veniō": 51, "fīlius": 19, "pater": 122, "Paris": 195, "Thēseus": 1, "herbōsus": 233, "fortitūdō": 200, "properō": 93, "patria": 59, "meus": 153, "stultus": 291, "tuus": 152, "plēnus": 8, "fīdus": 55, "placidus": 127, "suus": 124, "errō": 231, "pandō": 117, "plaustra": 257, "raptō": 90, "Trōjānus": 155, "mōnstrum": 15, "ferō": 46, "rosa": 238, "mactō": 70, "virgo": 91, "validus": 137, "Mycēna": 166, "Persephonē": 221, "auxilium": 39, "ambulō": 284, "dēvorō": 18, "videō": 146, "rogō": 248, "māgnus": 7, "tempus": 206, "stō": 113, "parvus": 259, "pūgnō": 115, "rēgīna": 300, "Juppiter": 299, "līber": 129, "Crēta": 2, "dīvīnus": 271, "nox": 57, "sapiēns": 184, "victima": 25, "expūgnō": 186, "placeō": 198, "īnsula": 10, "maneō": 110, "foedus": 11, "cīvis": 81, "bellum": 66, "oppūgnō": 188, "lacrima": 123, "servō": 42, "Sabīnus": 63, "scūtum": 96, "Triptolemus": 269, "parō": 111, "gremium": 268, "noscō": 161, "porta": 37, "certus": 40, "nāvis": 49, "gladius": 30, "exclāmō": 242, "Mārs": 64, "fīnitimus": 84, "malus": 143, "Rōmulus": 62, "commūtātiō": 214, "Daedalus": 3, "interrogō": 160, "labyrinthum": 6, "scelerō": 290, "somnus": 283, "capillus": 116, "perterreō": 144, "schola": 158, "gelidus": 258, "parvulus": 121, "Plūtō": 240, "cūrō": 225, "urbs": 75, "doceō": 292, "lūdus": 89, "vesper": 52, "memoria": 193, "saltō": 236, "mīles": 71, "fōrma": 210, "Cerēs": 220, "invītō": 88, "puer": 263, "templum": 297, "fīlia": 28, "intrō": 36, "flōs": 213, "frāter": 119, "fugiō": 47, "īrātus": 108, "laus": 173, "patruus": 241, "Mercurius": 301, "tractō": 159, "albus": 239, "dea": 222, "unda": 139, "necō": 44, "vastus": 43, "vocō": 149, "timeō": 287, "ūva": 253, "flamma": 286, "odor": 212, "Ariadnē": 0, "nōmen": 191, "silva": 245, "hūmānus": 216, "jūcundus": 275, "Phthia": 172, "prūdēns": 178, "animus": 281, "spectō": 97, "amor": 26, "Achillēs": 169, "miser": 249, "cīvitās": 82, "verbum": 148, "cēna": 273, "īnsīgnis": 199, "Sicilia": 230, "līlium": 237, "Agamemnō": 176, "cēterus": 150, "stella": 151, "superō": 180, "aedificium": 38, "flāvus": 138, "ēvolō": 118, "incola": 170, "hiems": 109, "juvenis": 31, "redeō": 60, "rēs": 157, "flectō": 41, "convocō": 80, "via": 9, "rūsticus": 279, "revertō": 106, "ratiō": 219, "caelum": 145, "color": 208, "puella": 58, "cantō": 235, "misericordia": 33, "prūdentia": 174, "Agamemnōn": 164, "locus": 234, "vir": 76, "longus": 32, "caeruleus": 228, "Ulixēs": 177, "aeger": 264, "Nestor": 181, "fortis": 140, "mare": 48, "Atticus": 22, "probō": 203, "armum": 65, "Rōmānus": 68, "Rōma": 73, "casa": 100, "plūs": 205, "mēnsa": 276, "arō": 254, "mōs": 197, "cūna": 265, "dux": 163, "āra": 72, "dōnum": 298, "teneō": 266, "cārus": 128, "uxor": 79, "corpus": 134, "mora": 45, "purpureus": 250, "omnis": 165, "alligō": 35, "lūna": 247, "portō": 101, "multus": 87, "populus": 85, "pāx": 92, "magister": 156, "flexuōsus": 5, "obtemperō": 168, "habitō": 12, "lacrimō": 103, "ager": 224, "vester": 131, "habeō": 77, "dēlectō": 218, "lectus": 303, "familia": 274, "nārrō": 296, "Myrmidōn": 167, "medius": 14, "māgnitūdō": 217, "cibus": 256, "dō": 27, "amō": 53, "Tenedus": 189, "adōrō": 69, "saevus": 21, "oculus": 262, "faciō": 295, "apportō": 94, "mīrus": 34, "fleō": 293, "sōlus": 61, "noster": 114, "flōreō": 209, "aedificō": 4, "frūmentum": 223, "incitō": 102, "dīcō": 294, "valeō": 130, "rēgulus": 24, "vīnea": 252, "palla": 229, "Naxus": 50, "praesidium": 202, "sententia": 204, "exemplum": 215, "Hector": 194, "Graecus": 162, "laetus": 126, "jaceō": 133, "dēserō": 54, "captīvus": 17, "mandō": 192, "agricola": 246, "gaudium": 305, "clāmō": 98, "hūmānitās": 201, "eō": 135, "ingrātus": 56, "occupō": 190, "mōnstrō": 120, "clārus": 196, "pōmum": 251, "soror": 78, "Metanīra": 267, "laxō": 282, "campus": 132, "homō": 13, "māter": 104, "prīmus": 74, "vōx": 99, "prātum": 227, "rēx": 20, "deus": 67, "dēsīderō": 304, "īgnōtus": 278, "fīrmus": 136, "ōsculum": 270, "herba": 226, "clīvus": 244, "laudō": 142, "bonus": 141, "nōminō": 183, "benignus": 147, "jactō": 289, "taurus": 16, "terra": 107, "Homērus": 182, "maestus": 105, "fēmina": 83, "sapientia": 179, "miserandus": 23, "vīnum": 277, "Trōja": 185, "mūtō": 207, "altus": 243, "ōrnō": 175, "equus": 154, "fōrmōsus": 86, "genus": 211, "oppidum": 187, "saxum": 260, "fīlum": 29, "juvencus": 255, "fulgeō": 280, "hasta": 95, "ōrō": 125, "grātus": 232, "focus": 285, "humus": 288, "sedeō": 261, "armātus": 112, "dormītō": 272, "rēgnum": 302, "Thessalia": 171, }
+
+  #
+  # [gensim] corpus
+  #
+
+[(0, 1), (1, 1)]
+[(2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1), (9, 1), (10, 1)]
+[(6, 1), (11, 1), (12, 1), (13, 1), (14, 1), (15, 1), (16, 1)]
+[(2, 1), (15, 1), (17, 1), (18, 1), (19, 1), (20, 1), (21, 1)]
+[(1, 1), (22, 1), (23, 1), (24, 1), (25, 1)]
+[(0, 1), (8, 1), (20, 1), (26, 1), (27, 1), (28, 1), (29, 1), (30, 1), (31, 1), (32, 1), (33, 1), (34, 1)]
+[(6, 1), (29, 1), (35, 1), (36, 1), (37, 1)]
+[(9, 1), (28, 1), (31, 1), (38, 1), (39, 1), (40, 1), (41, 1), (42, 1), (43, 1)]
+[(15, 1), (30, 1), (44, 1)]
+[(32, 1), (45, 1)]
+[(1, 1), (20, 1), (28, 1), (46, 1), (47, 1), (48, 1), (49, 1)]
+[(10, 1), (50, 1), (51, 1), (52, 1)]
+[(1, 1), (14, 1), (31, 1), (53, 1), (54, 1), (55, 1), (56, 1), (57, 1), (58, 1)]
+[(59, 1), (60, 1), (61, 1)]
+[(62, 1), (63, 1)]
+[(19, 1), (62, 1), (64, 1)]
+[(64, 1), (65, 1), (66, 1), (67, 1)]
+[(25, 1), (64, 2), (68, 1), (69, 1), (70, 1), (71, 1), (72, 1)]
+[(53, 1), (62, 1), (65, 1), (71, 1)]
+[(20, 1), (73, 1), (74, 1), (75, 1)]
+...
+
+
+  #
+  # tf-idf
+  #
+
+[(0, 0.759979311356681), (1, 0.6499472642528967)]
+[(2, 0.349247258791555), (3, 0.399812307413233), (4, 0.349247258791555), (5, 0.399812307413233), (6, 0.3196686015007314), (7, 0.23952489558822987), (8, 0.3196686015007314), (9, 0.3196686015007314), (10, 0.26910355287905346)]
+[(6, 0.3461992731730052), (11, 0.43299444982170604), (12, 0.2792590357253333), (13, 0.43299444982170604), (14, 0.3461992731730052), (15, 0.3461992731730052), (16, 0.43299444982170604)]
+[(2, 0.38796658767003595), (15, 0.3551086898680912), (17, 0.4441375349725326), (18, 0.4441375349725326), (19, 0.20552742247006728), (20, 0.2989377425655945), (21, 0.4441375349725326)]
+[(1, 0.368218603290876), (22, 0.49289286205051125), (23, 0.49289286205051125), (24, 0.49289286205051125), (25, 0.368218603290876)]
+[(0, 0.3187878242083675), (8, 0.2917888555310659), (20, 0.24563381372237472), (26, 0.3187878242083675), (27, 0.2917888555310659), (28, 0.17628584768767744), (29, 0.3187878242083675), (30, 0.2577741777207578), (31, 0.27263278239967625), (32, 0.2917888555310659), (33, 0.3649428660170587), (34, 0.27263278239967625)]
+[(6, 0.3810682072086202), (29, 0.4163281165414001), (35, 0.4766053296778159), (36, 0.4766053296778159), (37, 0.4766053296778159)]
+[(9, 0.29810272731926635), (28, 0.18010040817988143), (31, 0.2785321455888527), (38, 0.3728396805196427), (39, 0.3728396805196427), (40, 0.3728396805196427), (41, 0.3728396805196427), (42, 0.3256859130542477), (43, 0.3728396805196427)]
+[(15, 0.5798623287391751), (30, 0.5122660860708251), (44, 0.6335164850032389)]
+[(32, 0.6244791305754837), (45, 0.7810414940806205)]
+[(1, 0.33804705001104585), (20, 0.30457007180479895), (28, 0.2185830707700934), (46, 0.36179934404870456), (47, 0.45250559449885713), (48, 0.45250559449885713), (49, 0.45250559449885713)]
+[(10, 0.3827561256278554), (50, 0.5686681135443818), (51, 0.4546767000519178), (52, 0.5686681135443818)]
+[(1, 0.2938249467268281), (14, 0.3144700508033967), (31, 0.2938249467268281), (53, 0.26472730680450285), (54, 0.39331043472461574), (55, 0.39331043472461574), (56, 0.39331043472461574), (57, 0.39331043472461574), (58, 0.19897097599557534)]
+[(59, 0.4830489075256187), (60, 0.6838747554061647), (61, 0.5467897876300037)]
+[(62, 0.7913997233890097), (63, 0.6112990085218517)]
+[(19, 0.45683615463913874), (62, 0.5914290737845839), (64, 0.6644639783290243)]
+[(64, 0.468030378767686), (65, 0.5194741818210247), (66, 0.5194741818210247), (67, 0.4911626140020535)]
+[(25, 0.3226038837779386), (64, 0.5813125009879141), (68, 0.2238954841921341), (69, 0.37721872360886055), (70, 0.345271090324879), (71, 0.37721872360886055), (72, 0.3226038837779386)]
+[(53, 0.4608494239343186), (62, 0.4101949192747195), (65, 0.5115039285939177), (71, 0.5980983762673172)]
+[(20, 0.4181296204464963), (73, 0.49669693909331947), (74, 0.6212231929307444), (75, 0.43879552842471786)]
+[(12, 0.46908130012221955), (61, 0.581523189534629), (75, 0.5137333354799144), (76, 0.4217482352373293)]
+...
+
+
+  #
+  # LSI (Latent Semantic Indexing)
+  #
+
+1) 0.995*"pater" + 0.040*"valeō" + 0.040*"frāter" + 0.039*"stella" + 0.032*"Rōmulus" + 0.029*"fīlius" + 0.029*"caelum" + 0.023*"Mārs" + 0.020*"videō" + 0.019*"Sabīnus"
+     父 / 元気である / 兄弟 / 星 / ロムルス / 息子 / 天空 / マルス / 見る / サビーナの
+
+2) 0.993*"fīlius" + 0.053*"Metanīra" + 0.046*"Mārs" + 0.044*"Triptolemus" + 0.034*"Rōmulus" + -0.033*"pater" + 0.033*"meus" + 0.020*"caelum" + 0.020*"portō" + 0.019*"teneō"
+     息子 / メタニラ / マルス / トリプトレムス / ロムルス / 父 / 私の / 天空 / 運ぶ / (手に)持つ,とどめる
+
+3) 0.743*"Persephonē" + 0.593*"Cerēs" + 0.124*"dea" + 0.121*"fīlia" + 0.059*"exclāmō" + 0.058*"properō" + 0.056*"suus" + 0.056*"prātum" + 0.055*"cārus" + 0.052*"rēgīna"
+     ペルセポネー / ケレース / 女神 / 娘 / 叫ぶ / 急ぐ / 自分の / 牧場,草原,野原 / かわいい,大切な / 女王
+
+4) -0.565*"Sabīnus" + -0.384*"Rōmānus" + -0.292*"Rōmulus" + -0.186*"lūdus" + 0.163*"Persephonē" + -0.144*"habeō" + -0.144*"dea" + -0.139*"properō" + -0.137*"puella" + -0.134*"amō"
+     サビーナの / ローマの / ロムルス / 遊戯,競技会 / ペルセポネー / 持つ,所有する / 女神 / 急ぐ / 少女 / 愛する
+
+5) 0.340*"dea" + 0.336*"puella" + -0.321*"Sabīnus" + 0.297*"puer" + 0.264*"laetus" + 0.229*"agricola" + -0.209*"Rōmulus" + -0.203*"Persephonē" + -0.188*"Rōmānus" + 0.177*"Metanīra"
+     女神 / 少女 / サビーナの / 少年 / うれしい,愉快な / 農夫 / ロムルス / ペルセポネー / ローマの / メタニラ
+
+6) 0.669*"Rōmulus" + 0.428*"Mārs" + -0.245*"Rōmānus" + -0.161*"lūdus" + -0.154*"properō" + 0.153*"stella" + 0.146*"bellum" + 0.125*"armum" + 0.119*"Trōjānus" + -0.101*"māgnus"
+     ロムルス / マルス / ローマの / 遊戯,競技会 / 急ぐ / 星 / 戦争 / 道具,武器 / トロヤの / 大きな
+
+7) 0.386*"puer" + -0.286*"fīlia" + -0.282*"dea" + 0.203*"valeō" + 0.199*"laetus" + -0.195*"frūmentum" + -0.180*"flāvus" + 0.173*"Metanīra" + -0.158*"meus" + -0.157*"Trōjānus"
+     少年 / 娘 / 女神 / 元気である / うれしい,愉快な / 麦の粒,穀粒,穀物 / 黄色い,黄金色の / メタニラ / 私の / トロヤの
+
+8) -0.551*"Trōjānus" + -0.418*"bellum" + -0.251*"noscō" + -0.250*"dux" + 0.216*"dea" + 0.158*"fīlia" + -0.153*"properō" + 0.144*"Rōmulus" + -0.138*"vir" + -0.129*"Mercurius"
+     トロヤの / 戦争 / 教わる,知る,学ぶ,習得する / 指導者 / 女神 / 娘 / 急ぐ / ロムルス / 男,夫 / メルクリウス
+
+9) 0.340*"Mercurius" + 0.308*"properō" + -0.267*"Trōjānus" + 0.222*"rēgnum" + 0.220*"vir" + 0.191*"puella" + -0.181*"bellum" + -0.178*"puer" + 0.165*"tuus" + 0.157*"caelum"
+     メルクリウス / 急ぐ / トロヤの / 支配,王権,王国 / 男,夫 / 少女 / 戦争 / 少年 / あなたの / 天空
+
+10) 0.448*"vir" + 0.335*"māgnus" + 0.264*"fēmina" + -0.229*"puella" + -0.183*"properō" + -0.182*"Mercurius" + 0.173*"caelum" + -0.168*"Rōmānus" + -0.162*"laetus" + 0.134*"Triptolemus"
+     男,夫 / 大きな / 女性 / 少女 / 急ぐ / メルクリウス / 天空 / ローマの / うれしい,愉快な / トリプトレムス
+
+
+
+  #
+  # LDA (Latent Dirichlet Allocation)
+  #
+
+1) 0.107*armum + 0.054*Rōmulus + 0.054*omnis + 0.054*dea + 0.054*dux + 0.054*amō + 0.054*Mārs + 0.054*bellum + 0.054*deus + 0.054*Agamemnōn
+     道具,武器 / ロムルス / すべての / 女神 / 指導者 / 愛する / マルス / 戦争 / 神 / アガメムノーン
+
+2) 0.169*pater + 0.057*Sabīnus + 0.057*habeō + 0.057*Cerēs + 0.057*frāter + 0.057*valeō + 0.057*hūmānus + 0.057*flōreō + 0.057*Persephonē + 0.057*vir
+     父 / サビーナの / 持つ,所有する / ケレース / 兄弟 / 元気である / 人間の,人間味のある / 花が咲く / ペルセポネー / 男,夫
+
+3) 0.239*pater + 0.120*mūtō + 0.060*rogō + 0.060*tempus + 0.060*stella + 0.060*lūna + 0.060*agricola + 0.027*tuus + 0.026*grātus + 0.024*memoria
+     父 / 変える,(移り)変わる / 尋ねる / 時 / 星 / 月 / 農夫 / あなたの / 楽しい,感謝の / 記憶
+
+4) 0.068*Hector + 0.068*sapientia + 0.068*superō + 0.068*Sabīnus + 0.068*mōs + 0.068*placeō + 0.068*properō + 0.068*Nestor + 0.068*Rōmānus + 0.068*Ulixēs
+     ヘクトル / 知識,良識,知恵 / 超える,上を行く,打ち勝つ / サビーナの / 意思,習慣,性格 / 良いと思う / 急ぐ / ネストル / ローマの / ウリクセス
+
+5) 0.097*fleō + 0.049*plaustra + 0.049*bellum + 0.049*cibus + 0.049*superō + 0.049*sapientia + 0.049*gremium + 0.049*Triptolemus + 0.049*Ulixēs + 0.049*dormītō
+     泣く,涙を流す / 荷車 / 戦争 / 食べ物 / 超える,上を行く,打ち勝つ / 知識,良識,知恵 / 胸,ひざ / トリプトレムス / ウリクセス / まどろむ,居眠りをする
+
+6) 0.085*armum + 0.085*incitō + 0.085*lacrimō + 0.085*māter + 0.085*vir + 0.039*fleō + 0.037*fīlia + 0.036*prātum + 0.034*herba + 0.034*ager
+     道具,武器 / 駆る / 泣く / 母 / 男,夫 / 泣く,涙を流す / 娘 / 牧場,草原,野原 / 草 / 畑
+
+7) 0.193*puella + 0.049*herbōsus + 0.049*medius + 0.049*grātus + 0.049*nox + 0.049*ingrātus + 0.049*fīdus + 0.049*juvenis + 0.049*dēserō + 0.049*amō
+     少女 / 草の生い茂った / 中間の / 楽しい,感謝の / * / 不愉快な,恩知らずな / 誠実な,忠実な,頼りになる / 若者 / 別れる,棄てる,見捨てる / 愛する
+
+8) 0.157*caelum + 0.157*gelidus + 0.079*prātum + 0.079*jūcundus + 0.079*ager + 0.079*veniō + 0.079*caeruleus + 0.001*laudō + 0.001*bonus + 0.001*properō
+     天空 / 凍った,氷の / 牧場,草原,野原 / 快適な / 畑 / 来る / 青い / 称賛する,ほめる / 良い / 急ぐ
+
+9) 0.046*stella + 0.046*Rōmānus + 0.046*pater + 0.046*juvenis + 0.046*Rōmulus + 0.046*vīnum + 0.046*īgnōtus + 0.046*campus + 0.046*saevus + 0.046*rēx
+     星 / ローマの / 父 / 若者 / ロムルス / ワイン / 未知の / 平野 / 激怒した,残酷な / 王,指導者
+
+10) 0.170*dea + 0.086*caeruleus + 0.086*Rōmulus + 0.086*Sabīnus + 0.086*maestus + 0.086*lacrimō + 0.086*palla + 0.001*terra + 0.001*revertō + 0.001*īrātus
+     女神 / 青い / ロムルス / サビーナの / 悲嘆に暮れた / 泣く / コート / 地,大地 / 引き返す,戻る / 怒った
+
+
