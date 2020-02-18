@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latin_noun
-import latin_pronoun
-import latin_adj
-import latin_conj
-import latin_prep
-import latin_verb_reg
-import latin_verb_irreg
+from . import latin_noun
+from . import latin_pronoun
+from . import latin_adj
+from . import latin_conj
+from . import latin_prep
+from . import latin_verb_reg
+from . import latin_verb_irreg
 
-import util
+from . import util
 
 
 class LatinDic:
@@ -18,16 +18,16 @@ class LatinDic:
 
 
 def flatten(text):
-    return text.replace(u'ā',u'a').replace(u'ē',u'e').replace(u'ī',u'i').replace(u'ō',u'o').replace(u'ū',u'u').replace(u'ȳ',u'y').lower()
+    return text.replace('ā','a').replace('ē','e').replace('ī','i').replace('ō','o').replace('ū','u').replace('ȳ','y').lower()
 
 
 def register(surface, info):
-    if not info.has_key('pos'): return
+    if 'pos' not in info: return
 
     if LatinDic.auto_macron_mode:
         surface = flatten(surface)
 
-    if LatinDic.dic.has_key(surface):
+    if surface in LatinDic.dic:
         LatinDic.dic[surface].append(info)
     else:
         LatinDic.dic[surface] = [info]
@@ -43,8 +43,8 @@ def lookup(word):
 
 
 def dump():
-    for k, v in LatinDic.dic.items():
-        print util.render2(k, v)
+    for k, v in list(LatinDic.dic.items()):
+        print(util.render2(k, v))
 
 
 def load_def(file, tags={}):
@@ -58,7 +58,7 @@ def load_def(file, tags={}):
             fs = line.rstrip().split('\t')
             if len(fs) < 3: continue
 
-            surface = fs[0].decode('utf-8')
+            surface = fs[0] #.decode('utf-8')
             pos = fs[1]
             ja = fs[2]
 

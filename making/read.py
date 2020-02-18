@@ -22,7 +22,7 @@ def lookup(word, is_first=False):
     return None
 
 def analyse(sentence):
-    print ' '.join(sentence)
+    print(' '.join(sentence))
 
     sentence_uc = []
     maxlen = 0
@@ -41,26 +41,26 @@ def analyse(sentence):
 
     first = True
     for word in sentence_uc:
-        print "    %*s" % (-maxlen, word.encode('utf-8')),
+        print("    %*s" % (-maxlen, word.encode('utf-8')), end=' ')
         # print u"    %*s" % (-maxlen, word),
         c0 = ord(word[0])
         if c0 > 64:
             info = lookup(word, first)
             first = False
             if info:
-                print ', '.join(map(pp, info))
+                print(', '.join(map(pp, info)))
             else:
-                print "(UNKNOWN)"
+                print("(UNKNOWN)")
         else:
-            print
-    print
+            print()
+    print()
 
 def main():
     if len(sys.argv) == 2:
         file = sys.argv[1]
         text.analyse_textfile(file, analyse)
     else:
-        print "usage: %s <filename>" % sys.argv[0]
+        print("usage: %s <filename>" % sys.argv[0])
 
 if __name__ == '__main__':
     main()

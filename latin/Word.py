@@ -13,7 +13,7 @@ class Word (LatinObject):
         self.surface = surface
         self.surface_len = len(surface)
         if items is not None:
-            self.items = map(Item, items) # へぇーこれで行けるんだ
+            self.items = list(map(Item, items)) # へぇーこれで行けるんだ
         else:
             self.items = None
         self.extra_info = extra_info
@@ -73,7 +73,7 @@ class Word (LatinObject):
         # print "Word %s: RESTRICT CASES:" % self.surface_utf8(), possible_cases
         if not self.items: return
         for item in self.items:
-            item._ = filter(lambda x:x[0] in possible_cases, item._)
+            item._ = [x for x in item._ if x[0] in possible_cases]
 
     def translate(self):
         if self.items is None:

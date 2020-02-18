@@ -88,7 +88,7 @@ def inf_to_pres1sg(inf):
 
 
 def append_suffices(stem, suffices):
-    return map(lambda suffix: stem + suffix, suffices)
+    return [stem + suffix for suffix in suffices]
 
 def conj_present(pres1sg):
     type = conjug_type(pres1sg)

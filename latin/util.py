@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 def dict_map(proc, d):
-    return map(lambda k: proc(k, d[k]), d)
+    return [proc(k, d[k]) for k in d]
 
 def tuple_map(proc, d):
-    return map(lambda k: proc(*k), d)
+    return [proc(*k) for k in d]
 
 def aggregate_dicts(*dicts):
     dic = {}
@@ -38,7 +38,7 @@ def render2(k, v):
     return render(k) + ':' + render(v)
 
 def pp(something, newline=False):
-    print render(something, newline=newline)
+    print(render(something, newline=newline))
 
 
 #
@@ -47,11 +47,11 @@ def pp(something, newline=False):
 def remove_matched_items(items, criteria):
     # items = remove_matched_items(items, {'surface':u'mee'}) のような
     def p(item):
-        for k, v in criteria.items():
-            if item.has_key(k) and item[k] == v:
+        for k, v in list(criteria.items()):
+            if k in item and item[k] == v:
                 return False
         return True
-    return filter(p, items)
+    return list(filter(p, items))
 
 
 # 1階層だけ掘り下げる
@@ -84,9 +84,9 @@ def variate(prefix, common_tags, suffices, suffices_tags):
         return combine1(prefix, suffix, suffix_tags)
 
     if isinstance(prefix, tuple) or isinstance(prefix, list):
-        items = map(combine1, prefix, suffices, suffices_tags)
+        items = list(map(combine1, prefix, suffices, suffices_tags))
     else:
-        items = map(combine2,         suffices, suffices_tags)
+        items = list(map(combine2,         suffices, suffices_tags))
 
     return flatten_1(items)
 
@@ -99,7 +99,7 @@ def aggregate_cases(items):
         surface = item['surface']
         ja = item['ja']
 
-        if item.has_key('gender'):
+        if 'gender' in item:
             cases_and_numbers = [(item['case'], item['number'], item['gender'])]
             del item['gender']
         else:
@@ -107,17 +107,17 @@ def aggregate_cases(items):
         del item['case']
         del item['number']
 
-        if not tmp.has_key(surface):
+        if surface not in tmp:
             tmp[surface] = {}
 
-        if tmp[surface].has_key(ja):
+        if ja in tmp[surface]:
             tmp[surface][ja]['_'] += cases_and_numbers
         else:
             item['_'] = cases_and_numbers
             tmp[surface][ja] = item
 
     result = []
-    for surface,sub in tmp.items():
-        result += [items for ja,items in sub.items()]
+    for surface,sub in list(tmp.items()):
+        result += [items for ja,items in list(sub.items())]
 
     return result

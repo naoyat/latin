@@ -16,7 +16,7 @@ class PrepClause (LatinObject):
                 self.item = item
                 break
 
-        self.surface = self.item.surface + u' ' + u' '.join([word.surface for word in words])
+        self.surface = self.item.surface + ' ' + ' '.join([word.surface for word in words])
         self.surface_len = len(self.surface)
 
     def translate(self):

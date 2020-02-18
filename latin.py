@@ -30,7 +30,7 @@ def lookup_all(surfaces_uc):
             surface_lower = char.tolower(surface)
             items = latindic.lookup(surface_lower)
             if items: return Word(surface, items)
-        if surface[-3:] == u'que':
+        if surface[-3:] == 'que':
             items = latindic.lookup(surface[:-3])
             if items:
 #                return Word(surface[:-3], items, {'enclitic':'que'})
@@ -48,7 +48,7 @@ def lookup_all(surfaces_uc):
             i += 1
             continue
         if i < l-1:
-            surface2 = surface + u' ' + surfaces_uc[i+1]
+            surface2 = surface + ' ' + surfaces_uc[i+1]
             word2 = lookup(surface2)
             # print "word2:", word2.encode('utf-8'), util.render(lu2)
             if word2 is not None: # len(word2.items) > 0: #is not None: and len(lu2) > 0:
@@ -167,7 +167,7 @@ def detect_and_or(words):
     groups = []
     curr = []
     for i, surface in enumerate(surfaces):
-        if surface in (u',', u'.', u';', u'"', u'!', u'?'):
+        if surface in (',', '.', ';', '"', '!', '?'):
             groups.append(curr)
             curr = []
         elif words[i].is_verb():
@@ -185,7 +185,7 @@ def detect_and_or(words):
     # ある単語 word がグループ group 内で生起する位置（複数）を配列で返す
     #   eg. word_indices_in_group(neque, [0, 1, 2, 3, 4, 5, 6, 7]) -> [2, 4]
     def word_indices_in_group(word, group):
-        return filter(lambda x:x>=0, [i if surfaces[i].lower() == word else -1 for i in group])
+        return [x for x in [i if surfaces[i].lower() == word else -1 for i in group] if x>=0]
 
     # et-et- / neque-neque- の検出
     def detect(and_or_word):
@@ -214,7 +214,7 @@ def detect_and_or(words):
                         if non_genitive(first_item._):
                             cases = [x[0] for x in first_item._]
                             # これまでの物と格が一致する可能性がなければ排除
-                            cases_x = filter(lambda case:case in cases, cl.cases)
+                            cases_x = [case for case in cl.cases if case in cases]
                             if not cases_x: break
                     ws.append(word)
                     idx += 1
@@ -236,10 +236,10 @@ def detect_and_or(words):
                 ao_loc.add(aos[0])
                 # aos.append(aos[0])
 
-    detect(u'et')
-    detect(u'neque')
+    detect('et')
+    detect('neque')
 
-    detect(u'aut')
+    detect('aut')
 
     def same(word1, word2, pos_check=True):
         if not word1.items or not word2.items:
@@ -252,7 +252,7 @@ def detect_and_or(words):
             return False
         cases1 = [x[0] for x in item1._]
         cases2 = [x[0] for x in item2._]
-        cases = filter(lambda case:case in cases2, cases1)
+        cases = [case for case in cases1 if case in cases2]
         if cases:
             return True
         return False
@@ -268,8 +268,8 @@ def detect_and_or(words):
             word1 = words[i-1]
             word2 = words[i+1]
             if same(word1, word2):
-                print "// #%d ET #%d: %s == %s" % (i-1, i+1, word1.surface_utf8(), word2.surface_utf8())
-                cl = AndOr(u'et')
+                print("// #%d ET #%d: %s == %s" % (i-1, i+1, word1.surface_utf8(), word2.surface_utf8()))
+                cl = AndOr('et')
                 cl.add([word1])
                 cl.add([word2])
                 for j in range(i-1, i+2):
@@ -298,8 +298,8 @@ def detect_and_or(words):
                         with_2a = True
 
             if same(word1, word2):
-                print "// #%d #%d ET #%d (#%d): %s == %s" % (i-2, i-1, i+1, i+2, word1.surface_utf8(), word2.surface_utf8())
-                cl = AndOr(u'et')
+                print("// #%d #%d ET #%d (#%d): %s == %s" % (i-2, i-1, i+1, i+2, word1.surface_utf8(), word2.surface_utf8()))
+                cl = AndOr('et')
                 word1.add_modifier(word1a)
                 cl.add([word1])
                 visited.add(i-2)
@@ -318,20 +318,20 @@ def detect_and_or(words):
                 return False
 
         surface = word.surface
-        if surface == u'et' and i+1 < len(words):
+        if surface == 'et' and i+1 < len(words):
             # print "// %d ET %s" % (i, words[i+1].surface_utf8())
             if i >= 1:
                 if not bind_two_if_same() and i >= 2:
                     bind_more_if_same()
 
-        if surface[-3:] == u'que':
-            if surface.lower() not in (u'neque', u'itaque', u'quoque'):
+        if surface[-3:] == 'que':
+            if surface.lower() not in ('neque', 'itaque', 'quoque'):
                 # print "// %d %s-QUE" % (i, surface[:-3].encode('utf-8'))
                 if i >= 1:
                     if not bind_two_if_same() and i >= 2:
                         bind_more_if_same()
 
-    visited_ix = filter(lambda ix:ix not in ao_loc, visited)#[ix for ix in visited])
+    visited_ix = [ix for ix in visited if ix not in ao_loc]#[ix for ix in visited])
     return (words, visited_ix)
 
 
@@ -342,7 +342,7 @@ def detect_verbs(words):
         if isinstance(word, AndOr): continue
         if not word.items: continue
 
-        verb_items = filter(lambda item:item.pos == 'verb', word.items)
+        verb_items = [item for item in word.items if item.pos == 'verb']
 #        print "\t%d) %s" % (i, word.surface_utf8()), verb_items
         if verb_items and len(verb_items) == len(word.items):
             verb = Predicate(word)
@@ -372,7 +372,7 @@ def detect_adj_correspondances(words):
                 adjs.append((i, word._))
         elif isinstance(word, Word):
             if not word.items: continue
-            if word.surface in (u'et', u'neque') or word.items[0].pos == 'preposition':
+            if word.surface in ('et', 'neque') or word.items[0].pos == 'preposition':
                 blocks[i] = word
                 continue
 
@@ -398,9 +398,9 @@ def detect_adj_correspondances(words):
     def find_target(adj_ix, a_):
         def sub(fr, to, step):
             for i in range(fr, to, step):
-                if blocks.has_key(i):
+                if i in blocks:
                     return -1
-                if not nouns.has_key(i):
+                if i not in nouns:
                     continue
                 n_ = nouns[i]
                 if matches(n_, a_):
@@ -418,17 +418,17 @@ def detect_adj_correspondances(words):
     as_noun = set()
 
     for adj_ix, _ in adjs:
-        print "// ADJ#%d (%s)" % (adj_ix, words[adj_ix].surface_utf8()),
+        print("// ADJ#%d (%s)" % (adj_ix, words[adj_ix].surface_utf8()), end=' ')
         noun_ix = find_target(adj_ix, _)
         if noun_ix >= 0:
-            print "-> NOUN#%d (%s)" % (noun_ix, words[noun_ix].surface_utf8())
+            print("-> NOUN#%d (%s)" % (noun_ix, words[noun_ix].surface_utf8()))
             words[noun_ix].add_modifier(words[adj_ix])
 #            words[adj_ix] = None
         else:
-            print "-> no target noun detected"
+            print("-> no target noun detected")
             as_noun.add(adj_ix)
 
-    return (words, filter(lambda ix:ix not in as_noun, [adj_ix for adj_ix, _ in adjs]))
+    return (words, [ix for ix in [adj_ix for adj_ix, _ in adjs] if ix not in as_noun])
 
 
 def detect_genitive_correspondances(words):
@@ -451,10 +451,10 @@ def detect_genitive_correspondances(words):
                 continue
 
             first_item = word.items[0]
-            if word.surface in (u'et', u'neque') or first_item.pos == 'preposition':
+            if word.surface in ('et', 'neque') or first_item.pos == 'preposition':
                 blocks[i] = word
                 continue
-            if first_item.pos == 'adj' and first_item.attrib('base') == u'plēnus':
+            if first_item.pos == 'adj' and first_item.attrib('base') == 'plēnus':
                 targets[i] = word
                 continue
 
@@ -476,9 +476,9 @@ def detect_genitive_correspondances(words):
     def find_target(gen_ix):
         def sub(fr, to, step):
             for i in range(fr, to, step):
-                if blocks.has_key(i):
+                if i in blocks:
                     return -1
-                if not targets.has_key(i):
+                if i not in targets:
                     continue
                 return i
             return -1
@@ -496,18 +496,18 @@ def detect_genitive_correspondances(words):
     non_gen = set()
 
     for gen_ix in gen:
-        print "// GEN#%d (%s)" % (gen_ix, words[gen_ix].surface_utf8()),
+        print("// GEN#%d (%s)" % (gen_ix, words[gen_ix].surface_utf8()), end=' ')
         target_ix = find_target(gen_ix)
         if target_ix >= 0:
-            print "-> TARGET#%d (%s)" % (target_ix, words[target_ix].surface_utf8())
+            print("-> TARGET#%d (%s)" % (target_ix, words[target_ix].surface_utf8()))
             words[target_ix].add_genitive(words[gen_ix])
 #            words[gen_ix] = None
         else:
-            print "-> no target noun detected"
+            print("-> no target noun detected")
             non_gen.add(gen_ix)
             words[gen_ix].restrict_cases(('Nom','Voc','Acc','Dat','Abl','Loc'))
 
-    return (words, filter(lambda ix:ix not in non_gen, gen))
+    return (words, [ix for ix in gen if ix not in non_gen])
 
 
 def decolate(word):
@@ -528,7 +528,7 @@ def decolate(word):
         return color
 
     color = color_for_word(word)
-    text = word.surface.encode('utf-8')
+    text = word.surface
     if color is not None:
         return ansi_color.bold(text, color)
     else:
@@ -541,13 +541,13 @@ def render_with_indent(indent, obj):
                 render_with_indent(indent+2, word)
 
         elif isinstance(obj, AndOr):
-            print ' '*indent + '[' + obj.and_or_word.encode('utf-8') + '] ' # + str(obj._)
+            print(' '*indent + '[' + obj.and_or_word + '] ') # + str(obj._)
             for words in obj.words_slots:
                 render_with_indent(indent+2, words[0])
 
         elif isinstance(obj, PrepClause):
             # print ' '*indent + obj.item.surface.encode('utf-8') + ' ' + obj.item.ja + ' <'+ obj.dominated_case + '>'
-            print ' '*indent + obj.item.surface.encode('utf-8') + ' <'+ obj.dominated_case + '>'
+            print(' '*indent + obj.item.surface + ' <'+ obj.dominated_case + '>')
             for word in obj.words:
                 render_with_indent(indent+2, word)
 
@@ -557,7 +557,7 @@ def render_with_indent(indent, obj):
             text = decolate(obj)
             if obj.items[0].pos in ('conj', 'adv'):
                 text = '(' + text + ')'
-            print ' '*indent + text # word.surface.encode('utf-8')
+            print(' '*indent + text) # word.surface.encode('utf-8')
             for gen in obj.genitives:
                 render_with_indent(indent+2, gen)
             for mod in obj.modifiers:
@@ -565,18 +565,18 @@ def render_with_indent(indent, obj):
 #                print '    ' + mod.surface.encode('utf-8')
 
         elif isinstance(obj, Predicate):
-            text = obj.surface.encode('utf-8')
+            text = obj.surface
             text = ansi_color.underline(ansi_color.bold(text, ansi_color.RED))
-            print ' '*indent + text, "(%s %s%s)" % (obj.mood(), str(obj.person()), obj.number())
+            print(' '*indent + text, "(%s %s%s)" % (obj.mood(), str(obj.person()), obj.number()))
             if obj.conjunction:
                 render_with_indent(indent+2, obj.conjunction)
             for mod in obj.modifiers:
                 render_with_indent(indent+2, mod)
-            for case, objs in obj.case_slot.items():
-                if isinstance(case, unicode):
-                    print ' '*(indent+2) + "prep:"
+            for case, objs in list(obj.case_slot.items()):
+                if isinstance(case, str):
+                    print(' '*(indent+2) + "prep:")
                 else:
-                    print ' '*(indent+2) + case + ":"
+                    print(' '*(indent+2) + case + ":")
                 for obj in objs:
                     render_with_indent(indent+4, obj)
 
@@ -610,7 +610,7 @@ def translate(obj):
 #        else:
 #            return obj.translate() # obj.items[0].ja
     else:
-        print "？？？"
+        print("？？？")
 
 
 def analyse_text(text, options=None):
@@ -619,24 +619,24 @@ def analyse_text(text, options=None):
         plain_text = ' '.join(word_surfaces_in_a_sentence)
         if options.echo_on:
             # print plain_text + "\n"
-            print "\n" + ansi_color.underline(ansi_color.bold( plain_text )) + "\n"
+            print("\n" + ansi_color.underline(ansi_color.bold( plain_text )) + "\n")
         if options.speech_mode:
-            speak_latin.say_latin(plain_text.decode('utf-8'))
+            speak_latin.say_latin(plain_text)
 
-        # unicodeに変換して
-        word_surfaces_uc = [word_surface.decode('utf-8', 'strict') for word_surface in word_surfaces_in_a_sentence]
+        # unicodeに変換して (3では不要)
+        word_surfaces_uc = word_surfaces_in_a_sentence
         # 辞書を引いてから
         words = lookup_all(word_surfaces_uc)
 
         # 先にlookup結果を表示してしまう
         if options and options.show_word_detail:
-            print "  --- "
+            print("  --- ")
             maxlen_uc = max([0] + [word.surface_len for word in words])
             for i, word in enumerate(words):
-                text = word.surface.encode('utf-8')
-                print '  %2d  ' % (i) + text + ' '*(maxlen_uc - word.surface_len + 1), word.detail()
-            print "  --- "
-            print
+                text = word.surface
+                print('  %2d  ' % (i,) + text + ' '*(maxlen_uc - word.surface_len + 1), word.detail())
+            print("  --- ")
+            print()
 
         # 形容詞/属格の対応
         words, visited_ix = detect_and_or(words)
@@ -648,15 +648,15 @@ def analyse_text(text, options=None):
             words[ix] = None
         for ix in gen_ix:
             words[ix] = None
-        words = filter(identity, words)
+        words = list(filter(identity, words))
 
         words, verb_ix = detect_verbs(words)
 
         words = detect_prep_domination(words)
-        words = filter(identity, words)
+        words = list(filter(identity, words))
 #        print [word.surface_utf8() for word in words]
 
-        print
+        print()
 
         # 名詞句を述語動詞に結びつける
         verbs_ix = []
@@ -670,17 +670,17 @@ def analyse_text(text, options=None):
         M = len(words)
         groups = []
         if verb_count == 0:
-            print ansi_color.underline("NO VERB FOUND.")
-            groups.append( range(M) )
+            print(ansi_color.underline("NO VERB FOUND."))
+            groups.append( list(range(M)) )
         elif verb_count == 1:
-            print ansi_color.underline("1 VERB FOUND:") + ' ' + verb_surfaces
-            groups.append( range(M) )
+            print(ansi_color.underline("1 VERB FOUND:") + ' ' + verb_surfaces)
+            groups.append( list(range(M)) )
         else:
-            print ansi_color.underline("%d VERBS FOUND:" % verb_count) + ' ' + verb_surfaces
-            groups.append( range(verbs_ix[0]+1) ) # [0..ix0]
+            print(ansi_color.underline("%d VERBS FOUND:" % verb_count) + ' ' + verb_surfaces)
+            groups.append( list(range(verbs_ix[0]+1)) ) # [0..ix0]
             for i in range(1, verb_count-1):
                 groups.append( [verbs_ix[i]] )
-            groups.append( range(verbs_ix[verb_count-1], M) )
+            groups.append( list(range(verbs_ix[verb_count-1], M)) )
             for i in range(verb_count-1):
                 fr = groups[i][-1] + 1
                 to = groups[i+1][0] - 1
@@ -688,28 +688,28 @@ def analyse_text(text, options=None):
 
                 well_divided_at = None
                 for j in range(fr, to+1):
-                    if words[j].surface == u',':
+                    if words[j].surface == ',':
                         well_divided_at = j
                         break
                 if well_divided_at is None:
                     for j in range(fr, to+1):
-                        if words[j].surface == u'quod':
+                        if words[j].surface == 'quod':
                             well_divided_at = j-1
                             break
                 if well_divided_at is None:
                     for j in range(fr, to+1):
-                        if words[j].surface == u'et':
+                        if words[j].surface == 'et':
                             well_divided_at = j-1
                             break
                 if well_divided_at is not None:
-                    groups[i] += range(fr, well_divided_at+1)
-                    groups[i+1] = range(well_divided_at+1, to+1) + groups[i+1]
+                    groups[i] += list(range(fr, well_divided_at+1))
+                    groups[i+1] = list(range(well_divided_at+1, to+1)) + groups[i+1]
                 else:
-                    print "  NOT WELL: {%d..%d}" % (fr, to)
+                    print("  NOT WELL: {%d..%d}" % (fr, to))
                     # うまく分けられない。とりあえず後の方に入れる
-                    groups[i+1] = range(fr, to+1) + groups[i+1]
+                    groups[i+1] = list(range(fr, to+1)) + groups[i+1]
 
-        print
+        print()
         for i, group in enumerate(groups):
             if verb_count == 0:
                 ws = []
@@ -717,8 +717,8 @@ def analyse_text(text, options=None):
                     if isinstance(word, Word) and not word.items: continue
                     # ws.append(word)
                     dump(word)
-                    print "  → ", translate(word)
-                    print # "  --"
+                    print("  → ", translate(word))
+                    print() # "  --"
                 # dump(ws)
                 # print translate(ws)
             else:
@@ -736,7 +736,7 @@ def analyse_text(text, options=None):
                     elif isinstance(word, Word):
                         if not word.items: continue
                         first_item = word.items[0]
-                        if j == 0 and word.surface in (u'quod', u'ut'):
+                        if j == 0 and word.surface in ('quod', 'ut'):
                             if word.items[1].pos == 'conj':
                                 first_item = word.items[1]
                                 word.items = word.items[1:]
@@ -748,7 +748,7 @@ def analyse_text(text, options=None):
                         elif first_item.pos == 'adv':
                             if j < 2 and not pred.conjunction:
                                 pred.conjunction = word
-                            elif word.surface in (u'ō', u'Ō'):
+                            elif word.surface in ('ō', 'Ō'):
                                 # 二重になってないかチェックする or conjunction を複数取る
                                 pred.conjunction = word
                             else:
@@ -756,7 +756,7 @@ def analyse_text(text, options=None):
                         elif first_item._:
                             cases = [x[0] for x in first_item._]
                             case = None
-                            if 'Voc' in cases and ix > 0 and words[ix-1].surface in (u'ō', u'Ō'):
+                            if 'Voc' in cases and ix > 0 and words[ix-1].surface in ('ō', 'Ō'):
                                 case = 'Voc'
                                 # 形的にVocしかありえないケースも拾いたい
                             else:
@@ -781,18 +781,18 @@ def analyse_text(text, options=None):
                             not_solved.append(word) #(ix, word.surface_utf8()))
 
                 if not_solved:
-                    print "  NOT SOLVED:"
+                    print("  NOT SOLVED:")
                     # dump(not_solved, initial_indent=2)
                     # print translate(not_solved)
                     for item in not_solved:
                         dump(item, 4)
-                        print "    → ", translate(item)
-                        print
+                        print("    → ", translate(item))
+                        print()
 
                 dump(pred)
-                print
-                print "  → ", translate(pred)
-                print
+                print()
+                print("  → ", translate(pred))
+                print()
 
         # 音読モードの場合、読み終わるまでウェイトを入れる
         if options.speech_mode:
@@ -812,20 +812,20 @@ def do_command(line, options=None):
     # 辞書検索
     if cmd in ('l', 'lookup'):
         surface = surface_tr()
-        print "lookup", surface,
+        print("lookup", surface, end=' ')
 
-        items = latindic.lookup(surface.decode('utf-8'))
+        items = latindic.lookup(surface) #.decode('utf-8'))
         util.pp(items)
 
     # 動詞の活用を見る
     elif cmd in ('c', 'conjug'):
-        surface_uc = surface_tr().decode('utf-8')
+        surface_uc = surface_tr() #.decode('utf-8')
         table = {}
         ja = None
         moods = set()
         voices = set()
         tenses = set()
-        for word, items in latindic.LatinDic.dic.items():
+        for word, items in list(latindic.LatinDic.dic.items()):
             for item in items:
                 pres1sg = item.get('pres1sg', None)
                 if pres1sg == surface_uc:
@@ -840,55 +840,55 @@ def do_command(line, options=None):
                     number = item.get('number', None)
                     key = (mood,voice,tense,person,number)
                     item_surface = item['surface']
-                    if table.has_key(key):
+                    if key in table:
                         table[key].append(item_surface)
                     else:
                         table[key] = [item_surface]
 
         def surfaces(key):
-            if table.has_key(key):
-                return ', '.join([surface.encode('utf-8') for surface in table[key]])
+            if key in table:
+                return ', '.join(table[key])
             else:
                 return '-'
 
-        print "%s, %s" % (surface_uc.encode('utf-8'), ja)
+        print("%s, %s" % (surface_uc, ja))
         for mood in ['indicative', 'subjunctive', 'imperative']:
             if mood not in moods: continue
-            print "  %s" % mood
+            print("  %s" % mood)
             for voice in ['active', 'passive']:
                 if mood + voice not in voices: continue
-                print "    %s" % voice
+                print("    %s" % voice)
                 for tense in ['present', 'imperfect', 'future',
                               'perfect', 'past-perfect', 'future-perfect']:
                     if mood + voice + tense not in tenses: continue
-                    print "      %s" % tense
+                    print("      %s" % tense)
                     for number in ['sg','pl']:
-                        print "        %s" % number
+                        print("        %s" % number)
                         for person in [1,2,3]:
                             key = (mood, voice, tense, person, number)
-                            if table.has_key(key):
-                                print "          %d: %s" % (person, surfaces(key))
-        print "  infinitive"
-        print "    present: %s" % surfaces(('infinitive','active','present',None,None))
-        print "    perfect: %s" % surfaces(('infinitive','active','perfect',None,None))
-        print "    future: %s" % surfaces(('infinitive','active','future',None,None))
+                            if key in table:
+                                print("          %d: %s" % (person, surfaces(key)))
+        print("  infinitive")
+        print("    present: %s" % surfaces(('infinitive','active','present',None,None)))
+        print("    perfect: %s" % surfaces(('infinitive','active','perfect',None,None)))
+        print("    future: %s" % surfaces(('infinitive','active','future',None,None)))
 
     # 名詞の変化形を見る
     elif cmd in ('d', 'decl'):
-        surface_uc = surface_tr().decode('utf-8')
+        surface_uc = surface_tr() #.decode('utf-8')
         table = {}
         base = None
         ja = None
         pos = None
         gender = None
-        for word, items in latindic.LatinDic.dic.items():
+        for word, items in list(latindic.LatinDic.dic.items()):
             for item in items:
                 item_base = item.get('base', None)
                 if item_base == surface_uc:
                     for case, number, gender in item['_']:
                         key = (case,number,gender)
                         item_surface = item['surface']
-                        if table.has_key(item_surface):
+                        if item_surface in table:
                             table[key].append(item_surface)
                         else:
                             table[key] = [item_surface]
@@ -898,22 +898,22 @@ def do_command(line, options=None):
                             base = item['base']
                             ja = item['ja']
         def surfaces(key):
-            if table.has_key(key):
-                return ', '.join([surface.encode('utf-8') for surface in table[key]])
+            if key in table:
+                return ', '.join(table[key])
             else:
                 return '-'
 
         if pos == 'noun':
-            print "%s (%s, %s), %s" % (base.encode('utf-8'), pos, gender, ja)
+            print("%s (%s, %s), %s" % (base, pos, gender, ja))
             for number in ['sg', 'pl']:
-                print "  %s:" % number
+                print("  %s:" % number)
                 for case in ['Nom', 'Voc', 'Acc', 'Gen', 'Dat', 'Abl', 'Loc']:
                     key = (case, number, gender)
-                    if table.has_key(key):
-                        print "    %s: %s" % (case, surfaces(key))
+                    if key in table:
+                        print("    %s: %s" % (case, surfaces(key)))
 
     else:
-        print "COMMAND NOT SUPPORTED: %s, with \"%s\"" % (cmd, surface_tr())
+        print("COMMAND NOT SUPPORTED: %s, with \"%s\"" % (cmd, surface_tr()))
 
 # read-eval-print loop
 def repl(options=None, show_prompt=False):
@@ -934,7 +934,7 @@ def repl(options=None, show_prompt=False):
             analyse_text(text, options)
 
     if show_prompt:
-        print
+        print()
 
 
 
@@ -976,14 +976,14 @@ class Options:
                 sys.exit()
 
     def usage(self):
-        print "Usage: python %s [options] [FILENAME]" % sys.argv[0]
-        print "Options:"
-        print "  -w, --no-word-detail               Don't show word details."
-        print "  -q, --no-translation               Don't show the translation (Japanese)."
-        print "  -m, --capital-to-macron            [REPL] read capitalized vowels as macrons."
-        print "  -a, --auto-macron                  Automatically add macrons."
-        print "  -s, --speech                       Speak latin. (MacOS only)"
-        print "  -h, --help                         Print this message and exit."
+        print("Usage: python %s [options] [FILENAME]" % sys.argv[0])
+        print("Options:")
+        print("  -w, --no-word-detail               Don't show word details.")
+        print("  -q, --no-translation               Don't show the translation (Japanese).")
+        print("  -m, --capital-to-macron            [REPL] read capitalized vowels as macrons.")
+        print("  -a, --auto-macron                  Automatically add macrons.")
+        print("  -s, --speech                       Speak latin. (MacOS only)")
+        print("  -h, --help                         Print this message and exit.")
 
 
 def main():

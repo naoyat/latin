@@ -12,7 +12,7 @@ def load_preps(file):
             fs = line.rstrip().split()
             if len(fs) != 3: continue
 
-            word = fs[0].decode('utf-8')
+            word = fs[0] #.decode('utf-8')
             dom = fs[1]
             ja = fs[2]
 

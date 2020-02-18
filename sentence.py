@@ -44,7 +44,7 @@ class Item:
             '-':'-'}
         # pos = item['pos']
         def short_(_):
-            return '|'.join(map(lambda s:'.'.join(s), _))
+            return '|'.join(['.'.join(s) for s in _])
 
         def get_base(key):
             base = self.item.get(key)
@@ -81,7 +81,7 @@ class Word:
         self.surface = surface
         self.surface_len = len(surface)
         if items is not None:
-            self.items = map(Item, items) # へぇーこれで行けるんだ
+            self.items = list(map(Item, items)) # へぇーこれで行けるんだ
         else:
             self.items = None
         self.extra_info = extra_info
@@ -151,9 +151,9 @@ class Sentence:
                     cnt += len(item._)
                 else:
                     cnt += 1
-            print "%s(%d)" % (word.surface.encode('utf-8'), cnt),
+            print("%s(%d)" % (word.surface.encode('utf-8'), cnt), end=' ')
             patterns *= cnt
-        print " -> %d PATTERNS" % patterns
+        print(" -> %d PATTERNS" % patterns)
 
     # 属格支配をする形容詞
     def genitive_domination(self):
@@ -162,18 +162,18 @@ class Sentence:
             if word.items is None: continue # 句読点はスキップ
 
             for j, item in enumerate(word.items):
-                if item.pos == 'adj' and item.attrib('base') == u'plēnus':
+                if item.pos == 'adj' and item.attrib('base') == 'plēnus':
                     # util.pp(("DETECTED:", word.surface, item.attrib('base')))
                     def find_targets(range_from, range_to):
                         target = None
                         if range_from < range_to:
-                            rng = range(range_from, range_to+1, 1)
+                            rng = list(range(range_from, range_to+1, 1))
                         else:
-                            rng = range(range_from, range_to-1, -1)
+                            rng = list(range(range_from, range_to-1, -1))
                         for i2 in rng:
                             w = self.words[i2]
                             if w.items is None: continue
-                            if w.surface == u'et': continue
+                            if w.surface == 'et': continue
                             for j2, item2 in enumerate(w.items):
                                 if item2._ is None or item2._ == []: continue
                                 if item2.pos not in ['noun']: continue
@@ -258,7 +258,7 @@ class Sentence:
             dominates = set([item.dominates for item in preps])
             non_prep_exists = False
             if non_preps != []:
-                print "NON-PREP EXISTS:", [item.surface.encode('utf-8') for item in non_preps]
+                print("NON-PREP EXISTS:", [item.surface.encode('utf-8') for item in non_preps])
                 non_prep_exists = True
 
             if len(dominates) == 0: continue
@@ -327,19 +327,19 @@ class Sentence:
                 if item.pos != 'preposition': return True
                 return (item.dominates == target_case)
 
-            self.words[i].items = filter(filter_prep, self.words[i].items)
+            self.words[i].items = list(filter(filter_prep, self.words[i].items))
             if self.words[i].items and len(self.words[i].items) > 0:
                 self.words[i].items[0].target = targets # メモしておく
 
             # target側を絞る
             def filter_noun(item):
                 if not item._: return None
-                item._ = filter(lambda a:a[0] == target_case, item._)
+                item._ = [a for a in item._ if a[0] == target_case]
                 if item._ == []: return None
                 return item
 
             for j, k in targets:
-                self.words[j].items = filter(lambda x:x is not None, map(filter_noun, self.words[j].items))
+                self.words[j].items = [x for x in map(filter_noun, self.words[j].items) if x is not None]
 
     def attach_modifier(self, target, modifier):
         ti, tj = target
@@ -357,9 +357,9 @@ class Sentence:
                             # print "- find_targets(%d, %d) within %d" % (range_from, range_to, len(self.words))
                         target = None
                         if range_from < range_to:
-                            rng = range(range_from, range_to+1, 1)
+                            rng = list(range(range_from, range_to+1, 1))
                         else:
-                            rng = range(range_from, range_to-1, -1)
+                            rng = list(range(range_from, range_to-1, -1))
                         for i2 in rng:
                             if i2 < 0 or len(self.words) <= i2: continue
                             w = self.words[i2]
@@ -437,9 +437,9 @@ class Sentence:
             def find_targets(range_from, range_to):
                 target = None
                 if range_from < range_to:
-                    rng = range(range_from, range_to+1, 1)
+                    rng = list(range(range_from, range_to+1, 1))
                 else:
-                    rng = range(range_from, range_to-1, -1)
+                    rng = list(range(range_from, range_to-1, -1))
                 for i2 in rng:
                     if i2 < 0 or len(self.words) <= i2: continue
                     w = self.words[i2]
@@ -456,7 +456,7 @@ class Sentence:
                             target = (i2, j2)
                             return [target]
                         elif item2.pos in ['adj']:
-                            if item2.attrib('base') == u'plēnus':
+                            if item2.attrib('base') == 'plēnus':
                                 # print "|> plenty of "+ word.surface.encode('utf-8')
                                 target = (i2, j2)
                                 return [target]
@@ -522,15 +522,15 @@ class Sentence:
             if is_verb:
                 text = ansi_color.underline(text)
 
-            print '  %2d  ' % (i) + text + ' '*(maxlen_uc - word.surface_len + 1),
+            print('  %2d  ' % (i) + text + ' '*(maxlen_uc - word.surface_len + 1), end=' ')
 
             if word.items is None:
-                print
+                print()
             elif word.items == []:
-                print '(?)'
+                print('(?)')
             else:
-                print ' | '.join([item.description() for item in word.items])
-        print
+                print(' | '.join([item.description() for item in word.items]))
+        print()
 
 
     def item_at(self, i, j):
@@ -573,7 +573,7 @@ class Sentence:
             used.add(i)
             prep_ja = prep_item.ja
             targets = prep_item.target
-            jas = filter(lambda x:x is not None, [render_item(ti, tj) for ti, tj in targets])
+            jas = [x for x in [render_item(ti, tj) for ti, tj in targets] if x is not None]
             return '( ' + ' / '.join(jas) + ' ) ' + prep_ja
 
 
@@ -586,7 +586,7 @@ class Sentence:
             if word.items is None: continue
             for j, item in enumerate(word.items):
                 if item.pos == 'preposition':
-                    print translate_prep(i, j)
+                    print(translate_prep(i, j))
                     used.add(i)
                     break
                 elif item.pos == 'adv':
@@ -595,14 +595,14 @@ class Sentence:
                     used.add(i)
                     break
                 elif item.pos == 'conj':
-                    if word.surface == u'et':
-                        print '[conj] そして'
+                    if word.surface == 'et':
+                        print('[conj] そして')
                     else:
-                        print '[conj] ' + item.ja
+                        print('[conj] ' + item.ja)
                     used.add(i)
                     break
                 elif item.pos == 'indecl':
-                    print '[indecl] ' + item.ja
+                    print('[indecl] ' + item.ja)
                     used.add(i)
                     break
 
@@ -620,7 +620,7 @@ class Sentence:
                         for case, number, gender in item._:
                             if case == 'Nom' and (self.pred_sum or number == pred_number):
                                 if (not self.pred_sum) and gender == 'n': continue ## 中性主格をskipしているがこれはcase-by-case
-                                if not slot.has_key('Nom'): slot['Nom'] = []
+                                if 'Nom' not in slot: slot['Nom'] = []
                                 slot['Nom'].append((i,j))
                                 used.add(i)
                                 break
@@ -635,7 +635,7 @@ class Sentence:
                     for case, number, gender in item._:
                         # if predicate is not None:
                         if self.pred_word_item is not None and case in ['Nom', 'Voc']: continue
-                        if not slot.has_key(case):
+                        if case not in slot:
                             slot[case] = []
                         slot[case].append((i,j))
 
@@ -652,7 +652,7 @@ class Sentence:
             if ids is None: continue
 
 #            ids_not_used = filter(lambda ij:ij[0] not in used, ids)
-            jas = filter(lambda x:x is not None, [render_item(i, j) for i, j in ids])
+            jas = [x for x in [render_item(i, j) for i, j in ids] if x is not None]
             if case == 'Nom' and jas != []:
                 subject_exists = True
 
@@ -661,7 +661,7 @@ class Sentence:
                     joint = ' == '
                 else:
                     joint = ' / '
-                print '(', joint.join(jas), ')', aux
+                print('(', joint.join(jas), ')', aux)
             del slot[case]
             [used.add(i) for i, j in ids]
 
@@ -684,7 +684,7 @@ class Sentence:
                     subject += ' は'
                 else:
                     subject += ' が'
-                print subject
+                print(subject)
             verb = self.pred_word_item
             jas = verb.ja.split(',')
 
@@ -703,14 +703,14 @@ class Sentence:
                 flag |= Verb.FUTURE
 
             if advs != []:
-                print "{", ', '.join(advs), "}",
-            print ','.join([JaVerb(ja).form(flag) for ja in jas])
+                print("{", ', '.join(advs), "}", end=' ')
+            print(','.join([JaVerb(ja).form(flag) for ja in jas]))
         else:
-            print "\n // NO VERB FOUND"
+            print("\n // NO VERB FOUND")
 
-        print
+        print()
         for i in range(self.len):
             if i in used: continue
             word = self.words[i]
             if not word.items: continue
-            print ' // UNSOLVED (%d):' % i, word.description()
+            print(' // UNSOLVED (%d):' % i, word.description())

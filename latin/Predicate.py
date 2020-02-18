@@ -16,11 +16,11 @@ class Predicate (LatinObject):
         self.surface = verb.surface
         self.surface_len = len(self.surface)
         self.conjunction = None
-        self.is_sum = self.first_item.item.get('pres1sg', None) == u'sum'
+        self.is_sum = self.first_item.item.get('pres1sg', None) == 'sum'
 
     def add_nominal(self, case, obj):
         # self.objects[case] = self.objects.get(case, []).append(obj)
-        if self.case_slot.has_key(case):
+        if case in self.case_slot:
             self.case_slot[case].append(obj)
         else:
             self.case_slot[case] = [obj]
@@ -39,12 +39,12 @@ class Predicate (LatinObject):
         return self.first_item.attrib('mood')
 
     def detail(self):
-        verb_items = filter(lambda item:item.pos == 'verb', word.items)
+        verb_items = [item for item in word.items if item.pos == 'verb']
         modes = '|'.join([item.item['mood'][:3] for item in verb_items])
-        print '  %d [%s <%s>]' % (i, ansi_color.bold(surface.encode('utf-8')), modes),
+        print('  %d [%s <%s>]' % (i, ansi_color.bold(surface.encode('utf-8')), modes), end=' ')
         for item in verb_items:
-            print "{", item.description(), "}",
-            print
+            print("{", item.description(), "}", end=' ')
+            print()
 
     def translate(self):
         tr = []
@@ -54,7 +54,7 @@ class Predicate (LatinObject):
         person = verb.attrib('person', 0)
 
         if self.conjunction:
-            if self.conjunction.surface == u'et':
+            if self.conjunction.surface == 'et':
                 t = 'そして'
             else:
                 t, neg = self.conjunction.translate()
@@ -67,7 +67,7 @@ class Predicate (LatinObject):
         # Nominative
         noms = []
         nom_acc_objs = self.case_slot.get('Nom/Acc', [])
-        if self.case_slot.has_key('Nom') or (person == 3 and nom_acc_objs):
+        if 'Nom' in self.case_slot or (person == 3 and nom_acc_objs):
             nom_objs = self.case_slot.get('Nom', [])
             # nom_acc_objs = self.case_slot.get('Nom/Acc', [])
 
@@ -106,7 +106,7 @@ class Predicate (LatinObject):
             pn = str(self.person()) + str(self.number())
             subj_ja = {'1sg':'私', '2sg':'あなた', '3sg':'彼,彼女,それ',
                        '1pl':'我々', '2pl':'あなた方', '3pl':'彼ら,彼女ら,それら'}
-            if subj_ja.has_key(pn):
+            if pn in subj_ja:
                 noms.append(subj_ja[pn])
 
         if noms:
@@ -115,10 +115,10 @@ class Predicate (LatinObject):
                 nom_case_ja = 'は'
             tr.append('='.join(noms) + nom_case_ja)
 
-        for case, objs in self.case_slot.items():
+        for case, objs in list(self.case_slot.items()):
             if case in ('Nom', 'Nom/Acc', 'Acc'): continue
             if not objs: continue
-            if isinstance(case, unicode):
+            if isinstance(case, str):
                 # prep-clause
                 case_ja = '' # case.encode('utf-8')
             else:
@@ -127,7 +127,7 @@ class Predicate (LatinObject):
             tr.append('='.join(trs) + case_ja)
 
         # Accusative
-        if self.case_slot.has_key('Acc'):
+        if 'Acc' in self.case_slot:
             acc_objs = self.case_slot['Acc']
             self.case_slot['Acc'] = []
             accs = [obj.translate()[0] for obj in acc_objs]

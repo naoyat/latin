@@ -16,7 +16,7 @@ def case_intersection(_s):
         cases = [x[0] for x in _]
         genders = uniq([x[2] for x in _])
         # print " > ", cases, genders
-        cases_x = filter(lambda case:case in cases, cases_x)
+        cases_x = [case for case in cases_x if case in cases]
         genders_x = uniq(genders_x + genders)
 
     return (cases_x, genders_x)
@@ -32,11 +32,11 @@ def group_pos(words):
         else:
             return (item.pos, None)
 
-    surface = u' '.join([word.surface for word in words])
+    surface = ' '.join([word.surface for word in words])
     first_item = word.items[0]
     _s = [first_item._ for word in words]
     # _: [('Nom', 'sg', 'f'), ('Voc', 'sg', 'f')]
-    _sg = filter(non_genitive, _s)
+    _sg = list(filter(non_genitive, _s))
     if _sg:
         return (first_item.pos, case_intersection(_sg))
     else:
@@ -72,18 +72,18 @@ class AndOr (LatinObject):
                 self.info = info
         elif self.pos in ('noun', 'pronoun', 'adj'):
             cases, genders = info
-            self.cases = filter(lambda case:case in cases, self.cases)
+            self.cases = [case for case in self.cases if case in cases]
             self.genders = uniq(self.genders + genders)
         elif self.pos == pos:
             if self.info == info:
                 pass
             else:
-                print "  x info mismatch:", self.info, info
+                print("  x info mismatch:", self.info, info)
         else:
-            print "  x pos mismatch:", (self.pos, self.info), (pos, info)
+            print("  x pos mismatch:", (self.pos, self.info), (pos, info))
 
         # updating
-        self.surface = u' '.join(self.surfaces)
+        self.surface = ' '.join(self.surfaces)
         self.surface_len = len(self.surface)
 
 
@@ -111,7 +111,7 @@ class AndOr (LatinObject):
     def dump(self):
 #            print "    ET (", surfaces[start_idx:end_idx], "..)"
         for i, words in enumerate(self.words_slots):
-            print "    ", self.and_or_word, '#', i, ":", u' '.join([word.surface for word in words]).encode('utf-8')
+            print("    ", self.and_or_word, '#', i, ":", ' '.join([word.surface for word in words]).encode('utf-8'))
 
     def is_verb(self):
         return False
@@ -142,7 +142,7 @@ class AndOr (LatinObject):
                 word.restrict_cases([x[0] for x in self._])
 
     def restrict_cases(self, possible_cases):
-        self.cases = filter(lambda case:case in possible_cases, self.cases)
+        self.cases = [case for case in self.cases if case in possible_cases]
 
     def translate(self):
         tr = []
@@ -150,6 +150,6 @@ class AndOr (LatinObject):
             # tr.append(' '.join([word.translate() for word in words]))
             tr.append(words[0].translate()[0])
         if self.pos == 'adj':
-            return ('、かつ'.join(tr), self.and_or_word in (u'neque'))
+            return ('、かつ'.join(tr), self.and_or_word in ('neque'))
         else:
-            return ('と'.join(tr), self.and_or_word in (u'neque'))
+            return ('と'.join(tr), self.and_or_word in ('neque'))

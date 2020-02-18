@@ -5,9 +5,9 @@ CONSONANT = 1
 
 def joint(chunk):
     def cc(c1, c2):
-        if c1 in [u'p', u'b', u't', u'd', u'c', u'g', u'f'] and c2 in [u'l', u'r']:
+        if c1 in ['p', 'b', 't', 'd', 'c', 'g', 'f'] and c2 in ['l', 'r']:
             return [c1+c2]
-        elif c1 == u's' and c2 in [u'p', u't', u'c']:
+        elif c1 == 's' and c2 in ['p', 't', 'c']:
             return [c1+c2]
         else:
             return [c1, c2]
@@ -17,37 +17,37 @@ def joint(chunk):
         return chunk
     elif chunk_len == 2:
         if chunk[0] == VOWEL:
-            if chunk[1:] == [u'a', u'e']:
-                return [VOWEL, u'ae']
-            elif chunk[1:] == [u'a', u'u']:
-                return [VOWEL, u'au']
-            elif chunk[1:] == [u'o', u'e']:
-                return [VOWEL, u'oe']
+            if chunk[1:] == ['a', 'e']:
+                return [VOWEL, 'ae']
+            elif chunk[1:] == ['a', 'u']:
+                return [VOWEL, 'au']
+            elif chunk[1:] == ['o', 'e']:
+                return [VOWEL, 'oe']
             else:
                 return chunk
         # consonant
         return [CONSONANT] + cc(chunk[1], chunk[2])
     elif chunk_len == 3:
         if chunk[0] == VOWEL:
-            if chunk[2] == u'a' and chunk[3] == u'e':
-                return [VOWEL, chunk[1], u'ae']
-            print chunk
+            if chunk[2] == 'a' and chunk[3] == 'e':
+                return [VOWEL, chunk[1], 'ae']
+            print(chunk)
             raise "Too long vowel chunk"
         # consonant
         return [CONSONANT, chunk[1]] + cc(chunk[2], chunk[3])
     elif chunk_len == 4:
         if chunk[0] == VOWEL:
-            print chunk
+            print(chunk)
             raise "Too long vowel chunk"
         # consonant
         return [CONSONANT, chunk[1], chunk[2]] + cc(chunk[3], chunk[4])
     else:
-        print chunk
+        print(chunk)
         raise "Too long chunk"
 
 
 def is_vowel(ch):
-    return ch in [u'a', u'e', u'i', u'o', u'u', u'y', u'ā', u'ē', u'ī', u'ō', u'ū', u'ȳ']
+    return ch in ['a', 'e', 'i', 'o', 'u', 'y', 'ā', 'ē', 'ī', 'ō', 'ū', 'ȳ']
 
 
 def separate_syllaba(word_uc):
@@ -66,7 +66,7 @@ def separate_syllaba(word_uc):
     # novembris: [1 n] [0 o] [1 v] [0 e] [1 m b r] [0 i] [1 s]
     # deus: [1 d] [0 e u] [1 s]
 
-    chunks = map(joint, chunks)
+    chunks = list(map(joint, chunks))
     # caesar: [1 c] [0 ae] [1 s] [0 a] [1 r]
     # novembris: [1 n] [0 o] [1 v] [0 e] [1 m br] [0 i] [1 s]
     # deus: [1 d] [0 e u] [1 s]
@@ -110,7 +110,7 @@ def separate_syllaba(word_uc):
     # novembris: [n o] [v e m] [br i s]
     # deus: [d e] [u s]
 
-    syl = [u''.join(r) for r in res]
+    syl = [''.join(r) for r in res]
     # caesar: [cae sar]
     # novembris: [no vem bris]
     # deus: [de us]
@@ -121,7 +121,7 @@ def separate_syllaba(word_uc):
 def locate_accent(syllables):
     def is_long(syl):
         if is_vowel(syl[-1]):
-            return syl[-1] in [u'ā', u'ē', u'ī', u'ō', u'ū', u'ȳ']
+            return syl[-1] in ['ā', 'ē', 'ī', 'ō', 'ū', 'ȳ']
         else:
             return True
     len_syl = len(syllables)

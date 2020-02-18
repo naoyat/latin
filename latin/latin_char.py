@@ -7,13 +7,13 @@ UPPER_LONG_VOWELS = [256,274,298,332,362,562] # Ā Ē Ī Ō Ū Ȳ
 TRANSTABLE_TOLOWER = {}
 TRANSTABLE_TOUPPER = {}
 
-for j in xrange(26): # A-Z / a-z
-    TRANSTABLE_TOLOWER[0x41+j] = unichr(0x61+j)
-    TRANSTABLE_TOUPPER[0x61+j] = unichr(0x41+j)
+for j in range(26): # A-Z / a-z
+    TRANSTABLE_TOLOWER[0x41+j] = chr(0x61+j)
+    TRANSTABLE_TOUPPER[0x61+j] = chr(0x41+j)
 
 for c in UPPER_LONG_VOWELS:
-    TRANSTABLE_TOLOWER[c] = unichr(c+1)
-    TRANSTABLE_TOUPPER[c+1] = unichr(c)
+    TRANSTABLE_TOLOWER[c] = chr(c+1)
+    TRANSTABLE_TOUPPER[c+1] = chr(c)
 
 def tolower(ustr):
     return ustr.translate(TRANSTABLE_TOLOWER)

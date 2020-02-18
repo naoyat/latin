@@ -22,7 +22,7 @@ def lookup_all(surfaces_uc):
             surface_lower = char.tolower(surface)
             items = latindic.lookup(surface_lower)
             if items: return Word(surface, items)
-        if surface[-3:] == u'que':
+        if surface[-3:] == 'que':
             items = latindic.lookup(surface[:-3])
             if items:
                 return Word(surface[:-3], items, {'enclitic':'que'})
@@ -39,7 +39,7 @@ def lookup_all(surfaces_uc):
             i += 1
             continue
         if i < l-1:
-            surface2 = surface + u' ' + surfaces_uc[i+1]
+            surface2 = surface + ' ' + surfaces_uc[i+1]
             word2 = lookup(surface2)
             # print "word2:", word2.encode('utf-8'), util.render(lu2)
             if word2 is not None: # len(word2.items) > 0: #is not None: and len(lu2) > 0:
@@ -86,7 +86,7 @@ def split_sentence_by_verb(words):
                     if words[tail].items is None: # 句読点系
                         sentences.append(Sentence(words[head:tail+1]))
                         break
-                    elif words[tail].surface == u'et':
+                    elif words[tail].surface == 'et':
                         tail -= 1
                         sentences.append(Sentence(words[head:tail+1]))
                         break
@@ -105,10 +105,10 @@ def analyse_sentence(surfaces, options=None):
     text = ' '.join(surfaces)
 
     if options.echo_on:
-        print ansi_color.ANSI_UNDERLINE_ON + ansi_color.ANSI_BOLD_ON + \
+        print(ansi_color.ANSI_UNDERLINE_ON + ansi_color.ANSI_BOLD_ON + \
             text + \
-            ansi_color.ANSI_BOLD_OFF + ansi_color.ANSI_UNDERLINE_OFF
-        print
+            ansi_color.ANSI_BOLD_OFF + ansi_color.ANSI_UNDERLINE_OFF)
+        print()
 
     if options.speech_mode:
         speak_latin.say_latin(text.decode('utf-8'))
@@ -139,10 +139,10 @@ def analyse_sentence(surfaces, options=None):
 
         if options and options.show_word_detail:
             if options.show_translation:
-                print "  ---"
+                print("  ---")
             sentence.dump()
 
-        print
+        print()
 
     if options.speech_mode:
         speak_latin.pause_while_speaking()
@@ -167,7 +167,7 @@ def repl(options=None, show_prompt=False):
             analyse_sentence(sentence, options=options)
 
     if show_prompt:
-        print
+        print()
 
 
 
@@ -209,14 +209,14 @@ class Options:
                 sys.exit()
 
     def usage(self):
-        print "Usage: python %s [options] [FILENAME]" % sys.argv[0]
-        print "Options:"
-        print "  -w, --no-word-detail               Don't show word details."
-        print "  -q, --no-translation               Don't show the translation (Japanese)."
-        print "  -m, --strict-macron                [REPL] Ignore capitalized transcriptions."
-        print "  -a, --auto-macron                  Automatically add macrons."
-        print "  -s, --speech                       Speak latin. (MacOS only)"
-        print "  -h, --help                         Print this message and exit."
+        print("Usage: python %s [options] [FILENAME]" % sys.argv[0])
+        print("Options:")
+        print("  -w, --no-word-detail               Don't show word details.")
+        print("  -q, --no-translation               Don't show the translation (Japanese).")
+        print("  -m, --strict-macron                [REPL] Ignore capitalized transcriptions.")
+        print("  -a, --auto-macron                  Automatically add macrons.")
+        print("  -s, --speech                       Speak latin. (MacOS only)")
+        print("  -h, --help                         Print this message and exit.")
 
 
 def main():

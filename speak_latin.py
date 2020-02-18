@@ -17,11 +17,12 @@ try:
 except:
     is_appkit_available = False
 
+
 synth = None
 
 def init_synth(voice=None):
     if not is_appkit_available:
-        print "speech synthesizer is not available."
+        print("speech synthesizer is not available.")
         return None
 
     def init_(voiceIdentifier):
@@ -52,45 +53,45 @@ def say(text, input='TEXT', show_phonemes=False, pause=False):
     if input in ('PHON', 'TUNE'):
         text = '[[inpt '+ input +']]' + text + '[[inpt TEXT]]'
     if show_phonemes:
-        print synth.phonemesFromText_(text)
+        print(synth.phonemesFromText_(text))
     synth.startSpeakingString_(text)
     if pause:
         pause_while_speaking()
 
 
 latin_phoneme_dic = {
-    u'a':'AA', u'ā':'AA', u'A':'AA', u'Ā':'AA', # AA in father
-    u'e':'EH', u'ē':'EH', u'E':'EH', u'Ē':'EH', # EH in bet
-    u'i':'IY', u'ī':'IY', u'I':'IY', u'Ī':'IY', # IY in beet
-    u'o':'OW', u'ō':'OW', u'O':'OW', u'Ō':'OW', # OW in boat
-    u'u':'UW', u'ū':'UW', u'U':'UW', u'Ū':'UW', # UW in boot
-    u'y':'yUW', u'ȳ':'yUW', u'Y':'yUW', u'Ȳ':'yUW', # emulated by [ju:]
-    u'v':'w', u'V':'w',
+    'a':'AA', 'ā':'AA', 'A':'AA', 'Ā':'AA', # AA in father
+    'e':'EH', 'ē':'EH', 'E':'EH', 'Ē':'EH', # EH in bet
+    'i':'IY', 'ī':'IY', 'I':'IY', 'Ī':'IY', # IY in beet
+    'o':'OW', 'ō':'OW', 'O':'OW', 'Ō':'OW', # OW in boat
+    'u':'UW', 'ū':'UW', 'U':'UW', 'Ū':'UW', # UW in boot
+    'y':'yUW', 'ȳ':'yUW', 'Y':'yUW', 'Ȳ':'yUW', # emulated by [ju:]
+    'v':'w', 'V':'w',
 
-    u'æ':'AAEH', u'Æ':'AAEH',
-    u'œ':'OWEH', u'Œ':'OWEH',
+    'æ':'AAEH', 'Æ':'AAEH',
+    'œ':'OWEH', 'Œ':'OWEH',
 
-    u'c':'k', u'C':'k',
-    u'k':'k', u'K':'k',
-    u'q':'k', u'Q':'k',
-    u'g':'g', u'G':'g',
-    u'x':'ks', u'X':'ks',
+    'c':'k', 'C':'k',
+    'k':'k', 'K':'k',
+    'q':'k', 'Q':'k',
+    'g':'g', 'G':'g',
+    'x':'ks', 'X':'ks',
 
-    u'j':'y', u'J':'Y',
-    u't':'~t', u'T':'~t',
-    u'd':'d', u'D':'d',
+    'j':'y', 'J':'Y',
+    't':'~t', 'T':'~t',
+    'd':'d', 'D':'d',
 
-    u'p':'p', u'P':'p',
-    u'b':'b', u'B':'b',
+    'p':'p', 'P':'p',
+    'b':'b', 'B':'b',
 
-    u'h':'h', u'H':'h',
-    u'f':'f', u'F':'f',
+    'h':'h', 'H':'h',
+    'f':'f', 'F':'f',
 
-    u'l':'l', u'L':'l',
-    u'm':'m', u'M':'m',
-    u'n':'n', u'N':'n',
-    u'r':'r', u'R':'r',
-    u's':'s', u'S':'s' }
+    'l':'l', 'L':'l',
+    'm':'m', 'M':'m',
+    'n':'n', 'N':'n',
+    'r':'r', 'R':'r',
+    's':'s', 'S':'s' }
 
 latin_time_unit = 110
 latin_freq_low = 135
@@ -102,8 +103,8 @@ def analyze_latin_word_phonemes(word_uc, debug_mode=False):
 
     if debug_mode:
 #    if True:
-        syllables_ = [u'[' + syl + u']' if i == acc_idx else syl for i, syl in enumerate(syllables)]
-        print '\n>', u'-'.join(syllables_).encode('utf-8')
+        syllables_ = ['[' + syl + ']' if i == acc_idx else syl for i, syl in enumerate(syllables)]
+        print('\n>', '-'.join(syllables_).encode('utf-8'))
 
     phonemes = []
 
@@ -114,27 +115,27 @@ def analyze_latin_word_phonemes(word_uc, debug_mode=False):
             pitch = latin_freq_low
 
         # qu [kw]
-        syl.replace(u'QU', u'kv')
-        syl.replace(u'qu', u'kv')
+        syl.replace('QU', 'kv')
+        syl.replace('qu', 'kv')
         # gu [gw]
-        syl.replace(u'GU', u'gv')
-        syl.replace(u'gu', u'gv')
+        syl.replace('GU', 'gv')
+        syl.replace('gu', 'gv')
 
         # bs [ps], bt [pt]
-        if syl[-1] in (u'B', u'b') and i < len(syllables)-1:
-            if syllables[i+1][0] in (u's', u'S', u't', u'T'):
-                syl[-1] = u'p'
+        if syl[-1] in ('B', 'b') and i < len(syllables)-1:
+            if syllables[i+1][0] in ('s', 'S', 't', 'T'):
+                syl[-1] = 'p'
 
         for c in syl:
             # print acc_idx, i, syl, c, pitch
             phoneme = latin_phoneme_dic.get(c, '~')
 
-            if c in (u'ā', u'ē', u'ī', u'ō', u'ū',
-                     u'Ā', u'Ē', u'Ī', u'Ō', u'Ū',
-                     u'ȳ', u'Ȳ',
-                     u'æ', u'Æ',
-                     u'œ', u'Œ',
-                     u'x', u'X' ):
+            if c in ('ā', 'ē', 'ī', 'ō', 'ū',
+                     'Ā', 'Ē', 'Ī', 'Ō', 'Ū',
+                     'ȳ', 'Ȳ',
+                     'æ', 'Æ',
+                     'œ', 'Œ',
+                     'x', 'X' ):
                 # longer
                 duration = latin_time_unit * 2
             # elif c in (u't', u'T'):
@@ -151,7 +152,7 @@ def analyze_latin_word_phonemes(word_uc, debug_mode=False):
 def analyze_latin_sentence(sentence_uc, debug_mode=False):
     phonemes = []
 
-    for word_uc in sentence_uc.split(u' '):
+    for word_uc in sentence_uc.split(' '):
         phonemes_in_word = analyze_latin_word_phonemes(word_uc, debug_mode=debug_mode)
         # silence
         duration = latin_time_unit
@@ -161,7 +162,7 @@ def analyze_latin_sentence(sentence_uc, debug_mode=False):
 
         if debug_mode:
             for phoneme in phonemes_in_word:
-                print "  ", phoneme
+                print("  ", phoneme)
 
         phonemes += phonemes_in_word
 
@@ -177,5 +178,6 @@ def say_latin(text_uc, debug_mode=False, pause=False):
 if __name__ == '__main__':
     # init_synth('Alex')
     init_synth('Victoria')
-    text = u'In Crētā īnsulā māgnum labyrinthum Daedalus aedificāvit plēnum viārum flexuōsārum.'
-    say_latin(text, debug_mode=False, pause=True)
+    text = 'In Crētā īnsulā māgnum labyrinthum Daedalus aedificāvit plēnum viārum flexuōsārum.'
+    #say_latin(text, debug_mode=False, pause=True)
+    say_latin(text, debug_mode=True, pause=True)

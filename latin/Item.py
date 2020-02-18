@@ -41,12 +41,12 @@ class Item:
             '-':'-'}
         # pos = item['pos']
         def short_(_):
-            return '|'.join(map(lambda s:'.'.join(s), _))
+            return '|'.join(['.'.join(s) for s in _])
 
         def get_base(key):
             base = self.item.get(key)
             if base is None: return ''
-            return ansi_color.ANSI_FGCOLOR_YELLOW + '(' + base.encode('utf-8') + ')' + ansi_color.ANSI_FGCOLOR_DEFAULT + ' '
+            return ansi_color.ANSI_FGCOLOR_YELLOW + '(' + base + ')' + ansi_color.ANSI_FGCOLOR_DEFAULT + ' '
 
         if self.pos == 'noun':
             return get_base('base') + '%s [%s]' % (self.ja, short_(self._)) +' // '+ util.render(self.modifiers)

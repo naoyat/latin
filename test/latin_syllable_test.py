@@ -8,15 +8,15 @@ import unittest
 class SyllabaTestCase(unittest.TestCase):
     def assertSep(self, word_utf8, expected_separation_utf8):
         syllables = separate_syllaba(word_utf8.decode('utf-8'))
-        actual_separation_utf8 = (u'-'.join(syllables)).encode('utf-8')
+        actual_separation_utf8 = ('-'.join(syllables)).encode('utf-8')
         self.assertEqual(actual_separation_utf8, expected_separation_utf8)
 
     def assertAccent(self, word_utf8, expected_accent_utf8):
         syllables = separate_syllaba(word_utf8.decode('utf-8'))
         acc_idx = locate_accent(syllables)
         if acc_idx is not None:
-            syllables[acc_idx] = u'[' + syllables[acc_idx] + u']'
-        actual_accent_utf8 = (u'-'.join(syllables)).encode('utf-8')
+            syllables[acc_idx] = '[' + syllables[acc_idx] + ']'
+        actual_accent_utf8 = ('-'.join(syllables)).encode('utf-8')
         self.assertEqual(actual_accent_utf8, expected_accent_utf8)
 
     def test_sep(self):
