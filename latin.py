@@ -795,8 +795,8 @@ def analyse_text(text, options=None):
                 print
 
         # 音読モードの場合、読み終わるまでウェイトを入れる
-        if options.speech_mode:
-            speak_latin.pause_while_speaking()
+        # if options.speech_mode:
+        #     speak_latin.pause_while_speaking()
 
 
 def do_command(line, options=None):
@@ -988,8 +988,8 @@ class Options:
 
 def main():
     options = Options(sys.argv[1:])
-    if options.speech_mode:
-        speak_latin.init_synth('Alex')
+    #if options.speech_mode:
+    #    speak_latin.init_synth('Alex')
 
     latindic.load(auto_macron_mode=options.auto_macron_mode)
 

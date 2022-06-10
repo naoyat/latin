@@ -1,61 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# なんちゃってラテン語スピーチ (powered by NSSpeechSynthesizer, available only on MacOSX)
+# なんちゃってラテン語スピーチ (on MacOSX)
 # by naoya_t
 #
 import sys
 import time
 import math
+from subprocess import Popen, PIPE
 
 from latin.latin_syllable import separate_syllaba, locate_accent
 
-# AppKit
-try:
-    from AppKit import NSSpeechSynthesizer
-    is_appkit_available = True
-except:
-    is_appkit_available = False
-
-synth = None
-
-def init_synth(voice=None):
-    if not is_appkit_available:
-        print "speech synthesizer is not available."
-        return None
-
-    def init_(voiceIdentifier):
-        return NSSpeechSynthesizer.alloc().initWithVoice_(voiceIdentifier)
-
-    global synth
-    if voice is None:
-        # no voiceIdentifier is specified
-        synth = NSSpeechSynthesizer.alloc().init()
-    elif voice[:4] == 'com.apple.speech.synthesis.voice.':
-        # an exact voiceIdentifier is specified
-        synth = init_(voice)
-    else:
-        voice1 = 'com.apple.speech.synthesis.voice.' + voice
-        voice2 = 'com.apple.speech.synthesis.voice.' + voice.lower() + '.premium'
-        synth = init_(voice1) or init_(voice2)
-
-
-def pause_while_speaking():
-    if synth is None: return
-    while synth.isSpeaking():
-        time.sleep(0.1)
-
 
 def say(text, input='TEXT', show_phonemes=False, pause=False):
-    if synth is None: return None
-    # print text
     if input in ('PHON', 'TUNE'):
         text = '[[inpt '+ input +']]' + text + '[[inpt TEXT]]'
+
     if show_phonemes:
-        print synth.phonemesFromText_(text)
-    synth.startSpeakingString_(text)
-    if pause:
-        pause_while_speaking()
+        print text
+
+    p = Popen(["say", "-v", "Alex"], stdout=PIPE, stdin=PIPE, stderr=PIPE)
+    p.stdin.write(text)
 
 
 latin_phoneme_dic = {
@@ -173,9 +138,14 @@ def say_latin(text_uc, debug_mode=False, pause=False):
     tune_text = ''.join(phonemes)
     say(tune_text, input='TUNE', show_phonemes=False, pause=pause)
 
-
 if __name__ == '__main__':
-    # init_synth('Alex')
-    init_synth('Victoria')
-    text = u'In Crētā īnsulā māgnum labyrinthum Daedalus aedificāvit plēnum viārum flexuōsārum.'
+    buf = []
+    for line in sys.stdin:
+        buf.append(line.rstrip().decode("utf-8"))
+
+    if buf:
+        text = " ".join(buf)
+    else:
+        text = u'In Crētā īnsulā māgnum labyrinthum Daedalus aedificāvit plēnum viārum flexuōsārum.'
+
     say_latin(text, debug_mode=False, pause=True)
