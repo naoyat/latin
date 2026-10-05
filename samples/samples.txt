@@ -19,6 +19,11 @@ Haec puella illum puerum videt.
 ## 繋辞 (sum)
 Rōma magna est.
 Mārcus est agricola.
+Puellae pulchrae erant.
+Via longa et lāta est.
+Agricola laetus nōn erit.
+Templum aureum est.
+Magnus vir est.
 
 ## 時制・態・否定
 Puer ā magistrō laudātur.

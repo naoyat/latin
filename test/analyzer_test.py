@@ -155,6 +155,39 @@ class NoVerbTestCase(unittest.TestCase):
         self.assertIsInstance(a.nodes[0], AndOr)
 
 
+class CopulaTestCase(unittest.TestCase):
+    """sum の補語は形容詞・形容動詞・名詞の述語の形で訳す"""
+
+    def translation(self, text):
+        return analyze(text).clauses[0].predicate.translate()[0]
+
+    def test_adjective(self):
+        self.assertTrue(self.translation('Rōma magna est.').endswith('大きい'))
+        self.assertTrue(self.translation('Rōma magna erat.').endswith('大きかった'))
+
+    def test_negation(self):
+        tr = self.translation('Rōma nōn magna est.')
+        self.assertTrue(tr.endswith('大きくない'), tr)
+        self.assertNotIn('否定', tr)  # nōn の説明文を訳に出さない
+
+    def test_noun_adjective_sum(self):
+        # 名詞 形容詞 sum の順なら形容詞は補語 (少女は美しい)
+        tr = self.translation('Puella pulchra est.')
+        self.assertTrue(tr.endswith('美しい'), tr)
+        self.assertIn('少女は', tr)
+
+    def test_adjective_noun_sum(self):
+        # 形容詞 名詞 sum の順は1つの名詞句
+        self.assertTrue(self.translation('Magnus vir est.').endswith('である'))
+
+    def test_noun(self):
+        self.assertTrue(self.translation('Puella est fīlia agricolae.').endswith('娘である'))
+
+    def test_neuter_subject_is_nominative(self):
+        pred = analyze('Templum magnum est.').clauses[0].predicate
+        self.assertNotIn('Acc', pred.case_slot)
+
+
 class DeterminismTestCase(unittest.TestCase):
     def test_translate_is_repeatable(self):
         # translate() が格スロットを書き換えないこと

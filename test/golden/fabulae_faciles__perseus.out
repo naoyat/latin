@@ -643,11 +643,11 @@ Hōc tamen cōnsilium Perseō minimē grātum erat .
     (tamen)
     Abl:
       Hōc
-    Nom/Acc:
+    Nom:
       cōnsilium
       grātum
 
-  →  しかしながら,それでも / 意図,相談は / この,これで / 楽しい,感謝のであった
+  →  しかしながら,それでも / 意図,相談は / この,これで / 楽しかった,感謝のものであった
 
 
 Polydectēs igitur Perseum dīmittere cōnstituit .
@@ -721,7 +721,7 @@ Turpe est hanc īgnāvam vītam agere ;
   NOT WELL: {2..3}
 
   est (indicative 3sg)
-    Nom/Acc:
+    Nom:
       Turpe
 
   →  彼,彼女,それは / 恥ずべきである
@@ -795,7 +795,7 @@ Tempus est arma capere et virtūtem praestāre .
 2 VERBS FOUND: est, capere
 
   est (indicative 3sg)
-    Nom/Acc:
+    Nom:
       Tempus
 
   →  彼,彼女,それは / 時である
@@ -1136,7 +1136,7 @@ Gorgonēs autem mōnstra erant speciē horribilī ;
 
   erant (indicative 3pl)
     (autem)
-    Nom/Acc:
+    Nom:
       mōnstra
     Abl:
       speciē
@@ -1743,7 +1743,7 @@ Cēpheus igitur ōrāculum deī Hammōnis cōnsuluit , atque ā deō iūssus est
       fīlia
       fōrmōsissima
 
-  →  ところで / 娘は / その,それの / 最も美しいであった
+  →  ところで / 娘は / その,それの / 最も美しかった
 
 
 Cēpheus ubi haec audīvit , māgnum dolōrem percēpit .
@@ -2540,7 +2540,7 @@ Ea autem omnem spem salūtis dēposuerat , et ubi Perseus adiit , terrōre paene
       spem
         omnem
 
-  →  ところで / 彼,彼女,それは / {すべての}希望を / どこ / その,それであった
+  →  ところで / 彼,彼女,それは / {すべての}希望を / どこ / それであった
 
 
 Ille vīncula statim solvit , et puellam patrī reddidit .

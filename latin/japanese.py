@@ -379,3 +379,85 @@ if __name__ == '__main__':
         print(v_with_mecab.description())
 #        print v_without_mecab.description()
 #        print
+
+
+# ----------------------------------------------------------------------
+# 繋辞 (sum) の述語: 補語の訳語を、形容詞・形容動詞・名詞それぞれの述語の形にする
+#
+#   magna est → 大きい / pulchra erat → 美しかった / laetus nōn est → うれしくない
+#   beāta est → 幸福である / agricola erat → 農夫であった
+#
+# 時制は 'present' / 'past' / 'future'
+
+# 連体詞は形容詞の終止形や代名詞に読み替える
+RENTAISHI = {'大きな': '大きい', '小さな': '小さい', 'おかしな': 'おかしい',
+             'この': 'これ', 'その': 'それ', 'あの': 'あれ'}
+VERB_ENDINGS = tuple('うくぐすつぬぶむる')
+
+
+def _complement_type(gloss, adjective):
+    if not adjective:
+        return 'noun'
+    if gloss.endswith(('た', 'だ')):
+        return 'ta'  # 分詞の訳 (満ちた, 憎まれた) は「〜ている」の形にする
+    if gloss.endswith('い'):
+        return 'i'
+    if gloss.endswith('な'):
+        return 'na'
+    if gloss.endswith('の'):
+        return 'no'
+    if gloss.endswith(VERB_ENDINGS):
+        return 'verb'  # 輝く
+    return 'noun'
+
+
+def _copula_parts(gloss, adjective):
+    """(語幹, 型)。型は 'i' (形容詞), 'te' (〜ている), 'da' / 'nda' (〜である で結ぶもの)"""
+    gloss = RENTAISHI.get(gloss, gloss)
+    kind = _complement_type(gloss, adjective)
+    if kind == 'i':
+        return ('よ' if gloss == 'いい' else gloss[:-1]), 'i'  # いい → よかった
+    if kind == 'ta':
+        return gloss[:-1] + ('て' if gloss.endswith('た') else 'で'), 'te'
+    if kind == 'na':
+        return gloss[:-1], 'da'
+    if kind == 'no':
+        return gloss + 'もの', 'da'
+    if kind == 'verb':
+        return gloss + 'の', 'nda'  # 輝くのである (ほかの語とまとめて結ばない)
+    return gloss, 'da'
+
+
+COPULA_FORMS = {
+    # (型, 否定): (現在, 過去, 未来)
+    ('i', False): ('い', 'かった', 'いだろう'),
+    ('i', True): ('くない', 'くなかった', 'くないだろう'),
+    ('te', False): ('いる', 'いた', 'いるだろう'),
+    ('te', True): ('いない', 'いなかった', 'いないだろう'),
+    ('da', False): ('である', 'であった', 'であるだろう'),
+    ('da', True): ('ではない', 'ではなかった', 'ではないだろう'),
+}
+COPULA_FORMS[('nda', False)] = COPULA_FORMS[('da', False)]
+COPULA_FORMS[('nda', True)] = COPULA_FORMS[('da', True)]
+TENSE_INDEX = {'present': 0, 'past': 1, 'future': 2}
+
+
+def copula_predicate(glosses, adjective=True, tense='present', negated=False):
+    """補語の訳語 (カンマ区切り) と sum の時制・否定から述語を作る。
+    〜である で結ぶものはまとめて結ぶ (王,指導者であった / うれしかった,愉快であった)"""
+    parts = []
+    for gloss in glosses.split(','):
+        stem, kind = _copula_parts(gloss, adjective)
+        if (stem, kind) not in parts:
+            parts.append((stem, kind))
+    result = []
+    for i, (stem, kind) in enumerate(parts):
+        last_of_run = i + 1 == len(parts) or kind != 'da' or parts[i + 1][1] != 'da'
+        result.append(stem + (COPULA_FORMS[(kind, negated)][TENSE_INDEX[tense]] if last_of_run else ''))
+    return ','.join(result)
+
+
+def copula_conjunctive(gloss, adjective=True):
+    """並列した補語の、最後以外の形 (長くて / 幸福で / 農夫で / 満ちていて)"""
+    stem, kind = _copula_parts(gloss.split(',')[0], adjective)
+    return stem + {'i': 'くて', 'te': 'いて', 'da': 'で', 'nda': 'で'}[kind]

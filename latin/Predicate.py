@@ -4,7 +4,8 @@
 from latin.LatinObject import LatinObject
 from latin.Word import Word
 
-from .japanese import JaVerb
+from latin.AndOr import AndOr
+from .japanese import JaVerb, copula_predicate, copula_conjunctive
 from . import verb_flags as Verb
 
 TENSE_LABELS = {'imperfect': '未完了', 'future': '未来', 'perfect': '完了',
@@ -105,9 +106,9 @@ class Predicate (LatinObject):
                     # 形容詞（修飾語）の場合
                     if isinstance(obj, Word) and obj.items[0].pos != 'noun':
                         # sum なら補語として
-                        sum_complement.append(nom)
+                        sum_complement.append(obj)
                     elif (len(noms) > 0 or len(nom_objs) == 1):
-                        sum_complement.append(nom)
+                        sum_complement.append(obj)
                     else:
                         noms.append(nom)
                 else:
@@ -163,8 +164,10 @@ class Predicate (LatinObject):
 
         # adverb
         for adv in self.modifiers:
-            s = adv.items[0].ja
-            tr.append(s)
+            if is_negation(adv):
+                negated = True
+                continue
+            tr.append(adv.items[0].ja)
 
         jas = verb.ja.split(',')
 
@@ -194,15 +197,48 @@ class Predicate (LatinObject):
             verb_tr = jas[0] + english_verb_label(verb)
         else:
             verb_tr = ','.join([JaVerb(ja).form(flag) for ja in jas])
-        if negated:
-            verb_tr = '¬'+ verb_tr
-
         if self.is_sum and sum_complement:
-            adj = ','.join(sum_complement)
-            verb_tr = verb_tr.replace('〜', adj)
+            verb_tr = '='.join(copula_translation(obj, copula_tense(tense), negated) for obj in sum_complement)
+        elif negated:
+            verb_tr = '¬'+ verb_tr
 
         tr.append(verb_tr)
 
 #        tr.append(self.first_item.ja )
 
         return (' / '.join(tr), False)
+
+
+def is_negation(word):
+    return isinstance(word, Word) and word.surface.lower() in ('nōn', 'non')
+
+
+def copula_tense(tense):
+    if tense in ('imperfect', 'perfect', 'past-perfect'):
+        return 'past'
+    if tense in ('future', 'future-perfect'):
+        return 'future'
+    return 'present'
+
+
+def _is_adjective(obj):
+    if isinstance(obj, AndOr):
+        return obj.pos == 'adj'
+    return isinstance(obj, Word) and bool(obj.items) and obj.items[0].pos in ('adj', 'participle')
+
+
+def copula_translation(obj, tense, negated):
+    """sum の補語を述語の形に (大きい / 幸福であった / 農夫ではない)。並列した形容詞は 長くて広い"""
+    if isinstance(obj, AndOr) and obj.pos == 'adj':
+        heads = [words[0] for words in obj.words_slots]
+        first = [copula_conjunctive(w.translate()[0], True) for w in heads[:-1]]
+        return ''.join(first) + copula_predicate(heads[-1].translate()[0], True, tense, negated)
+    gloss = obj.translate()[0]
+    # 修飾語 ({美しい}少女 / {人生の}満ちた) はそのまま前に置き、後ろの語だけを述語の形にする
+    modifier, head = '', gloss
+    if '}' in gloss:
+        cut = gloss.rindex('}') + 1
+        modifier, head = gloss[:cut], gloss[cut:]
+    if not head:
+        return gloss + 'である'
+    return modifier + copula_predicate(head, _is_adjective(obj), tense, negated)

@@ -745,6 +745,16 @@ def _is_same(item):
     return item.attrib('base') in ('īdem', 'idem') or item.ja == '同じ'
 
 
+def _span(node):
+    """語・並列句の位置 (最初と最後の語の index)。分からなければ (None, None)"""
+    if isinstance(node, AndOr):
+        indices = [w.index for words in node.words_slots for w in words
+                   if isinstance(w, Word) and w.index is not None]
+        return (min(indices), max(indices)) if indices else (None, None)
+    index = getattr(node, 'index', None)
+    return index, index
+
+
 def _promote_complement(pred):
     """sum の文で補語が無く、主語の名詞に修飾語が付いているとき、その1つを補語に戻す
     (Rōma māgna est → ローマは大きい。所有形容詞・指示詞は修飾語のまま: hic puer bonus est)"""
@@ -755,6 +765,9 @@ def _promote_complement(pred):
     subject = nouns[0]
     adjectives, sames = [], []
     for m in subject.modifiers:
+        if isinstance(m, AndOr) and m.pos == 'adj':
+            adjectives.append(m)  # 並列した形容詞 (via longa et lāta est)
+            continue
         if not isinstance(m, Word) or not m.items:
             continue
         item = m.items[0]
@@ -763,18 +776,30 @@ def _promote_complement(pred):
         elif item.pos in ('adj', 'participle') and item.attrib('desc') != '所有形容詞' \
                 and item.attrib('base') not in DETERMINER_BASES:
             adjectives.append(m)
-    # 主語の名詞と隣り合う形容詞は1つの名詞句であることが多い (vir māgnus erit「(彼は) 偉大な男になる」)。
-    # 隣り合っていても主語が固有名詞なら補語とみなす (Rōma māgna est)
+    # 主語の名詞と隣り合う形容詞は、名詞 形容詞 sum の順 (agricola laetus est「農夫はうれしい」) なら補語とみなす。
+    # 形容詞 名詞 sum の順 (magnus vir est) は1つの名詞句として「偉大な男である」。主語が固有名詞なら常に補語。
+    # (名詞の側が補語で主語が省略された vir māgnus erit「(彼は) 偉大な男になるだろう」は区別できず、補語は形容詞になる)
     base = subject.items[0].attrib('base') or subject.surface
     proper = base[:1].isupper()
 
     def separated(m):
-        return m.index is None or subject.index is None or abs(m.index - subject.index) > 1
+        first, _ = _span(m)
+        return first is None or subject.index is None or abs(first - subject.index) > 1
 
-    candidates = [m for m in adjectives if proper or separated(m)] or sames
+    negations = {w.index for w in pred.modifiers if isinstance(w, Word) and w.surface.lower() in ('nōn', 'non')}
+
+    def before_sum(m):
+        # 名詞 形容詞 (nōn) sum の順
+        first, last = _span(m)
+        if first is None or subject.index is None or pred.verb.index is None:
+            return False
+        return first == subject.index + 1 and last < pred.verb.index \
+            and set(range(last + 1, pred.verb.index)) <= negations
+
+    candidates = [m for m in adjectives if proper or separated(m) or before_sum(m)] or sames
     if not candidates:
         return
-    complement = max(candidates, key=lambda w: w.index if w.index is not None else -1)  # 最も後ろの語
+    complement = max(candidates, key=lambda w: _span(w)[0] if _span(w)[0] is not None else -1)  # 最も後ろの語
     subject.modifiers.remove(complement)
     complement.attached_to = None
     case = 'Nom' if 'Nom' in pred.case_slot else 'Nom/Acc'
@@ -810,7 +835,7 @@ def _attach_to_predicate(words, group, verb_ix):
                 else:
                     not_solved.append(word)
             elif first_item.pos == 'adv':
-                if j < 2 and not pred.conjunction:
+                if j < 2 and not pred.conjunction and word.surface.lower() not in ('nōn', 'non'):
                     pred.conjunction = word
                 elif word.surface in ('ō', 'Ō'):
                     # 二重になってないかチェックする or conjunction を複数取る
@@ -823,6 +848,8 @@ def _attach_to_predicate(words, group, verb_ix):
                 if 'Voc' in cases and ix > 0 and words[ix-1].surface in ('ō', 'Ō'):
                     case = 'Voc'
                     # 形的にVocしかありえないケースも拾いたい
+                elif pred.is_sum and 'Nom' in cases:
+                    case = 'Nom'  # sum は対格を取らない (templum aureum est)
                 else:
                     for x in first_item._:
                         if x[0] == 'Nom':
