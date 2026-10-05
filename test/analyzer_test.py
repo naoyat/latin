@@ -188,6 +188,13 @@ class CopulaTestCase(unittest.TestCase):
         self.assertNotIn('Acc', pred.case_slot)
 
 
+class NegationTestCase(unittest.TestCase):
+    def test_verb_negation(self):
+        tr = analyze('Nautae mare nōn timent.').clauses[0].predicate.translate()[0]
+        self.assertTrue(tr.endswith('恐れない'), tr)
+        self.assertNotIn('¬', tr)
+
+
 class DeterminismTestCase(unittest.TestCase):
     def test_translate_is_repeatable(self):
         # translate() が格スロットを書き換えないこと

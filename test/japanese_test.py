@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# 繋辞 (sum) の述語の形 (latin.japanese.copula_predicate)
+# 日本語の述語の形: 繋辞 (sum) の述語 (copula_predicate) と動詞の否定形 (JaVerb.form(negated=True))
 #
 import unittest
 
-from latin.japanese import copula_predicate, copula_conjunctive
+from latin import japanese
+from latin.japanese import JaVerb, copula_predicate, copula_conjunctive
+from latin import verb_flags as Verb
 
 
 class CopulaTestCase(unittest.TestCase):
@@ -40,6 +42,33 @@ class CopulaTestCase(unittest.TestCase):
         self.assertEqual(copula_conjunctive('長い'), '長くて')
         self.assertEqual(copula_conjunctive('幸福な'), '幸福で')
         self.assertEqual(copula_conjunctive('満ちた'), '満ちていて')
+
+
+
+@unittest.skipUnless(japanese.is_mecab_available, 'MeCab が無い')
+class NegativeTestCase(unittest.TestCase):
+    def negative(self, verb, flag):
+        return JaVerb(verb).form(flag, negated=True)
+
+    def test_tenses(self):
+        self.assertEqual(self.negative('恐れる', Verb.INDICATIVE_ACTIVE_PRESENT), '恐れない')
+        self.assertEqual(self.negative('恐れる', Verb.INDICATIVE_ACTIVE_IMPERFECT), '恐れていなかった')
+        self.assertEqual(self.negative('恐れる', Verb.INDICATIVE_ACTIVE_FUTURE), '恐れないだろう')
+        self.assertEqual(self.negative('恐れる', Verb.INDICATIVE_ACTIVE_PERFECT), '恐れなかった')
+
+    def test_conjugation_types(self):
+        self.assertEqual(self.negative('書く', Verb.INDICATIVE_ACTIVE_PRESENT), '書かない')
+        self.assertEqual(self.negative('言う', Verb.INDICATIVE_ACTIVE_PRESENT), '言わない')
+        self.assertEqual(self.negative('する', Verb.INDICATIVE_ACTIVE_PRESENT), 'しない')
+        self.assertEqual(self.negative('ある', Verb.INDICATIVE_ACTIVE_PRESENT), 'ない')
+        self.assertEqual(self.negative('愛する', Verb.INDICATIVE_ACTIVE_PRESENT), '愛さない')
+
+    def test_passive_and_imperative(self):
+        self.assertEqual(self.negative('ほめる', Verb.INDICATIVE_PASSIVE_PERFECT), 'ほめられなかった')
+        self.assertEqual(self.negative('恐れる', Verb.IMPERATIVE_ACTIVE_PRESENT), '恐れるな')
+
+    def test_affirmative_unchanged(self):
+        self.assertEqual(JaVerb('恐れる').form(Verb.INDICATIVE_ACTIVE_PERFECT), '恐れた')
 
 
 if __name__ == '__main__':

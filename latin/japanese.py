@@ -240,7 +240,38 @@ class JaVerb:
             return conj + 'うとして'
         raise ValueError(kind)
 
-    def form(self, flag):
+    def negative_stem(self):
+        """「ない」の前の形 (恐れ / 書か / し / 来)。ある → (な)い"""
+        if not self.use_mecab:
+            return self.stop_form + 'などし'
+        if self.body == 'ある':
+            return self.prefix
+        if self.body == '愛する':
+            return self.prefix + '愛さ'  # 愛しない より自然
+        conj, _ = self.conjugate(MIZEN, 'ない')
+        return conj
+
+    def negative_form(self, flag):
+        """否定形: 恐れない / 恐れなかった / 恐れていない / 恐れられないだろう / 恐れるな (命令)"""
+        if flag & Verb.IMPERATIVE:
+            if flag & Verb.PASSIVE:
+                return self.passive_stem() + 'るな'
+            return self.stop_form + 'な'
+        if flag & Verb.PASSIVE:
+            stem = self.passive_stem() + ('てい' if flag & Verb.ING else '')
+        elif flag & Verb.ING and self.body != 'ある':
+            stem = self.active_ing_stem()
+        else:
+            stem = self.negative_stem()
+        if flag & Verb.FUTURE:
+            return stem + ('なかっただろう' if flag & Verb.PERFECT else 'ないだろう')
+        if flag & (Verb.PAST | Verb.PERFECT):
+            return stem + 'なかった'
+        return stem + 'ない'
+
+    def form(self, flag, negated=False):
+        if negated and not flag & Verb.PARTICIPLE:
+            return self.negative_form(flag)
         if flag & Verb.PARTICIPLE:
             if flag & Verb.FUTURE:
                 # return "<p+しようとしている>"

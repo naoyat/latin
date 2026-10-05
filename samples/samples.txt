@@ -29,6 +29,8 @@ Magnus vir est.
 Puer ā magistrō laudātur.
 Servī epistulās portāvērunt.
 Nautae mare nōn timent.
+Servus epistulam nōn portābat.
+Puer ā magistrō nōn laudātus est.
 
 ## 前置詞句
 Cum amīcīs ad oppidum ambulāmus.

@@ -12,12 +12,14 @@ TENSE_LABELS = {'imperfect': '未完了', 'future': '未来', 'perfect': '完了
                 'past-perfect': '過去完了', 'future-perfect': '未来完了'}
 
 
-def english_verb_label(verb):
+def english_verb_label(verb, negated=False):
     labels = [TENSE_LABELS[verb.attrib('tense')]] if verb.attrib('tense') in TENSE_LABELS else []
     if verb.attrib('voice') == 'passive':
         labels.append('受動')
     if verb.attrib('mood') in ('subjunctive', 'imperative'):
         labels.append({'subjunctive': '接続法', 'imperative': '命令'}[verb.attrib('mood')])
+    if negated:
+        labels.append('否定')
     return '[%s]' % '・'.join(labels) if labels else ''
 
 
@@ -194,13 +196,13 @@ class Predicate (LatinObject):
 #            print "{", ', '.join(advs), "}",
         if verb.attrib('gloss_lang') == 'en':
             # 英語の訳語 (Wiktionary 由来) は活用させず、時制などを添える
-            verb_tr = jas[0] + english_verb_label(verb)
+            verb_tr = jas[0] + english_verb_label(verb, negated and not self.is_sum)
         else:
-            verb_tr = ','.join([JaVerb(ja).form(flag) for ja in jas])
+            verb_tr = ','.join([JaVerb(ja).form(flag, negated and not self.is_sum) for ja in jas])
         if self.is_sum and sum_complement:
             verb_tr = '='.join(copula_translation(obj, copula_tense(tense), negated) for obj in sum_complement)
-        elif negated:
-            verb_tr = '¬'+ verb_tr
+        elif negated and self.is_sum:
+            verb_tr = '¬'+ verb_tr  # 補語の無い sum (〜である) は否定の形を作れない
 
         tr.append(verb_tr)
 
