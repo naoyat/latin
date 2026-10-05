@@ -12,7 +12,7 @@
 #
 from .LatinObject import LatinObject
 from .Word import Word
-from . import latindic
+from .Participle import participle_kind, participle_translation
 
 
 class AblativeAbsolute(LatinObject):
@@ -29,41 +29,11 @@ class AblativeAbsolute(LatinObject):
         if objects:
             self.case_slot['Acc'] = objects
 
-    @property
-    def participle_item(self):
-        return next((item for item in self.verb.items if item.pos == 'participle'), self.verb.items[0])
-
-    def _verb_gloss(self):
-        """分詞のもとの動詞の訳語 (日本語なら活用させるため)。(訳語, 言語)"""
-        pres1sg = self.participle_item.attrib('pres1sg')
-        if pres1sg:
-            for item in latindic.lookup(pres1sg) or []:
-                if item.get('pos') == 'verb' and item.get('ja'):
-                    return item['ja'].split(',')[0], item.get('gloss_lang', 'ja')
-        item = self.participle_item
-        return item.ja.split(',')[0], item.attrib('gloss_lang', 'ja')
-
     def kind(self):
-        tense = self.participle_item.attrib('tense')
-        if tense == 'present':
-            return 'present'
-        if tense == 'future':
-            return 'future'
-        pres1sg = self.participle_item.attrib('pres1sg') or ''
-        return 'active' if pres1sg.endswith('r') else 'passive'  # 形式受動態動詞 (loquor) の完了分詞は能動
+        return participle_kind(self.verb)
 
     def translate(self):
-        from .japanese import JaVerb
         subject = self.subject.translate()[0]
         complements = [c.translate()[0] for c in self.complements]
-        gloss, lang = self._verb_gloss()
-        kind = self.kind()
-        if lang == 'ja':
-            try:
-                verb = JaVerb(gloss).clause_form(kind)
-            except Exception:
-                verb = gloss + '[分詞]'
-        else:
-            labels = {'present': '現在分詞', 'passive': '完了分詞・受動', 'active': '完了分詞', 'future': '未来分詞'}
-            verb = '%s[%s]' % (gloss, labels[kind])
+        verb = participle_translation(self.verb, 'absolute')
         return ('{' + subject + 'が' + ''.join(' ' + c for c in complements) + ' ' + verb + '}', False)

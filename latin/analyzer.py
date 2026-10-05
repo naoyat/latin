@@ -20,6 +20,7 @@ from .Predicate import Predicate
 from .AndOr import AndOr, non_genitive
 from .PrepClause import PrepClause
 from .Absolute import AblativeAbsolute
+from .Participle import ParticiplePhrase, participle_kind
 
 
 def lookup_all(surfaces_uc):
@@ -468,6 +469,130 @@ def detect_ablative_absolute(nodes, trace):
     return nodes, absolutes
 
 
+def _participle_tuples(node):
+    """分詞として読める語 (タガーの判定を優先して、最初の候補が分詞のもの) の (格, 数, 性)。
+    副詞・接続詞などとしても読める語 (ita「このように」と eō の分詞 itus) は除く"""
+    if not isinstance(node, Word) or not node.items or node.items[0].pos != 'participle':
+        return []
+    if any(item.pos in ('adv', 'conj', 'preposition', 'pronoun') for item in node.items):
+        return []
+    return [cng for item in node.items if item.pos == 'participle' for cng in (item._ or [])]
+
+
+def _nominal_tuples(node):
+    """名詞・代名詞 (並列句を含む) として読める要素の (格, 数, 性)"""
+    if isinstance(node, AndOr):
+        return list(node._ or []) if node.pos in ('noun', 'pronoun') else []
+    if not isinstance(node, Word) or not node.items:
+        return []
+    return [cng for item in node.items if item.pos in ('noun', 'pronoun') for cng in (item._ or [])]
+
+
+def _is_sum_word(node):
+    return isinstance(node, Word) and bool(node.items) and node.items[0].pos == 'verb' and \
+        node.items[0].attrib('pres1sg') == 'sum'
+
+
+def _finite_verb_numbers(nodes):
+    return {item.attrib('number') for node in nodes if isinstance(node, Word) and node.items
+            for item in node.items[:1] if item.pos == 'verb' and item.attrib('mood') != 'infinitive'}
+
+
+def _participle_complements(nodes, i, active):
+    """分詞の前にある補語の始まりの位置と、一致する名詞 (掛かり先) の位置。
+    対格 (能動の分詞だけ)・奪格・与格・属格の名詞、前置詞、直前の副詞を補語として前へたどる"""
+    participle = _participle_tuples(nodes[i])
+    start, head = i, None
+    for j in range(i - 1, max(-1, i - 6), -1):
+        node = nodes[j]
+        if isinstance(node, Word) and node.items and node.items[0].pos == 'preposition':
+            start = j
+            continue
+        if _is_clause_boundary(node):
+            # 挿入句: Rēgīna, verbīs nūntiī commōta, lacrimāvit
+            if isinstance(node, Word) and node.surface == ',' and j > 0 and \
+                    _agrees(_nominal_tuples(nodes[j - 1]), participle):
+                head = j - 1
+            break
+        nominal = _nominal_tuples(node)
+        if _agrees(nominal, participle):
+            head = j
+            break
+        cases = {case for case, _, _ in nominal}
+        if nominal and ((active and 'Acc' in cases) or cases & {'Abl', 'Dat', 'Gen'}):
+            start = j
+            continue
+        if isinstance(node, PrepClause):
+            start = j
+            continue
+        if isinstance(node, Word) and node.items and node.items[0].pos == 'adv' and j == i - 1:
+            start = j  # 分詞の直前の副詞だけ (vehementer commōtus。文頭の tum などは主節に)
+            continue
+        break
+    return start, head
+
+
+def _attach_genitives(complements):
+    """補語の中で名詞の直後にある属格 (verbīs nūntiī) をその名詞に付ける"""
+    result = []
+    for c in complements:
+        prev = result[-1] if result else None
+        if isinstance(prev, Word) and prev.items and prev.items[0].pos == 'noun' and isinstance(c, Word) \
+                and c.items and c.items[0].pos == 'noun' and any(case == 'Gen' for case, _, _ in c.items[0]._ or []):
+            prev.add_genitive(c)
+            continue
+        result.append(c)
+    return result
+
+
+def detect_participle_phrases(nodes, trace):
+    """分詞句: 分詞とその前の補語をまとめる。
+    主格で主語に一致する分詞 (掛かり先が主格の名詞、または主語が省略されていて動詞と数が一致) は述語的
+    (Puella flōrēs carpēns cantat → 花を摘みながら)、ほかの格の名詞に一致するものは名詞の修飾語
+    (hostem fugientem → 逃げている敵を)。sum と組む完了分詞 (laudātus est) は対象外"""
+    phrases = []
+    verb_numbers = _finite_verb_numbers(nodes)
+    i = 0
+    while i < len(nodes):
+        participle = _participle_tuples(nodes[i])
+        if not participle or (i + 1 < len(nodes) and _is_sum_word(nodes[i + 1])) or \
+                (i > 0 and _is_sum_word(nodes[i - 1])):
+            i += 1
+            continue
+        kind = participle_kind(nodes[i])
+        start, head_ix = _participle_complements(nodes, i, kind != 'passive')
+        if head_ix is None and start == i and i + 1 < len(nodes) and \
+                _agrees(_nominal_tuples(nodes[i + 1]), participle):
+            head_ix = i + 1  # 分詞が先: fugientem hostem
+        if head_ix is not None:
+            head_cases = {ca for ca, na, ga in _nominal_tuples(nodes[head_ix]) if _agrees([(ca, na, ga)], participle)}
+            adverbial = 'Nom' in head_cases and 'Acc' not in head_cases and bool(verb_numbers)
+        else:
+            numbers = {n for case, n, _ in participle if case == 'Nom'}
+            if not numbers & verb_numbers:
+                i += 1
+                continue  # 名詞として使われた分詞 (amāns「愛する人」) などはそのまま
+            adverbial = True
+        head = nodes[head_ix] if head_ix is not None else None
+        if not adverbial and not isinstance(head, Word):
+            i += 1
+            continue
+        complements = _attach_genitives([c for c in detect_prep_domination(list(nodes[start:i])) if c])
+        phrase = ParticiplePhrase(nodes[i], complements, head, adverbial)
+        trace.append("// PARTICIPLE #%d..#%d (%s)%s" % (
+            start, i, phrase.surface,
+            ' -> NOUN#%d (%s)' % (head_ix, head.surface) if head is not None else ''))
+        if adverbial:
+            nodes[start:i + 1] = [phrase]
+            i = start + 1
+        else:
+            head.add_modifier(phrase)
+            del nodes[start:i + 1]
+            i = start
+        phrases.append(phrase)
+    return nodes, phrases
+
+
 def detect_verbs(words):
     verb_ix = []
 
@@ -813,7 +938,7 @@ def _attach_to_predicate(words, group, verb_ix):
     for j, ix in enumerate(group):
         if ix == verb_ix: continue
         word = words[ix]
-        if isinstance(word, AblativeAbsolute):
+        if isinstance(word, (AblativeAbsolute, ParticiplePhrase)):
             pred.add_subordinate(word)
         elif isinstance(word, AndOr):
             if word.cases:
@@ -890,6 +1015,7 @@ class SentenceAnalysis:
     grouping_trace: list            # 動詞ごとのグループ分けの途中経過
     clauses: list                   # 述語ごとの Clause。動詞がなければ空
     absolutes: list = field(default_factory=list)  # 独立奪格 (AblativeAbsolute)
+    participles: list = field(default_factory=list)  # 分詞句 (ParticiplePhrase)
 
     @property
     def text(self):
@@ -964,6 +1090,7 @@ def analyze_sentence(surfaces, tags=None):
     nodes = [node for node in nodes if node]
 
     nodes, absolutes = detect_ablative_absolute(nodes, trace)
+    nodes, participles = detect_participle_phrases(nodes, trace)
     nodes, _verb_ix = detect_verbs(nodes)
     nodes = detect_prep_domination(nodes)
     nodes = [node for node in nodes if node]
@@ -981,7 +1108,7 @@ def analyze_sentence(surfaces, tags=None):
     return SentenceAnalysis(
         surfaces=list(surfaces), words=words, word_details=word_details,
         trace=trace, nodes=nodes, verbs=[nodes[ix] for ix in verbs_ix],
-        grouping_trace=grouping_trace, clauses=clauses, absolutes=absolutes)
+        grouping_trace=grouping_trace, clauses=clauses, absolutes=absolutes, participles=participles)
 
 
 def sentences(text):

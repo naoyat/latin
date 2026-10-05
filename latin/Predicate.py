@@ -79,9 +79,10 @@ class Predicate (LatinObject):
                 if neg: negated = True
             tr.append(t)
 
-        # 従属節 (独立奪格など) は文の頭に置く
+        # 独立奪格は文の頭に、述語的な分詞 (花を摘みながら) は主語の後に置く
         for clause in self.subordinates:
-            tr.append(clause.translate()[0])
+            if not getattr(clause, 'adverbial', False):
+                tr.append(clause.translate()[0])
 
         cases_ja = {'Nom':'が', 'Acc':'を', 'Gen':'の', 'Dat':'に', 'Abl':'で', 'Voc':'よ', 'Loc':'で'}
 
@@ -136,6 +137,10 @@ class Predicate (LatinObject):
             if self.is_sum:
                 nom_case_ja = 'は'
             tr.append('='.join(noms) + nom_case_ja)
+
+        for clause in self.subordinates:
+            if getattr(clause, 'adverbial', False):
+                tr.append(clause.translate()[0])
 
         for case, objs in list(case_slot.items()):
             if case in ('Nom', 'Nom/Acc', 'Acc'): continue

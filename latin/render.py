@@ -10,6 +10,7 @@ from .Predicate import Predicate
 from .AndOr import AndOr
 from .PrepClause import PrepClause
 from .Absolute import AblativeAbsolute
+from .Participle import ParticiplePhrase
 
 
 def decolate(word):
@@ -47,6 +48,13 @@ def render_with_indent(indent, obj):
             text = ansi_color.underline(obj.verb.surface)
             print(' '*indent + '[abl.abs] ' + text, '(%s)' % obj.kind())
             render_with_indent(indent+2, obj.subject)
+            for c in obj.complements:
+                render_with_indent(indent+2, c)
+
+        elif isinstance(obj, ParticiplePhrase):
+            text = ansi_color.underline(obj.verb.surface)
+            label = 'participle' if obj.adverbial else 'participle.attr'
+            print(' '*indent + '[%s] ' % label + text, '(%s)' % obj.kind())
             for c in obj.complements:
                 render_with_indent(indent+2, c)
 

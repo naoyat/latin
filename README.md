@@ -34,7 +34,7 @@ Agricola in silvā magnam casam aedificat .
 
 ## できること
 
-* **解析と訳**: 語ごとの辞書引き（変化形からの逆引き）、並列句・形容詞と属格の係り先・前置詞句・独立奪格・述語の検出、
+* **解析と訳**: 語ごとの辞書引き（変化形からの逆引き）、並列句・形容詞と属格の係り先・前置詞句・独立奪格・分詞句・述語の検出、
   名詞句の格の枠への割り当て、日本語の逐語訳（日本語の動詞は時制・態に合わせて活用）。基本はルールベースで、
   品詞タガー（任意）の判定で格の候補を絞り込む
 * **マクロンの推定**: マクロンの無い文に長音記号を付ける（隠れた長音の流儀も選べる）
@@ -244,7 +244,7 @@ cd - && python3 tools/build_morpheus_dic.py
 
 | カエサル『ガリア戦記』（約2.7万語） | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 主語 | 目的語 |
 |---|---|---|---|---|---|---|
-| すべてあり | 82.1% | 64.6% | 50.2% | 79.5% | 42.7% | 52.9% |
+| すべてあり | 82.1% | 64.6% | 50.3% | 86.1% | 42.6% | 54.5% |
 
 （格は正解率。係り先・主語・目的語は再現率）
 
@@ -265,9 +265,10 @@ python3 -m unittest discover -s test -p '*_test.py'
 ```
 latin.py                 解析・訳のコマンド (REPL を含む)
 latin/
-  analyzer.py            解析 (辞書引き、並列・係り先・前置詞句・独立奪格・述語の検出) → SentenceAnalysis
+  analyzer.py            解析 (辞書引き、並列・係り先・前置詞句・独立奪格・分詞句・述語の検出) → SentenceAnalysis
   render.py              解析結果の表示
   Word.py Item.py AndOr.py PrepClause.py Predicate.py   解析の要素と訳
+  Absolute.py Participle.py                             独立奪格・分詞句
   latindic.py words.py   辞書 (手作りの辞書の読み込みと検索)
   latin_noun.py latin_adj.py latin_verb_reg.py ...      変化形の生成
   wiktionary*.py morpheus.py ldt.py rftagger.py         補助辞書と品詞タガー

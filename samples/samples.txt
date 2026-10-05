@@ -41,6 +41,13 @@ Puellā cantante puer dormit.
 Rēge mortuō populus flēvit.
 Cum hīs rēbus cognitīs vēnit.
 
+## 分詞句
+Puella flōrēs carpēns cantat.
+Haec locūtus discessit.
+Rēgīna, verbīs nūntiī commōta, lacrimāvit.
+Mīlitēs hostem fugientem cēpērunt.
+Puer mātrī flōrēs dans rīsit.
+
 ## 綴りの流儀 (i/j, u/v)
 Julia et Juno in caelo sunt.
 Uir uiam uidet.
@@ -50,6 +57,5 @@ Puella nautae rosam dat.
 Hic servus dominum suum amat.
 
 ## まだ苦手なもの
-Haec locūtus discessit.
 Mārcus dīcit puerōs in hortō lūdere.
 Mīles hostem gladiō acūtō vulnerāvit.

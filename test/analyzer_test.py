@@ -11,6 +11,7 @@ import unittest
 
 from latin import latindic, analyzer, wiktionary
 from latin.Absolute import AblativeAbsolute
+from latin.Participle import ParticiplePhrase
 from latin.AndOr import AndOr
 from latin.PrepClause import PrepClause
 
@@ -153,6 +154,63 @@ class NoVerbTestCase(unittest.TestCase):
         self.assertEqual(a.clauses, [])
         self.assertEqual(len(a.nodes), 2)  # [et] Rōma Graecia と句点
         self.assertIsInstance(a.nodes[0], AndOr)
+
+
+@unittest.skipUnless(wiktionary.available(), 'Wiktionary 辞書 (tools/build_wiktionary_dic.py) が無い')
+class ParticiplePhraseTestCase(unittest.TestCase):
+    """分詞句。分詞は手作りの辞書にほとんど無いので Wiktionary 辞書を使う"""
+
+    @classmethod
+    def setUpClass(cls):
+        latindic.LatinDic.use_wiktionary = True
+
+    @classmethod
+    def tearDownClass(cls):
+        latindic.LatinDic.use_wiktionary = False
+
+    def phrase(self, text):
+        a = analyze(text)
+        self.assertEqual(len(a.participles), 1, a.participles)
+        self.assertIsInstance(a.participles[0], ParticiplePhrase)
+        return a, a.participles[0]
+
+    def test_predicative_with_object(self):
+        a, p = self.phrase('Puella flōrēs carpēns cantat.')
+        self.assertTrue(p.adverbial)
+        self.assertEqual(surfaces(p.complements), ['flōrēs'])
+        self.assertEqual(p.head.surface, 'Puella')
+        pred = a.clauses[0].predicate
+        self.assertIn(p, pred.subordinates)
+        self.assertEqual(surfaces(pred.case_slot['Nom']), ['Puella'])
+        self.assertNotIn('Acc', pred.case_slot)  # flōrēs は分詞の目的語で、cantat の目的語ではない
+        self.assertIn('摘みながら', p.translate()[0])
+
+    def test_omitted_subject(self):
+        # 主語が省略されていても、主格の分詞は動詞と数が一致すれば述語的
+        _, p = self.phrase('Haec locūtus discessit.')
+        self.assertTrue(p.adverbial)
+        self.assertIsNone(p.head)
+        self.assertIn('話して', p.translate()[0])
+
+    def test_attributive(self):
+        # 主格以外の名詞に一致する分詞は、その名詞の修飾語
+        a, p = self.phrase('Mīlitēs hostem fugientem cēpērunt.')
+        self.assertFalse(p.adverbial)
+        self.assertEqual(p.head.surface, 'hostem')
+        self.assertIn(p, p.head.modifiers)
+        self.assertIn('{逃げている}敵を', a.clauses[0].predicate.translate()[0])
+
+    def test_parenthetical(self):
+        _, p = self.phrase('Rēgīna, verbīs nūntiī commōta, lacrimāvit.')
+        self.assertEqual(p.head.surface, 'Rēgīna')
+        self.assertIn('動かされて', p.translate()[0])
+
+    def test_leading_adverb_stays_with_main_verb(self):
+        _, p = self.phrase('Tum puer in hortō sedēns cantat.')
+        self.assertNotIn('Tum', p.surface)
+
+    def test_periphrastic_passive_is_not_phrase(self):
+        self.assertEqual(analyze('Puer ā magistrō laudātus est.').participles, [])
 
 
 class CopulaTestCase(unittest.TestCase):

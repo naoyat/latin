@@ -34,6 +34,9 @@ def mecab_parse(text_utf8):
 #   上一段-マ行 / 下一段-タ行 → 一段
 #   サ行変格 → サ変・スル,  カ行変格 → カ変・来ル
 def normalize_conjug_type(conjug_type, surface):
+    if conjug_type.startswith('文語四段-'):
+        # UniDic が文語と判定する語 (摘む) も、終止形が現代語と同じなら五段として活用させる
+        conjug_type = '五段-' + conjug_type[len('文語四段-'):]
     if conjug_type.startswith('五段-'):
         row = conjug_type[3:4]
         if row == 'カ':
@@ -238,6 +241,31 @@ class JaVerb:
         if kind == 'future':
             conj, _ = self.conjugate(MIZEN, 'う')
             return conj + 'うとして'
+        raise ValueError(kind)
+
+    def adverbial_form(self, kind):
+        """主語に掛かる分詞 (述語的な分詞) の形: present 〜しながら / active 〜して / passive 〜されて / future 〜しようとして"""
+        if kind != 'present':
+            return self.clause_form(kind)
+        if not self.use_mecab:
+            return self.stop_form + 'しながら'
+        conj, _ = self.conjugate(RENYOU, 'ながら')
+        return conj + 'ながら'
+
+    def attributive_form(self, kind):
+        """名詞を修飾する分詞の形: present 〜している / active 〜した / passive 〜された / future 〜しようとする"""
+        if not self.use_mecab:
+            return {'present': self.stop_form + 'している', 'passive': self.stop_form + 'された',
+                    'active': self.stop_form + 'した', 'future': self.stop_form + 'しようとする'}[kind]
+        if kind == 'present':
+            return self.active_ing_stem() + 'る'
+        if kind == 'passive':
+            return self.passive_stem() + 'た'
+        if kind == 'active':
+            return self.past_form()
+        if kind == 'future':
+            conj, _ = self.conjugate(MIZEN, 'う')
+            return conj + 'うとする'
         raise ValueError(kind)
 
     def negative_stem(self):
