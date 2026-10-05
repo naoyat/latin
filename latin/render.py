@@ -11,6 +11,7 @@ from .AndOr import AndOr
 from .PrepClause import PrepClause
 from .Absolute import AblativeAbsolute
 from .Participle import ParticiplePhrase
+from .Infinitive import InfinitiveClause
 
 
 def decolate(word):
@@ -50,6 +51,10 @@ def render_with_indent(indent, obj):
             render_with_indent(indent+2, obj.subject)
             for c in obj.complements:
                 render_with_indent(indent+2, c)
+
+        elif isinstance(obj, InfinitiveClause):
+            print(' '*indent + '[infinitive%s]' % (' ' + obj.kind if obj.kind else ''))
+            render_with_indent(indent+2, obj.predicate)
 
         elif isinstance(obj, ParticiplePhrase):
             text = ansi_color.underline(obj.verb.surface)

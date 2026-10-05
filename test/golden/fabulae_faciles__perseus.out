@@ -23,7 +23,7 @@ Haec nārrantur ā poētīs dē Perseō .
     prep:
       dē <Abl>
 
-  →  この,これ(人,物)が / {詩人}〜から(離れて),〜によって / {(?) }〜から(離れて)下へ,〜について / 語られる,話される,言われる
+  →  この,これが / {詩人}〜から(離れて),〜によって / {(?) }〜から(離れて)下へ,〜について / 語られる,話される,言われる
 
 
 Perseus fīlius erat Iovis , māximī deōrum ;
@@ -291,7 +291,7 @@ Iuppiter tamen haec omnia vīdit , et fīlium suum servāre cōnstituit .
     Nom/Acc:
       omnia
 
-  →  しかしながら,それでも / ユピテル=この,これ(人,物)が / すべてのを / 見た
+  →  しかしながら,それでも / ユピテル=この,これが / すべてのを / 見た
 
   servāre (infinitive NoneNone)
     (et)
@@ -492,7 +492,7 @@ Ille mātrem et puerum benīgnē excēpit , et iīs sēdem tūtam in fīnibus su
         fīnibus
           suīs
 
-  →  あの,あれ(人,物)が / その,それに / {{自分の}境界}〜で,〜の中で,〜の上で / 母と少年=安全なを / 与えた
+  →  あの,あれが / その,それに / {{自分の}境界}〜で,〜の中で,〜の上で / 母と少年=安全なを / 与えた
 
 
 Danaē hōc dōnum libenter accēpit , et prō tantō beneficiō rēgī grātiās ēgit .
@@ -674,7 +674,7 @@ Tum iuvenem ad sē vocāvit et haec dīxit :
    0  Tum      adv その時,その頃,当時 {}
    1  iuvenem  (juvenis) 若者 [Acc.sg.m] // []
    2  ad       prep<Acc> 〜の方へ,〜のところまで
-   3  sē       (?)
+   3  sē       pronoun 自分 {'person':3, 'desc':'再帰代名詞', '_':[('Acc', 'sg', 'c'), ('Abl', 'sg', 'c'), ('Acc', 'pl', 'c'), ('Abl', 'pl', 'c')]}
    4  vocāvit  (vocō) v.呼ぶ,名付ける 3sg 直説法.能動.完了
    5  et       conj 〜と〜,そして〜,〜も {}
    6  haec     pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
@@ -691,15 +691,16 @@ Tum iuvenem ad sē vocāvit et haec dīxit :
       iuvenem
     prep:
       ad <Acc>
+        sē
 
-  →  その時,その頃,当時 / 彼,彼女,それが / {(?)}〜の方へ,〜のところまで / 若者を / 呼んだ,名付けた
+  →  その時,その頃,当時 / 彼,彼女,それが / {自分}〜の方へ,〜のところまで / 若者を / 呼んだ,名付けた
 
   dīxit (indicative 3sg)
     (et)
     Nom:
       haec
 
-  →  そして / この,これ(人,物)が / 言った
+  →  そして / この,これが / 言った
 
 
 Turpe est hanc īgnāvam vītam agere ;
@@ -716,22 +717,21 @@ Turpe est hanc īgnāvam vītam agere ;
 
 // ADJ#0 (Turpe) -> no target noun detected
 // DET#2 (hanc) -> NOUN#4 (vītam)
+// INF #2..#4 (īgnāvam vītam agere) <- VERB#1 (est) [None]
 
-2 VERBS FOUND: est, agere
-  NOT WELL: {2..3}
+1 VERB FOUND: est
 
   est (indicative 3sg)
     Nom:
       Turpe
+    Inf:
+      [infinitive]
+        agere (infinitive NoneNone)
+          Acc:
+            vītam
+              hanc
 
-  →  彼,彼女,それは / 恥ずべきである
-
-  agere (infinitive NoneNone)
-    Acc:
-      vītam
-        hanc
-
-  →  {この,これ}人生を / する,駆る
+  →  {{この,これ}人生を する,駆る}ことは / 恥ずべきである
 
 
 iam dūdum tū adulēscēns es .
@@ -775,7 +775,7 @@ Quō ūsque hīc manēbis ?
     Nom:
       hīc
 
-  →  この,これ(人,物)が / 各人(の)で / とどまるだろう
+  →  この,これが / 各人(の)で / とどまるだろう
 
 
 Tempus est arma capere et virtūtem praestāre .
@@ -791,19 +791,24 @@ Tempus est arma capere et virtūtem praestāre .
    7  .          
   --- 
 
+// INF #2..#3 (arma capere) <- VERB#1 (est) [None]
 
-2 VERBS FOUND: est, capere
+1 VERB FOUND: est
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
 
   est (indicative 3sg)
     Nom:
       Tempus
+    Inf:
+      [infinitive]
+        capere (infinitive NoneNone)
+          Acc:
+            arma
 
-  →  彼,彼女,それは / 時である
-
-  capere (infinitive NoneNone)
-    (et)
-
-  →  そして / 捕える
+  →  {道具,武器を 捕える}ことは / 時である
 
 
 Hinc abī , et caput Medūsae mihi refer .
@@ -861,7 +866,7 @@ Perseus ubi haec audīvit , ex īnsulā discessit , et postquam ad continentem v
     Nom:
       haec
 
-  →  どこ / この,これ(人,物)が / 聞いた
+  →  どこ / この,これが / 聞いた
 
   NOT SOLVED:
     (postquam)
@@ -1467,7 +1472,7 @@ Ille autem dum fugit , galeam magicam induit ;
     Nom:
       Ille
 
-  →  ところで / あの,あれ(人,物)が / 逃げる
+  →  ところで / あの,あれが / 逃げる
 
 
 et ubi hōc fēcit , statim ē cōnspectū eārum ēvāsit .
@@ -1771,7 +1776,7 @@ Cēpheus ubi haec audīvit , māgnum dolōrem percēpit .
     Acc:
       māgnum
 
-  →  どこ / この,これ(人,物)が / 大きなを / 聞いた
+  →  どこ / この,これが / 大きなを / 聞いた
 
 
 Volēbat tamen cīvīs suōs ē tantō perīculō extrahere , atque ob eam causam imperāta Hammōnis facere cōnstituit .
@@ -1895,7 +1900,7 @@ Ubi ea diēs vēnit , Andromeda ad lītus dēducta est , et in cōnspectū omniu
       ea
       diēs
 
-  →  どこ / その,それ(人,物)=日,昼が / 来た
+  →  どこ / その,それ=日,昼が / 来た
 
   est (indicative 3sg)
     prep:
@@ -2034,7 +2039,7 @@ Illī rem tōtam expōnunt et puellam dēmōnstrant .
       tōtam
       puellam
 
-  →  あの,あれ(人,物)が / 物,事=全体の=少女を / 示す
+  →  あの,あれが / 物,事=全体の=少女を / 示す
 
 
 Dum haec geruntur , fremitus terribilis audītur ;
@@ -2058,7 +2063,7 @@ Dum haec geruntur , fremitus terribilis audītur ;
     Nom:
       haec
 
-  →  〜するあいだ,〜するかぎり,〜するまで / この,これ(人,物)が / 聞かれる
+  →  〜するあいだ,〜するかぎり,〜するまで / この,これが / 聞かれる
 
 
 simul mōnstrum horribilī speciē procul cōnspicitur .
@@ -2189,7 +2194,7 @@ At Perseus ubi haec vīdit , gladium suum ēdūxit , et postquam tālāria indui
     Nom:
       haec
 
-  →  これに反して / この,これ(人,物)が / どこ / 見た
+  →  これに反して / この,これが / どこ / 見た
 
   NOT SOLVED:
     (et)
@@ -2414,7 +2419,7 @@ Tum iterum sē in undās mersit , neque posteā vīsa est .
   --- 
    0  Tum       adv その時,その頃,当時 {}
    1  iterum    adv 再び,もう一度 {}
-   2  sē        (?)
+   2  sē        pronoun 自分 {'person':3, 'desc':'再帰代名詞', '_':[('Acc', 'sg', 'c'), ('Abl', 'sg', 'c'), ('Acc', 'pl', 'c'), ('Abl', 'pl', 'c')]}
    3  in        prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
    4  undās     (unda) 波 [Acc.pl.f] // []
    5  mersit    (?)
@@ -2436,11 +2441,13 @@ Tum iterum sē in undās mersit , neque posteā vīsa est .
     (Tum)
     (iterum)
     (posteā)
+    Acc:
+      sē
     prep:
       in <Acc>
         undās
 
-  →  その時,その頃,当時 / 彼,彼女,それが / {波 (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / 再び,もう一度 / それから / 見られた
+  →  その時,その頃,当時 / 彼,彼女,それが / {波 (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / 自分を / 再び,もう一度 / それから / 見られた
 
 
 Perseus postquam ad lītus dēscendit , prīmum tālāria exuit ;
@@ -2655,7 +2662,7 @@ praetereā Andromedam ipsam eī in mātrimōnium dedit .
     prep:
       in <Acc>
 
-  →  その,それ(人,物)が / {(?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / (それ)自身を / 与えた
+  →  その,それが / {(?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / (それ)自身を / 与えた
 
 
 Ille libenter hōc dōnum accēpit et puellam dūxit .
@@ -2684,7 +2691,7 @@ Ille libenter hōc dōnum accēpit et puellam dūxit .
     Nom/Acc:
       dōnum
 
-  →  喜んで / あの,あれ(人,物)が / この,これで / 贈物を / 受け取った
+  →  喜んで / あの,あれが / この,これで / 贈物を / 受け取った
 
   dūxit (indicative 3sg)
     (et)
@@ -2763,21 +2770,20 @@ Māgnopere tamen mātrem suam rūrsus vidēre cupiēbat .
   --- 
 
 // ADJ#3 (suam) -> NOUN#2 (mātrem)
+// INF #2..#4 (mātrem rūrsus vidēre) <- VERB#5 (cupiēbat) [complement]
 
-2 VERBS FOUND: vidēre, cupiēbat
-  NOT WELL: {5..4}
-
-  vidēre (infinitive NoneNone)
-    (tamen)
-    Acc:
-      mātrem
-        suam
-
-  →  しかしながら,それでも / {自分の}母を / 見る
+1 VERB FOUND: cupiēbat
 
   cupiēbat (indicative 3sg)
+    (tamen)
+    Inf:
+      [infinitive complement]
+        vidēre (infinitive NoneNone)
+          Acc:
+            mātrem
+              suam
 
-  →  彼,彼女,それが / 欲求していた
+  →  しかしながら,それでも / 彼,彼女,それが / {{自分の}母を 見る}ことを / 欲求していた
 
 
 Tandem igitur cum uxōre suā ē rēgnō Cēpheī discessit .
@@ -2825,7 +2831,7 @@ Postquam Perseus ad īnsulam nāvem appulit , sē ad locum contulit ubi māter �
    4  nāvem        (nāvis) 船 [Acc.sg.f] // []
    5  appulit      (?)
    6  ,            
-   7  sē           (?)
+   7  sē           pronoun 自分 {'person':3, 'desc':'再帰代名詞', '_':[('Acc', 'sg', 'c'), ('Abl', 'sg', 'c'), ('Acc', 'pl', 'c'), ('Abl', 'pl', 'c')]}
    8  ad           prep<Acc> 〜の方へ,〜のところまで
    9  locum        (locus) 場所 [Acc.sg.m] // []
   10  contulit     (?)
@@ -2862,6 +2868,7 @@ Postquam Perseus ad īnsulam nāvem appulit , sē ad locum contulit ubi māter �
       ad <Acc>
         īnsulam
         nāvem
+        sē
       ad <Acc>
         locum
     Nom:
@@ -2870,7 +2877,7 @@ Postquam Perseus ad īnsulam nāvem appulit , sē ad locum contulit ubi māter �
       domum
       dēsertam
 
-  →  〜したのち / 母が / {島 船 (?)  (?)}〜の方へ,〜のところまで={場所 (?)}〜の方へ,〜のところまで / 家=別れられた,棄てられた,見捨てられたを / どこ / 昔,ある時,いつか / 住む
+  →  〜したのち / 母が / {島 船 (?)  自分}〜の方へ,〜のところまで={場所 (?)}〜の方へ,〜のところまで / 家=別れられた,棄てられた,見捨てられたを / どこ / 昔,ある時,いつか / 住む
 
 
 Trīs diēs per tōtam īnsulam mātrem quaerēbat ;
@@ -2975,7 +2982,7 @@ Perseus ubi haec cōgnōvit , īrā māgnā commōtus est ;
       īrā
         māgnā
 
-  →  どこ / この,これ(人,物)が / {大きな}怒りで / 動かされた
+  →  どこ / この,これが / {大きな}怒りで / 動かされた
 
 
 ad rēgiam Polydectis sine morā contendit , et ubi eō vēnit , statim in ātrium inrūpit .
@@ -3081,7 +3088,7 @@ Dum tamen ille fugit , Perseus caput Medūsae mōnstrāvit ;
     Nom:
       ille
 
-  →  〜するあいだ,〜するかぎり,〜するまで / あの,あれ(人,物)が / 逃げる
+  →  〜するあいだ,〜するかぎり,〜するまで / あの,あれが / 逃げる
 
   mōnstrāvit (indicative 3sg)
 
@@ -3118,7 +3125,7 @@ ille autem simul atque hōc vīdit , in saxum versus est .
     Abl:
       hōc
 
-  →  ところで / あの,あれ(人,物)が / この,これで / 見た
+  →  ところで / あの,あれが / この,これで / 見た
 
   est (indicative 3sg)
     prep:
@@ -3189,7 +3196,7 @@ Ille autem ubi Perseum vīdit , māgnō terrōre adfectus est ;
     Nom:
       Ille
 
-  →  ところで / あの,あれ(人,物)が / どこ / 見た
+  →  ところで / あの,あれが / どこ / 見た
 
   est (indicative 3sg)
     Dat:

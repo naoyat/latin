@@ -33,6 +33,7 @@ class Predicate (LatinObject):
         self.surface_len = len(self.surface)
         self.conjunction = None
         self.subordinates = []  # 従属節 (独立奪格など)
+        self.subordinate = False  # 不定詞句の中の述語 (主語は sum でも「は」でなく「が」)
         self.is_sum = self.first_item.item.get('pres1sg', None) == 'sum'
 
     def add_nominal(self, case, obj):
@@ -116,7 +117,9 @@ class Predicate (LatinObject):
                         noms.append(nom)
                 else:
                     # 形容詞（修飾語）の場合
-                    if isinstance(obj, Word) and obj.items[0].pos != 'noun':
+                    # (代名詞は訳語が「〜の」のもの (他の, 各人(の)) だけ)
+                    if isinstance(obj, Word) and (obj.items[0].pos not in ('noun', 'pronoun') or
+                                                  obj.items[0].pos == 'pronoun' and nom.endswith(('の', '(の)'))):
                         # sumでなければそういう人や物として
                         nom += '(人,物)'
                     noms.append(nom)
@@ -125,7 +128,7 @@ class Predicate (LatinObject):
             case_slot['Acc'] = case_slot.get('Acc', []) + nom_acc_objs
             case_slot['Nom/Acc'] = []
 
-        if not noms and verb.attrib('mood') != 'imperative':
+        if not noms and verb.attrib('mood') != 'imperative' and not (self.is_sum and case_slot.get('Inf')):
             pn = str(self.person()) + str(self.number())
             subj_ja = {'1sg':'私', '2sg':'あなた', '3sg':'彼,彼女,それ',
                        '1pl':'我々', '2pl':'あなた方', '3pl':'彼ら,彼女ら,それら'}
@@ -134,16 +137,19 @@ class Predicate (LatinObject):
 
         if noms:
             nom_case_ja = 'が'
-            if self.is_sum:
+            if self.is_sum and not self.subordinate:
                 nom_case_ja = 'は'
-            tr.append('='.join(noms) + nom_case_ja)
+            joined = '='.join(noms)
+            if joined.endswith(nom_case_ja):
+                nom_case_ja = ''  # 訳語に助詞まで入っているもの (何が)
+            tr.append(joined + nom_case_ja)
 
         for clause in self.subordinates:
             if getattr(clause, 'adverbial', False):
                 tr.append(clause.translate()[0])
 
         for case, objs in list(case_slot.items()):
-            if case in ('Nom', 'Nom/Acc', 'Acc'): continue
+            if case in ('Nom', 'Nom/Acc', 'Acc', 'Inf'): continue
             if not objs: continue
             if isinstance(case, tuple):
                 # prep-clause
@@ -168,6 +174,10 @@ class Predicate (LatinObject):
                 accs.append(t)
             accs = [acc[:-1] if acc[-1:] == 'が' else acc for acc in accs]
             tr.append('='.join(accs) + 'を') #[acc for acc in accs]))
+
+        # 不定詞句 ({少年が 遊ぶ}と / {本を 読む}ことが)
+        for clause in case_slot.get('Inf', []):
+            tr.append(clause.translate()[0])
 
         # adverb
         for adv in self.modifiers:
@@ -209,6 +219,8 @@ class Predicate (LatinObject):
         elif negated and self.is_sum:
             verb_tr = '¬'+ verb_tr  # 補語の無い sum (〜である) は否定の形を作れない
 
+        if case_slot.get('Inf'):
+            verb_tr = verb_tr.lstrip('〜～')  # {本を 読む}ことが できる (possum の訳語は「〜できる」)
         tr.append(verb_tr)
 
 #        tr.append(self.first_item.ja )

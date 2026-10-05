@@ -21,6 +21,7 @@ from .AndOr import AndOr, non_genitive
 from .PrepClause import PrepClause
 from .Absolute import AblativeAbsolute
 from .Participle import ParticiplePhrase, participle_kind
+from .Infinitive import InfinitiveClause, governor_kind, takes_accusative_subject
 
 
 def lookup_all(surfaces_uc):
@@ -67,6 +68,12 @@ def lookup_all(surfaces_uc):
         else:
             words.append(Word(surface, []))
         i += 1
+
+    # 代名詞の sē を、古い前置詞 sē (= sine「〜なしに」) と読まない
+    for word in words:
+        if word.items and word.surface.lower() in ('sē', 'se') and \
+                any(item.pos == 'pronoun' for item in word.items):
+            word.items = [item for item in word.items if item.pos != 'preposition']
 
     # words の中での添字情報をWordインスタンスに保存
     for i, word in enumerate(words):
@@ -931,6 +938,101 @@ def _promote_complement(pred):
     pred.add_nominal(case, complement)
 
 
+def _is_infinitive(node):
+    return isinstance(node, Predicate) and node.mood() == 'infinitive'
+
+
+def _only_nominative(node):
+    """主格としてしか読めない名詞・代名詞 (主節の主語。不定詞句には入れない)"""
+    if isinstance(node, AndOr):
+        cases = {case for case, _, _ in node._ or []}
+    elif isinstance(node, Word) and node.items and node.items[0].pos in ('noun', 'pronoun', 'adj'):
+        cases = {case for case, _, _ in node.items[0]._ or []}
+    else:
+        return False
+    return bool(cases) and cases <= {'Nom', 'Voc'}
+
+
+def _sort_by_position(nodes):
+    return sorted(nodes, key=lambda n: _span(n)[0] if _span(n)[0] is not None else 10 ** 6)
+
+
+def _is_coordination(node):
+    """接続詞・句読点 (不定詞とそれを支配する動詞の間には来ないもの)"""
+    if isinstance(node, Word):
+        if node.items is None:
+            return node.surface in PUNCTUATION
+        return bool(node.items) and node.items[0].pos == 'conj'
+    return False
+
+
+def detect_infinitive_clauses(nodes, trace):
+    """不定詞と、その前の語句 (主節の動詞・句読点・接続詞・主格の語の手前まで) を不定詞句にまとめる。
+    言う・思う・見る・命じるなどの動詞に支配されるものは対格不定詞 (最初の対格が不定詞の主語)。
+    sum の不定詞 (esse) なら対格はすべて主語・補語の枠に入れる (Rōmam magnam esse)"""
+    finite = [i for i, n in enumerate(nodes) if isinstance(n, Predicate) and not _is_infinitive(n)]
+    if not finite:
+        return nodes, []
+    clauses = []
+    i = 0
+    while i < len(nodes):
+        if not _is_infinitive(nodes[i]):
+            i += 1
+            continue
+        # 支配する動詞: 接続詞・句読点を挟まない、いちばん近い定動詞 (同じ距離なら前)
+        finite = [k for k, n in enumerate(nodes) if isinstance(n, Predicate) and not _is_infinitive(n)
+                  and not any(_is_coordination(nodes[m]) for m in range(min(k, i) + 1, max(k, i)))]
+        if not finite:
+            i += 1
+            continue
+        governor_ix = min(finite, key=lambda k: (abs(k - i), k > i))
+        governor = nodes[governor_ix]
+        kind = governor_kind(governor.first_item.attrib('pres1sg'))
+        if kind is None and not governor.is_sum and \
+                any(item.attrib('mood') == 'imperative' for item in nodes[i].verb.items):
+            i += 1
+            continue  # 命令法とも読める形 (miserēre) で、支配する動詞も分からない
+        start = i
+        for j in range(i - 1, -1, -1):
+            node = nodes[j]
+            if isinstance(node, Predicate) or _only_nominative(node):
+                break
+            if isinstance(node, Word) and (node.items is None or (node.items and node.items[0].pos == 'conj')):
+                break  # 句読点・接続詞
+            start = j
+        inf = nodes[i]
+        inf.subordinate = True
+        not_solved = _attach_to_predicate(nodes, list(range(start, i + 1)), i)
+        # 句の中の主格は主格としてしか読めない語を除いてあるので、対格と読む (hostēs: Nom/Acc)
+        accs = _sort_by_position(inf.case_slot.pop('Acc', []) + inf.case_slot.pop('Nom/Acc', []) +
+                                 inf.case_slot.pop('Nom', []))
+        two_accs = len(accs) >= 2 and not inf.is_sum
+        passive = inf.first_item.attrib('voice') == 'passive'
+        # 命じる動詞で対格が1つだけなら、不定詞の目的語と読む (obsidēs dare iussit)。受動の不定詞なら主語
+        single_ok = kind != 'command' or passive
+        if accs and ((takes_accusative_subject(kind) and (single_ok or two_accs)) or two_accs or passive and kind
+                     or inf.is_sum and kind is not None):
+            if inf.is_sum:
+                subjects, accs = accs, []  # Rōmam magnam esse: 主語と補語
+            else:
+                # 再帰代名詞 sē があればそれが主語 (dīxit sē castra posuisse)
+                reflexive = [a for a in accs if isinstance(a, Word) and a.surface.lower() in ('sē', 'se', 'sēsē')]
+                subject = reflexive[0] if reflexive else accs[0]
+                subjects, accs = [subject], [a for a in accs if a is not subject]
+            inf.case_slot['Nom'] = inf.case_slot.get('Nom', []) + subjects
+            if inf.is_sum:
+                _promote_complement(inf)
+        if accs:
+            inf.case_slot['Acc'] = accs
+        clause = InfinitiveClause(inf, governor, kind)
+        trace.append("// INF #%d..#%d (%s) <- VERB#%d (%s) [%s]" % (
+            start, i, ' '.join(n.surface for n in nodes[start:i + 1]), governor_ix, governor.surface, kind))
+        nodes[start:i + 1] = not_solved + [clause]
+        clauses.append(clause)
+        i = start + len(not_solved) + 1
+    return nodes, clauses
+
+
 def _attach_to_predicate(words, group, verb_ix):
     """グループ内の語を述語に結びつける。結びつけられなかった語のリストを返す"""
     not_solved = []
@@ -940,6 +1042,8 @@ def _attach_to_predicate(words, group, verb_ix):
         word = words[ix]
         if isinstance(word, (AblativeAbsolute, ParticiplePhrase)):
             pred.add_subordinate(word)
+        elif isinstance(word, InfinitiveClause):
+            pred.add_nominal('Inf', word)
         elif isinstance(word, AndOr):
             if word.cases:
                 pred.add_nominal(word.cases[0], word)
@@ -1016,6 +1120,7 @@ class SentenceAnalysis:
     clauses: list                   # 述語ごとの Clause。動詞がなければ空
     absolutes: list = field(default_factory=list)  # 独立奪格 (AblativeAbsolute)
     participles: list = field(default_factory=list)  # 分詞句 (ParticiplePhrase)
+    infinitives: list = field(default_factory=list)  # 不定詞句 (InfinitiveClause)
 
     @property
     def text(self):
@@ -1094,6 +1199,7 @@ def analyze_sentence(surfaces, tags=None):
     nodes, _verb_ix = detect_verbs(nodes)
     nodes = detect_prep_domination(nodes)
     nodes = [node for node in nodes if node]
+    nodes, infinitives = detect_infinitive_clauses(nodes, trace)
 
     # 名詞句を述語動詞に結びつける
     verbs_ix = [i for i, node in enumerate(nodes) if isinstance(node, Predicate)]
@@ -1108,7 +1214,8 @@ def analyze_sentence(surfaces, tags=None):
     return SentenceAnalysis(
         surfaces=list(surfaces), words=words, word_details=word_details,
         trace=trace, nodes=nodes, verbs=[nodes[ix] for ix in verbs_ix],
-        grouping_trace=grouping_trace, clauses=clauses, absolutes=absolutes, participles=participles)
+        grouping_trace=grouping_trace, clauses=clauses, absolutes=absolutes, participles=participles,
+        infinitives=infinitives)
 
 
 def sentences(text):

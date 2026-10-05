@@ -12,6 +12,7 @@ import unittest
 from latin import latindic, analyzer, wiktionary
 from latin.Absolute import AblativeAbsolute
 from latin.Participle import ParticiplePhrase
+from latin.Infinitive import InfinitiveClause
 from latin.AndOr import AndOr
 from latin.PrepClause import PrepClause
 
@@ -211,6 +212,52 @@ class ParticiplePhraseTestCase(unittest.TestCase):
 
     def test_periphrastic_passive_is_not_phrase(self):
         self.assertEqual(analyze('Puer ā magistrō laudātus est.').participles, [])
+
+
+class InfinitiveClauseTestCase(unittest.TestCase):
+    """不定詞句 (手作りの辞書にある動詞だけで書いた文)"""
+
+    def infinitive(self, text):
+        a = analyze(text)
+        self.assertEqual(len(a.infinitives), 1, a.infinitives)
+        inf = a.infinitives[0]
+        self.assertIsInstance(inf, InfinitiveClause)
+        pred = a.clauses[0].predicate
+        self.assertIn(inf, pred.case_slot.get('Inf', []))
+        return pred, inf
+
+    def test_accusative_subject(self):
+        pred, inf = self.infinitive('Videō puellam cantāre.')
+        self.assertEqual(inf.kind, 'perception')
+        self.assertEqual(surfaces(inf.predicate.case_slot['Nom']), ['puellam'])
+        self.assertIn('{少女が 歌う}のを', pred.translate()[0])
+
+    def test_saying(self):
+        pred, inf = self.infinitive('Agricola dīcit puerōs in hortō lūdere.')
+        self.assertEqual(surfaces(inf.predicate.case_slot['Nom']), ['puerōs'])
+        self.assertEqual(surfaces(pred.case_slot['Nom']), ['Agricola'])  # 主節の主語は句に入れない
+        self.assertTrue(inf.translate()[0].endswith('遊ぶ}と'))
+
+    def test_reflexive_subject(self):
+        _, inf = self.infinitive('Puella dīcit sē rosās amāre.')
+        self.assertEqual(surfaces(inf.predicate.case_slot['Nom']), ['sē'])
+        self.assertEqual(surfaces(inf.predicate.case_slot['Acc']), ['rosās'])
+        self.assertIn('{自分が バラを 愛する}と', inf.translate()[0])
+
+    def test_esse(self):
+        _, inf = self.infinitive('Putō Rōmam magnam esse.')
+        self.assertIn('{ローマが 大きい}と', inf.translate()[0])
+
+    def test_complementary(self):
+        # 補足の不定詞: 対格は不定詞の目的語
+        _, inf = self.infinitive('Puer librum legere cupit.')
+        self.assertEqual(inf.kind, 'complement')
+        self.assertNotIn('Nom', inf.predicate.case_slot)
+        self.assertEqual(inf.translate()[0], '{本,書物を 読む}ことを')
+
+    def test_not_across_conjunction(self):
+        # 接続詞の向こうの動詞は支配する動詞にしない
+        self.assertEqual(analyze('Puella cantat et puer lūdere.').infinitives, [])
 
 
 class CopulaTestCase(unittest.TestCase):

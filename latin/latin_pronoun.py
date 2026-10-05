@@ -63,7 +63,16 @@ def meus():
 # <29> 再帰代名詞
 # 3人称. sē/sēsē, suī, sibi/sibī, sē/sēsē;
 def reflexive_pronouns():
-    return []
+    # 主格は無い。単数・複数で同じ形 (性も区別しない)
+    common_tags = {'pos':'pronoun', 'person':3, 'gender':'c', 'ja':'自分', 'desc':'再帰代名詞'}
+    items = []
+    for number in ('sg', 'pl'):
+        for case, surfaces in (('Acc', ('sē', 'sēsē')), ('Gen', ('suī',)), ('Dat', ('sibi', 'sibī')),
+                               ('Abl', ('sē', 'sēsē'))):
+            for surface in surfaces:
+                items.append(util.aggregate_dicts({'surface': surface}, common_tags,
+                                                  {'case': case, 'number': number}))
+    return util.aggregate_cases(items)
 
 
 # <30> 強意代名詞(myself,himself,themselves,...)    
@@ -331,6 +340,6 @@ def pronominal_adjectives():
 
 
 def load():
-    items = ego() + meus() + ipse() + is_ea_id() + hic() + ille() + idem() + qui() + quis() + quisque() + quidam()
+    items = ego() + meus() + reflexive_pronouns() + ipse() + is_ea_id() + hic() + ille() + idem() + qui() + quis() + quisque() + quidam()
     items += pronominal_adjectives()
     return items

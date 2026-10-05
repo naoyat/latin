@@ -48,6 +48,14 @@ Rēgīna, verbīs nūntiī commōta, lacrimāvit.
 Mīlitēs hostem fugientem cēpērunt.
 Puer mātrī flōrēs dans rīsit.
 
+## 不定詞句
+Mārcus dīcit puerōs in hortō lūdere.
+Videō puellam cantāre.
+Puella dīcit sē rosās amāre.
+Putō Rōmam magnam esse.
+Dominus servum epistulam portāre iubet.
+Puer librum legere potest.
+
 ## 綴りの流儀 (i/j, u/v)
 Julia et Juno in caelo sunt.
 Uir uiam uidet.
@@ -57,5 +65,4 @@ Puella nautae rosam dat.
 Hic servus dominum suum amat.
 
 ## まだ苦手なもの
-Mārcus dīcit puerōs in hortō lūdere.
 Mīles hostem gladiō acūtō vulnerāvit.
