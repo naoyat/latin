@@ -20,7 +20,7 @@ from .Predicate import Predicate
 from .AndOr import AndOr, non_genitive
 from .PrepClause import PrepClause
 from .Absolute import AblativeAbsolute
-from .Participle import ParticiplePhrase, participle_kind
+from .Participle import ParticiplePhrase, participle_kind, participle_item
 from .Infinitive import InfinitiveClause, governor_kind, takes_accusative_subject
 
 
@@ -439,6 +439,45 @@ def _governed_by_abl_preposition(nodes, ix):
         any(item.pos == 'preposition' and item.dominates == ABL_PREPOSITIONS_CASE for item in prev.items)
 
 
+_lexicalized_cache = {}
+
+
+def _comparative_forms(base):
+    """形容詞としての比較級の形 (acūtus → acūtior, patēns → patentior)"""
+    if base.endswith('us'):
+        return [base[:-2] + 'ior']
+    for nom, stem in (('ēns', 'ent'), ('āns', 'ant'), ('ens', 'ent'), ('ans', 'ant')):
+        if base.endswith(nom):
+            return [base[:-len(nom)] + stem + 'ior']
+    return []
+
+
+def _is_lexicalized_participle(word):
+    """形容詞になった分詞 (acūtus「鋭い」, apertus「開けた」, patēns)。比較級が形容詞として Wiktionary にあるもの"""
+    item = participle_item(word)
+    base = item.attrib('base') or ''
+    if base not in _lexicalized_cache:
+        # 手作りの辞書は分詞からも比較級を作るので、Wiktionary の項目だけを見る
+        _lexicalized_cache[base] = latindic.LatinDic.use_wiktionary and any(
+            any(i.get('pos') == 'adj' for i in (latindic.lookup_wiktionary(form) or []))
+            for form in _comparative_forms(base))
+    return _lexicalized_cache[base]
+
+
+def _is_gerundive(word):
+    base = participle_item(word).attrib('base') or ''
+    return base.endswith(('ndus', 'ndum'))
+
+
+def _is_pronominal(node):
+    """代名詞・指示詞 (hīs rēbus の hīs のような修飾語を含む): 独立奪格の主語なら確実 (quō factō, eō absente)"""
+    if isinstance(node, Word) and node.items:
+        if node.items[0].pos == 'pronoun':
+            return True
+        return any(isinstance(m, Word) and m.items and m.items[0].pos == 'pronoun' for m in node.modifiers)
+    return False
+
+
 def detect_ablative_absolute(nodes, trace):
     """独立奪格: 奪格の分詞と、格・数・性の一致する奪格の名詞 (前3語以内、または直後)。
     名詞の直前が奪格を支配する前置詞なら前置詞句 (cum hīs rēbus cognitīs) なので対象外"""
@@ -463,6 +502,17 @@ def detect_ablative_absolute(nodes, trace):
                 and not _governed_by_abl_preposition(nodes, i):
             subject_ix = i + 1  # 分詞が先: dīmissō conciliō
         if subject_ix is None:
+            i += 1
+            continue
+        # 動形容詞 (grātiā referendā) は独立奪格にしない。
+        # 形容詞になった現在分詞 (ingeniō excellentī, aquā prōfluente) は、節の途中にあれば名詞の修飾語として残す
+        # (主語が代名詞・指示詞なら独立奪格: eō absente)。完了分詞にも同じ判定をすると、UD Latin-PROIEL の
+        # カエサルで本物の独立奪格 (hīs rēbus acceptīs, equō incitātō) まで外れて再現率が下がるので、しない
+        at_clause_start = min(subject_ix, i) == 0 or _is_clause_boundary(nodes[min(subject_ix, i) - 1])
+        if _is_gerundive(nodes[i]) or \
+                (participle_kind(nodes[i]) == 'present' and _is_lexicalized_participle(nodes[i])
+                 and not _is_pronominal(nodes[subject_ix]) and not at_clause_start):
+            trace.append("// not ABL.ABS: %s %s" % (nodes[subject_ix].surface, nodes[i].surface))
             i += 1
             continue
         start, end = min(subject_ix, i), max(subject_ix, i)

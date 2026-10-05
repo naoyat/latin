@@ -210,6 +210,24 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
                     stats[kind + '_pred'] += 1
                     stats[kind + '_pred_ok'] += gold_dep.head == gold_head.id
 
+        # 6. 独立奪格: 正解は「奪格の分詞が advcl で、主語 (nsubj) を従える」もの
+        gold_abs = {t.id for t in tokens if t.feats.get('VerbForm') == 'Part' and t.case == 'Abl'
+                    and t.deprel == 'advcl' and any(k.head == t.id and k.deprel.startswith('nsubj') for k in tokens)}
+        stats['abs_gold'] += len(gold_abs)
+        for absolute in analysis.absolutes:
+            gold_part = gold_of.get(id(absolute.verb))
+            if gold_part is None:
+                continue
+            stats['abs_pred'] += 1
+            subject_ids = {gold_of[id(w)].id for w in words_in(absolute.subject) if id(w) in gold_of}
+            ok = gold_part.id in gold_abs and any(k.head == gold_part.id and k.deprel.startswith('nsubj')
+                                                 and k.id in subject_ids for k in tokens)
+            stats['abs_pred_ok'] += ok
+            stats['abs_found'] += ok
+            if not ok:
+                errors['abs']['%s %s' % (' '.join(w.surface for w in words_in(absolute.subject)),
+                                         absolute.verb.surface)] += 1
+
         # 5. 主語・目的語。UD はコピュラ構文 (Gallia est dīvīsa) で est ではなく dīvīsa を中心にし、
         #    est を cop として従えるので、中心語に cop があればその語を述語として探す
         preds = {}
@@ -258,6 +276,8 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
     print('  属格→名詞     再現率 %s  適合率 %s  (正解 %d 組)' % (
         pct('gen_found', 'gen_gold'), pct('gen_pred_ok', 'gen_pred'), stats['gen_gold']))
     print('  述語の検出    %s  (主語・目的語を持つ正解の述語 %d)' % (pct('clause_found', 'clause_gold'), stats['clause_gold']))
+    print('  独立奪格      再現率 %s  適合率 %s  (正解 %d)' % (
+        pct('abs_found', 'abs_gold'), pct('abs_pred_ok', 'abs_pred'), stats['abs_gold']))
     print('  主語          再現率 %s  (正解 %d)' % (pct('nsubj_found', 'nsubj_gold'), stats['nsubj_gold']))
     print('  目的語        再現率 %s  (正解 %d)' % (pct('obj_found', 'obj_gold'), stats['obj_gold']))
     if show_errors:

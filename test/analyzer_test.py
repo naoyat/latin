@@ -347,6 +347,19 @@ class AblativeAbsoluteTestCase(unittest.TestCase):
         self.assertEqual(aa.kind(), 'active')
         self.assertIn('死んで', aa.translate()[0])
 
+    def test_gerundive_is_not_absolute(self):
+        # 動形容詞 (legendus) は独立奪格にしない
+        self.assertEqual(analyze('Puer librō legendō studet.').absolutes, [])
+
+    def test_lexicalized_present_participle(self):
+        # 形容詞になった現在分詞 (excellēns「優れた」) は、節の途中なら名詞の修飾語
+        self.assertEqual(analyze('Vir ingeniō excellentī librum scrīpsit.').absolutes, [])
+
+    def test_pronoun_subject(self):
+        # 主語が代名詞なら独立奪格 (eō absente「彼がいないと」)
+        _, aa = self.absolute('Eō absente servī lūdunt.')
+        self.assertIn('不在であると', aa.translate()[0])
+
     def test_inside_prepositional_phrase(self):
         # 前置詞に支配された奪格は独立奪格ではない
         self.assertEqual(analyze('Cum hīs rēbus cognitīs vēnit.').absolutes, [])
