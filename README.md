@@ -100,6 +100,26 @@ rēx (noun, m), 王,指導者
 puella in silvā ambulat
 ```
 
+### サンプル
+
+現行の解析器が例文（`samples/samples.txt`。文型・並列・係り先・独立奪格・まだ苦手なもの、などの節に分けた自作の文）を
+どう解析・翻訳するかを、いつでも見られます。
+
+```
+python3 tools/samples.py                 # 全サンプルの訳を1行ずつ
+python3 tools/samples.py 独立 繋辞        # 見出しにその文字列を含む節だけ (-l で見出しの一覧)
+python3 tools/samples.py -t              # 述語と格の枠の構造も表示 (-d でさらに語ごとの辞書引きも)
+python3 tools/samples.py > before.txt    # ファイルへは色なしで出るので、版ごとに diff で比べられる
+```
+
+```
+Hīs rēbus cognitīs agricola ad vīllam vēnit.
+  →  {{この,これ}物,事が 知られて} / 農夫が / {邸宅,別荘,農場,都市}〜の方へ,〜のところまで / 来た
+```
+
+例文を足すときは `samples/samples.txt` に書き足します（`## 見出し` で節を分け、見出しに `[auto-macron]` を
+付けた節はマクロンを推定してから解析）。権利関係の分からない文は入れないでください。
+
 ## マクロンの推定
 
 ```
@@ -245,7 +265,7 @@ python3 -m unittest discover -s test -p '*_test.py'
 ```
 latin.py                 解析・訳のコマンド (REPL を含む)
 latin/
-  analyzer.py            解析 (辞書引き、並列・係り先・前置詞句・述語の検出) → SentenceAnalysis
+  analyzer.py            解析 (辞書引き、並列・係り先・前置詞句・独立奪格・述語の検出) → SentenceAnalysis
   render.py              解析結果の表示
   Word.py Item.py AndOr.py PrepClause.py Predicate.py   解析の要素と訳
   latindic.py words.py   辞書 (手作りの辞書の読み込みと検索)
@@ -257,6 +277,7 @@ latin/
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録
+samples/                 解析・翻訳のサンプル (tools/samples.py で表示)
 test/                    テスト
 ```
 

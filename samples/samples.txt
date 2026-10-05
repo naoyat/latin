@@ -1,0 +1,48 @@
+# 解析・翻訳のサンプル (tools/samples.py で表示する)
+#
+# 例文はすべてこのために作ったもの (教科書などからの引用ではない)。
+# 「## 見出し」で節を分ける。見出しに [auto-macron] があれば、その節の文はマクロンを推定してから解析する。
+
+## 基本の文型 (格の枠)
+Puella nautae rosam dat.
+Agricola in agrō labōrat.
+Mārcus et Iūlia in vīllā habitant.
+
+## 並列
+Puerī puellaeque cantant.
+Et dominus et servus labōrant.
+
+## 形容詞・属格・限定詞の係り先
+Fīlia agricolae rosās pulchrās amat.
+Haec puella illum puerum videt.
+
+## 繋辞 (sum)
+Rōma magna est.
+Mārcus est agricola.
+
+## 時制・態・否定
+Puer ā magistrō laudātur.
+Servī epistulās portāvērunt.
+Nautae mare nōn timent.
+
+## 前置詞句
+Cum amīcīs ad oppidum ambulāmus.
+
+## 独立奪格
+Hīs rēbus cognitīs agricola ad vīllam vēnit.
+Puellā cantante puer dormit.
+Rēge mortuō populus flēvit.
+Cum hīs rēbus cognitīs vēnit.
+
+## 綴りの流儀 (i/j, u/v)
+Julia et Juno in caelo sunt.
+Uir uiam uidet.
+
+## マクロンの無い文 [auto-macron]
+Puella nautae rosam dat.
+Hic servus dominum suum amat.
+
+## まだ苦手なもの
+Haec locūtus discessit.
+Mārcus dīcit puerōs in hortō lūdere.
+Mīles hostem gladiō acūtō vulnerāvit.
