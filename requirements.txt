@@ -1,0 +1,10 @@
+# 日本語訳 (動詞の活用)
+mecab-python3
+unidic-lite
+
+# 以下は任意
+# 音読 (piper バックエンド)
+#piper-tts
+# 合成音声の評価 (tools/tts_eval.py)。Apple Silicon なら mlx-whisper の方が速い
+#faster-whisper
+#mlx-whisper

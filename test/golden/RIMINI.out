@@ -1,0 +1,114 @@
+
+C .
+
+  --- 
+   0  C  (?)
+   1  .  
+  --- 
+
+
+NO VERB FOUND.
+
+
+Caesar dictātor , rubicōne superātō , cīvīlī bellō , commīlitōnēs suōs hīc in forō arīminēnsī adlocūtus est .
+
+  --- 
+   0  Caesar        (?)
+   1  dictātor      (?)
+   2  ,             
+   3  rubicōne      (?)
+   4  superātō      (superō) v.超える,上を行く,打ち勝つ 2sg 命令法.能動.未来 | (superō) v.超える,上を行く,打ち勝つ 3sg 命令法.能動.未来 | (superātus) p.超えられた,上を行かれた,打ち勝たれた [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
+   5  ,             
+   6  cīvīlī        (?)
+   7  bellō         (bellum) 戦争 [Dat.sg.n|Abl.sg.n] // []
+   8  ,             
+   9  commīlitōnēs  (?)
+  10  suōs          (suus) a.自分の [Acc.pl.m]
+  11  hīc           pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+  12  in            prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+  13  forō          (forum) 市場,広場 [Dat.sg.n|Abl.sg.n] // []
+  14  arīminēnsī    (?)
+  15  adlocūtus     (?)
+  16  est           (sum) v.〜である 3sg 直説法.能動.現在
+  17  .             
+  --- 
+
+// ADJ#10 (suōs) -> no target noun detected
+
+1 VERB FOUND: est
+
+  NOT SOLVED:
+    superātō
+    →  超える,上を行く,打ち勝つ
+
+  est (indicative 3sg)
+    Dat:
+      bellō
+    Acc:
+      suōs
+    Nom:
+      hīc
+    prep:
+      in <Abl>
+        forō
+
+  →  彼,彼女,それは / 戦争に / {市場,広場 (?) (?)}〜で,〜の中で,〜の上で / 自分のを / この,これである
+
+
+Suggestum hunc vetustāte collāpsum cōnsulēs arīminēnsēs mēnsium novembris et decembris MDLV restituērunt .
+
+  --- 
+   0  Suggestum     (?)
+   1  hunc          pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Acc', 'sg', 'm')]}
+   2  vetustāte     (?)
+   3  collāpsum     (?)
+   4  cōnsulēs      (?)
+   5  arīminēnsēs   (?)
+   6  mēnsium       (?)
+   7  novembris     (?)
+   8  et            conj 〜と〜,そして〜,〜も {}
+   9  decembris     (?)
+  10  MDLV          (?)
+  11  restituērunt  (?)
+  12  .             
+  --- 
+
+
+NO VERB FOUND.
+
+  hunc
+  →  この,これ
+
+  (et)
+  →  〜と〜,そして〜,〜も
+
+
+// MDLV :
+
+  --- 
+   0  //    
+   1  MDLV  (?)
+   2  :     
+  --- 
+
+
+NO VERB FOUND.
+
+
+Annō millēsimō quīngentēsimō quīnquāgēsimō quintō .
+
+  --- 
+   0  Annō           (annus) 年,季節 [Dat.sg.m|Abl.sg.m] // []
+   1  millēsimō      (?)
+   2  quīngentēsimō  (?)
+   3  quīnquāgēsimō  (?)
+   4  quintō         (?)
+   5  .              
+  --- 
+
+
+NO VERB FOUND.
+
+  Annō
+  →  年,季節
+

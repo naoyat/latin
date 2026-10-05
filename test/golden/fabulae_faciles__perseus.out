@@ -1,0 +1,3440 @@
+
+Haec nārrantur ā poētīs dē Perseō .
+
+  --- 
+   0  Haec       pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   1  nārrantur  (nārrō) v.語る,話す,言う 3pl 直説法.受動.現在
+   2  ā          prep<Abl> 〜から(離れて),〜によって
+   3  poētīs     (poēta) 詩人 [Dat.pl.m|Abl.pl.m] // []
+   4  dē         prep<Abl> 〜から(離れて)下へ,〜について
+   5  Perseō     (?)
+   6  .          
+  --- 
+
+
+1 VERB FOUND: nārrantur
+
+  nārrantur (indicative 3pl)
+    Nom:
+      Haec
+    prep:
+      ā <Abl>
+        poētīs
+    prep:
+      dē <Abl>
+
+  →  この,これ(人,物)が / {詩人}〜から(離れて),〜によって / {(?) }〜から(離れて)下へ,〜について / 語られる,話される,言われる
+
+
+Perseus fīlius erat Iovis , māximī deōrum ;
+
+  --- 
+   0  Perseus  (?)
+   1  fīlius   (fīlius) 息子 [Nom.sg.m] // []
+   2  erat     (sum) v.〜である 3sg 直説法.能動.未完了
+   3  Iovis    (?)
+   4  ,        
+   5  māximī   (?)
+   6  deōrum   (deus) 神 [Gen.pl.m] // []
+   7  ;        
+  --- 
+
+// GEN#6 (deōrum) -> no target noun detected
+
+1 VERB FOUND: erat
+
+  NOT SOLVED:
+    deōrum
+    →  神
+
+  erat (indicative 3sg)
+    Nom:
+      fīlius
+
+  →  彼,彼女,それは / 息子であった
+
+
+avus ēius Acrisius appellābātur .
+
+  --- 
+   0  avus          (?)
+   1  ēius          (?)
+   2  Acrisius      (?)
+   3  appellābātur  (appellō) v.訴える 3sg 直説法.受動.未完了
+   4  .             
+  --- 
+
+
+1 VERB FOUND: appellābātur
+
+  appellābātur (indicative 3sg)
+
+  →  彼,彼女,それが / 訴えられていた
+
+
+Acrisius volēbat Perseum nepōtem suum necāre ;
+
+  --- 
+   0  Acrisius  (?)
+   1  volēbat   (?)
+   2  Perseum   (?)
+   3  nepōtem   (?)
+   4  suum      (suus) a.自分の [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   5  necāre    (necō) v.殺す,滅ぼす 0- 不定法.能動.現在 | (necō) v.殺す,滅ぼす 2sg 直説法.受動.現在 | (necō) v.殺す,滅ぼす 2sg 命令法.受動.現在
+   6  ;         
+  --- 
+
+// ADJ#4 (suum) -> no target noun detected
+
+1 VERB FOUND: necāre
+
+  necāre (infinitive NoneNone)
+    Acc:
+      suum
+
+  →  自分のを / 殺す,滅ぼす
+
+
+nam propter ōrāculum puerum timēbat .
+
+  --- 
+   0  nam       conj というのは,すなわち {}
+   1  propter   prep<Acc> 〜の近くで,〜のゆえに
+   2  ōrāculum  (?)
+   3  puerum    (puer) 少年 [Acc.sg.m] // []
+   4  timēbat   (timeō) v.恐れる 3sg 直説法.能動.未完了
+   5  .         
+  --- 
+
+
+1 VERB FOUND: timēbat
+
+  timēbat (indicative 3sg)
+    (nam)
+    prep:
+      propter <Acc>
+        puerum
+
+  →  というのは,すなわち / 彼,彼女,それが / {(?) 少年}〜の近くで,〜のゆえに / 恐れていた
+
+
+Comprehendit igitur Perseum adhūc infantem , et cum mātre in arcā līgneā inclūsit .
+
+  --- 
+   0  Comprehendit  (?)
+   1  igitur        conj そこで,だから,こうして {}
+   2  Perseum       (?)
+   3  adhūc         adv これまで {}
+   4  infantem      (?)
+   5  ,             
+   6  et            conj 〜と〜,そして〜,〜も {}
+   7  cum           prep<Abl> 〜とともに,〜をもって
+   8  mātre         (māter) 母 [Abl.sg.f] // []
+   9  in            prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+  10  arcā          (?)
+  11  līgneā        (?)
+  12  inclūsit      (?)
+  13  .             
+  --- 
+
+
+NO VERB FOUND.
+
+  (igitur)
+  →  そこで,だから,こうして
+
+  (adhūc)
+  →  これまで
+
+  (et)
+  →  〜と〜,そして〜,〜も
+
+  cum <Abl>
+    mātre
+  →  {母}〜とともに,〜をもって
+
+  in <Acc>
+  →  {(?) (?) (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して
+
+
+Tum arcam ipsam in mare coniēcit .
+
+  --- 
+   0  Tum       adv その時,その頃,当時 {}
+   1  arcam     (?)
+   2  ipsam     pronoun (それ)自身 {'person':3, 'desc':'強意代名詞', '_':[('Acc', 'sg', 'f')]}
+   3  in        prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   4  mare      (mare) 海 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   5  coniēcit  (?)
+   6  .         
+  --- 
+
+
+NO VERB FOUND.
+
+  (Tum)
+  →  その時,その頃,当時
+
+  ipsam
+  →  (それ)自身
+
+  in <Acc>
+    mare
+  →  {海 (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して
+
+
+Danaē , Perseī māter , māgnopere territa est ;
+
+  --- 
+   0  Danaē      (?)
+   1  ,          
+   2  Perseī     (?)
+   3  māter      (māter) 母 [Nom.sg.f|Voc.sg.f] // []
+   4  ,          
+   5  māgnopere  (?)
+   6  territa    (?)
+   7  est        (sum) v.〜である 3sg 直説法.能動.現在
+   8  ;          
+  --- 
+
+
+1 VERB FOUND: est
+
+  est (indicative 3sg)
+    Nom:
+      māter
+
+  →  彼,彼女,それは / 母である
+
+
+tempestās enim māgna mare turbābat .
+
+  --- 
+   0  tempestās  (?)
+   1  enim       conj というのは,すなわち {}
+   2  māgna      (māgnus) a.大きな [Nom.sg.f|Voc.sg.f|Nom.pl.n|Voc.pl.n|Acc.pl.n]
+   3  mare       (mare) 海 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   4  turbābat   (?)
+   5  .          
+  --- 
+
+// ADJ#2 (māgna) -> no target noun detected
+
+NO VERB FOUND.
+
+  (enim)
+  →  というのは,すなわち
+
+  māgna
+  →  大きな
+
+  mare
+  →  海
+
+
+Perseus autem in sinū mātris dormiēbat .
+
+  --- 
+   0  Perseus    (?)
+   1  autem      conj ところで {}
+   2  in         prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   3  sinū       (?)
+   4  mātris     (māter) 母 [Gen.sg.f] // []
+   5  dormiēbat  (dormiō) v.眠る 3sg 直説法.能動.未完了
+   6  .          
+  --- 
+
+// GEN#4 (mātris) -> no target noun detected
+
+1 VERB FOUND: dormiēbat
+
+  dormiēbat (indicative 3sg)
+    (autem)
+    prep:
+      in <Acc>
+        mātris
+
+  →  ところで / 彼,彼女,それが / {(?) 母}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / 眠っていた
+
+
+Iuppiter tamen haec omnia vīdit , et fīlium suum servāre cōnstituit .
+
+  --- 
+   0  Iuppiter    (?)
+   1  tamen       conj しかしながら,それでも {}
+   2  haec        pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   3  omnia       (omnis) a.すべての [Nom.pl.n|Voc.pl.n|Acc.pl.n]
+   4  vīdit       (videō) v.見る 3sg 直説法.能動.完了
+   5  ,           
+   6  et          conj 〜と〜,そして〜,〜も {}
+   7  fīlium      (fīlius) 息子 [Acc.sg.m] // []
+   8  suum        (suus) a.自分の [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   9  servāre     (servō) v.救う,保つ,観察する,注意を払う 0- 不定法.能動.現在 | (servō) v.救う,保つ,観察する,注意を払う 2sg 直説法.受動.現在 | (servō) v.救う,保つ,観察する,注意を払う 2sg 命令法.受動.現在
+  10  cōnstituit  (?)
+  11  .           
+  --- 
+
+// ADJ#3 (omnia) -> no target noun detected
+// ADJ#8 (suum) -> NOUN#7 (fīlium)
+
+2 VERBS FOUND: vīdit, servāre
+
+  vīdit (indicative 3sg)
+    (tamen)
+    Nom:
+      haec
+    Nom/Acc:
+      omnia
+
+  →  しかしながら,それでも / この,これ(人,物)が / すべてのを / 見た
+
+  servāre (infinitive NoneNone)
+    (et)
+    Acc:
+      fīlium
+        suum
+
+  →  そして / {自分の}息子を / 救う,保つ,観察する,注意を払う
+
+
+Tranquillum igitur fēcit mare , et arcam ad īnsulam Serīphum perdūxit .
+
+  --- 
+   0  Tranquillum  (?)
+   1  igitur       conj そこで,だから,こうして {}
+   2  fēcit        (faciō) v.作る 3sg 直説法.能動.完了
+   3  mare         (mare) 海 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   4  ,            
+   5  et           conj 〜と〜,そして〜,〜も {}
+   6  arcam        (?)
+   7  ad           prep<Acc> 〜の方へ,〜のところまで
+   8  īnsulam      (īnsula) 島 [Acc.sg.f] // []
+   9  Serīphum     (?)
+  10  perdūxit     (?)
+  11  .            
+  --- 
+
+
+1 VERB FOUND: fēcit
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
+
+  fēcit (indicative 3sg)
+    (igitur)
+    Nom/Acc:
+      mare
+    prep:
+      ad <Acc>
+        īnsulam
+
+  →  そこで,だから,こうして / 海が / {島 (?) (?) }〜の方へ,〜のところまで / 作った
+
+
+Hūius īnsulae Polydectēs tum rēx erat .
+
+  --- 
+   0  Hūius       (?)
+   1  īnsulae     (īnsula) 島 [Gen.sg.f|Dat.sg.f|Nom.pl.f|Voc.pl.f] // []
+   2  Polydectēs  (?)
+   3  tum         adv その時,その頃,当時 {}
+   4  rēx         (rēx) 王,指導者 [Nom.sg.m|Voc.sg.m] // []
+   5  erat        (sum) v.〜である 3sg 直説法.能動.未完了
+   6  .           
+  --- 
+
+// GEN#1 (īnsulae) -> no target noun detected
+
+1 VERB FOUND: erat
+
+  erat (indicative 3sg)
+    (tum)
+    Nom:
+      īnsulae
+      rēx
+
+  →  島は / その時,その頃,当時 / 王,指導者であった
+
+
+Postquam arca ad lītus appulsa est , Danaē in harēnā quiētem capiēbat .
+
+  --- 
+   0  Postquam  conj 〜したのち {}
+   1  arca      (?)
+   2  ad        prep<Acc> 〜の方へ,〜のところまで
+   3  lītus     (?)
+   4  appulsa   (?)
+   5  est       (sum) v.〜である 3sg 直説法.能動.現在
+   6  ,         
+   7  Danaē     (?)
+   8  in        prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   9  harēnā    (?)
+  10  quiētem   (?)
+  11  capiēbat  (capiō) v.捕える 3sg 直説法.能動.未完了
+  12  .         
+  --- 
+
+
+2 VERBS FOUND: est, capiēbat
+
+  est (indicative 3sg)
+    (Postquam)
+    prep:
+      ad <Acc>
+
+  →  〜したのち / 彼,彼女,それは / {(?) (?)}〜の方へ,〜のところまで / 〜である
+
+  capiēbat (indicative 3sg)
+    prep:
+      in <Acc>
+
+  →  彼,彼女,それが / {(?) (?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / 捕えていた
+
+
+Post breve tempus ā piscātōre quōdam reperta est , et ad domum rēgis Polydectis adducta est .
+
+  --- 
+   0  Post         prep<Acc> 〜のうしろで,〜以後
+   1  breve        (brevis) a.短い [Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   2  tempus       (tempus) 時 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   3  ā            prep<Abl> 〜から(離れて),〜によって
+   4  piscātōre    (?)
+   5  quōdam       pronoun 或る(人,物) {'desc':'不定代名詞', 'base':'quīdam', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   6  reperta est  (reperiō) v.見つける 3sg 直説法.受動.完了
+   7  ,            
+   8  et           conj 〜と〜,そして〜,〜も {}
+   9  ad           prep<Acc> 〜の方へ,〜のところまで
+  10  domum        (domus) 家 [Acc.sg.f] // []
+  11  rēgis        (rēx) 王,指導者 [Gen.sg.m] // []
+  12  Polydectis   (?)
+  13  adducta      (?)
+  14  est          (sum) v.〜である 3sg 直説法.能動.現在
+  15  .            
+  --- 
+
+// ADJ#1 (breve) -> NOUN#2 (tempus)
+// GEN#11 (rēgis) -> TARGET#10 (domum)
+
+2 VERBS FOUND: reperta est, est
+
+  reperta est (indicative 3sg)
+    prep:
+      post <Acc>
+        tempus
+          breve
+    prep:
+      ā <Abl>
+        quōdam
+
+  →  彼,彼女,それが / {{短い}時}〜のうしろで,〜以後 / {(?) 或る(人,物)}〜から(離れて),〜によって / 見つけられた
+
+  est (indicative 3sg)
+    (et)
+    prep:
+      ad <Acc>
+        domum
+          rēgis
+
+  →  そして / 彼,彼女,それは / {{王,指導者の}家 (?) (?)}〜の方へ,〜のところまで / 〜である
+
+
+Ille mātrem et puerum benīgnē excēpit , et iīs sēdem tūtam in fīnibus suīs dedit .
+
+  --- 
+   0  Ille     pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   1  mātrem   (māter) 母 [Acc.sg.f] // []
+   2  et       conj 〜と〜,そして〜,〜も {}
+   3  puerum   (puer) 少年 [Acc.sg.m] // []
+   4  benīgnē  (?)
+   5  excēpit  (?)
+   6  ,        
+   7  et       conj 〜と〜,そして〜,〜も {}
+   8  iīs      pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Dat', 'pl', 'm'), ('Abl', 'pl', 'm'), ('Dat', 'pl', 'f'), ('Abl', 'pl', 'f'), ('Dat', 'pl', 'n'), ('Abl', 'pl', 'n')]}
+   9  sēdem    (?)
+  10  tūtam    (tūtus) a.安全な [Acc.sg.f]
+  11  in       prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+  12  fīnibus  (fīnis) 境界 [Dat.pl.m|Abl.pl.m] // []
+  13  suīs     (suus) a.自分の [Dat.pl.m|Abl.pl.m|Dat.pl.f|Abl.pl.f|Dat.pl.n|Abl.pl.n]
+  14  dedit    (dō) v.与える 3sg 直説法.能動.完了
+  15  .        
+  --- 
+
+// #1 ET #3: mātrem == puerum
+// ADJ#10 (tūtam) -> no target noun detected
+// ADJ#13 (suīs) -> NOUN#12 (fīnibus)
+
+1 VERB FOUND: dedit
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
+
+  dedit (indicative 3sg)
+    Nom:
+      Ille
+    Acc:
+      [et] 
+        mātrem
+        puerum
+      tūtam
+    Dat:
+      iīs
+    prep:
+      in <Abl>
+        fīnibus
+          suīs
+
+  →  あの,あれ(人,物)が / その,それに / {{自分の}境界}〜で,〜の中で,〜の上で / 母と少年=安全なを / 与えた
+
+
+Danaē hōc dōnum libenter accēpit , et prō tantō beneficiō rēgī grātiās ēgit .
+
+  --- 
+   0  Danaē      (?)
+   1  hōc        pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   2  dōnum      (dōnum) 贈物 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   3  libenter   adv 喜んで {}
+   4  accēpit    (accipiō) v.受け取る 3sg 直説法.能動.完了
+   5  ,          
+   6  et         conj 〜と〜,そして〜,〜も {}
+   7  prō        prep<Abl> 〜の前に,〜のために,〜の代わりに
+   8  tantō      (tantus) a.これほどの [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
+   9  beneficiō  (?)
+  10  rēgī       (rēx) 王,指導者 [Dat.sg.m] // []
+  11  grātiās    (grātia) 感謝 [Acc.pl.f] // []
+  12  ēgit       (agō) v.する,駆る 3sg 直説法.能動.完了
+  13  .          
+  --- 
+
+// ADJ#8 (tantō) -> NOUN#10 (rēgī)
+
+2 VERBS FOUND: accēpit, ēgit
+
+  accēpit (indicative 3sg)
+    (libenter)
+    Abl:
+      hōc
+    Nom/Acc:
+      dōnum
+
+  →  贈物が / この,これで / 喜んで / 受け取った
+
+  ēgit (indicative 3sg)
+    (et)
+    prep:
+      prō <Abl>
+    Dat:
+      rēgī
+        tantō
+    Acc:
+      grātiās
+
+  →  そして / 彼,彼女,それが / {(?)}〜の前に,〜のために,〜の代わりに / {これほどの}王,指導者に / 感謝を / した,駆った
+
+
+Perseus igitur multōs annōs ibi habitābat , et cum mātre suā vītam beātam agēbat .
+
+  --- 
+   0  Perseus    (?)
+   1  igitur     conj そこで,だから,こうして {}
+   2  multōs     (multus) a.多くの [Acc.pl.m]
+   3  annōs      (annus) 年,季節 [Acc.pl.m] // []
+   4  ibi        adv そこでは {}
+   5  habitābat  (habitō) v.住む 3sg 直説法.能動.未完了
+   6  ,          
+   7  et         conj 〜と〜,そして〜,〜も {}
+   8  cum        prep<Abl> 〜とともに,〜をもって
+   9  mātre      (māter) 母 [Abl.sg.f] // []
+  10  suā        (suus) a.自分の [Abl.sg.f]
+  11  vītam      (vīta) 人生 [Acc.sg.f] // []
+  12  beātam     (?)
+  13  agēbat     (agō) v.する,駆る 3sg 直説法.能動.未完了
+  14  .          
+  --- 
+
+// ADJ#2 (multōs) -> NOUN#3 (annōs)
+// ADJ#10 (suā) -> NOUN#9 (mātre)
+
+2 VERBS FOUND: habitābat, agēbat
+
+  habitābat (indicative 3sg)
+    (igitur)
+    (ibi)
+    Acc:
+      annōs
+        multōs
+
+  →  そこで,だから,こうして / 彼,彼女,それが / {多くの}年,季節を / そこでは / 住んでいた
+
+  agēbat (indicative 3sg)
+    (et)
+    prep:
+      cum <Abl>
+        mātre
+          suā
+    Acc:
+      vītam
+
+  →  そして / 彼,彼女,それが / {{自分の}母}〜とともに,〜をもって / 人生を / していた,駆っていた
+
+
+At Polydectēs Danaēn māgnopere amābat , atque eam in mātrimōnium dūcere volēbat .
+
+  --- 
+   0  At           conj これに反して {}
+   1  Polydectēs   (?)
+   2  Danaēn       (?)
+   3  māgnopere    (?)
+   4  amābat       (amō) v.愛する 3sg 直説法.能動.未完了
+   5  ,            
+   6  atque        conj 〜および〜(第2項に重点がある) {}
+   7  eam          pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Acc', 'sg', 'f')]} | (eō) v.行く 1sg 接続法.能動.現在
+   8  in           prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   9  mātrimōnium  (?)
+  10  dūcere       (dūcō) v.導く 0- 不定法.能動.現在 | (dūcō) v.導く 2sg 直説法.受動.現在 | (dūcō) v.導く 2sg 命令法.受動.現在
+  11  volēbat      (?)
+  12  .            
+  --- 
+
+
+2 VERBS FOUND: amābat, dūcere
+
+  amābat (indicative 3sg)
+    (At)
+
+  →  これに反して / 彼,彼女,それが / 愛していた
+
+  dūcere (infinitive NoneNone)
+    (atque)
+    Acc:
+      eam
+    prep:
+      in <Acc>
+
+  →  〜および〜(第2項に重点がある) / {(?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / その,それを / 導く
+
+
+Hōc tamen cōnsilium Perseō minimē grātum erat .
+
+  --- 
+   0  Hōc        pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   1  tamen      conj しかしながら,それでも {}
+   2  cōnsilium  (cōnsilium) 意図,相談 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   3  Perseō     (?)
+   4  minimē     (?)
+   5  grātum     (grātus) a.楽しい,感謝の [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   6  erat       (sum) v.〜である 3sg 直説法.能動.未完了
+   7  .          
+  --- 
+
+// ADJ#5 (grātum) -> NOUN#2 (cōnsilium)
+
+1 VERB FOUND: erat
+
+  erat (indicative 3sg)
+    (tamen)
+    Abl:
+      Hōc
+    Nom/Acc:
+      cōnsilium
+        grātum
+
+  →  しかしながら,それでも / 彼,彼女,それは / この,これで / {楽しい,感謝の}意図,相談であった
+
+
+Polydectēs igitur Perseum dīmittere cōnstituit .
+
+  --- 
+   0  Polydectēs  (?)
+   1  igitur      conj そこで,だから,こうして {}
+   2  Perseum     (?)
+   3  dīmittere   (?)
+   4  cōnstituit  (?)
+   5  .           
+  --- 
+
+
+NO VERB FOUND.
+
+  (igitur)
+  →  そこで,だから,こうして
+
+
+Tum iuvenem ad sē vocāvit et haec dīxit :
+
+  --- 
+   0  Tum      adv その時,その頃,当時 {}
+   1  iuvenem  (?)
+   2  ad       prep<Acc> 〜の方へ,〜のところまで
+   3  sē       (?)
+   4  vocāvit  (vocō) v.呼ぶ,名付ける 3sg 直説法.能動.完了
+   5  et       conj 〜と〜,そして〜,〜も {}
+   6  haec     pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   7  dīxit    (dīcō) v.言う 3sg 直説法.能動.完了
+   8  :        
+  --- 
+
+
+2 VERBS FOUND: vocāvit, dīxit
+
+  vocāvit (indicative 3sg)
+    (Tum)
+    prep:
+      ad <Acc>
+
+  →  その時,その頃,当時 / 彼,彼女,それが / {(?)}〜の方へ,〜のところまで / 呼んだ,名付けた
+
+  dīxit (indicative 3sg)
+    (et)
+    Nom:
+      haec
+
+  →  そして / この,これ(人,物)が / 言った
+
+
+Turpe est hanc īgnāvam vītam agere ;
+
+  --- 
+   0  Turpe    (turpis) a.恥ずべき [Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   1  est      (sum) v.〜である 3sg 直説法.能動.現在
+   2  hanc     pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Acc', 'sg', 'f')]}
+   3  īgnāvam  (?)
+   4  vītam    (vīta) 人生 [Acc.sg.f] // []
+   5  agere    (agō) v.する,駆る 0- 不定法.能動.現在 | (agō) v.する,駆る 2sg 直説法.受動.現在 | (agō) v.する,駆る 2sg 命令法.受動.現在
+   6  ;        
+  --- 
+
+// ADJ#0 (Turpe) -> no target noun detected
+
+2 VERBS FOUND: est, agere
+  NOT WELL: {2..4}
+
+  est (indicative 3sg)
+    Nom/Acc:
+      Turpe
+
+  →  彼,彼女,それは / 恥ずべきである
+
+  agere (infinitive NoneNone)
+    Acc:
+      hanc
+      vītam
+
+  →  この,これ=人生を / する,駆る
+
+
+iam dūdum tū adulēscēns es .
+
+  --- 
+   0  iam         (?)
+   1  dūdum       (?)
+   2  tū          pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Nom', 'sg', 'm')]}
+   3  adulēscēns  (?)
+   4  es          (sum) v.〜である 2sg 直説法.能動.現在 | (sum) v.〜である 2sg 命令法.能動.現在
+   5  .           
+  --- 
+
+
+1 VERB FOUND: es
+
+  es (indicative 2sg)
+    Nom:
+      tū
+
+  →  あなたは / あなたである
+
+
+Quō ūsque hīc manēbis ?
+
+  --- 
+   0  Quō      pronoun 各人(の) {'desc':'関係代名詞', 'base':'quī', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]} | pronoun 誰が {'desc':'疑問代名詞', 'base':'quis', '_':[('Abl', 'sg', 'm')]} | pronoun 何が {'desc':'疑問代名詞', 'base':'quid', '_':[('Abl', 'sg', 'n')]} | conj (+比較級)さらに〜するように {}
+   1  ūsque    (?)
+   2  hīc      pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   3  manēbis  (maneō) v.とどまる 2sg 直説法.能動.未来
+   4  ?        
+  --- 
+
+
+1 VERB FOUND: manēbis
+
+  manēbis (indicative 2sg)
+    Abl:
+      Quō
+    Nom:
+      hīc
+
+  →  この,これ(人,物)が / 各人(の)で / とどまるだろう
+
+
+Tempus est arma capere et virtūtem praestāre .
+
+  --- 
+   0  Tempus     (tempus) 時 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   1  est        (sum) v.〜である 3sg 直説法.能動.現在
+   2  arma       (armum) 道具,武器 [Nom.pl.n|Voc.pl.n|Acc.pl.n] // []
+   3  capere     (capiō) v.捕える 0- 不定法.能動.現在 | (capiō) v.捕える 2sg 直説法.受動.現在 | (capiō) v.捕える 2sg 命令法.受動.現在
+   4  et         conj 〜と〜,そして〜,〜も {}
+   5  virtūtem   (?)
+   6  praestāre  (?)
+   7  .          
+  --- 
+
+
+2 VERBS FOUND: est, capere
+
+  est (indicative 3sg)
+    Nom/Acc:
+      Tempus
+
+  →  彼,彼女,それは / 時である
+
+  capere (infinitive NoneNone)
+    (et)
+
+  →  そして / 捕える
+
+
+Hinc abī , et caput Medūsae mihi refer .
+
+  --- 
+   0  Hinc     (?)
+   1  abī      (?)
+   2  ,        
+   3  et       conj 〜と〜,そして〜,〜も {}
+   4  caput    (?)
+   5  Medūsae  (?)
+   6  mihi     pronoun 私 {'person':1, 'desc':'人称代名詞', '_':[('Dat', 'sg', 'm')]}
+   7  refer    (?)
+   8  .        
+  --- 
+
+
+NO VERB FOUND.
+
+  (et)
+  →  〜と〜,そして〜,〜も
+
+  mihi
+  →  私
+
+
+Perseus ubi haec audīvit , ex īnsulā discessit , et postquam ad continentem vēnit , Medūsam quaesīvit .
+
+  --- 
+   0  Perseus      (?)
+   1  ubi          adv どこ {}
+   2  haec         pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   3  audīvit      (audiō) v.聞く 3sg 直説法.能動.完了
+   4  ,            
+   5  ex           prep<Abl> 〜(の中)から外へ
+   6  īnsulā       (īnsula) 島 [Abl.sg.f] // []
+   7  discessit    (?)
+   8  ,            
+   9  et           conj 〜と〜,そして〜,〜も {}
+  10  postquam     conj 〜したのち {}
+  11  ad           prep<Acc> 〜の方へ,〜のところまで
+  12  continentem  (?)
+  13  vēnit        (veniō) v.来る 3sg 直説法.能動.完了
+  14  ,            
+  15  Medūsam      (?)
+  16  quaesīvit    (?)
+  17  .            
+  --- 
+
+
+2 VERBS FOUND: audīvit, vēnit
+
+  audīvit (indicative 3sg)
+    (ubi)
+    Nom:
+      haec
+
+  →  どこ / この,これ(人,物)が / 聞いた
+
+  NOT SOLVED:
+    (postquam)
+    →  〜したのち
+
+  vēnit (indicative 3sg)
+    (et)
+    prep:
+      ex <Abl>
+        īnsulā
+    prep:
+      ad <Acc>
+
+  →  そして / 彼,彼女,それが / {島 (?) }〜(の中)から外へ / {(?)}〜の方へ,〜のところまで / 来た
+
+
+Diū frūstrā quaerēbat ;
+
+  --- 
+   0  Diū        adv 一日中,ずっと {}
+   1  frūstrā    adv 無駄に {}
+   2  quaerēbat  (?)
+   3  ;          
+  --- 
+
+
+NO VERB FOUND.
+
+  (Diū)
+  →  一日中,ずっと
+
+  (frūstrā)
+  →  無駄に
+
+
+namque nātūram locī īgnōrābat .
+
+  --- 
+   0  namque     conj というのは,すなわち {}
+   1  nātūram    (?)
+   2  locī       (locus) 場所 [Gen.sg.m|Nom.pl.m|Voc.pl.m] // []
+   3  īgnōrābat  (?)
+   4  .          
+  --- 
+
+// GEN#2 (locī) -> no target noun detected
+
+NO VERB FOUND.
+
+  (namque)
+  →  というのは,すなわち
+
+  locī
+  →  場所
+
+
+Tandem Apollō et Minerva viam dēmōnstrāvērunt .
+
+  --- 
+   0  Tandem           adv 結局,最後に {}
+   1  Apollō           (?)
+   2  et               conj 〜と〜,そして〜,〜も {}
+   3  Minerva          (?)
+   4  viam             (via) 道 [Acc.sg.f] // []
+   5  dēmōnstrāvērunt  (dēmōnstrō) v.示す 3pl 直説法.能動.完了
+   6  .                
+  --- 
+
+
+1 VERB FOUND: dēmōnstrāvērunt
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
+
+  dēmōnstrāvērunt (indicative 3pl)
+    (Tandem)
+    Acc:
+      viam
+
+  →  結局,最後に / 彼ら,彼女ら,それらが / 道を / 示した
+
+
+Prīmum ad Graeās , sorōrēs Medūsae , pervēnit .
+
+  --- 
+   0  Prīmum    (prīmus) a.最初の [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   1  ad        prep<Acc> 〜の方へ,〜のところまで
+   2  Graeās    (?)
+   3  ,         
+   4  sorōrēs   (soror) 姉,妹 [Nom.pl.f|Voc.pl.f|Acc.pl.f] // []
+   5  Medūsae   (?)
+   6  ,         
+   7  pervēnit  (?)
+   8  .         
+  --- 
+
+// ADJ#0 (Prīmum) -> no target noun detected
+
+NO VERB FOUND.
+
+  Prīmum
+  →  最初の
+
+  ad <Acc>
+    sorōrēs
+  →  {(?)  姉,妹 (?)  (?) }〜の方へ,〜のところまで
+
+
+Ab hīs tālāria et galeam magicam accēpit .
+
+  --- 
+   0  Ab       prep<Abl> 〜から(離れて),〜によって
+   1  hīs      pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Dat', 'pl', 'm'), ('Abl', 'pl', 'm'), ('Dat', 'pl', 'f'), ('Abl', 'pl', 'f'), ('Dat', 'pl', 'n'), ('Abl', 'pl', 'n')]}
+   2  tālāria  (?)
+   3  et       conj 〜と〜,そして〜,〜も {}
+   4  galeam   (?)
+   5  magicam  (?)
+   6  accēpit  (accipiō) v.受け取る 3sg 直説法.能動.完了
+   7  .        
+  --- 
+
+
+1 VERB FOUND: accēpit
+
+  accēpit (indicative 3sg)
+    (et)
+    prep:
+      ab <Abl>
+        hīs
+
+  →  そして / 彼,彼女,それが / {この,これ (?)}〜から(離れて),〜によって / 受け取った
+
+
+Apollō autem et Minerva falcem et speculum dedērunt .
+
+  --- 
+   0  Apollō    (?)
+   1  autem     conj ところで {}
+   2  et        conj 〜と〜,そして〜,〜も {}
+   3  Minerva   (?)
+   4  falcem    (?)
+   5  et        conj 〜と〜,そして〜,〜も {}
+   6  speculum  (?)
+   7  dedērunt  (dō) v.与える 3pl 直説法.能動.完了
+   8  .         
+  --- 
+
+
+1 VERB FOUND: dedērunt
+
+  NOT SOLVED:
+    [et] 
+    →  (?)
+
+  dedērunt (indicative 3pl)
+    (autem)
+
+  →  ところで / 彼ら,彼女ら,それらが / 与えた
+
+
+Tum postquam tālāria pedibus induit , in āera ascendit .
+
+  --- 
+   0  Tum       adv その時,その頃,当時 {}
+   1  postquam  conj 〜したのち {}
+   2  tālāria   (?)
+   3  pedibus   (pēs) 足 [Dat.pl.m|Abl.pl.m] // []
+   4  induit    (?)
+   5  ,         
+   6  in        prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   7  āera      (?)
+   8  ascendit  (?)
+   9  .         
+  --- 
+
+
+NO VERB FOUND.
+
+  (Tum)
+  →  その時,その頃,当時
+
+  (postquam)
+  →  〜したのち
+
+  pedibus
+  →  足
+
+  in <Acc>
+  →  {(?) (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して
+
+
+Diū per āera volābat ;
+
+  --- 
+   0  Diū      adv 一日中,ずっと {}
+   1  per      prep<Acc> 〜を通って,〜を通じて,〜により
+   2  āera     (?)
+   3  volābat  (?)
+   4  ;        
+  --- 
+
+
+NO VERB FOUND.
+
+  (Diū)
+  →  一日中,ずっと
+
+  per <Acc>
+  →  {(?) (?) }〜を通って,〜を通じて,〜により
+
+
+tandem tamen ad eum locum vēnit ubi Medūsa cum cēterīs Gorgonibus habitābat .
+
+  --- 
+   0  tandem      adv 結局,最後に {}
+   1  tamen       conj しかしながら,それでも {}
+   2  ad          prep<Acc> 〜の方へ,〜のところまで
+   3  eum         pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Acc', 'sg', 'm')]}
+   4  locum       (locus) 場所 [Acc.sg.m] // []
+   5  vēnit       (veniō) v.来る 3sg 直説法.能動.完了
+   6  ubi         adv どこ {}
+   7  Medūsa      (?)
+   8  cum         prep<Abl> 〜とともに,〜をもって
+   9  cēterīs     (cēterus) 他の全て [Dat.pl.m|Abl.pl.m] // []
+  10  Gorgonibus  (?)
+  11  habitābat   (habitō) v.住む 3sg 直説法.能動.未完了
+  12  .           
+  --- 
+
+
+2 VERBS FOUND: vēnit, habitābat
+  NOT WELL: {4..6}
+
+  NOT SOLVED:
+    (tamen)
+    →  しかしながら,それでも
+
+  vēnit (indicative 3sg)
+    (tandem)
+    prep:
+      ad <Acc>
+        eum
+        locum
+
+  →  結局,最後に / 彼,彼女,それが / {その,それ 場所}〜の方へ,〜のところまで / 来た
+
+  habitābat (indicative 3sg)
+    (ubi)
+    prep:
+      cum <Abl>
+        cēterīs
+
+  →  どこ / 彼,彼女,それが / {他の全て (?)}〜とともに,〜をもって / 住んでいた
+
+
+Gorgonēs autem mōnstra erant speciē horribilī ;
+
+  --- 
+   0  Gorgonēs   (?)
+   1  autem      conj ところで {}
+   2  mōnstra    (mōnstrum) 怪物 [Nom.pl.n|Voc.pl.n|Acc.pl.n] // []
+   3  erant      (sum) v.〜である 3pl 直説法.能動.未完了
+   4  speciē     (speciēs) 姿 [Abl.sg.f] // []
+   5  horribilī  (?)
+   6  ;          
+  --- 
+
+
+1 VERB FOUND: erant
+
+  erant (indicative 3pl)
+    (autem)
+    Nom/Acc:
+      mōnstra
+    Abl:
+      speciē
+
+  →  ところで / 彼ら,彼女ら,それらは / 姿で / 怪物であった
+
+
+capita enim eārum anguibus omnīnō contēcta erant .
+
+  --- 
+   0  capita    (?)
+   1  enim      conj というのは,すなわち {}
+   2  eārum     pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'pl', 'f')]}
+   3  anguibus  (?)
+   4  omnīnō    (?)
+   5  contēcta  (?)
+   6  erant     (sum) v.〜である 3pl 直説法.能動.未完了
+   7  .         
+  --- 
+
+
+1 VERB FOUND: erant
+
+  erant (indicative 3pl)
+    (enim)
+    Gen:
+      eārum
+
+  →  というのは,すなわち / 彼ら,彼女ら,それらは / その,それの / 〜であった
+
+
+Manūs etiam ex aere factae erant .
+
+  --- 
+   0  Manūs         (manus) 手 [Gen.sg.f|Nom.pl.f|Voc.pl.f|Acc.pl.f] // []
+   1  etiam         (?)
+   2  ex            prep<Abl> 〜(の中)から外へ
+   3  aere          (?)
+   4  factae erant  (faciō) v.作る 3pl 直説法.受動.過去完了
+   5  .             
+  --- 
+
+// GEN#0 (Manūs) -> no target noun detected
+
+1 VERB FOUND: factae erant
+
+  factae erant (indicative 3pl)
+    Nom:
+      Manūs
+    prep:
+      ex <Abl>
+
+  →  手が / {(?)}〜(の中)から外へ / 作られる
+
+
+Rēs difficillima erat caput Gorgonis abscīdere ;
+
+  --- 
+   0  Rēs           (rēs) 物,事 [Nom.sg.f|Voc.sg.f|Nom.pl.f|Voc.pl.f|Acc.pl.f] // []
+   1  difficillima  (?)
+   2  erat          (sum) v.〜である 3sg 直説法.能動.未完了
+   3  caput         (?)
+   4  Gorgonis      (?)
+   5  abscīdere     (?)
+   6  ;             
+  --- 
+
+
+1 VERB FOUND: erat
+
+  erat (indicative 3sg)
+    Nom:
+      Rēs
+
+  →  彼,彼女,それは / 物,事であった
+
+
+ēius enim cōnspectū homines in saxum vertēbantur .
+
+  --- 
+   0  ēius         (?)
+   1  enim         conj というのは,すなわち {}
+   2  cōnspectū    (?)
+   3  homines      (?)
+   4  in           prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   5  saxum        (saxum) 岩 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   6  vertēbantur  (?)
+   7  .            
+  --- 
+
+
+NO VERB FOUND.
+
+  (enim)
+  →  というのは,すなわち
+
+  in <Acc>
+    saxum
+  →  {岩 (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して
+
+
+Propter hanc causam Minerva speculum Perseō dederat .
+
+  --- 
+   0  Propter   prep<Acc> 〜の近くで,〜のゆえに
+   1  hanc      pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Acc', 'sg', 'f')]}
+   2  causam    (causa) 原因 [Acc.sg.f] // []
+   3  Minerva   (?)
+   4  speculum  (?)
+   5  Perseō    (?)
+   6  dederat   (dō) v.与える 3sg 直説法.能動.過去完了
+   7  .         
+  --- 
+
+
+1 VERB FOUND: dederat
+
+  dederat (indicative 3sg)
+    prep:
+      propter <Acc>
+        hanc
+        causam
+
+  →  彼,彼女,それが / {この,これ 原因 (?) (?) (?)}〜の近くで,〜のゆえに / 与える
+
+
+Ille igitur tergum vertit , et in speculum īnspiciēbat ;
+
+  --- 
+   0  Ille         pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   1  igitur       conj そこで,だから,こうして {}
+   2  tergum       (tergum) 背中 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   3  vertit       (?)
+   4  ,            
+   5  et           conj 〜と〜,そして〜,〜も {}
+   6  in           prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   7  speculum     (?)
+   8  īnspiciēbat  (?)
+   9  ;            
+  --- 
+
+
+NO VERB FOUND.
+
+  Ille
+  →  あの,あれ
+
+  (igitur)
+  →  そこで,だから,こうして
+
+  tergum
+  →  背中
+
+  (et)
+  →  〜と〜,そして〜,〜も
+
+  in <Acc>
+  →  {(?) (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して
+
+
+hōc modō ad locum vēnit ubi Medūsa dormiēbat .
+
+  --- 
+   0  hōc        pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   1  modō       (modus) 制限,方法 [Dat.sg.m|Abl.sg.m] // []
+   2  ad         prep<Acc> 〜の方へ,〜のところまで
+   3  locum      (locus) 場所 [Acc.sg.m] // []
+   4  vēnit      (veniō) v.来る 3sg 直説法.能動.完了
+   5  ubi        adv どこ {}
+   6  Medūsa     (?)
+   7  dormiēbat  (dormiō) v.眠る 3sg 直説法.能動.未完了
+   8  .          
+  --- 
+
+
+2 VERBS FOUND: vēnit, dormiēbat
+  NOT WELL: {4..5}
+
+  vēnit (indicative 3sg)
+    Abl:
+      hōc
+    Dat:
+      modō
+    prep:
+      ad <Acc>
+        locum
+
+  →  彼,彼女,それが / この,これで / 制限,方法に / {場所}〜の方へ,〜のところまで / 来た
+
+  dormiēbat (indicative 3sg)
+    (ubi)
+
+  →  どこ / 彼,彼女,それが / 眠っていた
+
+
+Tum falce suā caput ēius ūnō īctū abscīdit .
+
+  --- 
+   0  Tum       adv その時,その頃,当時 {}
+   1  falce     (?)
+   2  suā       (suus) a.自分の [Abl.sg.f]
+   3  caput     (?)
+   4  ēius      (?)
+   5  ūnō       pronoun ひとつの {'_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   6  īctū      (?)
+   7  abscīdit  (?)
+   8  .         
+  --- 
+
+// ADJ#2 (suā) -> no target noun detected
+
+NO VERB FOUND.
+
+  (Tum)
+  →  その時,その頃,当時
+
+  suā
+  →  自分の
+
+  ūnō
+  →  ひとつの
+
+
+Cēterae Gorgonēs statim ē somnō excitātae sunt , et ubi rem vīdērunt , īrā commōtae sunt .
+
+  --- 
+   0  Cēterae        (?)
+   1  Gorgonēs       (?)
+   2  statim         adv たちまち {}
+   3  ē              prep<Abl> 〜(の中)から外へ
+   4  somnō          (somnus) 睡眠 [Dat.sg.m|Abl.sg.m] // []
+   5  excitātae      (?)
+   6  sunt           (sum) v.〜である 3pl 直説法.能動.現在
+   7  ,              
+   8  et             conj 〜と〜,そして〜,〜も {}
+   9  ubi            adv どこ {}
+  10  rem            (rēs) 物,事 [Acc.sg.f] // []
+  11  vīdērunt       (videō) v.見る 3pl 直説法.能動.完了
+  12  ,              
+  13  īrā            (īra) 怒り [Abl.sg.f] // []
+  14  commōtae sunt  (commoveō) v.動かす 3pl 直説法.受動.完了
+  15  .              
+  --- 
+
+
+3 VERBS FOUND: sunt, vīdērunt, commōtae sunt
+
+  sunt (indicative 3pl)
+    (statim)
+    prep:
+      ē <Abl>
+        somnō
+
+  →  彼ら,彼女ら,それらは / {睡眠 (?)}〜(の中)から外へ / たちまち / 〜である
+
+  vīdērunt (indicative 3pl)
+    (et)
+    (ubi)
+    Acc:
+      rem
+
+  →  そして / 彼ら,彼女ら,それらが / 物,事を / どこ / 見た
+
+  commōtae sunt (indicative 3pl)
+    Abl:
+      īrā
+
+  →  彼ら,彼女ら,それらが / 怒りで / 動かされた
+
+
+Arma rapuērunt , et Perseum occīdere volēbant .
+
+  --- 
+   0  Arma       (armum) 道具,武器 [Nom.pl.n|Voc.pl.n|Acc.pl.n] // []
+   1  rapuērunt  (rapiō) v.奪う 3pl 直説法.能動.完了
+   2  ,          
+   3  et         conj 〜と〜,そして〜,〜も {}
+   4  Perseum    (?)
+   5  occīdere   (?)
+   6  volēbant   (?)
+   7  .          
+  --- 
+
+
+1 VERB FOUND: rapuērunt
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
+
+  rapuērunt (indicative 3pl)
+    Nom/Acc:
+      Arma
+
+  →  道具,武器が / 奪った
+
+
+Ille autem dum fugit , galeam magicam induit ;
+
+  --- 
+   0  Ille     pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   1  autem    conj ところで {}
+   2  dum      conj 〜するあいだ,〜するかぎり,〜するまで {} | conj 〜しさえすれば {}
+   3  fugit    (fugiō) v.逃げる 3sg 直説法.能動.現在
+   4  ,        
+   5  galeam   (?)
+   6  magicam  (?)
+   7  induit   (?)
+   8  ;        
+  --- 
+
+
+1 VERB FOUND: fugit
+
+  NOT SOLVED:
+    (dum)
+    →  〜するあいだ,〜するかぎり,〜するまで
+
+  fugit (indicative 3sg)
+    (autem)
+    Nom:
+      Ille
+
+  →  ところで / あの,あれ(人,物)が / 逃げる
+
+
+et ubi hōc fēcit , statim ē cōnspectū eārum ēvāsit .
+
+  --- 
+   0  et         conj 〜と〜,そして〜,〜も {}
+   1  ubi        adv どこ {}
+   2  hōc        pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   3  fēcit      (faciō) v.作る 3sg 直説法.能動.完了
+   4  ,          
+   5  statim     adv たちまち {}
+   6  ē          prep<Abl> 〜(の中)から外へ
+   7  cōnspectū  (?)
+   8  eārum      pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'pl', 'f')]}
+   9  ēvāsit     (?)
+  10  .          
+  --- 
+
+
+1 VERB FOUND: fēcit
+
+  fēcit (indicative 3sg)
+    (et)
+    (ubi)
+    (statim)
+    Abl:
+      hōc
+    prep:
+      ē <Abl>
+        eārum
+
+  →  そして / 彼,彼女,それが / この,これで / {(?) その,それ (?) }〜(の中)から外へ / どこ / たちまち / 作った
+
+
+Post haec Perseus in fīnīs Aethiopum vēnit .
+
+  --- 
+   0  Post       prep<Acc> 〜のうしろで,〜以後
+   1  haec       pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   2  Perseus    (?)
+   3  in         prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   4  fīnīs      (?)
+   5  Aethiopum  (?)
+   6  vēnit      (veniō) v.来る 3sg 直説法.能動.完了
+   7  .          
+  --- 
+
+
+1 VERB FOUND: vēnit
+
+  vēnit (indicative 3sg)
+    prep:
+      post <Acc>
+        haec
+    prep:
+      in <Acc>
+
+  →  彼,彼女,それが / {この,これ (?)}〜のうしろで,〜以後 / {(?) (?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / 来た
+
+
+Ibi Cēpheus quīdam illō tempore rēgnābat .
+
+  --- 
+   0  Ibi       adv そこでは {}
+   1  Cēpheus   (?)
+   2  quīdam    pronoun 或る(人,物) {'desc':'不定代名詞', 'base':'quīdam', '_':[('Nom', 'sg', 'm'), ('Nom', 'pl', 'm'), ('Nom', 'pl', 'n')]}
+   3  illō      pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   4  tempore   (tempus) 時 [Abl.sg.n] // []
+   5  rēgnābat  (?)
+   6  .         
+  --- 
+
+
+NO VERB FOUND.
+
+  (Ibi)
+  →  そこでは
+
+  quīdam
+  →  或る(人,物)
+
+  illō
+  →  あの,あれ
+
+  tempore
+  →  時
+
+
+Hīc Neptūnum , maris deum , ōlim offenderat ;
+
+  --- 
+   0  Hīc         pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   1  Neptūnum    (?)
+   2  ,           
+   3  maris       (mare) 海 [Gen.sg.n] // []
+   4  deum        (deus) 神 [Acc.sg.m] // []
+   5  ,           
+   6  ōlim        adv 昔,ある時,いつか {}
+   7  offenderat  (?)
+   8  ;           
+  --- 
+
+// GEN#3 (maris) -> TARGET#4 (deum)
+
+NO VERB FOUND.
+
+  Hīc
+  →  この,これ
+
+  deum
+    maris
+  →  {海の}神
+
+  (ōlim)
+  →  昔,ある時,いつか
+
+
+Neptūnus autem mōnstrum saevissimum mīserat .
+
+  --- 
+   0  Neptūnus     (?)
+   1  autem        conj ところで {}
+   2  mōnstrum     (mōnstrum) 怪物 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   3  saevissimum  (saevus) a.最も激怒した,残酷な [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   4  mīserat      (?)
+   5  .            
+  --- 
+
+// ADJ#3 (saevissimum) -> NOUN#2 (mōnstrum)
+
+NO VERB FOUND.
+
+  (autem)
+  →  ところで
+
+  mōnstrum
+    saevissimum
+  →  {最も激怒した,残酷な}怪物
+
+
+Hōc cottīdiē ē marī veniēbat et hominēs dēvorābat .
+
+  --- 
+   0  Hōc        pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   1  cottīdiē   adv 毎日 {}
+   2  ē          prep<Abl> 〜(の中)から外へ
+   3  marī       (mare) 海 [Dat.sg.n|Abl.sg.n] // []
+   4  veniēbat   (veniō) v.来る 3sg 直説法.能動.未完了
+   5  et         conj 〜と〜,そして〜,〜も {}
+   6  hominēs    (homō) 人間 [Nom.pl.m|Voc.pl.m|Acc.pl.m] // []
+   7  dēvorābat  (dēvorō) v.飲み込む 3sg 直説法.能動.未完了
+   8  .          
+  --- 
+
+
+2 VERBS FOUND: veniēbat, dēvorābat
+
+  veniēbat (indicative 3sg)
+    (cottīdiē)
+    Abl:
+      Hōc
+    prep:
+      ē <Abl>
+        marī
+
+  →  毎日 / 彼,彼女,それが / この,これで / {海}〜(の中)から外へ / 来ていた
+
+  dēvorābat (indicative 3sg)
+    (et)
+    Nom:
+      hominēs
+
+  →  そして / 人間が / 飲み込んでいた
+
+
+Ob hanc causam pavor animōs omnium occupāverat .
+
+  --- 
+   0  Ob           prep<Acc> 〜の前へ,〜ゆえに,〜の代わりに
+   1  hanc         pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Acc', 'sg', 'f')]}
+   2  causam       (causa) 原因 [Acc.sg.f] // []
+   3  pavor        (?)
+   4  animōs       (animus) 心,考え [Acc.pl.m] // []
+   5  omnium       (omnis) a.すべての [Gen.pl.m|Gen.pl.f|Gen.pl.n]
+   6  occupāverat  (occupō) v.先取りする,占有する,占領する 3sg 直説法.能動.過去完了
+   7  .            
+  --- 
+
+// ADJ#5 (omnium) -> no target noun detected
+
+1 VERB FOUND: occupāverat
+
+  occupāverat (indicative 3sg)
+    prep:
+      ob <Acc>
+        hanc
+        causam
+        animōs
+        omnium
+
+  →  彼,彼女,それが / {この,これ 原因 (?) 心,考え すべての}〜の前へ,〜ゆえに,〜の代わりに / 先取りする,占有する,占領する
+
+
+Cēpheus igitur ōrāculum deī Hammōnis cōnsuluit , atque ā deō iūssus est fīliam mōnstrō trādere .
+
+  --- 
+   0  Cēpheus    (?)
+   1  igitur     conj そこで,だから,こうして {}
+   2  ōrāculum   (?)
+   3  deī        (deus) 神 [Gen.sg.m|Nom.pl.m|Voc.pl.m] // []
+   4  Hammōnis   (?)
+   5  cōnsuluit  (?)
+   6  ,          
+   7  atque      conj 〜および〜(第2項に重点がある) {}
+   8  ā          prep<Abl> 〜から(離れて),〜によって
+   9  deō        (deus) 神 [Dat.sg.m|Abl.sg.m] // []
+  10  iūssus     (?)
+  11  est        (sum) v.〜である 3sg 直説法.能動.現在
+  12  fīliam     (fīlia) 娘 [Acc.sg.f] // []
+  13  mōnstrō    (mōnstrum) 怪物 [Dat.sg.n|Abl.sg.n] // [] | (mōnstrō) v.示す,見せる 1sg 直説法.能動.現在
+  14  trādere    (?)
+  15  .          
+  --- 
+
+// GEN#3 (deī) -> no target noun detected
+
+1 VERB FOUND: est
+
+  NOT SOLVED:
+    (atque)
+    →  〜および〜(第2項に重点がある)
+
+  est (indicative 3sg)
+    (igitur)
+    Nom:
+      deī
+    prep:
+      ā <Abl>
+        deō
+    Acc:
+      fīliam
+    Dat:
+      mōnstrō
+
+  →  そこで,だから,こうして / 彼,彼女,それは / {神 (?)}〜から(離れて),〜によって / 怪物に / 娘を / 神である
+
+
+Ēius autem fīlia , nomine Andromeda , virgō fōrmōsissima erat .
+
+  --- 
+   0  Ēius          (?)
+   1  autem         conj ところで {}
+   2  fīlia         (fīlia) 娘 [Nom.sg.f|Voc.sg.f] // []
+   3  ,             
+   4  nomine        (?)
+   5  Andromeda     (?)
+   6  ,             
+   7  virgō         (?)
+   8  fōrmōsissima  (fōrmōsus) a.最も美しい [Nom.sg.f|Voc.sg.f|Nom.pl.n|Voc.pl.n|Acc.pl.n]
+   9  erat          (sum) v.〜である 3sg 直説法.能動.未完了
+  10  .             
+  --- 
+
+// ADJ#8 (fōrmōsissima) -> NOUN#2 (fīlia)
+
+1 VERB FOUND: erat
+
+  erat (indicative 3sg)
+    (autem)
+    Nom:
+      fīlia
+        fōrmōsissima
+
+  →  ところで / 彼,彼女,それは / {最も美しい}娘であった
+
+
+Cēpheus ubi haec audīvit , māgnum dolōrem percēpit .
+
+  --- 
+   0  Cēpheus   (?)
+   1  ubi       adv どこ {}
+   2  haec      pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   3  audīvit   (audiō) v.聞く 3sg 直説法.能動.完了
+   4  ,         
+   5  māgnum    (māgnus) a.大きな [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   6  dolōrem   (?)
+   7  percēpit  (?)
+   8  .         
+  --- 
+
+// ADJ#5 (māgnum) -> no target noun detected
+
+1 VERB FOUND: audīvit
+
+  audīvit (indicative 3sg)
+    (ubi)
+    Nom:
+      haec
+    Acc:
+      māgnum
+
+  →  どこ / この,これ(人,物)が / 大きなを / 聞いた
+
+
+Volēbat tamen cīvīs suōs ē tantō perīculō extrahere , atque ob eam causam imperāta Hammōnis facere cōnstituit .
+
+  --- 
+   0  Volēbat     (?)
+   1  tamen       conj しかしながら,それでも {}
+   2  cīvīs       (?)
+   3  suōs        (suus) a.自分の [Acc.pl.m]
+   4  ē           prep<Abl> 〜(の中)から外へ
+   5  tantō       (tantus) a.これほどの [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
+   6  perīculō    (perīculum) 危険 [Dat.sg.n|Abl.sg.n] // []
+   7  extrahere   (?)
+   8  ,           
+   9  atque       conj 〜および〜(第2項に重点がある) {}
+  10  ob          prep<Acc> 〜の前へ,〜ゆえに,〜の代わりに
+  11  eam         pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Acc', 'sg', 'f')]} | (eō) v.行く 1sg 接続法.能動.現在
+  12  causam      (causa) 原因 [Acc.sg.f] // []
+  13  imperāta    (imperātus) p.命じられた [Nom.sg.f|Voc.sg.f|Nom.pl.n|Voc.pl.n|Acc.pl.n]
+  14  Hammōnis    (?)
+  15  facere      (faciō) v.作る 0- 不定法.能動.現在 | (faciō) v.作る 2sg 直説法.受動.現在 | (faciō) v.作る 2sg 命令法.受動.現在
+  16  cōnstituit  (?)
+  17  .           
+  --- 
+
+// ADJ#3 (suōs) -> no target noun detected
+// ADJ#5 (tantō) -> NOUN#6 (perīculō)
+
+1 VERB FOUND: facere
+
+  NOT SOLVED:
+    (atque)
+    →  〜および〜(第2項に重点がある)
+
+  facere (infinitive NoneNone)
+    (tamen)
+    Acc:
+      suōs
+      eam
+      causam
+    prep:
+      ē <Abl>
+        perīculō
+          tantō
+    prep:
+      ob <Acc>
+    Nom:
+      imperāta
+
+  →  しかしながら,それでも / 命じられた(人,物)が / {{これほどの}危険 (?) }〜(の中)から外へ / {}〜の前へ,〜ゆえに,〜の代わりに / 自分の=その,それ=原因を / 作る
+
+
+Tum rēx diem certam dīxit et omnia parāvit .
+
+  --- 
+   0  Tum      adv その時,その頃,当時 {}
+   1  rēx      (rēx) 王,指導者 [Nom.sg.m|Voc.sg.m] // []
+   2  diem     (diēs) 日,昼 [Acc.sg.mf] // []
+   3  certam   (certus) a.確かな,決まった [Acc.sg.f]
+   4  dīxit    (dīcō) v.言う 3sg 直説法.能動.完了
+   5  et       conj 〜と〜,そして〜,〜も {}
+   6  omnia    (omnis) a.すべての [Nom.pl.n|Voc.pl.n|Acc.pl.n]
+   7  parāvit  (parō) v.用意する 3sg 直説法.能動.完了
+   8  .        
+  --- 
+
+// ADJ#3 (certam) -> no target noun detected
+// ADJ#6 (omnia) -> no target noun detected
+
+2 VERBS FOUND: dīxit, parāvit
+
+  dīxit (indicative 3sg)
+    (Tum)
+    Nom:
+      rēx
+    Acc:
+      diem
+      certam
+
+  →  その時,その頃,当時 / 王,指導者が / 日,昼=確かな,決まったを / 言った
+
+  parāvit (indicative 3sg)
+    (et)
+    Nom/Acc:
+      omnia
+
+  →  そして / すべての(人,物)が / 用意した
+
+
+Ubi ea diēs vēnit , Andromeda ad lītus dēducta est , et in cōnspectū omnium ad rūpem adligāta est .
+
+  --- 
+   0  Ubi           adv どこ {}
+   1  ea            pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   2  diēs          (diēs) 日,昼 [Nom.sg.mf|Voc.sg.mf|Nom.pl.mf|Voc.pl.mf|Acc.pl.mf] // []
+   3  vēnit         (veniō) v.来る 3sg 直説法.能動.完了
+   4  ,             
+   5  Andromeda     (?)
+   6  ad            prep<Acc> 〜の方へ,〜のところまで
+   7  lītus         (?)
+   8  dēducta       (?)
+   9  est           (sum) v.〜である 3sg 直説法.能動.現在
+  10  ,             
+  11  et            conj 〜と〜,そして〜,〜も {}
+  12  in            prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+  13  cōnspectū     (?)
+  14  omnium        (omnis) a.すべての [Gen.pl.m|Gen.pl.f|Gen.pl.n]
+  15  ad            prep<Acc> 〜の方へ,〜のところまで
+  16  rūpem         (?)
+  17  adligāta est  (adligō) v.結びつける,繋ぐ 3sg 直説法.受動.完了
+  18  .             
+  --- 
+
+// ADJ#14 (omnium) -> no target noun detected
+
+3 VERBS FOUND: vēnit, est, adligāta est
+
+  vēnit (indicative 3sg)
+    (Ubi)
+    Nom:
+      ea
+      diēs
+
+  →  どこ / その,それ(人,物)=日,昼が / 来た
+
+  est (indicative 3sg)
+    prep:
+      ad <Acc>
+
+  →  彼,彼女,それは / {(?) (?)}〜の方へ,〜のところまで / 〜である
+
+  adligāta est (indicative 3sg)
+    (et)
+    prep:
+      in <Acc>
+        omnium
+    prep:
+      ad <Acc>
+
+  →  そして / 彼,彼女,それが / {(?) すべての}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / {(?)}〜の方へ,〜のところまで / 結びつけられた,繋がれた
+
+
+Omnēs fātum ēius dēplōrābant , nec lacrimās tenēbant .
+
+  --- 
+   0  Omnēs        (omnis) a.すべての [Nom.pl.m|Voc.pl.m|Acc.pl.m|Nom.pl.f|Voc.pl.f|Acc.pl.f]
+   1  fātum        (fātum) 運命 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   2  ēius         (?)
+   3  dēplōrābant  (?)
+   4  ,            
+   5  nec          conj そして〜ない {}
+   6  lacrimās     (lacrima) 涙 [Acc.pl.f] // [] | (lacrimō) v.泣く 2sg 直説法.能動.現在
+   7  tenēbant     (teneō) v.(手に)持つ,とどめる 3pl 直説法.能動.未完了
+   8  .            
+  --- 
+
+// ADJ#0 (Omnēs) -> NOUN#6 (lacrimās)
+
+1 VERB FOUND: tenēbant
+
+  NOT SOLVED:
+    (nec)
+    →  そして〜ない
+
+  tenēbant (indicative 3pl)
+    Nom/Acc:
+      fātum
+    Acc:
+      lacrimās
+        Omnēs
+
+  →  運命が / {すべての}涙を / (手に)持っていた,とどめていた
+
+
+At subitō , dum mōnstrum exspectant , Perseus accurrit ;
+
+  --- 
+   0  At          conj これに反して {}
+   1  subitō      adv 突然,だしぬけに {}
+   2  ,           
+   3  dum         conj 〜するあいだ,〜するかぎり,〜するまで {} | conj 〜しさえすれば {}
+   4  mōnstrum    (mōnstrum) 怪物 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   5  exspectant  (?)
+   6  ,           
+   7  Perseus     (?)
+   8  accurrit    (?)
+   9  ;           
+  --- 
+
+
+NO VERB FOUND.
+
+  (At)
+  →  これに反して
+
+  (subitō)
+  →  突然,だしぬけに
+
+  (dum)
+  →  〜するあいだ,〜するかぎり,〜するまで
+
+  mōnstrum
+  →  怪物
+
+
+et ubi lacrimās vīdit , causam dolōris quaerit .
+
+  --- 
+   0  et        conj 〜と〜,そして〜,〜も {}
+   1  ubi       adv どこ {}
+   2  lacrimās  (lacrima) 涙 [Acc.pl.f] // [] | (lacrimō) v.泣く 2sg 直説法.能動.現在
+   3  vīdit     (videō) v.見る 3sg 直説法.能動.完了
+   4  ,         
+   5  causam    (causa) 原因 [Acc.sg.f] // []
+   6  dolōris   (?)
+   7  quaerit   (?)
+   8  .         
+  --- 
+
+
+1 VERB FOUND: vīdit
+
+  vīdit (indicative 3sg)
+    (et)
+    (ubi)
+    Acc:
+      lacrimās
+      causam
+
+  →  そして / 彼,彼女,それが / 涙=原因を / どこ / 見た
+
+
+Illī rem tōtam expōnunt et puellam dēmōnstrant .
+
+  --- 
+   0  Illī         pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Dat', 'sg', 'm'), ('Nom', 'pl', 'm'), ('Dat', 'sg', 'f'), ('Dat', 'sg', 'n')]}
+   1  rem          (rēs) 物,事 [Acc.sg.f] // []
+   2  tōtam        pronoun 全体の {'_':[('Acc', 'sg', 'f')]}
+   3  expōnunt     (?)
+   4  et           conj 〜と〜,そして〜,〜も {}
+   5  puellam      (puella) 少女 [Acc.sg.f] // []
+   6  dēmōnstrant  (dēmōnstrō) v.示す 3pl 直説法.能動.現在
+   7  .            
+  --- 
+
+
+1 VERB FOUND: dēmōnstrant
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
+
+  dēmōnstrant (indicative 3pl)
+    Nom:
+      Illī
+    Acc:
+      rem
+      tōtam
+      puellam
+
+  →  あの,あれ(人,物)が / 物,事=全体の=少女を / 示す
+
+
+Dum haec geruntur , fremitus terribilis audītur ;
+
+  --- 
+   0  Dum         conj 〜するあいだ,〜するかぎり,〜するまで {} | conj 〜しさえすれば {}
+   1  haec        pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   2  geruntur    (?)
+   3  ,           
+   4  fremitus    (?)
+   5  terribilis  (?)
+   6  audītur     (audiō) v.聞く 3sg 直説法.受動.現在
+   7  ;           
+  --- 
+
+
+1 VERB FOUND: audītur
+
+  audītur (indicative 3sg)
+    (Dum)
+    Nom:
+      haec
+
+  →  〜するあいだ,〜するかぎり,〜するまで / この,これ(人,物)が / 聞かれる
+
+
+simul mōnstrum horribilī speciē procul cōnspicitur .
+
+  --- 
+   0  simul        (?)
+   1  mōnstrum     (mōnstrum) 怪物 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   2  horribilī    (?)
+   3  speciē       (speciēs) 姿 [Abl.sg.f] // []
+   4  procul       adv 遠くで {}
+   5  cōnspicitur  (?)
+   6  .            
+  --- 
+
+
+NO VERB FOUND.
+
+  mōnstrum
+  →  怪物
+
+  speciē
+  →  姿
+
+  (procul)
+  →  遠くで
+
+
+Ēius cōnspectus timōrem māximum omnibus iniēcit .
+
+  --- 
+   0  Ēius        (?)
+   1  cōnspectus  (?)
+   2  timōrem     (?)
+   3  māximum     (?)
+   4  omnibus     (omnis) a.すべての [Dat.pl.m|Abl.pl.m|Dat.pl.f|Abl.pl.f|Dat.pl.n|Abl.pl.n]
+   5  iniēcit     (?)
+   6  .           
+  --- 
+
+// ADJ#4 (omnibus) -> no target noun detected
+
+NO VERB FOUND.
+
+  omnibus
+  →  すべての
+
+
+Mōnstrum māgnā celeritāte ad lītus contendit , iamque ad locum appropinquābat ubi puella stābat .
+
+  --- 
+   0  Mōnstrum        (mōnstrum) 怪物 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   1  māgnā           (māgnus) a.大きな [Abl.sg.f]
+   2  celeritāte      (?)
+   3  ad              prep<Acc> 〜の方へ,〜のところまで
+   4  lītus           (?)
+   5  contendit       (contendō) v.張る,力む 3sg 直説法.能動.現在 | (contendō) v.張る,力む 3sg 直説法.能動.完了
+   6  ,               
+   7  iamque          (?)
+   8  ad              prep<Acc> 〜の方へ,〜のところまで
+   9  locum           (locus) 場所 [Acc.sg.m] // []
+  10  appropinquābat  (?)
+  11  ubi             adv どこ {}
+  12  puella          (puella) 少女 [Nom.sg.f|Voc.sg.f] // []
+  13  stābat          (stō) v.立つ 3sg 直説法.能動.未完了
+  14  .               
+  --- 
+
+// ADJ#1 (māgnā) -> no target noun detected
+
+2 VERBS FOUND: contendit, stābat
+
+  contendit (indicative 3sg)
+    Nom/Acc:
+      Mōnstrum
+    Abl:
+      māgnā
+    prep:
+      ad <Acc>
+
+  →  怪物が / 大きなで / {(?)}〜の方へ,〜のところまで / 張る,力む
+
+  stābat (indicative 3sg)
+    (ubi)
+    prep:
+      ad <Acc>
+        locum
+    Nom:
+      puella
+
+  →  少女が / {場所 (?)}〜の方へ,〜のところまで / どこ / 立っていた
+
+
+At Perseus ubi haec vīdit , gladium suum ēdūxit , et postquam tālāria induit , in āera sublātus est .
+
+  --- 
+   0  At            conj これに反して {}
+   1  Perseus       (?)
+   2  ubi           adv どこ {}
+   3  haec          pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   4  vīdit         (videō) v.見る 3sg 直説法.能動.完了
+   5  ,             
+   6  gladium       (gladius) 剣 [Acc.sg.m] // []
+   7  suum          (suus) a.自分の [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   8  ēdūxit        (?)
+   9  ,             
+  10  et            conj 〜と〜,そして〜,〜も {}
+  11  postquam      conj 〜したのち {}
+  12  tālāria       (?)
+  13  induit        (?)
+  14  ,             
+  15  in            prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+  16  āera          (?)
+  17  sublātus est  (tollō) v.取り去る 3sg 直説法.受動.完了
+  18  .             
+  --- 
+
+// ADJ#7 (suum) -> NOUN#6 (gladium)
+
+2 VERBS FOUND: vīdit, sublātus est
+
+  vīdit (indicative 3sg)
+    (At)
+    (ubi)
+    Nom:
+      haec
+
+  →  これに反して / この,これ(人,物)が / どこ / 見た
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
+
+    (postquam)
+    →  〜したのち
+
+  sublātus est (indicative 3sg)
+    Acc:
+      gladium
+        suum
+    prep:
+      in <Acc>
+
+  →  彼,彼女,それが / {(?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / {自分の}剣を / 取り去られた
+
+
+Tum dēsuper in mōnstrum impetum subitō fēcit , et gladiō suō collum ēius graviter vulnerāvit .
+
+  --- 
+   0  Tum         adv その時,その頃,当時 {}
+   1  dēsuper     (?)
+   2  in          prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   3  mōnstrum    (mōnstrum) 怪物 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   4  impetum     (?)
+   5  subitō      adv 突然,だしぬけに {}
+   6  fēcit       (faciō) v.作る 3sg 直説法.能動.完了
+   7  ,           
+   8  et          conj 〜と〜,そして〜,〜も {}
+   9  gladiō      (gladius) 剣 [Dat.sg.m|Abl.sg.m] // []
+  10  suō         (suus) a.自分の [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
+  11  collum      (collum) 首 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+  12  ēius        (?)
+  13  graviter    (?)
+  14  vulnerāvit  (?)
+  15  .           
+  --- 
+
+// ADJ#10 (suō) -> NOUN#9 (gladiō)
+
+1 VERB FOUND: fēcit
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
+
+  fēcit (indicative 3sg)
+    (Tum)
+    (subitō)
+    prep:
+      in <Acc>
+        mōnstrum
+    Dat:
+      gladiō
+        suō
+    Nom/Acc:
+      collum
+
+  →  その時,その頃,当時 / 首が / {怪物 (?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / {自分の}剣に / 突然,だしぬけに / 作った
+
+
+Mōnstrum ubi sēnsit vulnus , fremitum horribilem ēdidit , et sine morā tōtum corpus in aquam mersit .
+
+  --- 
+   0  Mōnstrum    (mōnstrum) 怪物 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   1  ubi         adv どこ {}
+   2  sēnsit      (sentiō) v.思う 3sg 直説法.能動.完了
+   3  vulnus      (?)
+   4  ,           
+   5  fremitum    (?)
+   6  horribilem  (?)
+   7  ēdidit      (?)
+   8  ,           
+   9  et          conj 〜と〜,そして〜,〜も {}
+  10  sine        prep<Abl> 〜なしに
+  11  morā        (mora) 遅れ,間 [Abl.sg.f] // []
+  12  tōtum       pronoun 全体の {'_':[('Acc', 'sg', 'm'), ('Nom', 'sg', 'n'), ('Acc', 'sg', 'n')]}
+  13  corpus      (corpus) 身体 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+  14  in          prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+  15  aquam       (aqua) 水 [Acc.sg.f] // []
+  16  mersit      (?)
+  17  .           
+  --- 
+
+
+1 VERB FOUND: sēnsit
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
+
+  sēnsit (indicative 3sg)
+    (ubi)
+    Nom/Acc:
+      Mōnstrum
+      corpus
+    prep:
+      sine <Abl>
+        morā
+    Acc:
+      tōtum
+    prep:
+      in <Acc>
+        aquam
+
+  →  どこ / 怪物が / {遅れ,間}〜なしに / {水 (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / 全体の=身体を / 思った
+
+
+Perseus dum circum lītus volat , reditum ēius exspectābat .
+
+  --- 
+   0  Perseus      (?)
+   1  dum          conj 〜するあいだ,〜するかぎり,〜するまで {} | conj 〜しさえすれば {}
+   2  circum       prep<Acc> 〜のまわりに
+   3  lītus        (?)
+   4  volat        (?)
+   5  ,            
+   6  reditum      (?)
+   7  ēius         (?)
+   8  exspectābat  (?)
+   9  .            
+  --- 
+
+
+NO VERB FOUND.
+
+  (dum)
+  →  〜するあいだ,〜するかぎり,〜するまで
+
+  circum <Acc>
+  →  {(?) (?)  (?) (?) (?) }〜のまわりに
+
+
+Mare autem intereā undique sanguine īnficitur .
+
+  --- 
+   0  Mare       (mare) 海 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   1  autem      conj ところで {}
+   2  intereā    adv その間, {}
+   3  undique    (?)
+   4  sanguine   (?)
+   5  īnficitur  (?)
+   6  .          
+  --- 
+
+
+NO VERB FOUND.
+
+  Mare
+  →  海
+
+  (autem)
+  →  ところで
+
+  (intereā)
+  →  その間,
+
+
+Post breve tempus bēlua rūrsus caput sustulit ;
+
+  --- 
+   0  Post      prep<Acc> 〜のうしろで,〜以後
+   1  breve     (brevis) a.短い [Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   2  tempus    (tempus) 時 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   3  bēlua     (?)
+   4  rūrsus    (?)
+   5  caput     (?)
+   6  sustulit  (tollō) v.取り去る 3sg 直説法.能動.完了
+   7  ;         
+  --- 
+
+// ADJ#1 (breve) -> NOUN#2 (tempus)
+
+1 VERB FOUND: sustulit
+
+  sustulit (indicative 3sg)
+    prep:
+      post <Acc>
+        tempus
+          breve
+
+  →  彼,彼女,それが / {{短い}時 (?) (?) (?)}〜のうしろで,〜以後 / 取り去った
+
+
+mox tamen ā Perseō īctū graviōre vulnerāta est .
+
+  --- 
+   0  mox        adv すぐに,まもなく {}
+   1  tamen      conj しかしながら,それでも {}
+   2  ā          prep<Abl> 〜から(離れて),〜によって
+   3  Perseō     (?)
+   4  īctū       (?)
+   5  graviōre   (gravis) a.より重い [Abl.sg.m|Abl.sg.f|Abl.sg.n]
+   6  vulnerāta  (?)
+   7  est        (sum) v.〜である 3sg 直説法.能動.現在
+   8  .          
+  --- 
+
+// ADJ#5 (graviōre) -> no target noun detected
+
+1 VERB FOUND: est
+
+  NOT SOLVED:
+    (tamen)
+    →  しかしながら,それでも
+
+  est (indicative 3sg)
+    (mox)
+    prep:
+      ā <Abl>
+        graviōre
+
+  →  すぐに,まもなく / 彼,彼女,それは / {(?) (?) より重い (?)}〜から(離れて),〜によって / 〜である
+
+
+Tum iterum sē in undās mersit , neque posteā vīsa est .
+
+  --- 
+   0  Tum       adv その時,その頃,当時 {}
+   1  iterum    adv 再び,もう一度 {}
+   2  sē        (?)
+   3  in        prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   4  undās     (unda) 波 [Acc.pl.f] // []
+   5  mersit    (?)
+   6  ,         
+   7  neque     conj そして〜ない {}
+   8  posteā    adv それから {}
+   9  vīsa est  (videō) v.見る 3sg 直説法.受動.完了
+  10  .         
+  --- 
+
+
+1 VERB FOUND: vīsa est
+
+  NOT SOLVED:
+    (neque)
+    →  そして〜ない
+
+  vīsa est (indicative 3sg)
+    (Tum)
+    (iterum)
+    (posteā)
+    prep:
+      in <Acc>
+        undās
+
+  →  その時,その頃,当時 / 彼,彼女,それが / {波 (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / 再び,もう一度 / それから / 見られた
+
+
+Perseus postquam ad lītus dēscendit , prīmum tālāria exuit ;
+
+  --- 
+   0  Perseus    (?)
+   1  postquam   conj 〜したのち {}
+   2  ad         prep<Acc> 〜の方へ,〜のところまで
+   3  lītus      (?)
+   4  dēscendit  (?)
+   5  ,          
+   6  prīmum     (prīmus) a.最初の [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   7  tālāria    (?)
+   8  exuit      (?)
+   9  ;          
+  --- 
+
+// ADJ#6 (prīmum) -> no target noun detected
+
+NO VERB FOUND.
+
+  (postquam)
+  →  〜したのち
+
+  ad <Acc>
+    prīmum
+  →  {(?) (?)  最初の (?) (?) }〜の方へ,〜のところまで
+
+
+tum ad rūpem vēnit ubi Andromeda vincta erat .
+
+  --- 
+   0  tum        adv その時,その頃,当時 {}
+   1  ad         prep<Acc> 〜の方へ,〜のところまで
+   2  rūpem      (?)
+   3  vēnit      (veniō) v.来る 3sg 直説法.能動.完了
+   4  ubi        adv どこ {}
+   5  Andromeda  (?)
+   6  vincta     (?)
+   7  erat       (sum) v.〜である 3sg 直説法.能動.未完了
+   8  .          
+  --- 
+
+
+2 VERBS FOUND: vēnit, erat
+  NOT WELL: {3..5}
+
+  vēnit (indicative 3sg)
+    (tum)
+    prep:
+      ad <Acc>
+
+  →  その時,その頃,当時 / 彼,彼女,それが / {(?)}〜の方へ,〜のところまで / 来た
+
+  erat (indicative 3sg)
+    (ubi)
+
+  →  どこ / 彼,彼女,それは / 〜であった
+
+
+Ea autem omnem spem salūtis dēposuerat , et ubi Perseus adiit , terrōre paene exanimāta erat .
+
+  --- 
+   0  Ea          pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   1  autem       conj ところで {}
+   2  omnem       (omnis) a.すべての [Acc.sg.m|Acc.sg.f]
+   3  spem        (spēs) 希望 [Acc.sg.f] // []
+   4  salūtis     (?)
+   5  dēposuerat  (?)
+   6  ,           
+   7  et          conj 〜と〜,そして〜,〜も {}
+   8  ubi         adv どこ {}
+   9  Perseus     (?)
+  10  adiit       (?)
+  11  ,           
+  12  terrōre     (?)
+  13  paene       (?)
+  14  exanimāta   (?)
+  15  erat        (sum) v.〜である 3sg 直説法.能動.未完了
+  16  .           
+  --- 
+
+// ADJ#2 (omnem) -> NOUN#3 (spem)
+
+1 VERB FOUND: erat
+
+  NOT SOLVED:
+    (et)
+    →  〜と〜,そして〜,〜も
+
+  erat (indicative 3sg)
+    (autem)
+    (ubi)
+    Nom:
+      Ea
+    Acc:
+      spem
+        omnem
+
+  →  ところで / 彼,彼女,それは / {すべての}希望を / どこ / その,それであった
+
+
+Ille vīncula statim solvit , et puellam patrī reddidit .
+
+  --- 
+   0  Ille      pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   1  vīncula   (?)
+   2  statim    adv たちまち {}
+   3  solvit    (?)
+   4  ,         
+   5  et        conj 〜と〜,そして〜,〜も {}
+   6  puellam   (puella) 少女 [Acc.sg.f] // []
+   7  patrī     (pater) 父 [Dat.sg.m] // []
+   8  reddidit  (?)
+   9  .         
+  --- 
+
+
+NO VERB FOUND.
+
+  Ille
+  →  あの,あれ
+
+  (statim)
+  →  たちまち
+
+  (et)
+  →  〜と〜,そして〜,〜も
+
+  puellam
+  →  少女
+
+  patrī
+  →  父
+
+
+Cēpheus ob hanc rem māximō gaudiō adfectus est .
+
+  --- 
+   0  Cēpheus   (?)
+   1  ob        prep<Acc> 〜の前へ,〜ゆえに,〜の代わりに
+   2  hanc      pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Acc', 'sg', 'f')]}
+   3  rem       (rēs) 物,事 [Acc.sg.f] // []
+   4  māximō    (?)
+   5  gaudiō    (gaudium) 喜び [Dat.sg.n|Abl.sg.n] // []
+   6  adfectus  (?)
+   7  est       (sum) v.〜である 3sg 直説法.能動.現在
+   8  .         
+  --- 
+
+
+1 VERB FOUND: est
+
+  est (indicative 3sg)
+    prep:
+      ob <Acc>
+        hanc
+        rem
+    Dat:
+      gaudiō
+
+  →  彼,彼女,それは / {この,これ 物,事 (?)}〜の前へ,〜ゆえに,〜の代わりに / 喜びに / 〜である
+
+
+Meritam grātiam prō tantō beneficiō Perseō rettulit ;
+
+  --- 
+   0  Meritam    (?)
+   1  grātiam    (grātia) 感謝 [Acc.sg.f] // []
+   2  prō        prep<Abl> 〜の前に,〜のために,〜の代わりに
+   3  tantō      (tantus) a.これほどの [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
+   4  beneficiō  (?)
+   5  Perseō     (?)
+   6  rettulit   (?)
+   7  ;          
+  --- 
+
+// ADJ#3 (tantō) -> no target noun detected
+
+NO VERB FOUND.
+
+  grātiam
+  →  感謝
+
+  prō <Abl>
+    tantō
+  →  {これほどの (?) (?) (?) }〜の前に,〜のために,〜の代わりに
+
+
+praetereā Andromedam ipsam eī in mātrimōnium dedit .
+
+  --- 
+   0  praetereā    (?)
+   1  Andromedam   (?)
+   2  ipsam        pronoun (それ)自身 {'person':3, 'desc':'強意代名詞', '_':[('Acc', 'sg', 'f')]}
+   3  eī           pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Dat', 'sg', 'm'), ('Nom', 'pl', 'm'), ('Dat', 'sg', 'f'), ('Dat', 'sg', 'n')]}
+   4  in           prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   5  mātrimōnium  (?)
+   6  dedit        (dō) v.与える 3sg 直説法.能動.完了
+   7  .            
+  --- 
+
+
+1 VERB FOUND: dedit
+
+  dedit (indicative 3sg)
+    Acc:
+      ipsam
+    Nom:
+      eī
+    prep:
+      in <Acc>
+
+  →  その,それ(人,物)が / {(?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / (それ)自身を / 与えた
+
+
+Ille libenter hōc dōnum accēpit et puellam dūxit .
+
+  --- 
+   0  Ille      pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   1  libenter  adv 喜んで {}
+   2  hōc       pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   3  dōnum     (dōnum) 贈物 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   4  accēpit   (accipiō) v.受け取る 3sg 直説法.能動.完了
+   5  et        conj 〜と〜,そして〜,〜も {}
+   6  puellam   (puella) 少女 [Acc.sg.f] // []
+   7  dūxit     (dūcō) v.導く 3sg 直説法.能動.完了
+   8  .         
+  --- 
+
+
+2 VERBS FOUND: accēpit, dūxit
+
+  accēpit (indicative 3sg)
+    (libenter)
+    Nom:
+      Ille
+    Abl:
+      hōc
+    Nom/Acc:
+      dōnum
+
+  →  喜んで / あの,あれ(人,物)が / この,これで / 贈物を / 受け取った
+
+  dūxit (indicative 3sg)
+    (et)
+    Acc:
+      puellam
+
+  →  そして / 彼,彼女,それが / 少女を / 導いた
+
+
+Paucōs annōs cum uxōre suā in eā regiōne habitābat , et in māgnō honōre erat apud omnīs Aethiopēs .
+
+  --- 
+   0  Paucōs     (paucus) a.少ない [Acc.pl.m]
+   1  annōs      (annus) 年,季節 [Acc.pl.m] // []
+   2  cum        prep<Abl> 〜とともに,〜をもって
+   3  uxōre      (uxor) 妻 [Abl.sg.f] // []
+   4  suā        (suus) a.自分の [Abl.sg.f]
+   5  in         prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   6  eā         pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'f')]}
+   7  regiōne    (?)
+   8  habitābat  (habitō) v.住む 3sg 直説法.能動.未完了
+   9  ,          
+  10  et         conj 〜と〜,そして〜,〜も {}
+  11  in         prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+  12  māgnō      (māgnus) a.大きな [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
+  13  honōre     (?)
+  14  erat       (sum) v.〜である 3sg 直説法.能動.未完了
+  15  apud       prep<Acc> 〜の家で,〜のもとで
+  16  omnīs      (?)
+  17  Aethiopēs  (?)
+  18  .          
+  --- 
+
+// ADJ#0 (Paucōs) -> NOUN#1 (annōs)
+// ADJ#4 (suā) -> NOUN#3 (uxōre)
+// ADJ#12 (māgnō) -> no target noun detected
+
+2 VERBS FOUND: habitābat, erat
+
+  habitābat (indicative 3sg)
+    Acc:
+      annōs
+        Paucōs
+    prep:
+      cum <Abl>
+        uxōre
+          suā
+    prep:
+      in <Abl>
+        eā
+
+  →  彼,彼女,それが / {{自分の}妻}〜とともに,〜をもって / {その,それ (?)}〜で,〜の中で,〜の上で / {少ない}年,季節を / 住んでいた
+
+  erat (indicative 3sg)
+    (et)
+    prep:
+      in <Acc>
+        māgnō
+    prep:
+      apud <Acc>
+
+  →  そして / 彼,彼女,それは / {大きな (?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / {(?) (?) }〜の家で,〜のもとで / 〜であった
+
+
+Māgnopere tamen mātrem suam rūrsus vidēre cupiēbat .
+
+  --- 
+   0  Māgnopere  (?)
+   1  tamen      conj しかしながら,それでも {}
+   2  mātrem     (māter) 母 [Acc.sg.f] // []
+   3  suam       (suus) a.自分の [Acc.sg.f]
+   4  rūrsus     (?)
+   5  vidēre     (videō) v.見る 0- 不定法.能動.現在 | (videō) v.見る 2sg 直説法.受動.現在 | (videō) v.見る 2sg 命令法.受動.現在
+   6  cupiēbat   (cupiō) v.欲求する 3sg 直説法.能動.未完了
+   7  .          
+  --- 
+
+// ADJ#3 (suam) -> NOUN#2 (mātrem)
+
+2 VERBS FOUND: vidēre, cupiēbat
+  NOT WELL: {5..4}
+
+  vidēre (infinitive NoneNone)
+    (tamen)
+    Acc:
+      mātrem
+        suam
+
+  →  しかしながら,それでも / {自分の}母を / 見る
+
+  cupiēbat (indicative 3sg)
+
+  →  彼,彼女,それが / 欲求していた
+
+
+Tandem igitur cum uxōre suā ē rēgnō Cēpheī discessit .
+
+  --- 
+   0  Tandem     adv 結局,最後に {}
+   1  igitur     conj そこで,だから,こうして {}
+   2  cum        prep<Abl> 〜とともに,〜をもって
+   3  uxōre      (uxor) 妻 [Abl.sg.f] // []
+   4  suā        (suus) a.自分の [Abl.sg.f]
+   5  ē          prep<Abl> 〜(の中)から外へ
+   6  rēgnō      (rēgnum) 支配,王権,王国 [Dat.sg.n|Abl.sg.n] // []
+   7  Cēpheī     (?)
+   8  discessit  (?)
+   9  .          
+  --- 
+
+// ADJ#4 (suā) -> NOUN#3 (uxōre)
+
+NO VERB FOUND.
+
+  (Tandem)
+  →  結局,最後に
+
+  (igitur)
+  →  そこで,だから,こうして
+
+  cum <Abl>
+    uxōre
+      suā
+  →  {{自分の}妻}〜とともに,〜をもって
+
+  ē <Abl>
+    rēgnō
+  →  {支配,王権,王国 (?) (?) }〜(の中)から外へ
+
+
+Postquam Perseus ad īnsulam nāvem appulit , sē ad locum contulit ubi māter ōlim habitāverat , sed domum invēnit vacuam et omnīnō dēsertam .
+
+  --- 
+   0  Postquam     conj 〜したのち {}
+   1  Perseus      (?)
+   2  ad           prep<Acc> 〜の方へ,〜のところまで
+   3  īnsulam      (īnsula) 島 [Acc.sg.f] // []
+   4  nāvem        (nāvis) 船 [Acc.sg.f] // []
+   5  appulit      (?)
+   6  ,            
+   7  sē           (?)
+   8  ad           prep<Acc> 〜の方へ,〜のところまで
+   9  locum        (locus) 場所 [Acc.sg.m] // []
+  10  contulit     (?)
+  11  ubi          adv どこ {}
+  12  māter        (māter) 母 [Nom.sg.f|Voc.sg.f] // []
+  13  ōlim         adv 昔,ある時,いつか {}
+  14  habitāverat  (habitō) v.住む 3sg 直説法.能動.過去完了
+  15  ,            
+  16  sed          conj しかし,[〜ではなく]て {}
+  17  domum        (domus) 家 [Acc.sg.f] // []
+  18  invēnit      (?)
+  19  vacuam       (?)
+  20  et           conj 〜と〜,そして〜,〜も {}
+  21  omnīnō       (?)
+  22  dēsertam     (dēsertus) p.別れられた,棄てられた,見捨てられた [Acc.sg.f]
+  23  .            
+  --- 
+
+
+1 VERB FOUND: habitāverat
+
+  NOT SOLVED:
+    (sed)
+    →  しかし,[〜ではなく]て
+
+    (et)
+    →  〜と〜,そして〜,〜も
+
+  habitāverat (indicative 3sg)
+    (Postquam)
+    (ubi)
+    (ōlim)
+    prep:
+      ad <Acc>
+        īnsulam
+        nāvem
+      ad <Acc>
+        locum
+    Nom:
+      māter
+    Acc:
+      domum
+      dēsertam
+
+  →  〜したのち / 母が / {島 船 (?)  (?)}〜の方へ,〜のところまで={場所 (?)}〜の方へ,〜のところまで / 家=別れられた,棄てられた,見捨てられたを / どこ / 昔,ある時,いつか / 住む
+
+
+Trīs diēs per tōtam īnsulam mātrem quaerēbat ;
+
+  --- 
+   0  Trīs       (?)
+   1  diēs       (diēs) 日,昼 [Nom.sg.mf|Voc.sg.mf|Nom.pl.mf|Voc.pl.mf|Acc.pl.mf] // []
+   2  per        prep<Acc> 〜を通って,〜を通じて,〜により
+   3  tōtam      pronoun 全体の {'_':[('Acc', 'sg', 'f')]}
+   4  īnsulam    (īnsula) 島 [Acc.sg.f] // []
+   5  mātrem     (māter) 母 [Acc.sg.f] // []
+   6  quaerēbat  (?)
+   7  ;          
+  --- 
+
+
+NO VERB FOUND.
+
+  diēs
+  →  日,昼
+
+  per <Acc>
+    tōtam
+    īnsulam
+    mātrem
+  →  {全体の 島 母 (?) }〜を通って,〜を通じて,〜により
+
+
+tandem quartō diē ad templum Diānae pervēnit .
+
+  --- 
+   0  tandem    adv 結局,最後に {}
+   1  quartō    (?)
+   2  diē       (diēs) 日,昼 [Abl.sg.mf] // []
+   3  ad        prep<Acc> 〜の方へ,〜のところまで
+   4  templum   (templum) 神殿 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   5  Diānae    (?)
+   6  pervēnit  (?)
+   7  .         
+  --- 
+
+
+NO VERB FOUND.
+
+  (tandem)
+  →  結局,最後に
+
+  diē
+  →  日,昼
+
+  ad <Acc>
+    templum
+  →  {神殿 (?) (?) }〜の方へ,〜のところまで
+
+
+Hūc Danaē refūgerat , quod Polydectem timēbat .
+
+  --- 
+   0  Hūc         (?)
+   1  Danaē       (?)
+   2  refūgerat   (?)
+   3  ,           
+   4  quod        pronoun 各人(の) {'desc':'関係代名詞', 'base':'quī', '_':[('Nom', 'sg', 'n'), ('Acc', 'sg', 'n')]} | conj 〜するゆえに {} | conj 〜すること[を] {}
+   5  Polydectem  (?)
+   6  timēbat     (timeō) v.恐れる 3sg 直説法.能動.未完了
+   7  .           
+  --- 
+
+
+1 VERB FOUND: timēbat
+
+  timēbat (indicative 3sg)
+    Nom/Acc:
+      quod
+
+  →  各人(の)(人,物)が / 恐れていた
+
+
+Perseus ubi haec cōgnōvit , īrā māgnā commōtus est ;
+
+  --- 
+   0  Perseus       (?)
+   1  ubi           adv どこ {}
+   2  haec          pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   3  cōgnōvit      (?)
+   4  ,             
+   5  īrā           (īra) 怒り [Abl.sg.f] // []
+   6  māgnā         (māgnus) a.大きな [Abl.sg.f]
+   7  commōtus est  (commoveō) v.動かす 3sg 直説法.受動.完了
+   8  ;             
+  --- 
+
+// ADJ#6 (māgnā) -> NOUN#5 (īrā)
+
+1 VERB FOUND: commōtus est
+
+  commōtus est (indicative 3sg)
+    (ubi)
+    Nom:
+      haec
+    Abl:
+      īrā
+        māgnā
+
+  →  どこ / この,これ(人,物)が / {大きな}怒りで / 動かされた
+
+
+ad rēgiam Polydectis sine morā contendit , et ubi eō vēnit , statim in ātrium inrūpit .
+
+  --- 
+   0  ad          prep<Acc> 〜の方へ,〜のところまで
+   1  rēgiam      (?)
+   2  Polydectis  (?)
+   3  sine        prep<Abl> 〜なしに
+   4  morā        (mora) 遅れ,間 [Abl.sg.f] // []
+   5  contendit   (contendō) v.張る,力む 3sg 直説法.能動.現在 | (contendō) v.張る,力む 3sg 直説法.能動.完了
+   6  ,           
+   7  et          conj 〜と〜,そして〜,〜も {}
+   8  ubi         adv どこ {}
+   9  eō          pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]} | (eō) v.行く 1sg 直説法.能動.現在
+  10  vēnit       (veniō) v.来る 3sg 直説法.能動.完了
+  11  ,           
+  12  statim      adv たちまち {}
+  13  in          prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+  14  ātrium      (ātrium) 広間,前室 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+  15  inrūpit     (?)
+  16  .           
+  --- 
+
+
+2 VERBS FOUND: contendit, vēnit
+
+  contendit (indicative 3sg)
+    prep:
+      ad <Acc>
+    prep:
+      sine <Abl>
+        morā
+
+  →  彼,彼女,それが / {(?) (?)}〜の方へ,〜のところまで / {遅れ,間}〜なしに / 張る,力む
+
+  vēnit (indicative 3sg)
+    (et)
+    (ubi)
+    (statim)
+    Abl:
+      eō
+    prep:
+      in <Acc>
+        ātrium
+
+  →  そして / 彼,彼女,それが / その,それで / {広間,前室 (?) }〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / どこ / たちまち / 来た
+
+
+Polydectēs māgnō timōre adfectus est et fugere volēbat .
+
+  --- 
+   0  Polydectēs  (?)
+   1  māgnō       (māgnus) a.大きな [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
+   2  timōre      (?)
+   3  adfectus    (?)
+   4  est         (sum) v.〜である 3sg 直説法.能動.現在
+   5  et          conj 〜と〜,そして〜,〜も {}
+   6  fugere      (fugiō) v.逃げる 0- 不定法.能動.現在 | (fugiō) v.逃げる 2sg 直説法.受動.現在 | (fugiō) v.逃げる 2sg 命令法.受動.現在
+   7  volēbat     (?)
+   8  .           
+  --- 
+
+// ADJ#1 (māgnō) -> no target noun detected
+
+2 VERBS FOUND: est, fugere
+
+  est (indicative 3sg)
+    Dat:
+      māgnō
+
+  →  彼,彼女,それは / 大きなに / 〜である
+
+  fugere (infinitive NoneNone)
+
+  →  逃げる
+
+
+Dum tamen ille fugit , Perseus caput Medūsae mōnstrāvit ;
+
+  --- 
+   0  Dum         conj 〜するあいだ,〜するかぎり,〜するまで {} | conj 〜しさえすれば {}
+   1  tamen       conj しかしながら,それでも {}
+   2  ille        pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   3  fugit       (fugiō) v.逃げる 3sg 直説法.能動.現在
+   4  ,           
+   5  Perseus     (?)
+   6  caput       (?)
+   7  Medūsae     (?)
+   8  mōnstrāvit  (mōnstrō) v.示す,見せる 3sg 直説法.能動.完了
+   9  ;           
+  --- 
+
+
+2 VERBS FOUND: fugit, mōnstrāvit
+
+  NOT SOLVED:
+    (tamen)
+    →  しかしながら,それでも
+
+  fugit (indicative 3sg)
+    (Dum)
+    Nom:
+      ille
+
+  →  〜するあいだ,〜するかぎり,〜するまで / あの,あれ(人,物)が / 逃げる
+
+  mōnstrāvit (indicative 3sg)
+
+  →  彼,彼女,それが / 示した,見せた
+
+
+ille autem simul atque hōc vīdit , in saxum versus est .
+
+  --- 
+   0  ille         pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   1  autem        conj ところで {}
+   2  simul atque  conj 〜するやいなや {}
+   3  hōc          pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
+   4  vīdit        (videō) v.見る 3sg 直説法.能動.完了
+   5  ,            
+   6  in           prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   7  saxum        (saxum) 岩 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   8  versus       (?)
+   9  est          (sum) v.〜である 3sg 直説法.能動.現在
+  10  .            
+  --- 
+
+
+2 VERBS FOUND: vīdit, est
+
+  NOT SOLVED:
+    (simul atque)
+    →  〜するやいなや
+
+  vīdit (indicative 3sg)
+    (autem)
+    Nom:
+      ille
+    Abl:
+      hōc
+
+  →  ところで / あの,あれ(人,物)が / この,これで / 見た
+
+  est (indicative 3sg)
+    prep:
+      in <Acc>
+        saxum
+
+  →  彼,彼女,それは / {岩 (?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / 〜である
+
+
+Post haec Perseus cum uxōre suā ad urbem Acrisī rediit .
+
+  --- 
+   0  Post     prep<Acc> 〜のうしろで,〜以後
+   1  haec     pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
+   2  Perseus  (?)
+   3  cum      prep<Abl> 〜とともに,〜をもって
+   4  uxōre    (uxor) 妻 [Abl.sg.f] // []
+   5  suā      (suus) a.自分の [Abl.sg.f]
+   6  ad       prep<Acc> 〜の方へ,〜のところまで
+   7  urbem    (urbs) 都市 [Acc.sg.f] // []
+   8  Acrisī   (?)
+   9  rediit   (redeō) v.戻る,帰る 3sg 直説法.能動.完了
+  10  .        
+  --- 
+
+// ADJ#5 (suā) -> NOUN#4 (uxōre)
+
+1 VERB FOUND: rediit
+
+  rediit (indicative 3sg)
+    prep:
+      post <Acc>
+        haec
+    prep:
+      cum <Abl>
+        uxōre
+          suā
+    prep:
+      ad <Acc>
+        urbem
+
+  →  彼,彼女,それが / {この,これ (?)}〜のうしろで,〜以後 / {{自分の}妻}〜とともに,〜をもって / {都市 (?)}〜の方へ,〜のところまで / 戻った,帰った
+
+
+Ille autem ubi Perseum vīdit , māgnō terrōre adfectus est ;
+
+  --- 
+   0  Ille      pronoun あの,あれ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'm')]}
+   1  autem     conj ところで {}
+   2  ubi       adv どこ {}
+   3  Perseum   (?)
+   4  vīdit     (videō) v.見る 3sg 直説法.能動.完了
+   5  ,         
+   6  māgnō     (māgnus) a.大きな [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
+   7  terrōre   (?)
+   8  adfectus  (?)
+   9  est       (sum) v.〜である 3sg 直説法.能動.現在
+  10  ;         
+  --- 
+
+// ADJ#6 (māgnō) -> no target noun detected
+
+2 VERBS FOUND: vīdit, est
+
+  vīdit (indicative 3sg)
+    (autem)
+    (ubi)
+    Nom:
+      Ille
+
+  →  ところで / あの,あれ(人,物)が / どこ / 見た
+
+  est (indicative 3sg)
+    Dat:
+      māgnō
+
+  →  彼,彼女,それは / 大きなに / 〜である
+
+
+nam propter ōrāculum istud nepōtem suum adhūc timēbat .
+
+  --- 
+   0  nam       conj というのは,すなわち {}
+   1  propter   prep<Acc> 〜の近くで,〜のゆえに
+   2  ōrāculum  (?)
+   3  istud     (?)
+   4  nepōtem   (?)
+   5  suum      (suus) a.自分の [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   6  adhūc     adv これまで {}
+   7  timēbat   (timeō) v.恐れる 3sg 直説法.能動.未完了
+   8  .         
+  --- 
+
+// ADJ#5 (suum) -> no target noun detected
+
+1 VERB FOUND: timēbat
+
+  timēbat (indicative 3sg)
+    (nam)
+    (adhūc)
+    prep:
+      propter <Acc>
+        suum
+
+  →  というのは,すなわち / 彼,彼女,それが / {(?) (?) (?) 自分の}〜の近くで,〜のゆえに / これまで / 恐れていた
+
+
+In Thessaliam igitur ad urbem Lārīsam statim refūgit , frūstrā tamen ;
+
+  --- 
+   0  In          prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   1  Thessaliam  (Thessalia) テッサリア [Acc.sg.f] // []
+   2  igitur      conj そこで,だから,こうして {}
+   3  ad          prep<Acc> 〜の方へ,〜のところまで
+   4  urbem       (urbs) 都市 [Acc.sg.f] // []
+   5  Lārīsam     (?)
+   6  statim      adv たちまち {}
+   7  refūgit     (?)
+   8  ,           
+   9  frūstrā     adv 無駄に {}
+  10  tamen       conj しかしながら,それでも {}
+  11  ;           
+  --- 
+
+
+NO VERB FOUND.
+
+  in <Acc>
+    Thessaliam
+  →  {テッサリア}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して
+
+  (igitur)
+  →  そこで,だから,こうして
+
+  ad <Acc>
+    urbem
+  →  {都市 (?)}〜の方へ,〜のところまで
+
+  (statim)
+  →  たちまち
+
+  (frūstrā)
+  →  無駄に
+
+  (tamen)
+  →  しかしながら,それでも
+
+
+neque enim fātum suum vītāvit .
+
+  --- 
+   0  neque    conj そして〜ない {}
+   1  enim     conj というのは,すなわち {}
+   2  fātum    (fātum) 運命 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
+   3  suum     (suus) a.自分の [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   4  vītāvit  (vītō) v.避ける 3sg 直説法.能動.完了
+   5  .        
+  --- 
+
+// ADJ#3 (suum) -> NOUN#2 (fātum)
+
+1 VERB FOUND: vītāvit
+
+  NOT SOLVED:
+    (enim)
+    →  というのは,すなわち
+
+  vītāvit (indicative 3sg)
+    (neque)
+    Nom/Acc:
+      fātum
+        suum
+
+  →  そして〜ない / {自分の}運命が / 避けた
+
+
+Post paucōs annōs rēx Lārīsae lūdōs māgnōs fēcit ;
+
+  --- 
+   0  Post     prep<Acc> 〜のうしろで,〜以後
+   1  paucōs   (paucus) a.少ない [Acc.pl.m]
+   2  annōs    (annus) 年,季節 [Acc.pl.m] // []
+   3  rēx      (rēx) 王,指導者 [Nom.sg.m|Voc.sg.m] // []
+   4  Lārīsae  (?)
+   5  lūdōs    (lūdus) 遊戯,競技会 [Acc.pl.m] // []
+   6  māgnōs   (māgnus) a.大きな [Acc.pl.m]
+   7  fēcit    (faciō) v.作る 3sg 直説法.能動.完了
+   8  ;        
+  --- 
+
+// ADJ#1 (paucōs) -> NOUN#2 (annōs)
+// ADJ#6 (māgnōs) -> NOUN#5 (lūdōs)
+
+1 VERB FOUND: fēcit
+
+  fēcit (indicative 3sg)
+    prep:
+      post <Acc>
+        annōs
+          paucōs
+    Nom:
+      rēx
+    Acc:
+      lūdōs
+        māgnōs
+
+  →  王,指導者が / {{少ない}年,季節}〜のうしろで,〜以後 / {大きな}遊戯,競技会を / 作った
+
+
+nūntiōs in omnīs partīs dīmīserat et diem ēdīxerat .
+
+  --- 
+   0  nūntiōs    (?)
+   1  in         prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   2  omnīs      (?)
+   3  partīs     (?)
+   4  dīmīserat  (?)
+   5  et         conj 〜と〜,そして〜,〜も {}
+   6  diem       (diēs) 日,昼 [Acc.sg.mf] // []
+   7  ēdīxerat   (?)
+   8  .          
+  --- 
+
+
+NO VERB FOUND.
+
+  in <Acc>
+  →  {(?) (?) (?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して
+
+  (et)
+  →  〜と〜,そして〜,〜も
+
+  diem
+  →  日,昼
+
+
+Multī ex omnibus urbibus Graeciae ad lūdōs convēnērunt .
+
+  --- 
+   0  Multī        (multus) a.多くの [Gen.sg.m|Nom.pl.m|Voc.pl.m|Gen.sg.n]
+   1  ex           prep<Abl> 〜(の中)から外へ
+   2  omnibus      (omnis) a.すべての [Dat.pl.m|Abl.pl.m|Dat.pl.f|Abl.pl.f|Dat.pl.n|Abl.pl.n]
+   3  urbibus      (urbs) 都市 [Dat.pl.f|Abl.pl.f] // []
+   4  Graeciae     (Graecia) ギリシア [Gen.sg.f|Dat.sg.f|Nom.pl.f|Voc.pl.f] // []
+   5  ad           prep<Acc> 〜の方へ,〜のところまで
+   6  lūdōs        (lūdus) 遊戯,競技会 [Acc.pl.m] // []
+   7  convēnērunt  (conveniō) v.出会う 3pl 直説法.能動.完了
+   8  .            
+  --- 
+
+// ADJ#0 (Multī) -> no target noun detected
+// ADJ#2 (omnibus) -> NOUN#3 (urbibus)
+// GEN#4 (Graeciae) -> TARGET#3 (urbibus)
+
+1 VERB FOUND: convēnērunt
+
+  convēnērunt (indicative 3pl)
+    Nom:
+      Multī
+    prep:
+      ex <Abl>
+        urbibus
+          Graeciae
+          omnibus
+    prep:
+      ad <Acc>
+        lūdōs
+
+  →  多くの(人,物)が / {{ギリシアの & すべての}都市}〜(の中)から外へ / {遊戯,競技会}〜の方へ,〜のところまで / 出会った
+
+
+Ipse Perseus inter aliōs certāmen discōrum iniit .
+
+  --- 
+   0  Ipse      pronoun (それ)自身 {'person':3, 'desc':'強意代名詞', '_':[('Nom', 'sg', 'm')]}
+   1  Perseus   (?)
+   2  inter     prep<Acc> 〜の間に
+   3  aliōs     pronoun 他の {'_':[('Acc', 'pl', 'm')]}
+   4  certāmen  (?)
+   5  discōrum  (?)
+   6  iniit     (?)
+   7  .         
+  --- 
+
+
+NO VERB FOUND.
+
+  Ipse
+  →  (それ)自身
+
+  inter <Acc>
+    aliōs
+  →  {他の (?) (?) (?) }〜の間に
+
+
+At dum discum conicit , avum suum cāsū occīdit ;
+
+  --- 
+   0  At       conj これに反して {}
+   1  dum      conj 〜するあいだ,〜するかぎり,〜するまで {} | conj 〜しさえすれば {}
+   2  discum   (?)
+   3  conicit  (?)
+   4  ,        
+   5  avum     (?)
+   6  suum     (suus) a.自分の [Acc.sg.m|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   7  cāsū     (?)
+   8  occīdit  (?)
+   9  ;        
+  --- 
+
+// ADJ#6 (suum) -> no target noun detected
+
+NO VERB FOUND.
+
+  (At)
+  →  これに反して
+
+  (dum)
+  →  〜するあいだ,〜するかぎり,〜するまで
+
+  suum
+  →  自分の
+
+
+Acrisius enim inter spectātōrēs ēius certāminis forte stābat .
+
+  --- 
+   0  Acrisius     (?)
+   1  enim         conj というのは,すなわち {}
+   2  inter        prep<Acc> 〜の間に
+   3  spectātōrēs  (?)
+   4  ēius         (?)
+   5  certāminis   (?)
+   6  forte        (fortis) a.勇敢な [Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   7  stābat       (stō) v.立つ 3sg 直説法.能動.未完了
+   8  .            
+  --- 
+
+// ADJ#6 (forte) -> no target noun detected
+
+1 VERB FOUND: stābat
+
+  stābat (indicative 3sg)
+    (enim)
+    prep:
+      inter <Acc>
+        forte
+
+  →  というのは,すなわち / 彼,彼女,それが / {(?) (?) (?) 勇敢な}〜の間に / 立っていた
+

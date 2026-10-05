@@ -1,0 +1,81 @@
+{
+  "_comment": [
+    "texts/ 以下のテキストの使い方の目録。ここに無いテキストは「読む対象のみ」(解析・翻訳・音読には使うが、マクロン推定の知識や評価には使わない)",
+    "権利関係が不明なテキストはリポジトリに入れず、$LATIN_DATA/private-texts/ に同じ書式の目録と一緒に置く",
+    "license: public-domain / unknown (パブリックドメインとは扱わない) など",
+    "macrons: full (マクロンが信頼できる) / partial / none",
+    "hidden: 隠れた長音 (māgnus/magnus など) の流儀。mark (印を付ける) / nomark (付けない) / mixed",
+    "family: 内容が重なるテキストのまとまり。評価するときは同じ family のテキストを知識から除く (省略時はファイル名)",
+    "used_for_dictionary: 手作りの辞書 (words/*.def) を作るのに使った。評価に使うと精度が高く出すぎるので既定の評価からは除く",
+    "knowledge: マクロン推定の知識 (頻度・隠れた長音) に使うか (省略時は macrons が full なら true)",
+    "evaluation: マクロン推定の既定の評価データに使うか (省略時は macrons が full で used_for_dictionary でなければ true)"
+  ],
+  "dictionary": {
+    "hidden": "mixed",
+    "notes": "手作りの辞書 (words/*.def) の隠れた長音の流儀"
+  },
+  "texts": {
+    "GLORIA.txt": {
+      "macrons": "full",
+      "hidden": "mixed",
+      "used_for_dictionary": true,
+      "source": "典礼文 Gloria in excelsis。texts/src から生成",
+      "license": "public-domain"
+    },
+    "RIMINI.txt": {
+      "macrons": "full",
+      "hidden": "mixed",
+      "used_for_dictionary": false,
+      "source": "リミニの碑文 (後世の作とされる)。texts/src から生成",
+      "license": "public-domain",
+      "notes": "ローマ数字 (MDLV) と、その読み下しの注記行 (// で始まる) を含む"
+    },
+    "fabulae_faciles/perseus.txt": {
+      "macrons": "full",
+      "hidden": "mark",
+      "family": "ritchie-perseus",
+      "source": "Ritchie's Fabulae Faciles (1903), Project Gutenberg #8997。tools/import_fabulae_faciles.py",
+      "license": "public-domain",
+      "notes": "長音はアキュート記号をマクロンに変換。マクロンの付け忘れが少数ある (homines, nomine, quorum)"
+    },
+    "fabulae_faciles/hercules.txt": {
+      "macrons": "full",
+      "hidden": "mark",
+      "family": "ritchie-hercules",
+      "source": "Ritchie's Fabulae Faciles (1903), Project Gutenberg #8997。tools/import_fabulae_faciles.py",
+      "license": "public-domain",
+      "notes": "長音はアキュート記号をマクロンに変換。マクロンの付け忘れが少数ある (homines, nomine, quorum)"
+    },
+    "fabulae_faciles/argonautae.txt": {
+      "macrons": "full",
+      "hidden": "mark",
+      "family": "ritchie-argonautae",
+      "source": "Ritchie's Fabulae Faciles (1903), Project Gutenberg #8997。tools/import_fabulae_faciles.py",
+      "license": "public-domain",
+      "notes": "長音はアキュート記号をマクロンに変換。マクロンの付け忘れが少数ある (homines, nomine, quorum)"
+    },
+    "fabulae_faciles/ulixes.txt": {
+      "macrons": "full",
+      "hidden": "mark",
+      "family": "ritchie-ulixes",
+      "source": "Ritchie's Fabulae Faciles (1903), Project Gutenberg #8997。tools/import_fabulae_faciles.py",
+      "license": "public-domain",
+      "notes": "長音はアキュート記号をマクロンに変換。マクロンの付け忘れが少数ある (homines, nomine, quorum)"
+    },
+    "dooge/hercules.txt": {
+      "macrons": "full",
+      "hidden": "mixed",
+      "family": "ritchie-hercules",
+      "source": "D'Ooge, Latin for Beginners (1909), Project Gutenberg #18251。tools/import_dooge.py",
+      "license": "public-domain",
+      "notes": "Fabulae Faciles のヘラクレスの話を書き直したもの。電子化の誤りがある"
+    },
+    "dooge/lentulus.txt": {
+      "macrons": "full",
+      "hidden": "mixed",
+      "source": "D'Ooge, Latin for Beginners (1909), Project Gutenberg #18251。tools/import_dooge.py",
+      "license": "public-domain",
+      "notes": "電子化の誤りがある (lūlia → Iūlia, genit → gerit, plāribus → plūribus, Rōmāni など)"
+    }
+  }
+}

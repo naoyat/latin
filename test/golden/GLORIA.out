@@ -1,0 +1,387 @@
+
+Glōria in excelsīs Deō , et in terrā pāx hominibus bonae voluntātis .
+
+  --- 
+   0  Glōria      (glōria) 栄光 [Nom.sg.f|Voc.sg.f] // []
+   1  in          prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   2  excelsīs    (excelsum) 高み [Dat.pl.n|Abl.pl.n] // []
+   3  Deō         (deus) 神 [Dat.sg.m|Abl.sg.m] // []
+   4  ,           
+   5  et          conj 〜と〜,そして〜,〜も {}
+   6  in          prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   7  terrā       (terra) 地,大地 [Abl.sg.f] // []
+   8  pāx         (pāx) 平和 [Nom.sg.f|Voc.sg.f] // []
+   9  hominibus   (homō) 人間 [Dat.pl.m|Abl.pl.m] // []
+  10  bonae       (bonus) a.良い [Gen.sg.f|Dat.sg.f|Nom.pl.f|Voc.pl.f]
+  11  voluntātis  (voluntās) 意志 [Gen.sg.f] // []
+  12  .           
+  --- 
+
+// ADJ#10 (bonae) -> NOUN#11 (voluntātis)
+// GEN#11 (voluntātis) -> TARGET#9 (hominibus)
+
+NO VERB FOUND.
+
+  Glōria
+  →  栄光
+
+  in <Abl>
+    excelsīs
+    Deō
+  →  {高み 神 }〜で,〜の中で,〜の上で
+
+  (et)
+  →  〜と〜,そして〜,〜も
+
+  in <Abl>
+    terrā
+  →  {地,大地}〜で,〜の中で,〜の上で
+
+  pāx
+  →  平和
+
+  hominibus
+    voluntātis
+      bonae
+  →  {{良い}意志の}人間
+
+
+Laudāmus tē , benedīcimus tē , adōrāmus tē , glōrificāmus tē , grātiās agimus tibi propter magnam glōriam tuam , Domine Deus , Rēx caelestis .
+
+  --- 
+   0  Laudāmus      (laudō) v.称賛する,ほめる 1pl 直説法.能動.現在
+   1  tē            pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Acc', 'sg', 'm'), ('Abl', 'sg', 'm')]}
+   2  ,             
+   3  benedīcimus   (benedīcō) v.祝福する 1pl 直説法.能動.現在
+   4  tē            pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Acc', 'sg', 'm'), ('Abl', 'sg', 'm')]}
+   5  ,             
+   6  adōrāmus      (adōrō) v.崇める 1pl 直説法.能動.現在
+   7  tē            pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Acc', 'sg', 'm'), ('Abl', 'sg', 'm')]}
+   8  ,             
+   9  glōrificāmus  (glōrificō) v.頌徳する 1pl 直説法.能動.現在
+  10  tē            pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Acc', 'sg', 'm'), ('Abl', 'sg', 'm')]}
+  11  ,             
+  12  grātiās       (grātia) 感謝 [Acc.pl.f] // []
+  13  agimus        (agō) v.する,駆る 1pl 直説法.能動.現在
+  14  tibi          pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Dat', 'sg', 'm')]}
+  15  propter       prep<Acc> 〜の近くで,〜のゆえに
+  16  magnam        (magnus) a.大きな [Acc.sg.f]
+  17  glōriam       (glōria) 栄光 [Acc.sg.f] // []
+  18  tuam          (tuus) a.あなたの [Acc.sg.f]
+  19  ,             
+  20  Domine        (dominus) 主,主人 [Voc.sg.m] // []
+  21  Deus          (deus) 神 [Nom.sg.m|Voc.sg.m] // []
+  22  ,             
+  23  Rēx           (rēx) 王,指導者 [Nom.sg.m|Voc.sg.m] // []
+  24  caelestis     (caelestis) a.天の [Nom.sg.m|Voc.sg.m|Gen.sg.m|Nom.sg.f|Voc.sg.f|Gen.sg.f|Gen.sg.n]
+  25  .             
+  --- 
+
+// ADJ#16 (magnam) -> NOUN#17 (glōriam)
+// ADJ#18 (tuam) -> NOUN#17 (glōriam)
+// ADJ#24 (caelestis) -> NOUN#23 (Rēx)
+
+5 VERBS FOUND: Laudāmus, benedīcimus, adōrāmus, glōrificāmus, agimus
+
+  Laudāmus (indicative 1pl)
+    Acc:
+      tē
+
+  →  我々が / あなたを / 称賛する,ほめる
+
+  benedīcimus (indicative 1pl)
+    Acc:
+      tē
+
+  →  我々が / あなたを / 祝福する
+
+  adōrāmus (indicative 1pl)
+    Acc:
+      tē
+
+  →  我々が / あなたを / 崇める
+
+  glōrificāmus (indicative 1pl)
+    Acc:
+      tē
+
+  →  我々が / あなたを / 頌徳する
+
+  agimus (indicative 1pl)
+    Acc:
+      grātiās
+    Dat:
+      tibi
+    prep:
+      propter <Acc>
+        glōriam
+          magnam
+          tuam
+    Voc:
+      Domine
+    Nom:
+      Deus
+      Rēx
+        caelestis
+
+  →  神={天の}王,指導者が / あなたに / {{大きな & あなたの}栄光 }〜の近くで,〜のゆえに / 主,主人よ / 感謝を / する,駆る
+
+
+Deus Pater omnipotēns .
+
+  --- 
+   0  Deus        (deus) 神 [Nom.sg.m|Voc.sg.m] // []
+   1  Pater       (pater) 父 [Nom.sg.m|Voc.sg.m] // []
+   2  omnipotēns  (omnipotēns) a.全能の [Nom.sg.m|Voc.sg.m|Nom.sg.f|Voc.sg.f|Nom.sg.n|Voc.sg.n|Acc.sg.n]
+   3  .           
+  --- 
+
+// ADJ#2 (omnipotēns) -> NOUN#1 (Pater)
+
+NO VERB FOUND.
+
+  Deus
+  →  神
+
+  Pater
+    omnipotēns
+  →  {全能の}父
+
+
+Domine fīlī ūnigenite , Iēsū Christe , Domine Deus , Agnus Deī , Fīlius Patris , quī tollis peccāta mundī , miserēre nōbīs ;
+
+  --- 
+   0  Domine     (dominus) 主,主人 [Voc.sg.m] // []
+   1  fīlī       (fīlius) 息子 [Voc.sg.m|Gen.sg.m] // [] | (fīlum) 糸 [Gen.sg.n] // []
+   2  ūnigenite  (ūnigenitus) a.一人っ子の [Voc.sg.m]
+   3  ,          
+   4  Iēsū       (Iēsus) イエス [Voc.sg.m|Acc.sg.m|Gen.sg.m|Dat.sg.m|Abl.sg.m] // []
+   5  Christe    (Christus) キリスト [Voc.sg.m] // []
+   6  ,          
+   7  Domine     (dominus) 主,主人 [Voc.sg.m] // []
+   8  Deus       (deus) 神 [Nom.sg.m|Voc.sg.m] // []
+   9  ,          
+  10  Agnus      (agnus) 小羊 [Nom.sg.m] // []
+  11  Deī        (deus) 神 [Gen.sg.m|Nom.pl.m|Voc.pl.m] // []
+  12  ,          
+  13  Fīlius     (fīlius) 息子 [Nom.sg.m] // []
+  14  Patris     (pater) 父 [Gen.sg.m] // []
+  15  ,          
+  16  quī        pronoun 各人(の) {'desc':'関係代名詞', 'base':'quī', '_':[('Nom', 'sg', 'm'), ('Nom', 'pl', 'm')]} | pronoun 誰が {'desc':'疑問代名詞', 'base':'quis', '_':[('Nom', 'pl', 'm')]}
+  17  tollis     (tollō) v.取り去る 2sg 直説法.能動.現在
+  18  peccāta    (peccātum) 罪 [Nom.pl.n|Voc.pl.n|Acc.pl.n] // []
+  19  mundī      (mundus) 世界,宇宙 [Gen.sg.m|Nom.pl.m|Voc.pl.m] // []
+  20  ,          
+  21  miserēre   (misereō) v.憐れむ 0- 不定法.能動.現在 | (misereō) v.憐れむ 2sg 直説法.受動.現在 | (misereō) v.憐れむ 2sg 命令法.受動.現在
+  22  nōbīs      pronoun 私 {'person':1, 'desc':'人称代名詞', '_':[('Dat', 'pl', 'm'), ('Abl', 'pl', 'm')]}
+  23  ;          
+  --- 
+
+// ADJ#2 (ūnigenite) -> NOUN#1 (fīlī)
+// GEN#19 (mundī) -> TARGET#18 (peccāta)
+// GEN#14 (Patris) -> TARGET#13 (Fīlius)
+// GEN#11 (Deī) -> TARGET#10 (Agnus)
+
+2 VERBS FOUND: tollis, miserēre
+
+  tollis (indicative 2sg)
+    Voc:
+      Domine
+      fīlī
+        ūnigenite
+      Christe
+      Domine
+    Acc:
+      Iēsū
+    Nom:
+      Deus
+      Agnus
+        Deī
+      Fīlius
+        Patris
+      quī
+    Nom/Acc:
+      peccāta
+        mundī
+
+  →  神={神の}小羊={父の}息子=各人(の)(人,物)が / 主,主人={一人っ子の}息子=キリスト=主,主人よ / イエス={世界,宇宙の}罪を / 取り去る
+
+  miserēre (infinitive NoneNone)
+    Dat:
+      nōbīs
+
+  →  私に / 憐れむ
+
+
+quī tollis peccāta mundī , suscipe dēprecātiōnem nostram , quī sedēs ad dextram Patris , miserēre nōbīs .
+
+  --- 
+   0  quī            pronoun 各人(の) {'desc':'関係代名詞', 'base':'quī', '_':[('Nom', 'sg', 'm'), ('Nom', 'pl', 'm')]} | pronoun 誰が {'desc':'疑問代名詞', 'base':'quis', '_':[('Nom', 'pl', 'm')]}
+   1  tollis         (tollō) v.取り去る 2sg 直説法.能動.現在
+   2  peccāta        (peccātum) 罪 [Nom.pl.n|Voc.pl.n|Acc.pl.n] // []
+   3  mundī          (mundus) 世界,宇宙 [Gen.sg.m|Nom.pl.m|Voc.pl.m] // []
+   4  ,              
+   5  suscipe        (suscipiō) v.引き受ける 2sg 命令法.能動.現在
+   6  dēprecātiōnem  (dēprecātiō) 哀願 [Acc.sg.f] // []
+   7  nostram        (noster) a.私たちの [Acc.sg.f]
+   8  ,              
+   9  quī            pronoun 各人(の) {'desc':'関係代名詞', 'base':'quī', '_':[('Nom', 'sg', 'm'), ('Nom', 'pl', 'm')]} | pronoun 誰が {'desc':'疑問代名詞', 'base':'quis', '_':[('Nom', 'pl', 'm')]}
+  10  sedēs          (sedeō) v.座る 2sg 直説法.能動.現在
+  11  ad             prep<Acc> 〜の方へ,〜のところまで
+  12  dextram        (dexter) a.右の,巧みな [Acc.sg.f]
+  13  Patris         (pater) 父 [Gen.sg.m] // []
+  14  ,              
+  15  miserēre       (misereō) v.憐れむ 0- 不定法.能動.現在 | (misereō) v.憐れむ 2sg 直説法.受動.現在 | (misereō) v.憐れむ 2sg 命令法.受動.現在
+  16  nōbīs          pronoun 私 {'person':1, 'desc':'人称代名詞', '_':[('Dat', 'pl', 'm'), ('Abl', 'pl', 'm')]}
+  17  .              
+  --- 
+
+// ADJ#7 (nostram) -> NOUN#6 (dēprecātiōnem)
+// ADJ#12 (dextram) -> no target noun detected
+// GEN#13 (Patris) -> no target noun detected
+// GEN#3 (mundī) -> TARGET#2 (peccāta)
+
+4 VERBS FOUND: tollis, suscipe, sedēs, miserēre
+
+  tollis (indicative 2sg)
+    Nom:
+      quī
+    Nom/Acc:
+      peccāta
+        mundī
+
+  →  各人(の)(人,物)が / {世界,宇宙の}罪を / 取り去る
+
+  suscipe (imperative 2sg)
+    Acc:
+      dēprecātiōnem
+        nostram
+
+  →  {私たちの}哀願を / 引き受けろ
+
+  sedēs (indicative 2sg)
+    Nom:
+      quī
+
+  →  各人(の)(人,物)が / 座る
+
+  miserēre (infinitive NoneNone)
+    Dat:
+      nōbīs
+
+  →  私に / 憐れむ
+
+
+Quoniam tū sōlus sanctus , tū sōlus Dominus , tū sōlus Altissimus , Iēsū Christe .
+
+  --- 
+   0  Quoniam     conj 〜するので,〜したのち {}
+   1  tū          pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Nom', 'sg', 'm')]}
+   2  sōlus       pronoun 唯一の {'_':[('Nom', 'sg', 'm')]} | (sōlus) a.孤独な,唯一の,孤立した [Nom.sg.m]
+   3  sanctus     (sanctus) a.聖なる [Nom.sg.m]
+   4  ,           
+   5  tū          pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Nom', 'sg', 'm')]}
+   6  sōlus       pronoun 唯一の {'_':[('Nom', 'sg', 'm')]} | (sōlus) a.孤独な,唯一の,孤立した [Nom.sg.m]
+   7  Dominus     (dominus) 主,主人 [Nom.sg.m] // []
+   8  ,           
+   9  tū          pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Nom', 'sg', 'm')]}
+  10  sōlus       pronoun 唯一の {'_':[('Nom', 'sg', 'm')]} | (sōlus) a.孤独な,唯一の,孤立した [Nom.sg.m]
+  11  Altissimus  (altus) a.最も高い,深い [Nom.sg.m]
+  12  ,           
+  13  Iēsū        (Iēsus) イエス [Voc.sg.m|Acc.sg.m|Gen.sg.m|Dat.sg.m|Abl.sg.m] // []
+  14  Christe     (Christus) キリスト [Voc.sg.m] // []
+  15  .           
+  --- 
+
+// ADJ#3 (sanctus) -> NOUN#7 (Dominus)
+// ADJ#11 (Altissimus) -> NOUN#7 (Dominus)
+
+NO VERB FOUND.
+
+  (Quoniam)
+  →  〜するので,〜したのち
+
+  tū
+  →  あなた
+
+  sōlus
+  →  唯一の
+
+  tū
+  →  あなた
+
+  sōlus
+  →  唯一の
+
+  Dominus
+    sanctus
+    Altissimus
+  →  {聖なる & 最も高い,深い}主,主人
+
+  tū
+  →  あなた
+
+  sōlus
+  →  唯一の
+
+  Iēsū
+  →  イエス
+
+  Christe
+  →  キリスト
+
+
+Cum Sanctō Spīritū :
+
+  --- 
+   0  Cum      prep<Abl> 〜とともに,〜をもって
+   1  Sanctō   (sanctus) a.聖なる [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
+   2  Spīritū  (spīritus) 霊 [Abl.sg.m] // []
+   3  :        
+  --- 
+
+// ADJ#1 (Sanctō) -> NOUN#2 (Spīritū)
+
+NO VERB FOUND.
+
+  cum <Abl>
+    Spīritū
+      Sanctō
+  →  {{聖なる}霊 }〜とともに,〜をもって
+
+
+in glōriā Deī Patris .
+
+  --- 
+   0  in      prep<Acc> 〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して | prep<Abl> 〜で,〜の中で,〜の上で
+   1  glōriā  (glōria) 栄光 [Abl.sg.f] // []
+   2  Deī     (deus) 神 [Gen.sg.m|Nom.pl.m|Voc.pl.m] // []
+   3  Patris  (pater) 父 [Gen.sg.m] // []
+   4  .       
+  --- 
+
+// GEN#3 (Patris) -> TARGET#2 (Deī)
+// GEN#2 (Deī) -> TARGET#1 (glōriā)
+
+NO VERB FOUND.
+
+  in <Abl>
+    glōriā
+      Deī
+        Patris
+  →  {{{父の}神の}栄光 }〜で,〜の中で,〜の上で
+
+
+Āmēn .
+
+  --- 
+   0  Āmēn  indecl 確かに,間違いなく {}
+   1  .     
+  --- 
+
+
+NO VERB FOUND.
+
+  Āmēn
+  →  確かに,間違いなく
+
