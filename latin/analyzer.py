@@ -409,10 +409,15 @@ def detect_verbs(words):
     return (words, verb_ix)
 
 
+# 名詞に係りうる代名詞 (限定詞としても使う): hic, is, ille, iste, ipse, aliquis, quīdam など
+DETERMINER_PRONOUNS = ('指示代名詞', '強意代名詞', '不定代名詞', '不定形容詞')
+
+
 def detect_adj_correspondances(words, trace):
     M = len(words)
     nouns = {}
     adjs = []
+    determiners = []  # 名詞に係りうる代名詞 (近くに一致する名詞があるときだけ付ける)
     blocks = {}
     verb_blocks = set()  # sum 以外の動詞 (2段目の探索では越えてよい)
     boundaries = set()   # 句読点・接続詞 (2段目の探索でも越えない)
@@ -446,6 +451,9 @@ def detect_adj_correspondances(words, trace):
                 if getattr(word, 'attached_to', None) is not None:
                     continue  # 並列句の中ですでに修飾語として付けたもの
                 adjs.append((i, first_item._))
+            elif first_item.pos == 'pronoun' and first_item.attrib('desc') in DETERMINER_PRONOUNS:
+                if getattr(word, 'attached_to', None) is None and first_item._:
+                    determiners.append((i, first_item._))
             elif first_item.pos == 'noun':
                 nouns[i] = first_item._
             else:
@@ -454,7 +462,7 @@ def detect_adj_correspondances(words, trace):
             # blocks[i] = word
             pass
 
-    if not adjs: return (words, [])
+    if not adjs and not determiners: return (words, [])
 
     def matches(_a, _b):
         return any([b in _a for b in _b])
@@ -499,7 +507,33 @@ def detect_adj_correspondances(words, trace):
             trace.append(msg + " -> no target noun detected")
             as_noun.add(adj_ix)
 
-    return (words, [ix for ix in [adj_ix for adj_ix, _ in adjs] if ix not in as_noun])
+    # 指示詞などの代名詞: すぐ後ろ (間に1語まで) か、すぐ前の名詞で、格・数・性が一致するものにだけ付ける
+    # (hīs rēbus, eō diē, ea rēs, diē eō。eōs vīdit のように単独で使われるものは付けない)
+    def is_sum(ix):
+        w = words[ix] if 0 <= ix < M else None
+        return isinstance(w, Word) and bool(w.items) and w.items[0].pos == 'verb' and \
+            w.items[0].attrib('pres1sg') == 'sum'
+
+    attached_determiners = []
+    for det_ix, _ in determiners:
+        target = -1
+        for j in (det_ix + 1, det_ix + 2, det_ix - 1):
+            if not (0 <= j < M) or j in blocks:
+                continue
+            if j == det_ix - 1 and is_sum(det_ix + 1):
+                continue  # magnitūdō eadem erit: 直後が sum なら補語 (前の名詞の修飾語にしない)
+            if j == det_ix + 2 and (det_ix + 1) in blocks:
+                continue
+            if j in nouns and matches(nouns[j], _):
+                target = j
+                break
+        if target >= 0:
+            trace.append("// DET#%d (%s) -> NOUN#%d (%s)" % (
+                det_ix, words[det_ix].surface_utf8(), target, words[target].surface_utf8()))
+            words[target].add_modifier(words[det_ix])
+            attached_determiners.append(det_ix)
+
+    return (words, [ix for ix in [adj_ix for adj_ix, _ in adjs] if ix not in as_noun] + attached_determiners)
 
 
 def detect_genitive_correspondances(words, trace):
@@ -623,6 +657,50 @@ def _group_by_verbs(words, verbs_ix, trace):
     return groups
 
 
+DETERMINER_BASES = {'hic', 'is', 'ille', 'iste', 'ipse', 'īdem', 'idem', 'quīdam', 'aliquis'}
+
+
+def _is_same(item):
+    """īdem (同じ): sum の文では補語になりやすい"""
+    return item.attrib('base') in ('īdem', 'idem') or item.ja == '同じ'
+
+
+def _promote_complement(pred):
+    """sum の文で補語が無く、主語の名詞に修飾語が付いているとき、その1つを補語に戻す
+    (Rōma māgna est → ローマは大きい。所有形容詞・指示詞は修飾語のまま: hic puer bonus est)"""
+    noms = pred.case_slot.get('Nom', []) + pred.case_slot.get('Nom/Acc', [])
+    nouns = [o for o in noms if isinstance(o, Word) and o.items and o.items[0].pos in ('noun', 'pronoun')]
+    if len(nouns) != 1 or len(noms) != 1:
+        return  # すでに補語らしきもの (名詞以外・2つ目の名詞) がある
+    subject = nouns[0]
+    adjectives, sames = [], []
+    for m in subject.modifiers:
+        if not isinstance(m, Word) or not m.items:
+            continue
+        item = m.items[0]
+        if _is_same(item):
+            sames.append(m)
+        elif item.pos in ('adj', 'participle') and item.attrib('desc') != '所有形容詞' \
+                and item.attrib('base') not in DETERMINER_BASES:
+            adjectives.append(m)
+    # 主語の名詞と隣り合う形容詞は1つの名詞句であることが多い (vir māgnus erit「(彼は) 偉大な男になる」)。
+    # 隣り合っていても主語が固有名詞なら補語とみなす (Rōma māgna est)
+    base = subject.items[0].attrib('base') or subject.surface
+    proper = base[:1].isupper()
+
+    def separated(m):
+        return m.index is None or subject.index is None or abs(m.index - subject.index) > 1
+
+    candidates = [m for m in adjectives if proper or separated(m)] or sames
+    if not candidates:
+        return
+    complement = max(candidates, key=lambda w: w.index if w.index is not None else -1)  # 最も後ろの語
+    subject.modifiers.remove(complement)
+    complement.attached_to = None
+    case = 'Nom' if 'Nom' in pred.case_slot else 'Nom/Acc'
+    pred.add_nominal(case, complement)
+
+
 def _attach_to_predicate(words, group, verb_ix):
     """グループ内の語を述語に結びつける。結びつけられなかった語のリストを返す"""
     not_solved = []
@@ -680,6 +758,8 @@ def _attach_to_predicate(words, group, verb_ix):
                 pred.add_nominal(case, word)
             else:
                 not_solved.append(word)
+    if pred.is_sum:
+        _promote_complement(pred)
     return not_solved
 
 

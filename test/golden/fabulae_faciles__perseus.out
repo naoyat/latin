@@ -349,19 +349,19 @@ Hūius īnsulae Polydectēs tum rēx erat .
    6  .           
   --- 
 
+// DET#0 (Hūius) -> NOUN#1 (īnsulae)
 // GEN#1 (īnsulae) -> no target noun detected
 
 1 VERB FOUND: erat
 
   erat (indicative 3sg)
     (tum)
-    Gen:
-      Hūius
     Nom:
       īnsulae
+        Hūius
       rēx
 
-  →  島は / この,これの / その時,その頃,当時 / 王,指導者であった
+  →  {この,これ}島は / その時,その頃,当時 / 王,指導者であった
 
 
 Postquam arca ad lītus appulsa est , Danaē in harēnā quiētem capiēbat .
@@ -645,9 +645,9 @@ Hōc tamen cōnsilium Perseō minimē grātum erat .
       Hōc
     Nom/Acc:
       cōnsilium
-        grātum
+      grātum
 
-  →  しかしながら,それでも / 彼,彼女,それは / この,これで / {楽しい,感謝の}意図,相談であった
+  →  しかしながら,それでも / 意図,相談は / この,これで / 楽しい,感謝のであった
 
 
 Polydectēs igitur Perseum dīmittere cōnstituit .
@@ -715,9 +715,10 @@ Turpe est hanc īgnāvam vītam agere ;
   --- 
 
 // ADJ#0 (Turpe) -> no target noun detected
+// DET#2 (hanc) -> NOUN#4 (vītam)
 
 2 VERBS FOUND: est, agere
-  NOT WELL: {2..4}
+  NOT WELL: {2..3}
 
   est (indicative 3sg)
     Nom/Acc:
@@ -727,10 +728,10 @@ Turpe est hanc īgnāvam vītam agere ;
 
   agere (infinitive NoneNone)
     Acc:
-      hanc
       vītam
+        hanc
 
-  →  この,これ=人生を / する,駆る
+  →  {この,これ}人生を / する,駆る
 
 
 iam dūdum tū adulēscēns es .
@@ -1091,6 +1092,7 @@ tandem tamen ad eum locum vēnit ubi Medūsa cum cēterīs Gorgonibus habitābat
   12  .           
   --- 
 
+// DET#3 (eum) -> NOUN#4 (locum)
 
 2 VERBS FOUND: vēnit, habitābat
   NOT WELL: {4..6}
@@ -1103,10 +1105,10 @@ tandem tamen ad eum locum vēnit ubi Medūsa cum cēterīs Gorgonibus habitābat
     (tandem)
     prep:
       ad <Acc>
-        eum
         locum
+          eum
 
-  →  結局,最後に / 彼,彼女,それが / {その,それ 場所}〜の方へ,〜のところまで / 来た
+  →  結局,最後に / 彼,彼女,それが / {{その,それ}場所}〜の方へ,〜のところまで / 来た
 
   habitābat (indicative 3sg)
     (ubi)
@@ -1252,16 +1254,17 @@ Propter hanc causam Minerva speculum Perseō dederat .
    7  .         
   --- 
 
+// DET#1 (hanc) -> NOUN#2 (causam)
 
 1 VERB FOUND: dederat
 
   dederat (indicative 3sg)
     prep:
       propter <Acc>
-        hanc
         causam
+          hanc
 
-  →  彼,彼女,それが / {この,これ 原因 (?) (?) (?)}〜の近くで,〜のゆえに / 与える
+  →  彼,彼女,それが / {{この,これ}原因 (?) (?) (?)}〜の近くで,〜のゆえに / 与える
 
 
 Ille igitur tergum vertit , et in speculum īnspiciēbat ;
@@ -1312,20 +1315,20 @@ hōc modō ad locum vēnit ubi Medūsa dormiēbat .
    8  .          
   --- 
 
+// DET#0 (hōc) -> NOUN#1 (modō)
 
 2 VERBS FOUND: vēnit, dormiēbat
-  NOT WELL: {4..5}
+  NOT WELL: {3..4}
 
   vēnit (indicative 3sg)
-    Abl:
-      hōc
     Dat:
       modō
+        hōc
     prep:
       ad <Acc>
         locum
 
-  →  彼,彼女,それが / この,これで / 制限,方法に / {場所}〜の方へ,〜のところまで / 来た
+  →  彼,彼女,それが / {この,これ}制限,方法に / {場所}〜の方へ,〜のところまで / 来た
 
   dormiēbat (indicative 3sg)
     (ubi)
@@ -1537,6 +1540,7 @@ Ibi Cēpheus quīdam illō tempore rēgnābat .
    6  .         
   --- 
 
+// DET#3 (illō) -> NOUN#4 (tempore)
 
 NO VERB FOUND.
 
@@ -1546,11 +1550,9 @@ NO VERB FOUND.
   quīdam
   →  或る(人,物)
 
-  illō
-  →  あの,あれ
-
   tempore
-  →  時
+    illō
+  →  {あの,あれ}時
 
 
 Hīc Neptūnum , maris deum , ōlim offenderat ;
@@ -1654,18 +1656,19 @@ Ob hanc causam pavor animōs omnium occupāverat .
   --- 
 
 // ADJ#5 (omnium) -> no target noun detected
+// DET#1 (hanc) -> NOUN#2 (causam)
 
 1 VERB FOUND: occupāverat
 
   occupāverat (indicative 3sg)
     prep:
       ob <Acc>
-        hanc
         causam
+          hanc
         animōs
         omnium
 
-  →  彼,彼女,それが / {この,これ 原因 (?) 心,考え すべての}〜の前へ,〜ゆえに,〜の代わりに / 先取りする,占有する,占領する
+  →  彼,彼女,それが / {{この,これ}原因 (?) 心,考え すべての}〜の前へ,〜ゆえに,〜の代わりに / 先取りする,占有する,占領する
 
 
 Cēpheus igitur ōrāculum deī Hammōnis cōnsuluit , atque ā deō iūssus est fīliam mōnstrō trādere .
@@ -1738,9 +1741,9 @@ Cēpheus igitur ōrāculum deī Hammōnis cōnsuluit , atque ā deō iūssus est
       Ēius
     Nom:
       fīlia
-        fōrmōsissima
+      fōrmōsissima
 
-  →  ところで / 彼,彼女,それは / その,それの / {最も美しい}娘であった
+  →  ところで / 娘は / その,それの / 最も美しいであった
 
 
 Cēpheus ubi haec audīvit , māgnum dolōrem percēpit .
@@ -1796,6 +1799,7 @@ Volēbat tamen cīvīs suōs ē tantō perīculō extrahere , atque ob eam causa
 
 // ADJ#3 (suōs) -> no target noun detected
 // ADJ#5 (tantō) -> NOUN#6 (perīculō)
+// DET#11 (eam) -> NOUN#12 (causam)
 
 1 VERB FOUND: facere
 
@@ -1807,18 +1811,17 @@ Volēbat tamen cīvīs suōs ē tantō perīculō extrahere , atque ob eam causa
     (tamen)
     Acc:
       suōs
-      eam
-      causam
     prep:
       ē <Abl>
         perīculō
           tantō
     prep:
       ob <Acc>
-    Nom:
-      imperāta
+        causam
+          eam
+        imperāta
 
-  →  しかしながら,それでも / 命じられた(人,物)が / {{これほどの}危険 (?) }〜(の中)から外へ / {}〜の前へ,〜ゆえに,〜の代わりに / 自分の=その,それ=原因を / 作る
+  →  しかしながら,それでも / {{これほどの}危険 (?) }〜(の中)から外へ / {{その,それ}原因 命じられた (?)}〜の前へ,〜ゆえに,〜の代わりに / 自分のを / 作る
 
 
 Tum rēx diem certam dīxit et omnia parāvit .
@@ -2588,18 +2591,19 @@ Cēpheus ob hanc rem māximō gaudiō adfectus est .
    8  .         
   --- 
 
+// DET#2 (hanc) -> NOUN#3 (rem)
 
 1 VERB FOUND: est
 
   est (indicative 3sg)
     prep:
       ob <Acc>
-        hanc
         rem
+          hanc
     Dat:
       gaudiō
 
-  →  彼,彼女,それは / {この,これ 物,事 (?)}〜の前へ,〜ゆえに,〜の代わりに / 喜びに / 〜である
+  →  彼,彼女,それは / {{この,これ}物,事 (?)}〜の前へ,〜ゆえに,〜の代わりに / 喜びに / 〜である
 
 
 Meritam grātiam prō tantō beneficiō Perseō rettulit ;
