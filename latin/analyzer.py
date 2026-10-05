@@ -215,7 +215,8 @@ def detect_and_or(words, trace):
                 idx = last_et_idx + 1  # 最後の et の後ろに語が無い場合 (ループが回らない) の範囲の終わり
                 for idx in range(last_et_idx+1, end_idx):
                     word = words[idx]
-                    if not word.items: break  # 未知語・記号
+                    if not isinstance(word, Word) or not word.items:
+                        break  # 未知語・記号、すでにまとめた並列句 (et ... et の後の aut ... aut など)
                     first_item = word.items[0]
                     if cl.pos == 'noun':
                         # 格変化のある語に限る
