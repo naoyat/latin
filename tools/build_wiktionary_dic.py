@@ -48,8 +48,8 @@ def load_japanese_glosses(path):
 
 def make_participle_gloss(ja_glosses):
     """動詞の日本語訳語から分詞の訳語を作る (手作り辞書の latin_verb_reg と同じ方法)"""
-    import Verb
-    from japanese import JaVerb, is_mecab_available
+    from latin import verb_flags as Verb
+    from latin.japanese import JaVerb, is_mecab_available
     if not is_mecab_available:
         return None
     flags = {'present': Verb.PARTICIPLE_PRESENT, 'past': Verb.PARTICIPLE_PERFECT,

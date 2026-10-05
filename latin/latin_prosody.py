@@ -26,7 +26,7 @@ VOICELESS = {'p', 't', 'k', 's', 'f', 'p_h', 't_h', 'k_h'}
 DEVOICE = {'d': 't', 'b': 'p', 'g': 'k'}
 
 # la1 に収録されていないダイフォン
-# 合成時に mbrola の警告から自動的に追加される (speak_latin.synthesize_mbrola)
+# 合成時に mbrola の警告から自動的に追加される (latin.speech.synthesize_mbrola)
 MISSING_DIPHONES = {
     ('a:', 'i:'), ('u:', 'j:'), ('s', 'a:'), ('I', 'h'), ('w', 'r'), ('w', '_'), ('N', 'k:'),
 }

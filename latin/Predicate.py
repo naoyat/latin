@@ -4,8 +4,8 @@
 from latin.LatinObject import LatinObject
 from latin.Word import Word
 
-from japanese import JaVerb
-import Verb
+from .japanese import JaVerb
+from . import verb_flags as Verb
 
 TENSE_LABELS = {'imperfect': '未完了', 'future': '未来', 'perfect': '完了',
                 'past-perfect': '過去完了', 'future-perfect': '未来完了'}

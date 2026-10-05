@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import Verb
+from . import verb_flags as Verb
 
 # MeCab
 try:

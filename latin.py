@@ -13,7 +13,7 @@ from latin import analyzer
 from latin import render
 from latin import macronizer
 
-import speak_latin
+from latin import speech as speak_latin
 
 def analyse_text(text, options):
     if options.auto_macron_mode:
@@ -25,7 +25,8 @@ def analyse_text(text, options):
         if options.speech_mode:
             speak_latin.say_latin(analysis.text)
 
-        render.render_analysis(analysis, show_word_detail=options.show_word_detail)
+        render.render_analysis(analysis, show_word_detail=options.show_word_detail,
+                               show_translation=options.show_translation)
 
         # 音読モードの場合、読み終わるまでウェイトを入れる
         if options.speech_mode:

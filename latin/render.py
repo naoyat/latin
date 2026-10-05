@@ -114,7 +114,7 @@ def render_sentence_header(text):
     print("\n" + ansi_color.underline(ansi_color.bold(text)) + "\n")
 
 
-def render_analysis(analysis, show_word_detail=True):
+def render_analysis(analysis, show_word_detail=True, show_translation=True):
     # 辞書引きの結果
     if show_word_detail:
         print("  --- ")
@@ -145,7 +145,8 @@ def render_analysis(analysis, show_word_detail=True):
         for node in analysis.nodes:
             if isinstance(node, Word) and not node.items: continue
             dump(node)
-            print("  → ", translate(node))
+            if show_translation:
+                print("  → ", translate(node))
             print()
         return
 
@@ -154,10 +155,12 @@ def render_analysis(analysis, show_word_detail=True):
             print("  NOT SOLVED:")
             for item in clause.not_solved:
                 dump(item, 4)
-                print("    → ", translate(item))
+                if show_translation:
+                    print("    → ", translate(item))
                 print()
 
         dump(clause.predicate)
         print()
-        print("  → ", translate(clause.predicate))
-        print()
+        if show_translation:
+            print("  → ", translate(clause.predicate))
+            print()

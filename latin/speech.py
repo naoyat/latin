@@ -201,10 +201,12 @@ def say_latin(text_uc, debug_mode=False, pause=False, wav_file=None):
         piper(text_uc, pause=pause, wav_file=wav_file)
 
 
-if __name__ == '__main__':
+def main(argv=None):
+    """コマンドラインから音読する (tools/speak.py)"""
     import getopt
     import select
-    opts, args = getopt.getopt(sys.argv[1:], 'b:v:w:a:d', ['backend=', 'voice=', 'wav=', 'accent=', 'debug'])
+    argv = sys.argv[1:] if argv is None else argv
+    opts, args = getopt.getopt(argv, 'b:v:w:a:d', ['backend=', 'voice=', 'wav=', 'accent=', 'debug'])
     opts = dict(opts)
     set_accent(opts.get('-a', opts.get('--accent', accent)))
     init_synth(opts.get('-b', opts.get('--backend')),
@@ -215,3 +217,7 @@ if __name__ == '__main__':
     text = text or 'Arma virumque canō, Trōiae quī prīmus ab ōrīs Ītaliam, fātō profugus, Lāvīniaque vēnit lītora.'
     debug_mode = '-d' in opts or '--debug' in opts
     say_latin(text, debug_mode=debug_mode, pause=True, wav_file=opts.get('-w', opts.get('--wav')))
+
+
+if __name__ == '__main__':
+    main()
