@@ -469,6 +469,15 @@ def _is_gerundive(word):
     return base.endswith(('ndus', 'ndum'))
 
 
+def _not_absolute_form(word):
+    """独立奪格の分詞にならない形: 命令法の scītō「知っておけ」(書簡の決まり文句。第1活用の -ātō は
+    分詞の奪格と未来命令法が同じ形なので、命令法と読めるだけでは外さない)、-ī で終わる現在分詞
+    (独立奪格の現在分詞は -e: Pompēiō petente。-ī は与格か形容詞的な奪格: Pompēiō petentī)"""
+    if word.surface.lower() in ('scītō', 'scito', 'scītōte', 'scitote'):
+        return True
+    return participle_kind(word) == 'present' and word.surface.endswith(('ī', 'i'))
+
+
 def _is_pronominal(node):
     """代名詞・指示詞 (hīs rēbus の hīs のような修飾語を含む): 独立奪格の主語なら確実 (quō factō, eō absente)"""
     if isinstance(node, Word) and node.items:
@@ -509,7 +518,7 @@ def detect_ablative_absolute(nodes, trace):
         # (主語が代名詞・指示詞なら独立奪格: eō absente)。完了分詞にも同じ判定をすると、UD Latin-PROIEL の
         # カエサルで本物の独立奪格 (hīs rēbus acceptīs, equō incitātō) まで外れて再現率が下がるので、しない
         at_clause_start = min(subject_ix, i) == 0 or _is_clause_boundary(nodes[min(subject_ix, i) - 1])
-        if _is_gerundive(nodes[i]) or \
+        if _is_gerundive(nodes[i]) or _not_absolute_form(nodes[i]) or \
                 (participle_kind(nodes[i]) == 'present' and _is_lexicalized_participle(nodes[i])
                  and not _is_pronominal(nodes[subject_ix]) and not at_clause_start):
             trace.append("// not ABL.ABS: %s %s" % (nodes[subject_ix].surface, nodes[i].surface))

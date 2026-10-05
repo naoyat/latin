@@ -211,8 +211,17 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
                     stats[kind + '_pred_ok'] += gold_dep.head == gold_head.id
 
         # 6. 独立奪格: 正解は「奪格の分詞が advcl で、主語 (nsubj) を従える」もの
-        gold_abs = {t.id for t in tokens if t.feats.get('VerbForm') == 'Part' and t.case == 'Abl'
-                    and t.deprel == 'advcl' and any(k.head == t.id and k.deprel.startswith('nsubj') for k in tokens)}
+        #    (並列した2つ目以降の独立奪格は、UD では1つ目の分詞の conj になる: rēbus cognitīs ratibusque factīs)
+        def is_absolute(t, depth=0):
+            if t.feats.get('VerbForm') != 'Part' or t.case != 'Abl' or depth > 5:
+                return False
+            if not any(k.head == t.id and k.deprel.startswith('nsubj') for k in tokens):
+                return False
+            if t.deprel == 'advcl':
+                return True
+            head = by_id.get(t.head)
+            return t.deprel == 'conj' and head is not None and is_absolute(head, depth + 1)
+        gold_abs = {t.id for t in tokens if is_absolute(t)}
         stats['abs_gold'] += len(gold_abs)
         for absolute in analysis.absolutes:
             gold_part = gold_of.get(id(absolute.verb))

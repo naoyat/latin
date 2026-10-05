@@ -355,6 +355,10 @@ class AblativeAbsoluteTestCase(unittest.TestCase):
         # 形容詞になった現在分詞 (excellēns「優れた」) は、節の途中なら名詞の修飾語
         self.assertEqual(analyze('Vir ingeniō excellentī librum scrīpsit.').absolutes, [])
 
+    def test_present_participle_in_i_is_not_absolute(self):
+        # 独立奪格の現在分詞は -e (puellā cantante)。-ī は与格か形容詞的な用法
+        self.assertEqual(analyze('Puellae cantantī rosam dat.').absolutes, [])
+
     def test_pronoun_subject(self):
         # 主語が代名詞なら独立奪格 (eō absente「彼がいないと」)
         _, aa = self.absolute('Eō absente servī lūdunt.')
