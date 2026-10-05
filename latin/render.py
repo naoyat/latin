@@ -10,6 +10,7 @@ from .Predicate import Predicate
 from .AndOr import AndOr
 from .PrepClause import PrepClause
 from .Absolute import AblativeAbsolute
+from . import descendants
 from .Participle import ParticiplePhrase
 from .Infinitive import InfinitiveClause
 
@@ -137,13 +138,16 @@ def render_sentence_header(text):
     print("\n" + ansi_color.underline(ansi_color.bold(text)) + "\n")
 
 
-def render_analysis(analysis, show_word_detail=True, show_translation=True):
-    # 辞書引きの結果
+def render_analysis(analysis, show_word_detail=True, show_translation=True, show_descendants=False):
+    # 辞書引きの結果 (show_descendants なら、語ごとに英語・フランス語などに残った語も)
     if show_word_detail:
         print("  --- ")
         maxlen_uc = max([0] + [word.surface_len for word in analysis.words])
         for i, (word, detail) in enumerate(zip(analysis.words, analysis.word_details)):
             print('  %2d  ' % (i,) + word.surface + ' '*(maxlen_uc - word.surface_len + 1), detail)
+            if show_descendants and word.items:
+                for lemma, text in descendants.describe_word(word):
+                    print(' ' * (maxlen_uc + 7) + ansi_color.fgcolor(ansi_color.CYAN, '%s: %s' % (lemma, text)))
         print("  --- ")
         print()
 

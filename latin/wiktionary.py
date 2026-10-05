@@ -142,3 +142,23 @@ def lookup_flat(surface):
                 continue
             result.setdefault(row[0], []).extend(_items([row]))
     return result
+
+
+def descendants(lemma):
+    """見出し語 (マクロンの有無は問わない) の子孫語。[{lang, word, kind, via}]。辞書が古くて表が無ければ []"""
+    db = _connect()
+    if db is None or not lemma:
+        return []
+    try:
+        rows = db.execute('SELECT data FROM descendants WHERE lemma = ?',
+                          (orthography.flat(lemma, merge_uv=True),)).fetchall()
+    except sqlite3.OperationalError:
+        return []
+    result, seen = [], set()
+    for data, in rows:
+        for d in json.loads(data):
+            key = (d['lang'], d['word'])
+            if key not in seen:
+                seen.add(key)
+                result.append(d)
+    return result

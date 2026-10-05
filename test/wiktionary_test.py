@@ -8,6 +8,7 @@
 import unittest
 
 from latin import wiktionary, latindic, analyzer
+from latin.wiktionary_import import descendants_summary
 from latin.wiktionary_import import convert_entry, make_item, japanese_gloss, english_glosses
 
 
@@ -64,6 +65,20 @@ MORTUUS = {
     'etymology_text': 'Perfect active participle of morior (“die”).',
     'senses': [{'glosses': ['dead, having died'], 'tags': ['declension-1', 'declension-2', 'participle']}],
     'forms': [form('mortuus', 'canonical'), form('mortuō', 'ablative', 'masculine', 'singular')],
+}
+
+
+# 子孫語の木 (この試験のために作った最小の例。形は kaikki.org の抽出データに合わせる)
+ACUTUS_DESCENDANTS = {
+    'word': 'acutus', 'lang_code': 'la', 'pos': 'verb',
+    'descendants': [
+        {'lang': 'Middle English', 'lang_code': 'enm', 'word': 'acute', 'raw_tags': ['borrowed'],
+         'descendants': [{'lang': 'English', 'lang_code': 'en', 'word': 'acute'}]},
+        {'lang': 'Old French', 'lang_code': 'fro', 'word': 'agu',
+         'descendants': [{'lang': 'French', 'lang_code': 'fr', 'word': 'aigu'}]},
+        {'lang': 'English', 'lang_code': 'en', 'word': 'acu-'},
+        {'lang': 'English', 'lang_code': 'en', 'word': 'in acuto'},
+    ],
 }
 
 
@@ -133,6 +148,20 @@ class ImportTestCase(unittest.TestCase):
     def test_lexicalized_participle_verb_from_etymology(self):
         item, = items_of(MORTUUS)
         self.assertEqual((item['pos'], item['pres1sg']), ('participle', 'morior'))
+
+    def test_descendants(self):
+        summary = {(d['lang'], d['word']): d for d in descendants_summary(ACUTUS_DESCENDANTS)}
+        self.assertEqual(summary[('fr', 'aigu')]['kind'], 'inherited')
+        self.assertEqual(summary[('fr', 'aigu')]['via'], [['fro', 'agu']])
+        self.assertEqual(summary[('en', 'acute')]['kind'], 'borrowed')
+        # 接頭辞と、1語のものがあるときの句は除く
+        self.assertNotIn(('en', 'acu-'), summary)
+        self.assertNotIn(('en', 'in acuto'), summary)
+
+    def test_english_is_never_inherited(self):
+        # 英語に印の無いまま載っている語も借用 (英語はラテン語から語を継承しない)
+        entry = {'lang_code': 'la', 'descendants': [{'lang': 'English', 'lang_code': 'en', 'word': 'rebus'}]}
+        self.assertEqual(descendants_summary(entry)[0]['kind'], 'borrowed')
 
     def test_form_of_entry_is_skipped(self):
         entry = {'word': 'amat', 'lang_code': 'la', 'pos': 'verb',

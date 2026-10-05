@@ -365,3 +365,65 @@ def make_item(surface, info, features):
         item['_'] = [tuple(x) for x in item['_']]
     item['source'] = 'wiktionary'
     return item
+
+
+# ----------------------------------------------------------------------
+# 子孫語 (英語・ロマンス諸語に残った語)
+#
+# Wiktionary の descendants は木の形: {lang_code, word, raw_tags, descendants: [...]}。
+# 借用は raw_tags の borrowed / learned borrowing、または「Borrowings」のまとまりの下に置かれる。
+# 経由した語 (古フランス語 agu → 中期フランス語 aigu → フランス語 aigu) も残す
+
+DESCENDANT_LANGS = ('en', 'fr', 'it', 'es')
+MAX_DESCENDANTS_PER_LANG = 5
+# ラテン語から語を継承しうる言語 (ロマンス諸語とその古い形)。ほかの言語 (英語など) に印の無いまま
+# 載っている語は、書物からの借用とみなす
+ROMANCE_CODES = {'fr', 'fro', 'frm', 'xno', 'it', 'it-old', 'es', 'osp', 'pt', 'roa-opt', 'gl', 'ca', 'oc',
+                 'pro', 'ro', 'rup', 'sc', 'co', 'fur', 'rm', 'lld', 'dlm', 'ist', 'ast', 'an', 'lmo', 'lmo-old',
+                 'pms', 'egl', 'lij', 'vec', 'nap', 'scn', 'frp', 'wa', 'pcd', 'nrf', 'la-vul', 'la-lat', 'la-med'}
+
+
+def _descendant_kind(node):
+    tags = set(node.get('raw_tags', [])) | set(node.get('tags', []))
+    if any('semi-learned' in t for t in tags):
+        return 'semi-learned'
+    if any('borrow' in t for t in tags) or node.get('lang') == 'Borrowings':
+        return 'borrowed'
+    if 'calque' in tags:
+        return 'calque'
+    return None
+
+
+def descendants_summary(entry):
+    """[{lang, word, kind (inherited/borrowed/semi-learned/calque), via: [[lang_code, word], ...]}]"""
+    found = []
+
+    def walk(nodes, path, kind):
+        for node in nodes:
+            node_kind = _descendant_kind(node) or kind
+            word = node.get('word')
+            code = node.get('lang_code')
+            if node_kind is None and code not in ROMANCE_CODES and code != 'unknown':
+                node_kind = 'borrowed'
+            step = [[code, word]] if word and code and code != 'unknown' else []
+            if word and code in DESCENDANT_LANGS and not word.startswith('-') and not word.endswith('-'):
+                found.append({'lang': code, 'word': word, 'kind': node_kind or 'inherited', 'via': path})
+            walk(node.get('descendants', []), path + step, node_kind)
+
+    walk(entry.get('descendants', []), [], None)
+    # 言語ごとに、1語のもの (in medias res のような句でないもの) を先に、重複を除いて数を絞る
+    result, seen = [], set()
+    for lang in DESCENDANT_LANGS:
+        items = [d for d in found if d['lang'] == lang]
+        if any(' ' not in d['word'] for d in items):
+            items = [d for d in items if ' ' not in d['word']]  # 1語のものがあれば句 (ad rem) は除く
+        items.sort(key=lambda d: len(d['via']))
+        n = 0
+        for d in items:
+            key = (lang, d['word'])
+            if key in seen or n >= MAX_DESCENDANTS_PER_LANG:
+                continue
+            seen.add(key)
+            result.append(d)
+            n += 1
+    return result

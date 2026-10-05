@@ -76,6 +76,7 @@ python3 latin.py [オプション]                  # 対話モード (REPL)
 | `-t`, `--tts=BACKEND` | 音読の方式を指定する（`mbrola` / `espeak` / `piper`） |
 | `--accent=ACCENT` | MBROLA のアクセント（`pitch`: 高低（既定）/ `stress`: 強弱） |
 | `--no-wiktionary` | 手作りの辞書だけを使う |
+| `-v`, `--verbose` | 語ごとの辞書引きの結果に、フランス語・英語に残った語（子孫語）も添える |
 
 対話モードでは、ラテン語の文を入力すると解析します。`.` で始まる行はコマンドです。
 
@@ -194,6 +195,13 @@ cd - && python3 tools/build_wiktionary_dic.py
 * 英語版 Wiktionary のラテン語の項目（[kaikki.org](https://kaikki.org/) の抽出データ）から、
   全変化形を表層形で引ける SQLite 辞書を作ります（約6万語・140万形）。
 * 日本語版 Wiktionary に同じ見出し語があれば日本語の訳語を、なければ英語の訳語を使います。
+* 項目の子孫語（descendants）から、フランス語・英語・イタリア語・スペイン語に残った語を、継承か借用か、
+  経由した語と一緒に取り込みます（`-v` で表示）。
+
+```
+   3  acūtō       (acūtus) p.sharpened,made sharp,sharp [Abl.sg.m|…]
+                 acūtus: 仏 aigu (継承: 古仏 agu → 中仏 aigu) / 英 acute (借用: 中英 acute), ague (借用: 古仏 agu → 中仏 aigu → 中英 agu)
+```
 
 ### Latin Macronizer の資源
 
@@ -272,6 +280,7 @@ latin/
   latindic.py words.py   辞書 (手作りの辞書の読み込みと検索)
   latin_noun.py latin_adj.py latin_verb_reg.py ...      変化形の生成
   wiktionary*.py morpheus.py ldt.py rftagger.py         補助辞書と品詞タガー
+  descendants.py katakana.py                            子孫語の表示、固有名詞のカタカナ表記
   japanese.py verb_flags.py                             日本語の動詞の活用
   macronizer.py hidden_quantity.py catalog.py           マクロンの推定、テキストの目録
   latin_phonology.py latin_prosody.py speech.py         発音と音声合成

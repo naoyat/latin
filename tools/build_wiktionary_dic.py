@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from latin import wiktionary
 from latin import orthography
-from latin.wiktionary_import import convert_entry, japanese_gloss, ja_key, flatten
+from latin.wiktionary_import import convert_entry, japanese_gloss, ja_key, flatten, descendants_summary, canonical
 
 
 def load_japanese_glosses(path):
@@ -86,11 +86,20 @@ def main():
     db.executescript('''
         CREATE TABLE lemmas (id INTEGER PRIMARY KEY, info TEXT);
         CREATE TABLE forms (surface TEXT, flat TEXT, flat_uv TEXT, lemma_id INTEGER, features TEXT);
+        CREATE TABLE descendants (lemma TEXT, pos TEXT, data TEXT);
     ''')
-    n_lemmas = n_forms = n_ja = 0
+    n_lemmas = n_forms = n_ja = n_desc = 0
     with gzip.open(os.path.join(data_dir, 'kaikki-Latin.jsonl.gz'), 'rt') as fp:
         for line in fp:
-            result = convert_entry(json.loads(line), ja_glosses, participle_gloss)
+            entry = json.loads(line)
+            if entry.get('lang_code') == 'la' and entry.get('descendants'):
+                summary = descendants_summary(entry)
+                if summary:
+                    db.execute('INSERT INTO descendants VALUES (?, ?, ?)',
+                               (orthography.flat(canonical(entry), merge_uv=True), entry.get('pos'),
+                                json.dumps(summary, ensure_ascii=False)))
+                    n_desc += 1
+            result = convert_entry(entry, ja_glosses, participle_gloss)
             if not result:
                 continue
             info, forms = result
@@ -108,12 +117,13 @@ def main():
         CREATE INDEX forms_surface ON forms (surface);
         CREATE INDEX forms_flat ON forms (flat);
         CREATE INDEX forms_flat_uv ON forms (flat_uv);
+        CREATE INDEX descendants_lemma ON descendants (lemma);
     ''')
     db.commit()
     db.close()
     os.replace(tmp, out)
-    print('%d lemmas (Japanese glosses: %d), %d forms -> %s (%.0fMB, %.0fs)' % (
-        n_lemmas, n_ja, n_forms, out, os.path.getsize(out) / 1e6, time.time() - t0))
+    print('%d lemmas (Japanese glosses: %d, descendants: %d), %d forms -> %s (%.0fMB, %.0fs)' % (
+        n_lemmas, n_ja, n_desc, n_forms, out, os.path.getsize(out) / 1e6, time.time() - t0))
 
 
 if __name__ == '__main__':
