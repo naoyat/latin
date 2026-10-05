@@ -78,6 +78,9 @@ class Predicate (LatinObject):
             else:
                 t, neg = self.conjunction.translate()
                 if neg: negated = True
+                if t.endswith(('〜ない', '〜しない')):
+                    negated = True  # 文頭の否定の副詞 (nūllō pactō, nōn jam)
+                    t = t.split('〜')[0]
             tr.append(t)
 
         # 独立奪格は文の頭に、述語的な分詞 (花を摘みながら) は主語の後に置く
@@ -184,7 +187,12 @@ class Predicate (LatinObject):
             if is_negation(adv):
                 negated = True
                 continue
-            tr.append(adv.items[0].ja)
+            ja = adv.items[0].ja
+            if ja.endswith(('〜ない', '〜しない')):
+                # 否定の副詞 (nūllō pactō「決して〜ない」, nusquam「どこにも〜ない」): 述語を否定形にする
+                negated = True
+                ja = ja.split('〜')[0]
+            tr.append(ja)
 
         jas = verb.ja.split(',')
 

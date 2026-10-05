@@ -469,6 +469,18 @@ def _is_gerundive(word):
     return base.endswith(('ndus', 'ndum'))
 
 
+# 分詞が付いても、ふつうは様態・場所の奪格 (名詞の修飾) になる名詞: animō suspēnsō「気をもんで」,
+# locīs apertīs「開けた場所で」。UD Latin-PROIEL で animus は修飾 11・独立奪格 2、locus は 25・5
+MODIFIER_NOUNS = {'animus', 'locus'}
+
+
+def _usually_modified(subject, complements):
+    """主語の名詞が MODIFIER_NOUNS で、分詞に補語が無く、代名詞の修飾語も無い (locō ab hostibus captō は独立奪格)"""
+    if complements or not isinstance(subject, Word) or not subject.items or _is_pronominal(subject):
+        return False
+    return subject.items[0].pos == 'noun' and subject.items[0].attrib('base') in MODIFIER_NOUNS
+
+
 def _not_absolute_form(word):
     """独立奪格の分詞にならない形: 命令法の scītō「知っておけ」(書簡の決まり文句。第1活用の -ātō は
     分詞の奪格と未来命令法が同じ形なので、命令法と読めるだけでは外さない)、-ī で終わる現在分詞
@@ -519,6 +531,7 @@ def detect_ablative_absolute(nodes, trace):
         # カエサルで本物の独立奪格 (hīs rēbus acceptīs, equō incitātō) まで外れて再現率が下がるので、しない
         at_clause_start = min(subject_ix, i) == 0 or _is_clause_boundary(nodes[min(subject_ix, i) - 1])
         if _is_gerundive(nodes[i]) or _not_absolute_form(nodes[i]) or \
+                _usually_modified(nodes[subject_ix], nodes[subject_ix + 1:i]) or \
                 (participle_kind(nodes[i]) == 'present' and _is_lexicalized_participle(nodes[i])
                  and not _is_pronominal(nodes[subject_ix]) and not at_clause_start):
             trace.append("// not ABL.ABS: %s %s" % (nodes[subject_ix].surface, nodes[i].surface))

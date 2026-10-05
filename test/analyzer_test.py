@@ -300,6 +300,19 @@ class NegationTestCase(unittest.TestCase):
         self.assertNotIn('¬', tr)
 
 
+class FixedPhraseTestCase(unittest.TestCase):
+    def test_quo_pacto(self):
+        a = analyze('Quō pactō puella cantat?')
+        self.assertEqual(a.absolutes, [])
+        self.assertIn('どのようにして', a.clauses[0].predicate.translate()[0])
+
+    def test_negative_adverb(self):
+        # 否定の副詞 (nūllō pactō「決して〜ない」) は述語を否定形にする
+        tr = analyze('Nūllō pactō puella cantat.').clauses[0].predicate.translate()[0]
+        self.assertIn('決して', tr)
+        self.assertTrue(tr.endswith('歌わない'), tr)
+
+
 class DeterminismTestCase(unittest.TestCase):
     def test_translate_is_repeatable(self):
         # translate() が格スロットを書き換えないこと
@@ -358,6 +371,13 @@ class AblativeAbsoluteTestCase(unittest.TestCase):
     def test_present_participle_in_i_is_not_absolute(self):
         # 独立奪格の現在分詞は -e (puellā cantante)。-ī は与格か形容詞的な用法
         self.assertEqual(analyze('Puellae cantantī rosam dat.').absolutes, [])
+
+    def test_manner_and_place_nouns(self):
+        # animō, locō + 分詞はふつう様態・場所の奪格 (分詞は名詞の修飾語)
+        self.assertEqual(analyze('Puer animō suspēnsō exspectābat.').absolutes, [])
+        self.assertEqual(analyze('Mīlitēs locīs apertīs pugnābant.').absolutes, [])
+        # 分詞に補語があれば独立奪格
+        self.assertEqual(len(analyze('Locō ab hostibus captō Caesar discessit.').absolutes), 1)
 
     def test_pronoun_subject(self):
         # 主語が代名詞なら独立奪格 (eō absente「彼がいないと」)
