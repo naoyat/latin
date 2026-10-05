@@ -14,7 +14,9 @@
 #   case      名詞・形容詞・代名詞などの格の正解率 (解析器が最終的に選んだ格) と、正解が候補にある割合
 #   amod      形容詞・限定詞 → 名詞 の係り先 (再現率・適合率)
 #   gen       属格 → 名詞 の係り先 (再現率・適合率)
-#   subj/obj  動詞の主語・目的語が、解析器でもその動詞の主格・対格の枠に入っている割合 (再現率)
+#   clause    主語・目的語を持つ正解の述語のうち、解析器が述語として検出した割合
+#   subj/obj  主語 (受動態の主語を含む)・目的語が、解析器でもその述語の主格・対格の枠に入っている割合 (再現率)。
+#             述語が検出されなかったものも取りこぼしとして数える
 #
 import os
 import sys
@@ -34,6 +36,7 @@ DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin
 DEFAULT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ud', 'la_proiel-ud-*.conllu')))
 UD_CASES = {'Nom': 'Nom', 'Gen': 'Gen', 'Dat': 'Dat', 'Acc': 'Acc', 'Abl': 'Abl', 'Voc': 'Voc', 'Loc': 'Loc'}
 NOMINAL_UPOS = {'NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM'}
+SUBJ_RELS = ('nsubj', 'nsubj:pass')
 
 
 def work_of(source):
@@ -207,24 +210,39 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
                     stats[kind + '_pred'] += 1
                     stats[kind + '_pred_ok'] += gold_dep.head == gold_head.id
 
-        # 5. 主語・目的語 (正解の動詞が解析器でも述語になっている場合)
+        # 5. 主語・目的語。UD はコピュラ構文 (Gallia est dīvīsa) で est ではなく dīvīsa を中心にし、
+        #    est を cop として従えるので、中心語に cop があればその語を述語として探す
+        preds = {}
         for clause in analysis.clauses:
-            pred = clause.predicate
-            gold_verb = gold_of.get(id(pred.verb))
-            if gold_verb is None:
+            gold_verb = gold_of.get(id(clause.predicate.verb))
+            if gold_verb is not None:
+                preds[gold_verb.id] = clause.predicate
+        cop_of = {t.head: t.id for t in tokens if t.deprel == 'cop'}
+        heads = {t.head for t in tokens if t.deprel in SUBJ_RELS + ('obj',)}
+        for head_id in heads:
+            head = by_id.get(head_id)
+            if head is None:
+                continue
+            stats['clause_gold'] += 1
+            stats['clause_found'] += (head_id in preds or cop_of.get(head_id) in preds)
+        for token in tokens:
+            kind = 'nsubj' if token.deprel in SUBJ_RELS else 'obj' if token.deprel == 'obj' else None
+            word = word_of.get(token.id)
+            if kind is None or word is None:
+                continue
+            stats[kind + '_gold'] += 1
+            pred = preds.get(token.head) or preds.get(cop_of.get(token.head))
+            if pred is None:
+                errors[kind]['述語が検出されない'] += 1
                 continue
             slots = {case: {id(w) for node in objs for w in words_in(node)}
                      for case, objs in pred.case_slot.items() if isinstance(case, str)}
-            for token in tokens:
-                if token.head != gold_verb.id or token.deprel not in ('nsubj', 'obj'):
-                    continue
-                word = word_of.get(token.id)
-                if word is None:
-                    continue
-                expected = ('Nom',) if token.deprel == 'nsubj' else ('Acc',)
-                stats[token.deprel + '_gold'] += 1
-                if any(id(word) in slots.get(case, ()) for case in expected + ('Nom/Acc',)):
-                    stats[token.deprel + '_found'] += 1
+            expected = ('Nom', 'Nom/Acc') if kind == 'nsubj' else ('Acc', 'Nom/Acc')
+            if any(id(word) in slots.get(case, ()) for case in expected):
+                stats[kind + '_found'] += 1
+            else:
+                found = [case for case, ids in slots.items() if id(word) in ids]
+                errors[kind]['枠: %s' % (found[0] if found else 'どの枠にも無い')] += 1
 
     def pct(a, b):
         return '%5.1f%%' % (100.0 * stats[a] / stats[b]) if stats[b] else '    -'
@@ -238,11 +256,12 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
         pct('amod_found', 'amod_gold'), pct('amod_pred_ok', 'amod_pred'), stats['amod_gold']))
     print('  属格→名詞     再現率 %s  適合率 %s  (正解 %d 組)' % (
         pct('gen_found', 'gen_gold'), pct('gen_pred_ok', 'gen_pred'), stats['gen_gold']))
+    print('  述語の検出    %s  (主語・目的語を持つ正解の述語 %d)' % (pct('clause_found', 'clause_gold'), stats['clause_gold']))
     print('  主語          再現率 %s  (正解 %d)' % (pct('nsubj_found', 'nsubj_gold'), stats['nsubj_gold']))
     print('  目的語        再現率 %s  (正解 %d)' % (pct('obj_found', 'obj_gold'), stats['obj_gold']))
     if show_errors:
         for kind, counter in errors.items():
-            print('  [%s の間違いの例] %s' % (kind, ', '.join(e for e, _ in counter.most_common(show_errors))))
+            print('  [%s の間違いの例] %s' % (kind, ', '.join('%s×%d' % (e, n) for e, n in counter.most_common(show_errors))))
     return stats
 
 
