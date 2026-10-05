@@ -10,6 +10,7 @@ import json
 import sqlite3
 
 from .wiktionary_import import make_item, flatten
+from . import orthography
 
 DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
 DB_PATH = os.path.join(DATA_DIR, 'wiktionary.sqlite')
@@ -22,11 +23,24 @@ def available():
     return _connect() is not None
 
 
+_has_flat_uv = False
+
+
 def _connect():
-    global _db
+    global _db, _has_flat_uv
     if _db is None and os.path.exists(DB_PATH):
         _db = sqlite3.connect(DB_PATH, check_same_thread=False)
+        # u/v を同一視した照合用の列 (古い辞書ファイルには無い)
+        _has_flat_uv = any(row[1] == 'flat_uv' for row in _db.execute('PRAGMA table_info(forms)'))
     return _db
+
+
+def _rows_uv(surface):
+    """u/v を同一視して、マクロンを除いた形が一致する行 (入力に v が無いときだけ)"""
+    if not _has_flat_uv or not orthography.may_merge_uv(surface):
+        return []
+    return _db.execute('SELECT surface, lemma_id, features FROM forms WHERE flat_uv = ?',
+                       (orthography.flat(surface, merge_uv=True),)).fetchall()
 
 
 def _items(rows):
@@ -50,7 +64,7 @@ ASSIMILATIONS = [('adf', 'aff'), ('adc', 'acc'), ('adp', 'app'), ('adl', 'all'),
 
 def _variants(surface):
     """表記どおり → j を i に読み替え → 接頭辞を同化、の順の候補"""
-    variants = [surface, surface.replace('j', 'i').replace('J', 'I')]
+    variants = [surface, orthography.ij(surface)]
     for word in list(variants):
         lower = word.lower()
         for plain, assimilated in ASSIMILATIONS:
@@ -61,7 +75,7 @@ def _variants(surface):
 
 
 def lookup(surface):
-    """表記どおり → j を i に読み替え → 接頭辞を同化 → マクロンを無視、の順に探す"""
+    """表記どおり → j を i に読み替え → 接頭辞を同化 → u/v を同一視 (入力に v が無ければ) → マクロンを無視、の順に探す"""
     db = _connect()
     if db is None:
         return None
@@ -69,7 +83,13 @@ def lookup(surface):
         rows = db.execute('SELECT surface, lemma_id, features FROM forms WHERE surface = ?', (key,)).fetchall()
         if rows:
             return _items(rows)
+    # u/v も同一視して、マクロンまで一致するもの (uirum → virum)
+    key = orthography.uv(orthography.ij(surface))
+    rows = [row for row in _rows_uv(surface) if orthography.uv(orthography.ij(row[0])) == key]
+    if rows:
+        return _items(rows)
     rows = db.execute('SELECT surface, lemma_id, features FROM forms WHERE flat = ?', (flatten(surface),)).fetchall()
+    rows = rows or _rows_uv(surface)
     # マクロンを無視した照合では大文字・小文字は区別する (固有名詞と普通名詞を混ぜない)
     rows = [row for row in rows if row[0][:1].isupper() == surface[:1].isupper()]
     return _items(rows) if rows else None
@@ -84,6 +104,8 @@ def lookup_flat(surface):
     for variant in _variants(surface):
         rows = db.execute('SELECT surface, lemma_id, features FROM forms WHERE flat = ?',
                           (flatten(variant),)).fetchall()
+        if not rows:
+            rows = _rows_uv(variant)
         for row in rows:
             if ' ' in row[0]:
                 continue

@@ -23,6 +23,7 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from latin import wiktionary
+from latin import orthography
 from latin.wiktionary_import import convert_entry, japanese_gloss, ja_key, flatten
 
 
@@ -84,7 +85,7 @@ def main():
     db = sqlite3.connect(tmp)
     db.executescript('''
         CREATE TABLE lemmas (id INTEGER PRIMARY KEY, info TEXT);
-        CREATE TABLE forms (surface TEXT, flat TEXT, lemma_id INTEGER, features TEXT);
+        CREATE TABLE forms (surface TEXT, flat TEXT, flat_uv TEXT, lemma_id INTEGER, features TEXT);
     ''')
     n_lemmas = n_forms = n_ja = 0
     with gzip.open(os.path.join(data_dir, 'kaikki-Latin.jsonl.gz'), 'rt') as fp:
@@ -96,8 +97,9 @@ def main():
             n_lemmas += 1
             n_ja += info.get('gloss_lang') == 'ja'
             cur = db.execute('INSERT INTO lemmas (info) VALUES (?)', (json.dumps(info, ensure_ascii=False),))
-            db.executemany('INSERT INTO forms VALUES (?, ?, ?, ?)',
-                           [(surface, flatten(surface), cur.lastrowid, json.dumps(features, ensure_ascii=False))
+            db.executemany('INSERT INTO forms VALUES (?, ?, ?, ?, ?)',
+                           [(surface, flatten(surface), orthography.flat(surface, merge_uv=True),
+                             cur.lastrowid, json.dumps(features, ensure_ascii=False))
                             for surface, features in forms])
             n_forms += len(forms)
             if n_lemmas % 10000 == 0:
@@ -105,6 +107,7 @@ def main():
     db.executescript('''
         CREATE INDEX forms_surface ON forms (surface);
         CREATE INDEX forms_flat ON forms (flat);
+        CREATE INDEX forms_flat_uv ON forms (flat_uv);
     ''')
     db.commit()
     db.close()

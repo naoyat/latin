@@ -3,6 +3,8 @@
 
 import os
 
+from . import orthography
+
 from .words import words_path
 from . import latin_noun
 from . import latin_pronoun
@@ -36,9 +38,33 @@ def register_items(items):
         register(item['surface'], item)
 
 
+_ortho_index = None
+
+
+def _orthography_index():
+    """綴りの流儀 (i/j, u/v) を同一視したキー → 辞書の表層形"""
+    global _ortho_index
+    if _ortho_index is None:
+        _ortho_index = {}
+        for surface in LatinDic.dic:
+            _ortho_index.setdefault(orthography.uv(orthography.ij(surface)), []).append(surface)
+    return _ortho_index
+
+
 def lookup_hand(word):
-    """手作りの辞書 (words/*.def から生成) を引く"""
-    return LatinDic.dic.get(word, None)
+    """手作りの辞書 (words/*.def から生成) を引く。
+    表記どおりで無ければ、i/j を同一視 → u/v も同一視 (入力に v が無ければ) の順で探す
+    (手作りの辞書は juvenis, Jovis のように j で書いている)"""
+    items = LatinDic.dic.get(word, None)
+    if items:
+        return items
+    candidates = _orthography_index().get(orthography.uv(orthography.ij(word)), [])
+    for allowed in (lambda s: orthography.ij(s) == orthography.ij(word),        # i/j だけ違う
+                    lambda s: orthography.may_merge_uv(word)):                  # u/v も違う
+        surfaces = [s for s in candidates if allowed(s)]
+        if surfaces:
+            return [item for s in surfaces for item in LatinDic.dic[s]]
+    return None
 
 
 def lookup_wiktionary(word):
@@ -79,6 +105,8 @@ def load_def(file, tags={}):
 
 
 def load():
+    global _ortho_index
+    _ortho_index = None
 
     items = []
 

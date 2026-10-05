@@ -21,6 +21,7 @@ from . import rftagger
 from . import ldt
 from . import hidden_quantity
 from . import catalog
+from . import orthography
 from .wiktionary_import import flatten
 
 MACRON = '\u0304'  # 結合マクロン
@@ -87,14 +88,20 @@ _hand_index = None
 
 
 def _hand_flat_index():
-    """手作りの辞書: マクロンを除いた形 (小文字) → 辞書の形"""
+    """手作りの辞書: マクロンを除いた形 (小文字、i/j と u/v を同一視) → 辞書の形"""
     global _hand_index
     if _hand_index is None:
         _hand_index = {}
         for surface in latindic.LatinDic.dic:
             if ' ' not in surface:
-                _hand_index.setdefault(flatten(surface), []).append(surface)
+                _hand_index.setdefault(orthography.flat(surface, merge_uv=True), []).append(surface)
     return _hand_index
+
+
+def _same_spelling(surface, word):
+    """綴りが同じとみなせるか: マクロンを除き、i/j を同一視。入力に v が無ければ u/v も同一視"""
+    merge = orthography.may_merge_uv(word)
+    return orthography.flat(surface, merge) == orthography.flat(word, merge)
 
 
 USE_MORPHEUS = True   # Morpheus 由来の補助辞書を候補の供給元に使う (辞書ファイルがあれば)
@@ -102,9 +109,8 @@ USE_TAGGER = True     # RFTagger の品詞タグを手がかりに使う (RFTagg
 
 
 def _lookup_candidates(word):
-    key = flatten(word)
     found = {}
-    for surface in _hand_flat_index().get(key, []):
+    for surface in _hand_flat_index().get(orthography.flat(word, merge_uv=True), []):
         if _clean(surface):
             found.setdefault(surface, Candidate(surface, 'hand', latindic.lookup_hand(surface)))
     if latindic.LatinDic.use_wiktionary:
@@ -118,10 +124,10 @@ def _lookup_candidates(word):
                 found[surface].items = found[surface].items + items  # タグとの照合に使えるよう項目を足す
             else:
                 found[surface] = Candidate(surface, 'morpheus', items)
-    # j/i や接頭辞の同化を読み替えた綴りも一致とみなす (マクロンは元の綴りに写すので綴りは変わらない)
-    keys = {flatten(variant) for variant in wiktionary._variants(word)}
+    # i/j・u/v や接頭辞の同化を読み替えた綴りも一致とみなす (マクロンは元の綴りに写すので綴りは変わらない)
+    spellings = wiktionary._variants(word)
     return [c for c in found.values()
-            if len(c.surface) == len(word) and flatten(c.surface) in keys]
+            if len(c.surface) == len(word) and any(_same_spelling(c.surface, s) for s in spellings)]
 
 
 def candidates(word):
@@ -146,7 +152,8 @@ class Choice:
 
     @property
     def ambiguous(self):
-        return len({c.macronized for c in self.candidates}) > 1
+        # 入力の綴りに写した形で比べる (手作りの辞書の juvenī と Wiktionary の iuvenī は同じ)
+        return len({transfer_macrons(c.macronized, self.word) for c in self.candidates}) > 1
 
 
 def _prior(candidate):
@@ -257,6 +264,11 @@ class Context:
 TAG_WEIGHT = 1.5
 
 
+def _distinct_forms(cands):
+    """候補の形の種類 (i/j・u/v の綴りの違いは同じとみなす。マクロンの違いは区別する)"""
+    return {orthography.uv(orthography.ij(c.macronized.lower())) for c in cands}
+
+
 def _cases(candidate):
     return {cng for item in candidate.items for cng in (item.get('_') or [])}
 
@@ -317,7 +329,7 @@ def _score(candidate, i, slots, context, rivals=()):
             break
     # 隣の語 (候補が1つに決まっていて格が分かるもの) との一致
     for j in (i - 1, i + 1):
-        if 0 <= j < len(slots) and slots[j] and len({c.macronized for c in slots[j]}) == 1:
+        if 0 <= j < len(slots) and slots[j] and len(_distinct_forms(slots[j])) == 1:
             neighbour = _cases(slots[j][0])
             if neighbour and cases & neighbour:
                 score += 1.0
@@ -341,7 +353,7 @@ def _score(candidate, i, slots, context, rivals=()):
 def choose(word, cands, i=0, slots=None, context=None):
     if not cands:
         return Choice(word, word, cands, 'unknown')
-    forms = {c.macronized for c in cands}
+    forms = {transfer_macrons(c.macronized, word) for c in cands}
     if len(forms) == 1:
         return Choice(word, transfer_macrons(cands[0].macronized, word), cands, 'unique')
     context = context or Context()
@@ -357,7 +369,7 @@ BOUNDARY = re.compile(r'^[.;:?!,"()]+$')
 def _past_ratio(slots):
     past = present = 0
     for cands in slots:
-        if cands and len({c.macronized for c in cands}) == 1:
+        if cands and len(_distinct_forms(cands)) == 1:
             tenses = _tenses(cands[0])
             if tenses:
                 if tenses <= PAST_TENSES:

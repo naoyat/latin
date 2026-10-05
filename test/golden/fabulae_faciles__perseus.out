@@ -32,7 +32,7 @@ Perseus fīlius erat Iovis , māximī deōrum ;
    0  Perseus  (?)
    1  fīlius   (fīlius) 息子 [Nom.sg.m] // []
    2  erat     (sum) v.〜である 3sg 直説法.能動.未完了
-   3  Iovis    (?)
+   3  Iovis    (Juppiter) ユピテル [Gen.sg.m] // []
    4  ,        
    5  māximī   (?)
    6  deōrum   (deus) 神 [Gen.pl.m] // []
@@ -40,6 +40,7 @@ Perseus fīlius erat Iovis , māximī deōrum ;
   --- 
 
 // GEN#6 (deōrum) -> no target noun detected
+// GEN#3 (Iovis) -> TARGET#1 (fīlius)
 
 1 VERB FOUND: erat
 
@@ -50,15 +51,16 @@ Perseus fīlius erat Iovis , māximī deōrum ;
   erat (indicative 3sg)
     Nom:
       fīlius
+        Iovis
 
-  →  彼,彼女,それは / 息子であった
+  →  彼,彼女,それは / {ユピテルの}息子であった
 
 
 avus ēius Acrisius appellābātur .
 
   --- 
    0  avus          (?)
-   1  ēius          (?)
+   1  ēius          pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
    2  Acrisius      (?)
    3  appellābātur  (appellō) v.訴える 3sg 直説法.受動.未完了
    4  .             
@@ -68,8 +70,10 @@ avus ēius Acrisius appellābātur .
 1 VERB FOUND: appellābātur
 
   appellābātur (indicative 3sg)
+    Gen:
+      ēius
 
-  →  彼,彼女,それが / 訴えられていた
+  →  彼,彼女,それが / その,それの / 訴えられていた
 
 
 Acrisius volēbat Perseum nepōtem suum necāre ;
@@ -260,7 +264,7 @@ Perseus autem in sinū mātris dormiēbat .
 Iuppiter tamen haec omnia vīdit , et fīlium suum servāre cōnstituit .
 
   --- 
-   0  Iuppiter    (?)
+   0  Iuppiter    (Juppiter) ユピテル [Nom.sg.m|Voc.sg.m] // []
    1  tamen       conj しかしながら,それでも {}
    2  haec        pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Nom', 'sg', 'f'), ('Nom', 'pl', 'n'), ('Acc', 'pl', 'n')]}
    3  omnia       (omnis) a.すべての [Nom.pl.n|Voc.pl.n|Acc.pl.n]
@@ -282,11 +286,12 @@ Iuppiter tamen haec omnia vīdit , et fīlium suum servāre cōnstituit .
   vīdit (indicative 3sg)
     (tamen)
     Nom:
+      Iuppiter
       haec
     Nom/Acc:
       omnia
 
-  →  しかしながら,それでも / この,これ(人,物)が / すべてのを / 見た
+  →  しかしながら,それでも / ユピテル=この,これ(人,物)が / すべてのを / 見た
 
   servāre (infinitive NoneNone)
     (et)
@@ -335,7 +340,7 @@ Tranquillum igitur fēcit mare , et arcam ad īnsulam Serīphum perdūxit .
 Hūius īnsulae Polydectēs tum rēx erat .
 
   --- 
-   0  Hūius       (?)
+   0  Hūius       pronoun この,これ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
    1  īnsulae     (īnsula) 島 [Gen.sg.f|Dat.sg.f|Nom.pl.f|Voc.pl.f] // []
    2  Polydectēs  (?)
    3  tum         adv その時,その頃,当時 {}
@@ -350,11 +355,13 @@ Hūius īnsulae Polydectēs tum rēx erat .
 
   erat (indicative 3sg)
     (tum)
+    Gen:
+      Hūius
     Nom:
       īnsulae
       rēx
 
-  →  島は / その時,その頃,当時 / 王,指導者であった
+  →  島は / この,これの / その時,その頃,当時 / 王,指導者であった
 
 
 Postquam arca ad lītus appulsa est , Danaē in harēnā quiētem capiēbat .
@@ -665,7 +672,7 @@ Tum iuvenem ad sē vocāvit et haec dīxit :
 
   --- 
    0  Tum      adv その時,その頃,当時 {}
-   1  iuvenem  (?)
+   1  iuvenem  (juvenis) 若者 [Acc.sg.m] // []
    2  ad       prep<Acc> 〜の方へ,〜のところまで
    3  sē       (?)
    4  vocāvit  (vocō) v.呼ぶ,名付ける 3sg 直説法.能動.完了
@@ -680,10 +687,12 @@ Tum iuvenem ad sē vocāvit et haec dīxit :
 
   vocāvit (indicative 3sg)
     (Tum)
+    Acc:
+      iuvenem
     prep:
       ad <Acc>
 
-  →  その時,その頃,当時 / 彼,彼女,それが / {(?)}〜の方へ,〜のところまで / 呼んだ,名付けた
+  →  その時,その頃,当時 / 彼,彼女,それが / {(?)}〜の方へ,〜のところまで / 若者を / 呼んだ,名付けた
 
   dīxit (indicative 3sg)
     (et)
@@ -727,7 +736,7 @@ Turpe est hanc īgnāvam vītam agere ;
 iam dūdum tū adulēscēns es .
 
   --- 
-   0  iam         (?)
+   0  iam         adv すぐ,既に {}
    1  dūdum       (?)
    2  tū          pronoun あなた {'person':2, 'desc':'人称代名詞', '_':[('Nom', 'sg', 'm')]}
    3  adulēscēns  (?)
@@ -739,10 +748,11 @@ iam dūdum tū adulēscēns es .
 1 VERB FOUND: es
 
   es (indicative 2sg)
+    (iam)
     Nom:
       tū
 
-  →  あなたは / あなたである
+  →  すぐ,既に / あなたは / あなたである
 
 
 Quō ūsque hīc manēbis ?
@@ -1205,7 +1215,7 @@ Rēs difficillima erat caput Gorgonis abscīdere ;
 ēius enim cōnspectū homines in saxum vertēbantur .
 
   --- 
-   0  ēius         (?)
+   0  ēius         pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
    1  enim         conj というのは,すなわち {}
    2  cōnspectū    (?)
    3  homines      (?)
@@ -1217,6 +1227,9 @@ Rēs difficillima erat caput Gorgonis abscīdere ;
 
 
 NO VERB FOUND.
+
+  ēius
+  →  その,それ
 
   (enim)
   →  というのは,すなわち
@@ -1327,7 +1340,7 @@ Tum falce suā caput ēius ūnō īctū abscīdit .
    1  falce     (?)
    2  suā       (suus) a.自分の [Abl.sg.f]
    3  caput     (?)
-   4  ēius      (?)
+   4  ēius      pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
    5  ūnō       pronoun ひとつの {'_':[('Abl', 'sg', 'm'), ('Abl', 'sg', 'n')]}
    6  īctū      (?)
    7  abscīdit  (?)
@@ -1343,6 +1356,9 @@ NO VERB FOUND.
 
   suā
   →  自分の
+
+  ēius
+  →  その,それ
 
   ūnō
   →  ひとつの
@@ -1699,7 +1715,7 @@ Cēpheus igitur ōrāculum deī Hammōnis cōnsuluit , atque ā deō iūssus est
 Ēius autem fīlia , nomine Andromeda , virgō fōrmōsissima erat .
 
   --- 
-   0  Ēius          (?)
+   0  Ēius          pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
    1  autem         conj ところで {}
    2  fīlia         (fīlia) 娘 [Nom.sg.f|Voc.sg.f] // []
    3  ,             
@@ -1718,11 +1734,13 @@ Cēpheus igitur ōrāculum deī Hammōnis cōnsuluit , atque ā deō iūssus est
 
   erat (indicative 3sg)
     (autem)
+    Gen:
+      Ēius
     Nom:
       fīlia
         fōrmōsissima
 
-  →  ところで / 彼,彼女,それは / {最も美しい}娘であった
+  →  ところで / 彼,彼女,それは / その,それの / {最も美しい}娘であった
 
 
 Cēpheus ubi haec audīvit , māgnum dolōrem percēpit .
@@ -1898,7 +1916,7 @@ Omnēs fātum ēius dēplōrābant , nec lacrimās tenēbant .
   --- 
    0  Omnēs        (omnis) a.すべての [Nom.pl.m|Voc.pl.m|Acc.pl.m|Nom.pl.f|Voc.pl.f|Acc.pl.f]
    1  fātum        (fātum) 運命 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
-   2  ēius         (?)
+   2  ēius         pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
    3  dēplōrābant  (?)
    4  ,            
    5  nec          conj そして〜ない {}
@@ -1918,11 +1936,13 @@ Omnēs fātum ēius dēplōrābant , nec lacrimās tenēbant .
   tenēbant (indicative 3pl)
     Nom/Acc:
       fātum
+    Gen:
+      ēius
     Acc:
       lacrimās
         Omnēs
 
-  →  運命が / {すべての}涙を / (手に)持っていた,とどめていた
+  →  運命が / その,それの / {すべての}涙を / (手に)持っていた,とどめていた
 
 
 At subitō , dum mōnstrum exspectant , Perseus accurrit ;
@@ -2066,7 +2086,7 @@ NO VERB FOUND.
 Ēius cōnspectus timōrem māximum omnibus iniēcit .
 
   --- 
-   0  Ēius        (?)
+   0  Ēius        pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
    1  cōnspectus  (?)
    2  timōrem     (?)
    3  māximum     (?)
@@ -2078,6 +2098,9 @@ NO VERB FOUND.
 // ADJ#4 (omnibus) -> no target noun detected
 
 NO VERB FOUND.
+
+  Ēius
+  →  その,それ
 
   omnibus
   →  すべての
@@ -2093,7 +2116,7 @@ Mōnstrum māgnā celeritāte ad lītus contendit , iamque ad locum appropinquā
    4  lītus           (?)
    5  contendit       (contendō) v.張る,力む 3sg 直説法.能動.現在 | (contendō) v.張る,力む 3sg 直説法.能動.完了
    6  ,               
-   7  iamque          (?)
+   7  iamque          adv すぐ,既に {}
    8  ad              prep<Acc> 〜の方へ,〜のところまで
    9  locum           (locus) 場所 [Acc.sg.m] // []
   10  appropinquābat  (?)
@@ -2118,6 +2141,7 @@ Mōnstrum māgnā celeritāte ad lītus contendit , iamque ad locum appropinquā
   →  怪物が / 大きなで / {(?)}〜の方へ,〜のところまで / 張る,力む
 
   stābat (indicative 3sg)
+    (iamque)
     (ubi)
     prep:
       ad <Acc>
@@ -2125,7 +2149,7 @@ Mōnstrum māgnā celeritāte ad lītus contendit , iamque ad locum appropinquā
     Nom:
       puella
 
-  →  少女が / {場所 (?)}〜の方へ,〜のところまで / どこ / 立っていた
+  →  すぐ,既に / 少女が / {場所 (?)}〜の方へ,〜のところまで / どこ / 立っていた
 
 
 At Perseus ubi haec vīdit , gladium suum ēdūxit , et postquam tālāria induit , in āera sublātus est .
@@ -2196,7 +2220,7 @@ Tum dēsuper in mōnstrum impetum subitō fēcit , et gladiō suō collum ēius 
    9  gladiō      (gladius) 剣 [Dat.sg.m|Abl.sg.m] // []
   10  suō         (suus) a.自分の [Dat.sg.m|Abl.sg.m|Dat.sg.n|Abl.sg.n]
   11  collum      (collum) 首 [Nom.sg.n|Voc.sg.n|Acc.sg.n] // []
-  12  ēius        (?)
+  12  ēius        pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
   13  graviter    (?)
   14  vulnerāvit  (?)
   15  .           
@@ -2221,8 +2245,10 @@ Tum dēsuper in mōnstrum impetum subitō fēcit , et gladiō suō collum ēius 
         suō
     Nom/Acc:
       collum
+    Gen:
+      ēius
 
-  →  その時,その頃,当時 / 首が / {怪物 (?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / {自分の}剣に / 突然,だしぬけに / 作った
+  →  その時,その頃,当時 / 首が / {怪物 (?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / {自分の}剣に / その,それの / 突然,だしぬけに / 作った
 
 
 Mōnstrum ubi sēnsit vulnus , fremitum horribilem ēdidit , et sine morā tōtum corpus in aquam mersit .
@@ -2282,7 +2308,7 @@ Perseus dum circum lītus volat , reditum ēius exspectābat .
    4  volat        (?)
    5  ,            
    6  reditum      (?)
-   7  ēius         (?)
+   7  ēius         pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
    8  exspectābat  (?)
    9  .            
   --- 
@@ -2294,7 +2320,8 @@ NO VERB FOUND.
   →  〜するあいだ,〜するかぎり,〜するまで
 
   circum <Acc>
-  →  {(?) (?)  (?) (?) (?) }〜のまわりに
+    ēius
+  →  {(?) (?)  (?) その,それ (?) }〜のまわりに
 
 
 Mare autem intereā undique sanguine īnficitur .
@@ -3419,7 +3446,7 @@ Acrisius enim inter spectātōrēs ēius certāminis forte stābat .
    1  enim         conj というのは,すなわち {}
    2  inter        prep<Acc> 〜の間に
    3  spectātōrēs  (?)
-   4  ēius         (?)
+   4  ēius         pronoun その,それ {'person':3, 'desc':'指示代名詞', '_':[('Gen', 'sg', 'm'), ('Gen', 'sg', 'f'), ('Gen', 'sg', 'n')]}
    5  certāminis   (?)
    6  forte        (fortis) a.勇敢な [Nom.sg.n|Voc.sg.n|Acc.sg.n]
    7  stābat       (stō) v.立つ 3sg 直説法.能動.未完了
@@ -3434,7 +3461,8 @@ Acrisius enim inter spectātōrēs ēius certāminis forte stābat .
     (enim)
     prep:
       inter <Acc>
+        ēius
         forte
 
-  →  というのは,すなわち / 彼,彼女,それが / {(?) (?) (?) 勇敢な}〜の間に / 立っていた
+  →  というのは,すなわち / 彼,彼女,それが / {(?) その,それ (?) 勇敢な}〜の間に / 立っていた
 

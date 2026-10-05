@@ -12,6 +12,8 @@
 import re
 import unicodedata
 
+from . import orthography
+
 CASES = {'nominative': 'Nom', 'vocative': 'Voc', 'accusative': 'Acc', 'genitive': 'Gen',
          'dative': 'Dat', 'ablative': 'Abl', 'locative': 'Loc'}
 NUMBERS = {'singular': 'sg', 'plural': 'pl'}
@@ -41,9 +43,7 @@ POS_GROUP = {'noun': 'noun', 'name': 'noun', 'verb': 'verb', 'adj': 'adj', 'det'
 
 def flatten(text):
     """突き合わせ用のキー: マクロン除去・小文字化・j→i"""
-    text = unicodedata.normalize('NFD', text)
-    text = ''.join(c for c in text if unicodedata.category(c) != 'Mn')
-    return text.lower().replace('j', 'i')
+    return orthography.flat(text)
 
 
 def _is_form_of(entry):
