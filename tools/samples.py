@@ -7,7 +7,8 @@
 #   python3 tools/samples.py 独立 繋辞        # 見出しにその文字列を含む節だけ
 #   python3 tools/samples.py -t              # 述語と格の枠の構造も表示
 #   python3 tools/samples.py -d              # さらに語ごとの辞書引きの結果も表示
-#   python3 tools/samples.py -d -v           # 語ごとに英語・フランス語などに残った語 (子孫語) も
+#   python3 tools/samples.py -d -D           # 語ごとに英語・フランス語などに残った語 (子孫語) も
+#   python3 tools/samples.py -d -E           # 語ごとに語源 (祖語の系統・同源語) も
 #   python3 tools/samples.py > before.txt    # パイプやファイルへは色なしで出す (版ごとの比較に)
 #
 #   -f, --file=FILE     例文のファイル (既定は samples/samples.txt)
@@ -59,7 +60,7 @@ def brief(analysis):
             print('     (行き場の無い語句: %s → %s)' % (item.surface, render.translate(item)))
 
 
-def show(sections, mode, verbose=False):
+def show(sections, mode, show_descendants=False, show_etymology=False):
     for title, sentences in sections:
         print()
         print(ansi_color.underline(ansi_color.bold('■ ' + title)))
@@ -78,7 +79,8 @@ def show(sections, mode, verbose=False):
                     brief(analysis)
                 else:
                     render.render_analysis(analysis, show_word_detail=(mode == 'detail'),
-                                           show_descendants=verbose)
+                                           show_descendants=show_descendants,
+                                           show_etymology=show_etymology)
 
 
 def usage():
@@ -87,14 +89,15 @@ def usage():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'tdvf:lh',
-                                   ['tree', 'detail', 'verbose', 'file=', 'list', 'no-wiktionary', 'no-tagger',
+        opts, args = getopt.getopt(sys.argv[1:], 'tdDEf:lh',
+                                   ['tree', 'detail', 'descendants', 'etymology', 'file=', 'list', 'no-wiktionary', 'no-tagger',
                                     'help'])
     except getopt.GetoptError as e:
         print(e)
         sys.exit(1)
 
-    mode, path, list_only, verbose = 'brief', DEFAULT_FILE, False, False
+    mode, path, list_only = 'brief', DEFAULT_FILE, False
+    show_descendants = show_etymology = False
     for option, arg in opts:
         if option in ('-t', '--tree'):
             mode = 'tree'
@@ -104,8 +107,10 @@ def main():
             path = arg
         elif option in ('-l', '--list'):
             list_only = True
-        elif option in ('-v', '--verbose'):
-            verbose = True
+        elif option in ('-D', '--descendants'):
+            show_descendants = True
+        elif option in ('-E', '--etymology'):
+            show_etymology = True
         elif option == '--no-wiktionary':
             latindic.LatinDic.use_wiktionary = False
         elif option == '--no-tagger':
@@ -127,12 +132,12 @@ def main():
 
     latindic.load()
     if sys.stdout.isatty():
-        show(sections, mode, verbose)
+        show(sections, mode, show_descendants, show_etymology)
     else:
         # パイプやファイルへは色を落として出す
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            show(sections, mode, verbose)
+            show(sections, mode, show_descendants, show_etymology)
         sys.stdout.write(ANSI.sub('', buf.getvalue()))
 
 

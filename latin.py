@@ -27,7 +27,8 @@ def analyse_text(text, options):
 
         render.render_analysis(analysis, show_word_detail=options.show_word_detail,
                                show_translation=options.show_translation,
-                               show_descendants=options.verbose)
+                               show_descendants=options.show_descendants,
+                               show_etymology=options.show_etymology)
 
         # 音読モードの場合、読み終わるまでウェイトを入れる
         if options.speech_mode:
@@ -182,7 +183,7 @@ class Options:
     def __init__(self, args):
         try:
             opts, self.args = getopt.getopt(args,
-                                            "wqmast:vh",
+                                            "wqmast:DEh",
                                             ["no-word-detail",
                                              "no-translation",
                                              "capital-to-macron",
@@ -191,7 +192,8 @@ class Options:
                                              "tts=",
                                              "accent=",
                                              "no-wiktionary",
-                                             "verbose",
+                                             "descendants",
+                                             "etymology",
                                              "help"])
         except getopt.GetoptError:
             self.usage()
@@ -205,7 +207,8 @@ class Options:
         self.tts_backend = None  # speak_latin の既定 (mbrola、使えなければ espeak)
         self.accent = 'pitch'
         self.echo_on = True
-        self.verbose = False
+        self.show_descendants = False
+        self.show_etymology = False
 
         for option, arg in opts:
             if option in ('-w', '--no-word-detail'):
@@ -226,8 +229,10 @@ class Options:
             elif option == '--accent':
                 self.speech_mode = True
                 self.accent = arg
-            elif option in ('-v', '--verbose'):
-                self.verbose = True
+            elif option in ('-D', '--descendants'):
+                self.show_descendants = True
+            elif option in ('-E', '--etymology'):
+                self.show_etymology = True
             elif option in ('-h', '--help'):
                 self.usage()
                 sys.exit()
@@ -243,7 +248,8 @@ class Options:
         print("  -t, --tts=BACKEND                  Speak latin with BACKEND (mbrola [default], espeak, piper)")
         print("      --accent=ACCENT                [mbrola] pitch (default) or stress")
         print("      --no-wiktionary                Use only the hand-made dictionary.")
-        print("  -v, --verbose                      Show descendants (French, English) of each word.")
+        print("  -D, --descendants                  Show descendants (French, English, ...) of each word.")
+        print("  -E, --etymology                    Show etymology (ancestors, cognates) of each word.")
         print("  -h, --help                         Print this message and exit.")
 
 

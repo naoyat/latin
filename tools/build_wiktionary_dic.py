@@ -24,7 +24,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from latin import wiktionary
 from latin import orthography
-from latin.wiktionary_import import convert_entry, japanese_gloss, ja_key, flatten, descendants_summary, canonical
+from latin.wiktionary_import import convert_entry, japanese_gloss, ja_key, flatten, descendants_summary, \
+    etymology_summary, lemma_key
 
 
 def load_japanese_glosses(path):
@@ -87,8 +88,9 @@ def main():
         CREATE TABLE lemmas (id INTEGER PRIMARY KEY, info TEXT);
         CREATE TABLE forms (surface TEXT, flat TEXT, flat_uv TEXT, lemma_id INTEGER, features TEXT);
         CREATE TABLE descendants (lemma TEXT, pos TEXT, data TEXT);
+        CREATE TABLE etymology (lemma TEXT, pos TEXT, data TEXT);
     ''')
-    n_lemmas = n_forms = n_ja = n_desc = 0
+    n_lemmas = n_forms = n_ja = n_desc = n_ety = 0
     with gzip.open(os.path.join(data_dir, 'kaikki-Latin.jsonl.gz'), 'rt') as fp:
         for line in fp:
             entry = json.loads(line)
@@ -96,9 +98,16 @@ def main():
                 summary = descendants_summary(entry)
                 if summary:
                     db.execute('INSERT INTO descendants VALUES (?, ?, ?)',
-                               (orthography.flat(canonical(entry), merge_uv=True), entry.get('pos'),
+                               (lemma_key(entry), entry.get('pos'),
                                 json.dumps(summary, ensure_ascii=False)))
                     n_desc += 1
+            if entry.get('lang_code') == 'la' and (entry.get('etymology_text') or entry.get('etymology_templates')):
+                summary = etymology_summary(entry)
+                if summary:
+                    db.execute('INSERT INTO etymology VALUES (?, ?, ?)',
+                               (lemma_key(entry), entry.get('pos'),
+                                json.dumps(summary, ensure_ascii=False)))
+                    n_ety += 1
             result = convert_entry(entry, ja_glosses, participle_gloss)
             if not result:
                 continue
@@ -118,12 +127,13 @@ def main():
         CREATE INDEX forms_flat ON forms (flat);
         CREATE INDEX forms_flat_uv ON forms (flat_uv);
         CREATE INDEX descendants_lemma ON descendants (lemma);
+        CREATE INDEX etymology_lemma ON etymology (lemma);
     ''')
     db.commit()
     db.close()
     os.replace(tmp, out)
-    print('%d lemmas (Japanese glosses: %d, descendants: %d), %d forms -> %s (%.0fMB, %.0fs)' % (
-        n_lemmas, n_ja, n_desc, n_forms, out, os.path.getsize(out) / 1e6, time.time() - t0))
+    print('%d lemmas (Japanese glosses: %d, descendants: %d, etymology: %d), %d forms -> %s (%.0fMB, %.0fs)' % (
+        n_lemmas, n_ja, n_desc, n_ety, n_forms, out, os.path.getsize(out) / 1e6, time.time() - t0))
 
 
 if __name__ == '__main__':

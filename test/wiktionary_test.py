@@ -8,7 +8,7 @@
 import unittest
 
 from latin import wiktionary, latindic, analyzer
-from latin.wiktionary_import import descendants_summary
+from latin.wiktionary_import import descendants_summary, etymology_summary
 from latin.wiktionary_import import convert_entry, make_item, japanese_gloss, english_glosses
 
 
@@ -78,6 +78,20 @@ ACUTUS_DESCENDANTS = {
          'descendants': [{'lang': 'French', 'lang_code': 'fr', 'word': 'aigu'}]},
         {'lang': 'English', 'lang_code': 'en', 'word': 'acu-'},
         {'lang': 'English', 'lang_code': 'en', 'word': 'in acuto'},
+    ],
+}
+
+
+# 語源 (この試験のために作った例。古い形式 (inh, cog) と新しい形式 (etymon) のテンプレート、頭の系統図)
+GENU_ETYMOLOGY = {
+    'word': 'genu', 'lang_code': 'la', 'pos': 'noun',
+    'etymology_text': 'Etymology tree\nProto-Indo-European *ǵónu\nProto-Italic *genu\nLatin genu\n'
+                      'From Proto-Italic *genu, from Proto-Indo-European *ǵónu.',
+    'etymology_templates': [
+        {'name': 'etymon', 'args': {'1': 'la', '2': ':inh', '3': 'itc-pro:*genu<ety:inh<ine-pro:*ǵónu>>'}},
+        {'name': 'inh', 'args': {'1': 'la', '2': 'itc-pro', '3': '*genu'}},
+        {'name': 'cog', 'args': {'1': 'grc', '2': 'γόνυ', 't': 'knee'}},
+        {'name': 'cog', 'args': {'1': 'hit', '2': 'genu', 'tr': 'ge-e-nu'}},
     ],
 }
 
@@ -162,6 +176,14 @@ class ImportTestCase(unittest.TestCase):
         # 英語に印の無いまま載っている語も借用 (英語はラテン語から語を継承しない)
         entry = {'lang_code': 'la', 'descendants': [{'lang': 'English', 'lang_code': 'en', 'word': 'rebus'}]}
         self.assertEqual(descendants_summary(entry)[0]['kind'], 'borrowed')
+
+    def test_etymology(self):
+        ety = etymology_summary(GENU_ETYMOLOGY)
+        # 新しい形式の入れ子も系統に。古い形式と重なる語は1つに
+        self.assertEqual([(a[1], a[2]) for a in ety['ancestors']], [('itc-pro', '*genu'), ('ine-pro', '*ǵónu')])
+        self.assertEqual(ety['cognates'], [['grc', 'γόνυ', '', 'knee'], ['hit', 'genu', 'ge-e-nu', '']])
+        # 頭の系統図は説明文から除く
+        self.assertEqual(ety['text'], 'From Proto-Italic *genu, from Proto-Indo-European *ǵónu.')
 
     def test_form_of_entry_is_skipped(self):
         entry = {'word': 'amat', 'lang_code': 'la', 'pos': 'verb',

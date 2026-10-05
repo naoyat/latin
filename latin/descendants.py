@@ -7,11 +7,8 @@
 #   fragilis 仏 frêle (継承: 古仏 fraile), fragile (借用) / 英 frail (借用: 古仏 fraile), fragile (借用)
 #
 from . import wiktionary
+from .languages import lang_name
 
-LANG_NAMES = {'en': '英', 'fr': '仏', 'it': '伊', 'es': '西', 'pt': '葡', 'de': '独',
-              'fro': '古仏', 'frm': '中仏', 'enm': '中英', 'ang': '古英', 'xno': 'アングロノルマン',
-              'pro': '古オック', 'osp': '古西', 'roa-opt': '古ガリシア・ポルトガル', 'it-old': '古伊',
-              'la-lat': '後期ラテン', 'la-med': '中世ラテン', 'la-new': '近代ラテン', 'la-vul': '俗ラテン'}
 KIND_NAMES = {'inherited': '継承', 'borrowed': '借用', 'semi-learned': '半借用', 'calque': '翻訳借用'}
 DEFAULT_LANGS = ('fr', 'en')
 FALLBACK_LANGS = ('it', 'es')  # 仏・英が載っていない語 (cantō → 伊 cantare, 西 cantar)
@@ -31,10 +28,10 @@ def describe(lemma, langs=DEFAULT_LANGS):
     for d in found:
         if d['lang'] in langs:
             via = [v for v in d['via'] if not (v[0] == d['lang'] and v[1] == d['word'])]
-            route = ' → '.join('%s %s' % (LANG_NAMES.get(code, code), word) for code, word in via)
+            route = ' → '.join('%s %s' % (lang_name(code), word) for code, word in via)
             note = KIND_NAMES.get(d['kind'], d['kind']) + (': ' + route if route else '')
             by_lang.setdefault(d['lang'], []).append('%s (%s)' % (d['word'], note))
-    parts = ['%s %s' % (LANG_NAMES[lang], ', '.join(by_lang[lang])) for lang in langs if lang in by_lang]
+    parts = ['%s %s' % (lang_name(lang), ', '.join(by_lang[lang])) for lang in langs if lang in by_lang]
     return ' / '.join(parts) if parts else None
 
 

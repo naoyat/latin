@@ -76,7 +76,8 @@ python3 latin.py [オプション]                  # 対話モード (REPL)
 | `-t`, `--tts=BACKEND` | 音読の方式を指定する（`mbrola` / `espeak` / `piper`） |
 | `--accent=ACCENT` | MBROLA のアクセント（`pitch`: 高低（既定）/ `stress`: 強弱） |
 | `--no-wiktionary` | 手作りの辞書だけを使う |
-| `-v`, `--verbose` | 語ごとの辞書引きの結果に、フランス語・英語に残った語（子孫語）も添える |
+| `-D`, `--descendants` | 語ごとの辞書引きの結果に、フランス語・英語などに残った語（子孫語）を添える |
+| `-E`, `--etymology` | 語ごとの辞書引きの結果に、語源（祖語の系統・同源語・Wiktionary の英語の説明）を添える |
 
 対話モードでは、ラテン語の文を入力すると解析します。`.` で始まる行はコマンドです。
 
@@ -196,7 +197,8 @@ cd - && python3 tools/build_wiktionary_dic.py
   全変化形を表層形で引ける SQLite 辞書を作ります（約6万語・140万形）。
 * 日本語版 Wiktionary に同じ見出し語があれば日本語の訳語を、なければ英語の訳語を使います。
 * 項目の子孫語（descendants）から、フランス語・英語・イタリア語・スペイン語に残った語を、継承か借用か、
-  経由した語と一緒に取り込みます（`-v` で表示）。
+  経由した語と一緒に取り込みます（`-D` で表示）。語源（祖語の系統・ギリシア語やサンスクリットなどの同源語・
+  英語の説明文）も取り込みます（`-E` で表示）。
 
 ```
    3  acūtō       (acūtus) p.sharpened,made sharp,sharp [Abl.sg.m|…]
@@ -280,7 +282,8 @@ latin/
   latindic.py words.py   辞書 (手作りの辞書の読み込みと検索)
   latin_noun.py latin_adj.py latin_verb_reg.py ...      変化形の生成
   wiktionary*.py morpheus.py ldt.py rftagger.py         補助辞書と品詞タガー
-  descendants.py katakana.py                            子孫語の表示、固有名詞のカタカナ表記
+  descendants.py etymology.py languages.py              子孫語・語源の表示 (言語名の日本語表記)
+  katakana.py                                           固有名詞のカタカナ表記
   japanese.py verb_flags.py                             日本語の動詞の活用
   macronizer.py hidden_quantity.py catalog.py           マクロンの推定、テキストの目録
   latin_phonology.py latin_prosody.py speech.py         発音と音声合成

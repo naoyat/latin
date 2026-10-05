@@ -11,6 +11,7 @@ from .AndOr import AndOr
 from .PrepClause import PrepClause
 from .Absolute import AblativeAbsolute
 from . import descendants
+from . import etymology
 from .Participle import ParticiplePhrase
 from .Infinitive import InfinitiveClause
 
@@ -138,16 +139,23 @@ def render_sentence_header(text):
     print("\n" + ansi_color.underline(ansi_color.bold(text)) + "\n")
 
 
-def render_analysis(analysis, show_word_detail=True, show_translation=True, show_descendants=False):
-    # 辞書引きの結果 (show_descendants なら、語ごとに英語・フランス語などに残った語も)
+def render_analysis(analysis, show_word_detail=True, show_translation=True, show_descendants=False,
+                    show_etymology=False):
+    # 辞書引きの結果 (show_descendants なら語ごとに英語・フランス語などに残った語を、show_etymology なら語源も)
     if show_word_detail:
         print("  --- ")
         maxlen_uc = max([0] + [word.surface_len for word in analysis.words])
         for i, (word, detail) in enumerate(zip(analysis.words, analysis.word_details)):
             print('  %2d  ' % (i,) + word.surface + ' '*(maxlen_uc - word.surface_len + 1), detail)
+            indent = ' ' * (maxlen_uc + 7)
             if show_descendants and word.items:
                 for lemma, text in descendants.describe_word(word):
-                    print(' ' * (maxlen_uc + 7) + ansi_color.fgcolor(ansi_color.CYAN, '%s: %s' % (lemma, text)))
+                    print(indent + ansi_color.fgcolor(ansi_color.CYAN, '%s: %s' % (lemma, text)))
+            if show_etymology and word.items:
+                for lemma, lines in etymology.describe_word(word):
+                    print(indent + ansi_color.fgcolor(ansi_color.MAGENTA, '%s の語源:' % lemma))
+                    for line in lines:
+                        print(indent + '  ' + line)
         print("  --- ")
         print()
 

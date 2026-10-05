@@ -394,6 +394,11 @@ def _descendant_kind(node):
     return None
 
 
+def lemma_key(entry):
+    """子孫語・語源の表の見出し語のキー: ページ名 (pater noster のような句は句のまま) のマクロンを除いた形"""
+    return orthography.flat(entry.get('word', ''), merge_uv=True)
+
+
 def descendants_summary(entry):
     """[{lang, word, kind (inherited/borrowed/semi-learned/calque), via: [[lang_code, word], ...]}]"""
     found = []
@@ -427,3 +432,89 @@ def descendants_summary(entry):
             result.append(d)
             n += 1
     return result
+
+
+# ----------------------------------------------------------------------
+# 語源 (祖語の系統・同源語・説明文)
+#
+# etymology_templates の inh (継承) / der (派生) / bor (借用) / root (語根) から系統を、cog から同源語を取る。
+# 説明文 (etymology_text) は頭の「Etymology tree」の系統図を除いて、長ければ文の切れ目で切る
+
+ETYMOLOGY_TEXT_LIMIT = 400
+NARRATIVE_STARTS = ('From', 'Borrowed', 'Inherited', 'Learned', 'Derived', 'Compound', 'Univerbation', 'Calque',
+                    'Back-formation', 'Alteration', 'Perfect', 'Present', 'Future', 'Diminutive', 'Frequentative',
+                    'Possibly', 'Probably', 'Perhaps', 'Uncertain', 'Unknown', 'Ultimately', 'Of ', 'Clipping')
+# テンプレートの名前 → 系統の種類 (inh+, lbor などの別名もまとめる)
+ANCESTOR_TEMPLATES = {'inh': 'inh', 'inh+': 'inh', 'der': 'der', 'der+': 'der', 'bor': 'bor', 'bor+': 'bor',
+                      'lbor': 'bor', 'slbor': 'bor', 'obor': 'bor', 'root': 'root'}
+MAX_COGNATES = 12
+
+
+def _template_gloss(args):
+    return args.get('t') or args.get('gloss') or args.get('5') or ''
+
+
+def _etymology_text(text):
+    lines = [line.strip() for line in (text or '').split('\n') if line.strip()]
+    if lines and lines[0] == 'Etymology tree':
+        lines = lines[1:]
+        # 系統図の行 (「Proto-Indo-European *ph₂tḗr」「Ancient Greek φιλοσοφία (philosophía)bor.」のような
+        # 短い行) を、説明文らしい行 (From …, Borrowed from …) が来るまで飛ばす
+        while lines and len(lines[0].split()) <= 6 and not lines[0].startswith(NARRATIVE_STARTS):
+            lines = lines[1:]
+    text = ' '.join(line for line in lines if line != 'Details')
+    if len(text) > ETYMOLOGY_TEXT_LIMIT:
+        cut = text.rfind('. ', 0, ETYMOLOGY_TEXT_LIMIT)
+        text = text[:cut + 1] if cut > 0 else text[:ETYMOLOGY_TEXT_LIMIT] + '…'
+    return text
+
+
+def _parse_etymon(kind, spec, out):
+    """新しい形式のテンプレート (ety, etymon) の '3' の値: 'grc:φιλόσοφος<t:lover of wisdom>' や
+    'itc-pro:*genu<ety:inh<ine-pro:*ǵónu>>' (入れ子は1つ前の語の語源) を [種類, 言語, 語, 意味] にして out へ"""
+    head, _, rest = spec.partition('<')
+    lang, _, term = head.partition(':')
+    if not (lang and term):
+        return
+    gloss = ''
+    depth, i, parts, start = 0, 0, [], None
+    rest = '<' + rest if rest else ''
+    for i, c in enumerate(rest):  # 外側の <…> を1つずつ取り出す
+        if c == '<':
+            if depth == 0:
+                start = i + 1
+            depth += 1
+        elif c == '>':
+            depth -= 1
+            if depth == 0 and start is not None:
+                parts.append(rest[start:i])
+    out.append([ANCESTOR_TEMPLATES.get(kind, kind), lang, term, ''])
+    for part in parts:
+        key, _, value = part.partition(':')
+        if key in ('t', 'gloss'):
+            out[-1][3] = value
+        elif key == 'ety':
+            nested_kind, _, nested = value.partition('<')
+            _parse_etymon(nested_kind, nested[:-1] if nested.endswith('>') else nested, out)
+
+
+def etymology_summary(entry):
+    """{ancestors: [[種類, 言語, 語, 意味]], cognates: [[言語, 語, 翻字, 意味]], text}。何も無ければ None"""
+    ancestors, cognates = [], []
+    for t in entry.get('etymology_templates', []):
+        name, args = t.get('name'), t.get('args', {})
+        found = []
+        if name in ANCESTOR_TEMPLATES and args.get('2') and args.get('3'):
+            found = [[ANCESTOR_TEMPLATES[name], args['2'], args['3'], _template_gloss(args)]]
+        elif name in ('ety', 'etymon') and args.get('2', '').startswith(':') and args.get('3'):
+            _parse_etymon(args['2'][1:], args['3'], found)
+        for item in found:
+            # 同じ語が古い形式と新しい形式の両方で書かれていることがあるので、言語と語で重複を除く
+            if not any(a[1] == item[1] and a[2] == item[2] for a in ancestors):
+                ancestors.append(item)
+        if name == 'cog' and args.get('1') and args.get('2') and len(cognates) < MAX_COGNATES:
+            cognates.append([args['1'], args['2'], args.get('tr', ''), _template_gloss(args)])
+    text = _etymology_text(entry.get('etymology_text'))
+    if not (ancestors or cognates or text):
+        return None
+    return {'ancestors': ancestors, 'cognates': cognates, 'text': text}

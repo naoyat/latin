@@ -162,3 +162,21 @@ def descendants(lemma):
                 seen.add(key)
                 result.append(d)
     return result
+
+
+def etymology(lemma):
+    """見出し語の語源。[{ancestors, cognates, text}] (同じ綴りの別語なら複数)。表が無ければ []"""
+    db = _connect()
+    if db is None or not lemma:
+        return []
+    try:
+        rows = db.execute('SELECT data FROM etymology WHERE lemma = ?',
+                          (orthography.flat(lemma, merge_uv=True),)).fetchall()
+    except sqlite3.OperationalError:
+        return []
+    result = []
+    for data, in rows:
+        d = json.loads(data)
+        if d not in result:
+            result.append(d)
+    return result
