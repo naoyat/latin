@@ -1136,7 +1136,10 @@ def _attach_to_predicate(words, group, verb_ix):
                 else:
                     not_solved.append(word)
             elif first_item.pos == 'adv':
-                if j < 2 and not pred.conjunction and word.surface.lower() not in ('nōn', 'non'):
+                # 節の頭の副詞 (tum, deinde) は接続詞の枠に。2語の慣用句 (animō suspēnsō, quō pactō の
+                # ような文頭のものを除く) は述語の修飾語として動詞の前に置く
+                if j < 2 and not pred.conjunction and word.surface.lower() not in ('nōn', 'non') \
+                        and (' ' not in word.surface or j == 0):
                     pred.conjunction = word
                 elif word.surface in ('ō', 'Ō'):
                     # 二重になってないかチェックする or conjunction を複数取る

@@ -306,6 +306,13 @@ class FixedPhraseTestCase(unittest.TestCase):
         self.assertEqual(a.absolutes, [])
         self.assertIn('どのようにして', a.clauses[0].predicate.translate()[0])
 
+    def test_animus_idiom(self):
+        # animus + 分詞・形容詞の慣用句は辞書の訳で、動詞の前に置く
+        tr = analyze('Puella animō suspēnsō cantat.').clauses[0].predicate.translate()[0]
+        self.assertEqual(tr, '少女が / 気をもんで,はらはらして / 歌う')
+        tr = analyze('Puella aequō animō cantat.').clauses[0].predicate.translate()[0]
+        self.assertIn('平静に', tr)
+
     def test_negative_adverb(self):
         # 否定の副詞 (nūllō pactō「決して〜ない」) は述語を否定形にする
         tr = analyze('Nūllō pactō puella cantat.').clauses[0].predicate.translate()[0]
