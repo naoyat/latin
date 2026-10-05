@@ -222,6 +222,24 @@ class JaVerb:
         else:
             return self.stop_form + "などした"
 
+    def clause_form(self, kind):
+        """従属節 (分詞構文) の形: present 〜していると / passive 〜されて / active 〜して / future 〜しようとして
+        (完了分詞は理由・時・付帯状況のどれにも読めるよう、て形にする)"""
+        if not self.use_mecab:
+            return {'present': self.stop_form + 'していると', 'passive': self.stop_form + 'されて',
+                    'active': self.stop_form + 'して', 'future': self.stop_form + 'しようとして'}[kind]
+        if kind == 'present':
+            return self.active_ing_stem() + 'ると'
+        if kind == 'passive':
+            return self.passive_stem() + 'て'
+        if kind == 'active':
+            past = self.past_form()  # 話した → 話して, 読んだ → 読んで
+            return past[:-1] + ('で' if past.endswith('だ') else 'て')
+        if kind == 'future':
+            conj, _ = self.conjugate(MIZEN, 'う')
+            return conj + 'うとして'
+        raise ValueError(kind)
+
     def form(self, flag):
         if flag & Verb.PARTICIPLE:
             if flag & Verb.FUTURE:

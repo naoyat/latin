@@ -9,6 +9,7 @@ from .Word import Word
 from .Predicate import Predicate
 from .AndOr import AndOr
 from .PrepClause import PrepClause
+from .Absolute import AblativeAbsolute
 
 
 def decolate(word):
@@ -42,6 +43,13 @@ def render_with_indent(indent, obj):
             for words in obj.words_slots:
                 render_with_indent(indent+2, words[0])
 
+        elif isinstance(obj, AblativeAbsolute):
+            text = ansi_color.underline(obj.verb.surface)
+            print(' '*indent + '[abl.abs] ' + text, '(%s)' % obj.kind())
+            render_with_indent(indent+2, obj.subject)
+            for c in obj.complements:
+                render_with_indent(indent+2, c)
+
         elif isinstance(obj, PrepClause):
             # print ' '*indent + obj.item.surface.encode('utf-8') + ' ' + obj.item.ja + ' <'+ obj.dominated_case + '>'
             print(' '*indent + obj.item.surface + ' <'+ obj.dominated_case + '>')
@@ -69,6 +77,8 @@ def render_with_indent(indent, obj):
                 render_with_indent(indent+2, obj.conjunction)
             for mod in obj.modifiers:
                 render_with_indent(indent+2, mod)
+            for clause in obj.subordinates:
+                render_with_indent(indent+2, clause)
             for case, objs in list(obj.case_slot.items()):
                 if isinstance(case, tuple):
                     print(' '*(indent+2) + "prep:")

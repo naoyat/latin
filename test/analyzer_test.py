@@ -9,7 +9,8 @@
 #
 import unittest
 
-from latin import latindic, analyzer
+from latin import latindic, analyzer, wiktionary
+from latin.Absolute import AblativeAbsolute
 from latin.AndOr import AndOr
 from latin.PrepClause import PrepClause
 
@@ -159,6 +160,51 @@ class DeterminismTestCase(unittest.TestCase):
         # translate() が格スロットを書き換えないこと
         pred = analyze('Puella puerō rosam dat.').clauses[0].predicate
         self.assertEqual(pred.translate(), pred.translate())
+
+
+
+@unittest.skipUnless(wiktionary.available(), 'Wiktionary 辞書 (tools/build_wiktionary_dic.py) が無い')
+class AblativeAbsoluteTestCase(unittest.TestCase):
+    """独立奪格。分詞は手作りの辞書にほとんど無いので Wiktionary 辞書を使う"""
+
+    @classmethod
+    def setUpClass(cls):
+        latindic.LatinDic.use_wiktionary = True
+
+    @classmethod
+    def tearDownClass(cls):
+        latindic.LatinDic.use_wiktionary = False
+
+    def absolute(self, text):
+        a = analyze(text)
+        self.assertEqual(len(a.absolutes), 1, a.absolutes)
+        aa = a.absolutes[0]
+        self.assertIsInstance(aa, AblativeAbsolute)
+        return a, aa
+
+    def test_perfect_passive(self):
+        a, aa = self.absolute('Hīs rēbus cognitīs agricola ad vīllam vēnit.')
+        self.assertEqual((aa.subject.surface, aa.verb.surface, aa.kind()), ('rēbus', 'cognitīs', 'passive'))
+        self.assertIn('知られて', aa.translate()[0])
+        # 文の主語は独立奪格の外の主格
+        pred = a.clauses[0].predicate
+        self.assertEqual(surfaces(pred.case_slot['Nom']), ['agricola'])
+        self.assertIn(aa, pred.subordinates)
+
+    def test_present(self):
+        _, aa = self.absolute('Puellā cantante puer dormit.')
+        self.assertEqual((aa.subject.surface, aa.kind()), ('Puellā', 'present'))
+        self.assertIn('歌っていると', aa.translate()[0])
+
+    def test_deponent_is_active(self):
+        # mortuus は morior (形式受動態) の完了分詞なので能動「死んで」
+        _, aa = self.absolute('Rēge mortuō populus flēvit.')
+        self.assertEqual(aa.kind(), 'active')
+        self.assertIn('死んで', aa.translate()[0])
+
+    def test_inside_prepositional_phrase(self):
+        # 前置詞に支配された奪格は独立奪格ではない
+        self.assertEqual(analyze('Cum hīs rēbus cognitīs vēnit.').absolutes, [])
 
 
 if __name__ == '__main__':

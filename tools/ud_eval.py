@@ -213,10 +213,10 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
         # 5. 主語・目的語。UD はコピュラ構文 (Gallia est dīvīsa) で est ではなく dīvīsa を中心にし、
         #    est を cop として従えるので、中心語に cop があればその語を述語として探す
         preds = {}
-        for clause in analysis.clauses:
-            gold_verb = gold_of.get(id(clause.predicate.verb))
+        for pred in [c.predicate for c in analysis.clauses] + list(analysis.absolutes):
+            gold_verb = gold_of.get(id(pred.verb))  # 独立奪格は分詞を述語として扱う
             if gold_verb is not None:
-                preds[gold_verb.id] = clause.predicate
+                preds[gold_verb.id] = pred
         cop_of = {t.head: t.id for t in tokens if t.deprel == 'cop'}
         heads = {t.head for t in tokens if t.deprel in SUBJ_RELS + ('obj',)}
         for head_id in heads:

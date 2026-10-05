@@ -19,6 +19,7 @@ from .Word import Word
 from .Predicate import Predicate
 from .AndOr import AndOr, non_genitive
 from .PrepClause import PrepClause
+from .Absolute import AblativeAbsolute
 
 
 def lookup_all(surfaces_uc):
@@ -388,11 +389,90 @@ def detect_and_or(words, trace):
     return (words, visited_ix)
 
 
+ABL_PREPOSITIONS_CASE = 'Abl'
+PUNCTUATION = (',', ';', ':', '.', '?', '!')
+
+
+def _abl_participle_tuples(node):
+    """奪格の分詞として読める語なら、その (格, 数, 性) のうち奪格のもの"""
+    if not isinstance(node, Word) or not node.items:
+        return []
+    return [cng for item in node.items if item.pos == 'participle'
+            for cng in (item._ or []) if cng[0] == 'Abl']
+
+
+def _abl_tuples(node):
+    """奪格の名詞・代名詞として読める要素なら、その (格, 数, 性) のうち奪格のもの"""
+    if isinstance(node, AndOr):
+        return [cng for cng in (node._ or []) if cng[0] == 'Abl'] if node.pos in ('noun', 'pronoun') else []
+    if not isinstance(node, Word) or not node.items:
+        return []
+    return [cng for item in node.items if item.pos in ('noun', 'pronoun')
+            for cng in (item._ or []) if cng[0] == 'Abl']
+
+
+def _agrees(a, b):
+    return any(ca == cb and na == nb and (ga == gb or 'c' in (ga, gb) or None in (ga, gb))
+               for ca, na, ga in a for cb, nb, gb in b)
+
+
+def _is_clause_boundary(node):
+    """句読点・動詞・接続詞・前置詞 (独立奪格の主語を探すときに越えない)"""
+    if isinstance(node, Word):
+        if node.items is None:
+            return node.surface in PUNCTUATION
+        return bool(node.items) and node.items[0].pos in ('verb', 'conj')
+    return not isinstance(node, (AndOr, PrepClause))
+
+
+def _governed_by_abl_preposition(nodes, ix):
+    prev = nodes[ix - 1] if ix > 0 else None
+    return isinstance(prev, Word) and bool(prev.items) and \
+        any(item.pos == 'preposition' and item.dominates == ABL_PREPOSITIONS_CASE for item in prev.items)
+
+
+def detect_ablative_absolute(nodes, trace):
+    """独立奪格: 奪格の分詞と、格・数・性の一致する奪格の名詞 (前3語以内、または直後)。
+    名詞の直前が奪格を支配する前置詞なら前置詞句 (cum hīs rēbus cognitīs) なので対象外"""
+    absolutes = []
+    i = 0
+    while i < len(nodes):
+        participle = _abl_participle_tuples(nodes[i])
+        if not participle:
+            i += 1
+            continue
+        subject_ix = None
+        for j in range(i - 1, max(-1, i - 4), -1):
+            if _is_clause_boundary(nodes[j]) and not (isinstance(nodes[j], Word) and nodes[j].items and
+                                                      nodes[j].items[0].pos == 'preposition'):
+                break
+            if _agrees(_abl_tuples(nodes[j]), participle):
+                subject_ix = j
+                break
+        if subject_ix is not None and _governed_by_abl_preposition(nodes, subject_ix):
+            subject_ix = None
+        if subject_ix is None and i + 1 < len(nodes) and _agrees(_abl_tuples(nodes[i + 1]), participle) \
+                and not _governed_by_abl_preposition(nodes, i):
+            subject_ix = i + 1  # 分詞が先: dīmissō conciliō
+        if subject_ix is None:
+            i += 1
+            continue
+        start, end = min(subject_ix, i), max(subject_ix, i)
+        complements = nodes[subject_ix + 1:i] if subject_ix < i else []
+        complements = [c for c in detect_prep_domination(list(complements)) if c]
+        absolute = AblativeAbsolute(nodes[subject_ix], nodes[i], complements)
+        trace.append("// ABL.ABS #%d..#%d (%s)" % (start, end, absolute.surface))
+        nodes[start:end + 1] = [absolute]
+        absolutes.append(absolute)
+        i = start + 1
+    return nodes, absolutes
+
+
 def detect_verbs(words):
     verb_ix = []
 
     for i, word in enumerate(words):
-        if isinstance(word, AndOr): continue
+        if not isinstance(word, Word): continue  # 並列句・独立奪格など
         if not word.items: continue
 
         verb_items = [item for item in word.items if item.pos == 'verb']
@@ -708,7 +788,9 @@ def _attach_to_predicate(words, group, verb_ix):
     for j, ix in enumerate(group):
         if ix == verb_ix: continue
         word = words[ix]
-        if isinstance(word, AndOr):
+        if isinstance(word, AblativeAbsolute):
+            pred.add_subordinate(word)
+        elif isinstance(word, AndOr):
             if word.cases:
                 pred.add_nominal(word.cases[0], word)
             else:
@@ -780,6 +862,7 @@ class SentenceAnalysis:
     verbs: list                     # 述語 (Predicate) の列
     grouping_trace: list            # 動詞ごとのグループ分けの途中経過
     clauses: list                   # 述語ごとの Clause。動詞がなければ空
+    absolutes: list = field(default_factory=list)  # 独立奪格 (AblativeAbsolute)
 
     @property
     def text(self):
@@ -853,6 +936,7 @@ def analyze_sentence(surfaces, tags=None):
         nodes[ix] = None
     nodes = [node for node in nodes if node]
 
+    nodes, absolutes = detect_ablative_absolute(nodes, trace)
     nodes, _verb_ix = detect_verbs(nodes)
     nodes = detect_prep_domination(nodes)
     nodes = [node for node in nodes if node]
@@ -870,7 +954,7 @@ def analyze_sentence(surfaces, tags=None):
     return SentenceAnalysis(
         surfaces=list(surfaces), words=words, word_details=word_details,
         trace=trace, nodes=nodes, verbs=[nodes[ix] for ix in verbs_ix],
-        grouping_trace=grouping_trace, clauses=clauses)
+        grouping_trace=grouping_trace, clauses=clauses, absolutes=absolutes)
 
 
 def sentences(text):

@@ -29,6 +29,7 @@ class Predicate (LatinObject):
         self.surface = verb.surface
         self.surface_len = len(self.surface)
         self.conjunction = None
+        self.subordinates = []  # 従属節 (独立奪格など)
         self.is_sum = self.first_item.item.get('pres1sg', None) == 'sum'
 
     def add_nominal(self, case, obj):
@@ -37,6 +38,9 @@ class Predicate (LatinObject):
             self.case_slot[case].append(obj)
         else:
             self.case_slot[case] = [obj]
+
+    def add_subordinate(self, clause):
+        self.subordinates.append(clause)
 
     def add_modifier(self, adv):
         self.modifiers.append(adv)
@@ -71,6 +75,10 @@ class Predicate (LatinObject):
                 t, neg = self.conjunction.translate()
                 if neg: negated = True
             tr.append(t)
+
+        # 従属節 (独立奪格など) は文の頭に置く
+        for clause in self.subordinates:
+            tr.append(clause.translate()[0])
 
         cases_ja = {'Nom':'が', 'Acc':'を', 'Gen':'の', 'Dat':'に', 'Abl':'で', 'Voc':'よ', 'Loc':'で'}
 

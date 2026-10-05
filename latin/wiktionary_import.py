@@ -64,6 +64,19 @@ def _participle_tense(tags, base):
     return 'past'
 
 
+# 見出し語として立っている分詞 (mortuus など) は form_of が無く、語源欄に元の動詞が書いてある
+ETYMOLOGY_PARTICIPLE = re.compile(r'\bparticiple of (\w+)')
+
+
+def _participle_verbs(entry):
+    verbs = [f['word'] for s in entry.get('senses', []) for f in s.get('form_of', [])]
+    if not verbs:
+        m = ETYMOLOGY_PARTICIPLE.search(entry.get('etymology_text') or '')
+        if m:
+            verbs = [m.group(1)]
+    return verbs
+
+
 def _sense_tags(entry):
     return set(t for s in entry.get('senses', []) for t in s.get('tags', []))
 
@@ -257,7 +270,7 @@ def convert_entry(entry, ja_glosses=None, participle_gloss=None):
 
     # 分詞 (wiktextract では動詞の変化形の項目として入っている)
     if 'participle' in tags and pos in ('verb', 'adj'):
-        verbs = [f['word'] for s in entry.get('senses', []) for f in s.get('form_of', [])]
+        verbs = _participle_verbs(entry)
         tense = _participle_tense(tags, base)
         table = _nominal_features(entry, ['m', 'f', 'n'])
         if not table:

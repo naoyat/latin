@@ -58,6 +58,14 @@ AMATUS = {
               form('amāta', 'neuter', 'nominative', 'plural')],
 }
 
+# 見出し語として立っている分詞: form_of が無く、元の動詞は語源欄にだけある
+MORTUUS = {
+    'word': 'mortuus', 'lang_code': 'la', 'pos': 'verb',
+    'etymology_text': 'Perfect active participle of morior (“die”).',
+    'senses': [{'glosses': ['dead, having died'], 'tags': ['declension-1', 'declension-2', 'participle']}],
+    'forms': [form('mortuus', 'canonical'), form('mortuō', 'ablative', 'masculine', 'singular')],
+}
+
 
 def items_of(entry, ja_glosses=None):
     info, forms = convert_entry(entry, ja_glosses)
@@ -121,6 +129,10 @@ class ImportTestCase(unittest.TestCase):
         self.assertEqual(items['amāta']['pres1sg'], 'amō')
         self.assertEqual(items['amāta']['tense'], 'past')
         self.assertEqual(items['amāta']['_'], [('Nom', 'sg', 'f'), ('Nom', 'pl', 'n')])
+
+    def test_lexicalized_participle_verb_from_etymology(self):
+        item, = items_of(MORTUUS)
+        self.assertEqual((item['pos'], item['pres1sg']), ('participle', 'morior'))
 
     def test_form_of_entry_is_skipped(self):
         entry = {'word': 'amat', 'lang_code': 'la', 'pos': 'verb',
