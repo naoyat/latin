@@ -22,6 +22,7 @@ Mārcus est agricola.
 Puellae pulchrae erant.
 Via longa et lāta est.
 Agricola laetus nōn erit.
+Via longa et lāta nōn erat.
 Templum aureum est.
 Magnus vir est.
 
@@ -55,6 +56,10 @@ Puella dīcit sē rosās amāre.
 Putō Rōmam magnam esse.
 Dominus servum epistulam portāre iubet.
 Puer librum legere potest.
+
+## 固有名詞
+Caesar hostēs veritus castra mōvit.
+Cicerō Pompēium laudat.
 
 ## 綴りの流儀 (i/j, u/v)
 Julia et Juno in caelo sunt.

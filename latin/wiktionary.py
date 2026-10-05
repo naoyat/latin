@@ -6,10 +6,12 @@
 # 辞書ファイルが無ければ何も返さない (手作りの辞書だけで動く)
 #
 import os
+import re
 import json
 import sqlite3
 
 from .wiktionary_import import make_item, flatten
+from .katakana import katakana
 from . import orthography
 
 DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
@@ -43,13 +45,42 @@ def _rows_uv(surface):
                        (orthography.flat(surface, merge_uv=True),)).fetchall()
 
 
+KATAKANA_NAME = re.compile(r'[ァ-ヴー・]+')
+
+
+def _proper_noun_gloss(item):
+    """固有名詞の訳語を名前だけにする。英語の説明 (Roman cognomen of the gens Iulia) なら綴りからカタカナを作り、
+    日本語の説明付き (マールクス,マルクス,古代ローマに見られる男性名…) ならカタカナの名前だけを残す"""
+    base = item.get('base') or ''
+    if item.get('pos') != 'noun' or not base[:1].isupper():
+        return item
+    if item.get('gloss_lang') == 'ja':
+        # 先頭から続くカタカナの名前だけ (説明の中の括弧書き (プラエノーメン) は拾わない)
+        names = []
+        for part in re.split(r'[,、（）()]', item.get('ja') or ''):
+            if not part:
+                continue
+            if not KATAKANA_NAME.fullmatch(part):
+                break
+            names.append(part)
+        if names:
+            item['ja'] = ','.join(dict.fromkeys(names))
+    else:
+        item['ja'] = katakana(base)
+        item['gloss_lang'] = 'ja'
+    return item
+
+
 def _items(rows):
     items = []
     for surface, lemma_id, features in rows:
         if lemma_id not in _lemma_cache:
             info, = _db.execute('SELECT info FROM lemmas WHERE id = ?', (lemma_id,)).fetchone()
             _lemma_cache[lemma_id] = json.loads(info)
-        items.append(make_item(surface, _lemma_cache[lemma_id], json.loads(features)))
+        items.append(_proper_noun_gloss(make_item(surface, _lemma_cache[lemma_id], json.loads(features))))
+    # 大文字で始まる語は固有名詞の読みを先に (Iūlia: 「ユーリア」と、形容詞 Iūlius「七月の」)
+    if rows and rows[0][0][:1].isupper():
+        items.sort(key=lambda item: not (item.get('pos') == 'noun' and (item.get('base') or '')[:1].isupper()))
     return items
 
 

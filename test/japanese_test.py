@@ -38,6 +38,13 @@ class CopulaTestCase(unittest.TestCase):
         self.assertEqual(copula_predicate('うれしい,愉快な', tense='past'), 'うれしかった,愉快であった')
         self.assertEqual(copula_predicate('金製の,金色の'), '金製のもの,金色のものである')
 
+    def test_negated_coordination(self):
+        # 長くも 広くもなかった
+        self.assertEqual(copula_conjunctive('長い', negated=True) +
+                         copula_predicate('広い', tense='past', negated=True, also=True), '長くも広くもなかった')
+        self.assertEqual(copula_conjunctive('幸福な', negated=True) +
+                         copula_predicate('農夫', adjective=False, negated=True, also=True), '幸福でも農夫でもない')
+
     def test_conjunctive(self):
         self.assertEqual(copula_conjunctive('長い'), '長くて')
         self.assertEqual(copula_conjunctive('幸福な'), '幸福で')

@@ -250,8 +250,8 @@ def copula_translation(obj, tense, negated):
     """sum の補語を述語の形に (大きい / 幸福であった / 農夫ではない)。並列した形容詞は 長くて広い"""
     if isinstance(obj, AndOr) and obj.pos == 'adj':
         heads = [words[0] for words in obj.words_slots]
-        first = [copula_conjunctive(w.translate()[0], True) for w in heads[:-1]]
-        return ''.join(first) + copula_predicate(heads[-1].translate()[0], True, tense, negated)
+        first = [copula_conjunctive(w.translate()[0], True, negated) for w in heads[:-1]]
+        return ''.join(first) + copula_predicate(heads[-1].translate()[0], True, tense, negated, also=True)
     gloss = obj.translate()[0]
     # 修飾語 ({美しい}少女 / {人生の}満ちた) はそのまま前に置き、後ろの語だけを述語の形にする
     modifier, head = '', gloss

@@ -501,9 +501,19 @@ COPULA_FORMS[('nda', True)] = COPULA_FORMS[('da', True)]
 TENSE_INDEX = {'present': 0, 'past': 1, 'future': 2}
 
 
-def copula_predicate(glosses, adjective=True, tense='present', negated=False):
+def _also_form(kind, form):
+    """否定の並列の「も」を入れた形: くない → くもない, ではない → でもない, いない → もいない"""
+    if kind == 'i':
+        return 'くも' + form[1:]
+    if kind in ('da', 'nda'):
+        return form.replace('では', 'でも', 1)
+    return 'も' + form
+
+
+def copula_predicate(glosses, adjective=True, tense='present', negated=False, also=False):
     """補語の訳語 (カンマ区切り) と sum の時制・否定から述語を作る。
-    〜である で結ぶものはまとめて結ぶ (王,指導者であった / うれしかった,愉快であった)"""
+    〜である で結ぶものはまとめて結ぶ (王,指導者であった / うれしかった,愉快であった)。
+    also は否定の並列の最後の補語 (長くも 広くもない)"""
     parts = []
     for gloss in glosses.split(','):
         stem, kind = _copula_parts(gloss, adjective)
@@ -512,11 +522,17 @@ def copula_predicate(glosses, adjective=True, tense='present', negated=False):
     result = []
     for i, (stem, kind) in enumerate(parts):
         last_of_run = i + 1 == len(parts) or kind != 'da' or parts[i + 1][1] != 'da'
-        result.append(stem + (COPULA_FORMS[(kind, negated)][TENSE_INDEX[tense]] if last_of_run else ''))
+        form = COPULA_FORMS[(kind, negated)][TENSE_INDEX[tense]]
+        if also and negated:
+            form = _also_form(kind, form)
+        result.append(stem + (form if last_of_run else ''))
     return ','.join(result)
 
 
-def copula_conjunctive(gloss, adjective=True):
-    """並列した補語の、最後以外の形 (長くて / 幸福で / 農夫で / 満ちていて)"""
+def copula_conjunctive(gloss, adjective=True, negated=False):
+    """並列した補語の、最後以外の形 (長くて / 幸福で / 農夫で / 満ちていて)。
+    否定なら「も」を付ける (長くも / 幸福でも / 満ちても)"""
     stem, kind = _copula_parts(gloss.split(',')[0], adjective)
+    if negated:
+        return stem + {'i': 'くも', 'te': 'も', 'da': 'でも', 'nda': 'でも'}[kind]
     return stem + {'i': 'くて', 'te': 'いて', 'da': 'で', 'nda': 'で'}[kind]
