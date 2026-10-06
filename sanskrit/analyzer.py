@@ -82,10 +82,13 @@ def _words(token):
         return [Word(script.iast(key), compound.annotate(items))]
     if items:
         # kosha にあって訳語の無い語は、複合語として分けた訳語と成り立ちを借りる (読みは kosha のまま)
+        # (最後の語の性から bahuvrīhi と分かれば、品詞も形容詞に: pītāmbaraḥ「黄色い衣を持つ (者)」)
+        analyses = compound.analyze(key)
         for item in items:
-            for c in compound.analyze(key):
-                if c['pos'] == item['pos'] and set(map(tuple, c.get('_', []))) & set(map(tuple, item.get('_', []))):
-                    item.update(ja=c['ja'], base='%s = %s' % (item.get('base'), c['base']))
+            for c in analyses:
+                if item['pos'] in ('noun', 'adj') and c['pos'] in ('noun', 'adj') and \
+                        set(map(tuple, c.get('_', []))) & set(map(tuple, item.get('_', []))):
+                    item.update(ja=c['ja'], pos=c['pos'], base='%s = %s' % (item.get('base'), c['base']))
                     break
         return [Word(script.iast(key), items)]
     # 辞書に無い語は、複合語として分ける (mahārājaḥ → mahat-rāja「偉大な王」)

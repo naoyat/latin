@@ -165,14 +165,15 @@ def _known(items):
 
 
 # ----------------------------------------------------------------------
-# 複合語の種類 (六合釈) と訳
+# 複合語の種類と訳 (表示はサンスクリットの名称)
 #
-#   依主釈 tatpuruṣa     rāja-putra「王の息子」        前の語が後ろの語に格の関係で掛かる (訳は「〜の」で代表させる)
-#   持業釈 karmadhāraya  nīla-utpala「青い蓮」         前の語が後ろの語を形容する
-#   帯数釈 dvigu         tri-loka「三つの世界」         前の語が数詞
-#   相違釈 dvandva       rāma-lakṣmaṇau「ラーマとラクシュマナ」  並列 (語の数と双数・複数が合う)
-#   有財釈 bahuvrīhi     pīta-ambaraḥ「黄色い衣を持つ (者)」   全体が形容詞として別の名詞に掛かる
-#   隣近釈 avyayībhāva   yathā-śakti「力に応じて」     前の語が不変化詞で、全体が副詞
+#   tatpuruṣa       rāja-putra「王の息子」        前の語が後ろの語に格の関係で掛かる (訳は「〜の」で代表させる)
+#   nañ-tatpuruṣa   a-dharma「非ダルマ」          前の語が否定の a(n)-
+#   karmadhāraya    nīla-utpala「青い蓮」         前の語が後ろの語を形容する
+#   dvigu           tri-loka「三つの世界」         前の語が数詞
+#   dvandva         rāma-lakṣmaṇau「ラーマとラクシュマナ」  並列 (語の数と双数・複数が合う)
+#   bahuvrīhi       pīta-ambaraḥ「黄色い衣を持つ (者)」   全体が形容詞として別の名詞に掛かる
+#   avyayībhāva     yathā-śakti「力に応じて」     前の語が不変化詞で、全体が副詞
 #
 NUMERALS = {'eka': '一つの', 'dvi': '二つの', 'tri': '三つの', 'catur': '四つの', 'paYca': '五つの', 'paYcan': '五つの',
             'zaz': '六つの', 'sapta': '七つの', 'saptan': '七つの', 'azwa': '八つの', 'azwan': '八つの',
@@ -180,8 +181,22 @@ NUMERALS = {'eka': '一つの', 'dvi': '二つの', 'tri': '三つの', 'catur':
 AVYAYA_FIRST = {'yaTA': '〜に応じて', 'prati': '〜ごとに', 'upa': '〜の近くで', 'anu': '〜に従って',
                 'yAvat': '〜の限り', 'sa': '〜とともに', 'aDi': '〜について'}
 ADJECTIVE_FIRST = {'mahat': '偉大な', 'su': '良い', 'dus': '悪い', 'sarva': 'すべての', 'para': '最高の'}
-LABELS = {'tatpurusa': '依主釈', 'karmadharaya': '持業釈', 'dvigu': '帯数釈', 'dvandva': '相違釈',
-          'bahuvrihi': '有財釈', 'avyayibhava': '隣近釈', 'negation': '否定'}
+# 種類の名称 (sanskrit.py --compound-labels=sa|ja|en で切り替える)
+LABEL_STYLES = {
+    'sa': {'tatpurusa': 'tatpuruṣa', 'karmadharaya': 'karmadhāraya', 'dvigu': 'dvigu', 'dvandva': 'dvandva',
+           'bahuvrihi': 'bahuvrīhi', 'avyayibhava': 'avyayībhāva', 'negation': 'nañ-tatpuruṣa'},
+    'ja': {'tatpurusa': '依主釈', 'karmadharaya': '持業釈', 'dvigu': '帯数釈', 'dvandva': '相違釈',
+           'bahuvrihi': '有財釈', 'avyayibhava': '隣近釈', 'negation': '否定の依主釈'},
+    'en': {'tatpurusa': 'determinative', 'karmadharaya': 'descriptive', 'dvigu': 'numeral', 'dvandva': 'copulative',
+           'bahuvrihi': 'possessive', 'avyayibhava': 'adverbial', 'negation': 'negative'},
+}
+LABELS = dict(LABEL_STYLES['sa'])
+
+
+def set_label_style(style):
+    """複合語の種類の名称を sa (tatpuruṣa…)、ja (依主釈…、六合釈)、en (determinative…) に"""
+    LABELS.clear()
+    LABELS.update(LABEL_STYLES[style])
 
 
 def _short(gloss):
@@ -269,7 +284,7 @@ def gloss(kind, members, infos, final_gloss):
         for word in reversed(words):
             out = _modify(word, out)
         return out
-    # 依主釈: A-B-C → AのBのC
+    # tatpuruṣa: A-B-C → AのBのC
     return 'の'.join(words + [head])
 
 
@@ -279,7 +294,7 @@ def _inner(members, final_gloss):
 
 
 def annotate(items):
-    """辞書にある複合語 (rājaputra「王子」) の項目に、成り立ち (rāja-putra 依主釈) を書き添える"""
+    """辞書にある複合語 (rājaputra「王子」) の項目に、成り立ち (rāja-putra tatpuruṣa) を書き添える"""
     from . import script
     for item in items:
         base = item.get('base') or ''
@@ -317,7 +332,7 @@ def _a_stem_final(final, items):
 
 def analyze(word):
     """複合語 (SLP1) を分けて、辞書の項目のリストにする。分けられなければ []。
-    項目の base は「語幹-語幹 種類」(rāja-putra 依主釈)、ja は合成した訳"""
+    項目の base は「語幹-語幹 種類」(rāja-putra tatpuruṣa)、ja は合成した訳"""
     from .morphology import lookup
     candidates = split(word)
     if not candidates:
@@ -339,7 +354,7 @@ def analyze(word):
             compound.update(pos='adv')
             compound.pop('_', None)
         out.append(compound)
-        # 最後の語の本来の性と合わない (pīta-ambaraḥ: ambara は中性) か、隣の名詞に掛かれば有財釈
+        # 最後の語の本来の性と合わない (pīta-ambaraḥ: ambara は中性) か、隣の名詞に掛かれば bahuvrīhi
         if kind in ('tatpurusa', 'karmadharaya', 'dvigu') and item['pos'] == 'noun':
             from . import script
             lexical = _lexical_genders(final, script.to_slp1(stem))

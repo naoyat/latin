@@ -95,7 +95,7 @@ class CompoundTestCase(unittest.TestCase):
         self.assertEqual(self.kinds('aDarmaH')[0], 'negation')
         self.assertEqual(self.kinds('yaTASakti')[0], 'avyayibhava')
         self.assertEqual(self.kinds('vaRikputreRa')[0], 'tatpurusa')
-        # ambara は中性なので、男性の pītāmbaraḥ は「黄色い衣を持つ (者)」(有財釈)
+        # ambara は中性なので、男性の pītāmbaraḥ は「黄色い衣を持つ (者)」(bahuvrīhi)
         self.assertEqual(self.kinds('pItAmbaraH')[0], 'bahuvrihi')
 
     def test_gloss(self):
@@ -104,9 +104,18 @@ class CompoundTestCase(unittest.TestCase):
         self.assertTrue(items[0]['ja'].startswith('偉大な'))
         self.assertEqual(compound.analyze('rAmalakzmaRO')[0]['ja'], 'RāmaとLakshmana')
 
+    def test_label_styles(self):
+        try:
+            compound.set_label_style('ja')
+            self.assertIn('相違釈', compound.analyze('rAmalakzmaRO')[0]['base'])
+            compound.set_label_style('en')
+            self.assertIn('copulative', compound.analyze('rAmalakzmaRO')[0]['base'])
+        finally:
+            compound.set_label_style('sa')
+
     def test_known_compound_is_annotated(self):
         word = analyzer.lookup_all(['rAjaputraH'])[0]
-        self.assertIn('rāja-putra 依主釈', word.items[0].attrib('base'))
+        self.assertIn('rāja-putra tatpuruṣa', word.items[0].attrib('base'))
 
 
 @unittest.skipUnless(HAVE_DATA, 'vidyut のデータかサンスクリットの辞書 (tools/build_sanskrit_dic.py) が無い')

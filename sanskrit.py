@@ -9,11 +9,14 @@
 #   -w, --no-word-detail   語ごとの辞書引きの結果を表示しない
 #   -D, --descendants      パーリ語・ヒンディー語・英語・日本語などに残った語 (子孫語) も表示する
 #   -E, --etymology        語源 (祖語の系統・同源語・説明文) も表示する
+#   --compound-labels=sa|ja|en
+#                          複合語の種類の名称: sa は tatpuruṣa, bahuvrīhi… (既定)、ja は依主釈, 有財釈… (六合釈)、
+#                          en は determinative, possessive…
 #
 import getopt
 import sys
 
-from sanskrit import analyzer, dictionary, morphology, script
+from sanskrit import analyzer, compound, dictionary, morphology, script
 from latin import ansi_color, descendants, etymology, render
 
 DESCENDANT_LANGS = ('pi', 'hi', 'en', 'ja')
@@ -35,10 +38,15 @@ def word_notes(show_descendants, show_etymology):
 
 
 def main():
-    opts, args = getopt.getopt(sys.argv[1:], 'wDEh', ['no-word-detail', 'descendants', 'etymology', 'help'])
+    opts, args = getopt.getopt(sys.argv[1:], 'wDEh', ['no-word-detail', 'descendants', 'etymology', 'help',
+                                                       'compound-labels='])
     show_word_detail, show_descendants, show_etymology = True, False, False
-    for option, _ in opts:
-        if option in ('-w', '--no-word-detail'):
+    for option, arg in opts:
+        if option == '--compound-labels':
+            if arg not in compound.LABEL_STYLES:
+                sys.exit('--compound-labels: %s のどれか' % '|'.join(compound.LABEL_STYLES))
+            compound.set_label_style(arg)
+        elif option in ('-w', '--no-word-detail'):
             show_word_detail = False
         elif option in ('-D', '--descendants'):
             show_descendants = True

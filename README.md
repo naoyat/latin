@@ -379,16 +379,18 @@ python3 sanskrit.py samples/sanskrit.txt        # -w で語ごとの辞書引き
 * 複合語（`sanskrit/compound.py`）: 辞書に無い語は、前の語を kosha の語幹（約17万）、最後の語を変化形として分けます。
   語の境目の連声は Vidyut の連声の規則を逆にたどって戻します（nīlotpala = nīla + utpala、gajendra = gaja + indra、
   mahā- ← mahat、vaṇik- ← vaṇij）。動詞の接頭辞（anu-, abhi-, sam- など）は複合語の語として分けません。
-  分けた語は六合釈の種類に分けて訳を合成します。辞書にある複合語にも成り立ちを書き添えます（rājaputra = rāja-putra 依主釈）。
+  分けた語は複合語の種類に分けて訳を合成します。種類の名称は `--compound-labels=sa|ja|en` で、サンスクリットの名称
+  （tatpuruṣa, bahuvrīhi…。既定）、六合釈（依主釈, 有財釈…）、英語（determinative, possessive…）を選べます。辞書にある複合語にも成り立ちを書き添えます（rājaputra = rāja-putra tatpuruṣa）。
 
 | 種類 | 例 | 訳 |
 |---|---|---|
-| 依主釈 tatpuruṣa | vaṇik-putreṇa | merchantのsonで（格の関係は「の」で代表） |
-| 持業釈 karmadhāraya | mahā-rājaḥ | 偉大な君主（前の語が形容詞・分詞） |
-| 帯数釈 dvigu | tri-lokaḥ | 三つの〜（前の語が数詞） |
-| 相違釈 dvandva | rāma-lakṣmaṇau | RāmaとLakshmana（双数・複数で固有名詞を含む） |
-| 有財釈 bahuvrīhi | pīta-ambaraḥ | 〜を持つ（者）（最後の語の本来の性と合わないか、隣の名詞に掛かるとき） |
-| 隣近釈 avyayībhāva | yathā-śakti | strengthに応じて（前の語が不変化詞で全体が副詞） |
+| tatpuruṣa | vaṇik-putreṇa | merchantのsonで（格の関係は「の」で代表） |
+| karmadhāraya | mahā-rājaḥ | 偉大な君主（前の語が形容詞・分詞） |
+| dvigu | tri-lokaḥ | 三つの〜（前の語が数詞） |
+| dvandva | rāma-lakṣmaṇau | RāmaとLakshmana（双数・複数で固有名詞を含む） |
+| bahuvrīhi | pīta-ambaraḥ | 〜を持つ（者）（最後の語の本来の性と合わないか、隣の名詞に掛かるとき） |
+| nañ-tatpuruṣa | a-dharmaḥ | 非ダルマ（前の語が否定の a(n)-） |
+| avyayībhāva | yathā-śakti | strengthに応じて（前の語が不変化詞で全体が副詞） |
 
   UD Sanskrit-UFAL の複合語 136 語で、分けられたもの 94.9%、語の数が合うもの 90.4%、語幹まで合うもの 84.6%
   （`python3 tools/sa_compound_eval.py`）。前の語の訳語は Wiktionary の語義の多い見出しの最初の訳語なので、
