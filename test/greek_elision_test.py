@@ -51,5 +51,17 @@ class DictionaryTestCase(unittest.TestCase):
         self.assertEqual(dialect.attic('μέσσον'), 'μεσον')     # 重子音の揺れ
         self.assertEqual(dialect.attic('νηυσίν'), 'ναυσιν')
 
+    def test_unaugmented_past(self):
+        from greek import dialect
+        self.assertEqual(dialect.attic('βῆ'), 'εβη')          # βῆ → ἔβη
+        self.assertEqual(dialect.attic('ἄγε'), 'ηγε')         # 母音の延長
+        self.assertEqual(dialect.attic('καταβῆ'), 'κατεβη')   # 複合動詞は前置詞の後に
+
+    def test_epic_stems(self):
+        from greek import dialect
+        self.assertEqual(dialect.attic('πτολέμοιο'), 'πολεμοιο')
+        self.assertEqual(dialect.attic('τεύχεα'), 'τευχη')
+        self.assertEqual(elision.variant('κεῖνος'), 'ἐκεῖνος')  # 一般的な ει → ε (κενός) より先に表で
+
     def test_length_of_elided_word(self):
         self.assertIn('myːrí', phonology.to_ipa('μυρί’ Ἀχαιοῖς'))  # μῡρία の ῡ
