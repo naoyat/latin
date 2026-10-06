@@ -25,6 +25,8 @@ def case_intersection(_s):
 def group_pos(words):
     num_of_words = len(words)
     if num_of_words == 1:
+        if isinstance(words[0], AndOr):  # すでにまとめた並列句 (ἢ … καὶ … ἢ の中の καί の並列)
+            return (words[0].pos, (words[0].cases, words[0].genders) if words[0].cases else None)
         if not words[0].items:  # 未知語・記号
             return (None, None)
         item = words[0].items[0]
@@ -35,7 +37,7 @@ def group_pos(words):
         else:
             return (item.pos, None)
 
-    items = [word.items[0] for word in words if word.items]
+    items = [word.items[0] for word in words if getattr(word, 'items', None)]  # 並列句 (AndOr) は除く
     if not items:
         return (None, None)
     # 格変化のある語を代表とする（なければ先頭の語）
@@ -158,6 +160,8 @@ class AndOr (LatinObject):
                 word.restrict_cases([x[0] for x in self._])
 
     def restrict_cases(self, possible_cases):
+        if self.cases is None:  # 格の無い並列 (動詞・副詞の並列)
+            return
         self.cases = [case for case in self.cases if case in possible_cases]
 
     def translate(self):

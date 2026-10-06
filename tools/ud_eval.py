@@ -4,6 +4,11 @@
 # 解析器の評価: Universal Dependencies のラテン語ツリーバンク (CoNLL-U) を正解として使う
 #
 #   python3 tools/ud_eval.py [--source=caesar,cicero-off] [--limit=N] [-e N] FILE.conllu...
+#   python3 tools/ud_eval.py --lang=grc [--source=nt,herodotus]     古典ギリシア語
+#
+# 古典ギリシア語 (--lang=grc) の既定は $LATIN_DATA/grc/ud/grc_*-ud-*.conllu (UD Ancient Greek-PROIEL / Perseus,
+# CC BY-NC-SA) のうち、新約聖書とヘロドトス『歴史』。マクロンの推定・品詞タガーは使わない。
+# 独立奪格の項目は、ギリシア語では属格独立を測る。
 #
 # 既定は $LATIN_DATA/ud/la_proiel-ud-*.conllu (UD Latin-PROIEL, CC BY-NC-SA 3.0。リポジトリには入れない)
 # のうち、カエサル『ガリア戦記』とキケロ『義務について』『アッティクス宛書簡』の文。
@@ -27,6 +32,7 @@ import collections
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from latin import latindic, analyzer, macronizer
+from greek import analyzer as greek_analyzer
 from latin.Word import Word
 from latin.AndOr import AndOr
 from latin.PrepClause import PrepClause
@@ -34,9 +40,27 @@ from latin.Predicate import Predicate
 
 DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
 DEFAULT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ud', 'la_proiel-ud-*.conllu')))
+GREEK_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'grc', 'ud', 'grc_*-ud-*.conllu')))
+# Perseus の作品番号 (TLG) → 作品
+TLG_WORKS = {'tlg0012': 'homer', 'tlg0016': 'herodotus', 'tlg0003': 'thucydides', 'tlg0011': 'sophocles',
+             'tlg0085': 'aeschylus', 'tlg0006': 'euripides', 'tlg0020': 'hesiod', 'tlg0008': 'athenaeus',
+             'tlg0060': 'diodorus', 'tlg0007': 'plutarch', 'tlg0013': 'homeric-hymns', 'tlg0059': 'plato',
+             'tlg0032': 'xenophon', 'tlg0540': 'lysias'}
 UD_CASES = {'Nom': 'Nom', 'Gen': 'Gen', 'Dat': 'Dat', 'Acc': 'Acc', 'Abl': 'Abl', 'Voc': 'Voc', 'Loc': 'Loc'}
 NOMINAL_UPOS = {'NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM'}
 SUBJ_RELS = ('nsubj', 'nsubj:pass')
+
+
+def greek_work_of(meta):
+    """ギリシア語の文の作品: PROIEL は source、Perseus は sent_id の作品番号から"""
+    source = meta.get('source', '')
+    if 'New Testament' in source:
+        return 'nt'
+    if source.startswith('Histories'):
+        return 'herodotus'
+    if source:
+        return 'other'
+    return TLG_WORKS.get(meta.get('sent_id', '').split('.')[0], 'other')
 
 
 def work_of(source):
@@ -123,13 +147,18 @@ def words_in(node):
     return []
 
 
-def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
+def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
+    greek = lang == 'grc'
+    if greek:
+        macronize = False  # ギリシア語はアクセントなどが書かれている
+    absolute_case = 'Gen' if greek else 'Abl'  # 独立奪格 / 属格独立
     stats = collections.Counter()
     errors = collections.defaultdict(collections.Counter)
     sentences = []
     for path in files:
         for meta, tokens in read_conllu(path):
-            if work_of(meta.get('source', '')) in sources:
+            work = greek_work_of(meta) if greek else work_of(meta.get('source', ''))
+            if work in sources:
                 sentences.append(tokens)
     if limit:
         sentences = sentences[:limit]
@@ -143,13 +172,14 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
         macronized = [[next(it).macronized for _ in s] for s in plain]
     else:
         macronized = plain
-    all_tags = (analyzer.rftagger.tag_sentences(macronized) if analyzer.tagger_enabled()
+    all_tags = (analyzer.rftagger.tag_sentences(macronized) if analyzer.tagger_enabled() and not greek
                 else [None] * len(macronized))
 
     for tokens, surfaces, tags in zip(sentences, macronized, all_tags):
         _, owners = surfaces_of(tokens)
         try:
-            analysis = analyzer.analyze_sentence(surfaces, tags)
+            analysis = (greek_analyzer.analyze_sentence(surfaces) if greek
+                        else analyzer.analyze_sentence(surfaces, tags))
         except Exception as e:  # 解析器が落ちた文は数えて飛ばす
             stats['crashed'] += 1
             errors['crash']['%s: %s' % (type(e).__name__, ' '.join(surfaces)[:60])] += 1
@@ -213,7 +243,7 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
         # 6. 独立奪格: 正解は「奪格の分詞が advcl で、主語 (nsubj) を従える」もの
         #    (並列した2つ目以降の独立奪格は、UD では1つ目の分詞の conj になる: rēbus cognitīs ratibusque factīs)
         def is_absolute(t, depth=0):
-            if t.feats.get('VerbForm') != 'Part' or t.case != 'Abl' or depth > 5:
+            if t.feats.get('VerbForm') != 'Part' or t.case != absolute_case or depth > 5:
                 return False
             if not any(k.head == t.id and k.deprel.startswith('nsubj') for k in tokens):
                 return False
@@ -296,9 +326,10 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True):
 
 
 def main():
-    opts, files = getopt.getopt(sys.argv[1:], 'e:h', ['source=', 'limit=', 'errors=', 'no-macronize',
+    opts, files = getopt.getopt(sys.argv[1:], 'e:h', ['source=', 'limit=', 'errors=', 'no-macronize', 'lang=',
                                                       'no-tagger', 'no-wiktionary', 'help'])
-    sources = {'caesar', 'cicero-off', 'cicero-att'}
+    sources = None
+    lang = 'la'
     limit = show_errors = 0
     macronize = True
     for option, arg in opts:
@@ -308,6 +339,8 @@ def main():
             limit = int(arg)
         elif option in ('-e', '--errors'):
             show_errors = int(arg)
+        elif option == '--lang':
+            lang = arg
         elif option == '--no-macronize':
             macronize = False
         elif option == '--no-tagger':
@@ -315,14 +348,16 @@ def main():
         elif option == '--no-wiktionary':
             latindic.LatinDic.use_wiktionary = False
         elif option in ('-h', '--help'):
-            print('Usage: python %s [--source=caesar,cicero-off,cicero-att,vulgate,other] [--limit=N] '
+            print('Usage: python %s [--lang=la|grc] [--source=caesar,cicero-off,cicero-att,vulgate,other] [--limit=N] '
                   '[-e N] [--no-macronize] [--no-tagger] [--no-wiktionary] [FILE.conllu...]' % sys.argv[0])
             sys.exit()
-    files = files or DEFAULT_FILES
+    if sources is None:
+        sources = {'nt', 'herodotus'} if lang == 'grc' else {'caesar', 'cicero-off', 'cicero-att'}
+    files = files or (GREEK_FILES if lang == 'grc' else DEFAULT_FILES)
     if not files:
         sys.exit('no CoNLL-U files (put UD Latin-PROIEL in %s/ud/)' % DATA_DIR)
     latindic.load()
-    evaluate(files, sources, limit, show_errors, macronize)
+    evaluate(files, sources, limit, show_errors, macronize, lang)
 
 
 if __name__ == '__main__':
