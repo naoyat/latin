@@ -258,6 +258,30 @@ cd - && python3 tools/build_morpheus_dic.py
 
 （格は正解率。係り先・独立奪格・主語・目的語は再現率）
 
+## 古典ギリシア語（作りかけ）
+
+同じ枠組みで古典ギリシア語も扱えるようにしていくところです。いまは語ごとの辞書引きまでで、文の解析はこれからです。
+
+```
+mkdir -p ~/.local/share/latin-data/grc && cd ~/.local/share/latin-data/grc
+curl -L -o kaikki-AncientGreek.jsonl.gz "https://kaikki.org/dictionary/Ancient%20Greek/kaikki.org-dictionary-AncientGreek.jsonl.gz"
+cd - && python3 tools/build_greek_dic.py      # → ~/.local/share/latin-data/grc/wiktionary.sqlite（約2.2万語・106万形）
+echo "ἐν ἀρχῇ ἦν ὁ λόγος." | python3 greek.py -D -E
+```
+
+```
+   2  ἦν    (εἰμί) v.有る,居る,存在する,〜である 3sg 直説法.能動.未完了 | …
+   4  λόγος (λόγος) ロゴス [Nom.sg.m] // []
+            λόγος: ラテン logarithmus (借用) / 英 logos (借用), logarithm (借用)
+```
+
+* 表記は、重アクセントを鋭アクセントに（τὸν → τόν）、長短の印・前接語で付いた2つ目のアクセントを除いて照合し、
+  見つからなければアクセント・気息記号を除いた形で引きます。
+* 双数・中動態・アオリスト・希求法・方言（叙事詩・イオニア・アッティカ・コイネー）の別を取り込みます。
+* `-D` で子孫語（ラテン語・英語・フランス語など）、`-E` で語源を表示します。
+* 評価用に UD Ancient Greek-PROIEL / Perseus（CC BY-NC-SA）を `~/.local/share/latin-data/grc/ud/` に置きます
+  （リポジトリには入れない）。
+
 ## テスト
 
 ```
@@ -274,6 +298,7 @@ python3 -m unittest discover -s test -p '*_test.py'
 
 ```
 latin.py                 解析・訳のコマンド (REPL を含む)
+greek.py                 古典ギリシア語の辞書引きのコマンド (作りかけ)
 latin/
   analyzer.py            解析 (辞書引き、並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
   render.py              解析結果の表示
@@ -287,6 +312,7 @@ latin/
   japanese.py verb_flags.py                             日本語の動詞の活用
   macronizer.py hidden_quantity.py catalog.py           マクロンの推定、テキストの目録
   latin_phonology.py latin_prosody.py speech.py         発音と音声合成
+greek/                   古典ギリシア語 (表記の正規化、Wiktionary の取り込み、辞書。共通の部分は latin/ のものを使う)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録

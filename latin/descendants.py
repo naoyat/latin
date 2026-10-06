@@ -19,11 +19,12 @@ def lemma_of(item):
     return item.attrib('pres1sg') if item.pos == 'verb' else (item.attrib('base') or item.attrib('surface'))
 
 
-def describe(lemma, langs=DEFAULT_LANGS):
-    """見出し語の子孫語を1行で。仏・英が無ければ伊・西を。どれも無ければ None"""
-    found = wiktionary.descendants(lemma)
-    if langs == DEFAULT_LANGS and not any(d['lang'] in langs for d in found):
-        langs = FALLBACK_LANGS
+def describe(lemma, langs=DEFAULT_LANGS, source=None, fallback=FALLBACK_LANGS):
+    """見出し語の子孫語を1行で。langs の言語が無ければ fallback の言語を。どれも無ければ None。
+    source は子孫語を引く辞書 (descendants(lemma) を持つモジュール。既定はラテン語の Wiktionary 辞書)"""
+    found = (source or wiktionary).descendants(lemma)
+    if fallback and not any(d['lang'] in langs for d in found):
+        langs = fallback
     by_lang = {}
     for d in found:
         if d['lang'] in langs:
@@ -35,7 +36,7 @@ def describe(lemma, langs=DEFAULT_LANGS):
     return ' / '.join(parts) if parts else None
 
 
-def describe_word(word, langs=DEFAULT_LANGS):
+def describe_word(word, langs=DEFAULT_LANGS, source=None, fallback=FALLBACK_LANGS):
     """語 (Word) の候補の見出し語ごとの子孫語。[(見出し語, 説明)]"""
     result, seen = [], set()
     for item in word.items or []:
@@ -46,7 +47,7 @@ def describe_word(word, langs=DEFAULT_LANGS):
             if not lemma or lemma in seen:
                 continue
             seen.add(lemma)
-            text = describe(lemma, langs)
+            text = describe(lemma, langs, source, fallback)
             if text:
                 result.append((lemma, text))
                 break

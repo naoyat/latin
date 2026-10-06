@@ -23,10 +23,10 @@ def _term(code, term, tr='', gloss=''):
     return text
 
 
-def describe(lemma):
-    """見出し語の語源を行のリストで。無ければ []"""
+def describe(lemma, source=None):
+    """見出し語の語源を行のリストで。無ければ []。source は語源を引く辞書 (既定はラテン語の Wiktionary 辞書)"""
     lines = []
-    for ety in wiktionary.etymology(lemma):
+    for ety in (source or wiktionary).etymology(lemma):
         chain, roots = [], []
         for kind, code, term, gloss in ety['ancestors']:
             if kind == 'root':
@@ -46,7 +46,7 @@ def describe(lemma):
     return lines
 
 
-def describe_word(word):
+def describe_word(word, source=None):
     """語 (Word) の候補の見出し語ごとの語源。[(見出し語, [行, ...])]"""
     result, seen = [], set()
     for item in word.items or []:
@@ -57,7 +57,7 @@ def describe_word(word):
             if not lemma or lemma in seen:
                 continue
             seen.add(lemma)
-            lines = describe(lemma)
+            lines = describe(lemma, source)
             if lines:
                 result.append((lemma, lines))
                 break

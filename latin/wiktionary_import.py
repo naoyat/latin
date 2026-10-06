@@ -399,8 +399,9 @@ def lemma_key(entry):
     return orthography.flat(entry.get('word', ''), merge_uv=True)
 
 
-def descendants_summary(entry):
-    """[{lang, word, kind (inherited/borrowed/semi-learned/calque), via: [[lang_code, word], ...]}]"""
+def descendants_summary(entry, langs=DESCENDANT_LANGS, inheriting=ROMANCE_CODES):
+    """[{lang, word, kind (inherited/borrowed/semi-learned/calque), via: [[lang_code, word], ...]}]。
+    langs は集める言語、inheriting は元の言語から語を継承しうる言語 (ほかは印が無くても借用とみなす)"""
     found = []
 
     def walk(nodes, path, kind):
@@ -408,17 +409,17 @@ def descendants_summary(entry):
             node_kind = _descendant_kind(node) or kind
             word = node.get('word')
             code = node.get('lang_code')
-            if node_kind is None and code not in ROMANCE_CODES and code != 'unknown':
+            if node_kind is None and code not in inheriting and code != 'unknown':
                 node_kind = 'borrowed'
             step = [[code, word]] if word and code and code != 'unknown' else []
-            if word and code in DESCENDANT_LANGS and not word.startswith('-') and not word.endswith('-'):
+            if word and code in langs and not word.startswith('-') and not word.endswith('-'):
                 found.append({'lang': code, 'word': word, 'kind': node_kind or 'inherited', 'via': path})
             walk(node.get('descendants', []), path + step, node_kind)
 
     walk(entry.get('descendants', []), [], None)
     # 言語ごとに、1語のもの (in medias res のような句でないもの) を先に、重複を除いて数を絞る
     result, seen = [], set()
-    for lang in DESCENDANT_LANGS:
+    for lang in langs:
         items = [d for d in found if d['lang'] == lang]
         if any(' ' not in d['word'] for d in items):
             items = [d for d in items if ' ' not in d['word']]  # 1語のものがあれば句 (ad rem) は除く
