@@ -290,9 +290,11 @@ python3 greek.py samples/greek.txt           # 自作の文などのサンプル
 
 | UD Ancient Greek | 網羅率 | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 属格独立 | 主語 | 目的語 |
 |---|---|---|---|---|---|---|---|---|
-| 新約聖書（約13万語） | 95.1% | 78.9% | 84.5% | 51.1% | 72.2% | 33.3%（適合率 51.9%） | 53.4% | 39.9% |
-| ヘロドトス（約10万語） | 90.4% | 71.7% | 60.1% | 25.2% | 66.0% | 23.9%（適合率 53.8%） | 39.2% | 31.4% |
-| ホメロス（UD Perseus、約7万語） | 93.9% | 74.5% | — | — | 75.2% | 41.0%（適合率 28.6%） | 67.7% | 43.6% |
+| 新約聖書（約13万語） | 98.3% | 81.7% | — | — | 80.7% | 35.4%（適合率 51.2%） | 59.5% | 45.3% |
+| ヘロドトス（約10万語） | 97.3% | 78.8% | — | — | 79.4% | 25.7%（適合率 52.5%） | 48.4% | 38.9% |
+| ホメロス（UD Perseus、約7万語） | 98.5% | 80.2% | — | — | 85.8% | 38.5%（適合率 27.8%） | 77.6% | 50.4% |
+
+（Morpheus あり。UD Perseus の語形の注釈は Morpheus を使って作られているので、ホメロスの数字はやや良く出うる）
 
 * 母音の省略（ἀλλ’ → ἀλλά、ἐφ’ ἡμῖν → ἐπί。語末の気息記号 δ̓ で書くテキストも）と母音の融合（κἀγώ = καὶ ἐγώ）を戻し、
   辞書に無い叙事詩・イオニア方言の語形（ἀγορήν → ἀγοράν、ἑτάροισι の -οισι、Οὐλύμποιο の -οιο、μέσσον）は
@@ -306,6 +308,19 @@ python3 greek.py samples/greek.txt           # 自作の文などのサンプル
   「〜を聞く」、πιστεύω + 与格「〜を信じる」、μάχομαι + 与格「〜と戦う」）、比較の属格（μείζων τοῦ πατρός「父より」）、
   時の名詞（νυκτός「夜のうちに」、τῇ τρίτῃ ἡμέρᾳ「三日目に」、τρεῖς ἡμέρας「三日の間」）。
 * 冠詞の付いた名詞の外にある、冠詞の無い形容詞は述語的位置として補語にします（ὁ ἀνὴρ ἀγαθός ἐστιν「その人は善い」）。
+
+#### Morpheus（任意）
+
+辞書に無い語形（叙事詩・方言の形、加音の無い過去形など）は、Perseus の語形解析器 [Morpheus](https://github.com/perseids-tools/morpheus)
+（MPL-2.0）があれば、それで解析します（見出し語を Wiktionary の辞書で引いて品詞と訳語を決める）。無ければ規則による読み替え
+（`greek/dialect.py`）だけを使います。
+
+```
+mkdir -p ~/.local/share/latin-data/grc/morpheus && cd ~/.local/share/latin-data/grc
+curl -L https://codeload.github.com/perseids-tools/morpheus/tar.gz/refs/heads/master | tar xz -C morpheus --strip-components=1
+cd morpheus/src && make clean
+CFLAGS='-std=gnu89 -Wno-return-type -Wno-implicit-function-declaration -Wno-int-conversion -Wno-incompatible-pointer-types' make LOADLIBES='-ll' && make install
+```
 
 #### 音読
 

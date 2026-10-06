@@ -11,7 +11,7 @@ import re
 from latin import analyzer as common
 from latin import language
 from latin.Word import Word
-from . import dictionary, orthography, government, elision, dialect
+from . import dictionary, orthography, government, elision, dialect, morpheus
 
 GREEK = language.Language(
     name='grc',
@@ -40,6 +40,7 @@ TOKEN = re.compile(r"[Ͱ-Ͽἀ-῿̀-ͯ]+(?:[’'ʼ᾽][Ͱ-Ͽἀ-῿̀-ͯ]*)?"
 PUNCTUATION = set('.,·;·;:!')
 SENTENCE_END = re.compile(r'(?<=[.;;··])\s+')
 
+USE_MORPHEUS = True  # 辞書に無い語を Morpheus で解析する ($LATIN_DATA/grc/morpheus にビルドしてあれば)
 ARTICLE_WINDOW = 4  # 冠詞と名詞の間に入りうる語の数 (ὁ ἀγαθὸς ἀνήρ, ὁ τοῦ βασιλέως υἱός)
 
 
@@ -59,8 +60,14 @@ def _word(surface, next_surface=None):
         return Word(surface, None)
     restored = elision.restore(surface, next_surface)
     if not restored and not dictionary.lookup(surface):
-        # 辞書に無い異形 (ἐξ → ἐκ) と、叙事詩・イオニア方言の語形 (ἀγορήν → ἀγοράν。greek/dialect.py)
-        restored = elision.variant(surface) or dialect.attic(surface)
+        # 辞書に無い語: 異形 (ἐξ → ἐκ)、Morpheus の解析 (叙事詩・方言の語形、加音の無い過去形)、
+        # 規則による読み替え (ἀγορήν → ἀγοράν。greek/dialect.py。Morpheus が無いときの予備) の順
+        restored = elision.variant(surface)
+        if not restored:
+            items = morpheus.analyze(surface) if USE_MORPHEUS else []
+            if items:
+                return Word(orthography.key(surface), items)
+            restored = dialect.attic(surface)
     if restored:
         # 母音の省略 (ἀλλ’ → ἀλλά, ἐφ’ ἡμῖν → ἐπί): 元の形で引き、解析も元の形で
         surface = restored
@@ -80,6 +87,10 @@ def lookup_all(surfaces):
     expanded = []
     for s in surfaces:
         expanded.extend(elision.split_crasis(s) or (s,))
+    if USE_MORPHEUS:
+        # 辞書に無い語は Morpheus でまとめて解析しておく (1文につき1回の呼び出し)
+        morpheus.analyze_many([s for s in expanded if s not in PUNCTUATION and not elision.is_elided(s)
+                               and not dictionary.lookup(s)])
     words = [_word(s, expanded[i + 1] if i + 1 < len(expanded) else None) for i, s in enumerate(expanded)]
     for i, word in enumerate(words):
         word.index = i
