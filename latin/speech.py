@@ -11,6 +11,9 @@
 #            （MBROLA が使えない場合の代替）
 #   piper  : 自前の音韻処理で作った IPA を、Piper のイタリア語/スペイン語モデルで合成する
 #
+# 古典ギリシア語 (set_language('grc', pron)) は、mbrola では greek/prosody.py の .pho を同じ la1 音声で
+# (有気音・[y]・長母音があるので)、espeak では espeak-ng の古典ギリシア語音声 (-v grc) で読む
+#
 # (2013年版は macOS の音声合成に自前の音素列 (TUNE形式) を渡していたが、
 #  現行の macOS では音素入力が解釈されないため削除した。git の履歴を参照)
 #
@@ -42,6 +45,28 @@ ESPEAK_SPEED = 140  # words per minute (espeak-ng の既定は175)
 backend = None
 voice = None
 proc = None
+language = 'la'          # 'la' / 'grc'
+pronunciation = 'attic'  # ギリシア語の発音の流儀 (attic / koine / erasmian)
+ESPEAK_VOICES = {'la': 'la', 'grc': 'grc'}
+
+
+def set_language(lang, pron=None):
+    """読む言語 ('la' / 'grc') と、ギリシア語の発音の流儀"""
+    global language, pronunciation
+    language = lang
+    if pron:
+        pronunciation = pron
+    if backend == 'espeak':
+        global voice
+        voice = ESPEAK_VOICES.get(lang, voice)
+
+
+def make_pho(text):
+    """いまの言語の .pho"""
+    if language == 'grc':
+        from greek import prosody as greek_prosody
+        return greek_prosody.to_pho(text, pron=pronunciation)
+    return latin_prosody.to_pho(text, accent=accent)
 ACCENTS = ('pitch', 'stress')
 accent = 'pitch'  # mbrola: 'pitch' (高低アクセント) / 'stress' (強勢アクセント)
 
@@ -71,7 +96,7 @@ def _init_synth(backend_name, voice_name=None):
     if conf['command'] and shutil.which(conf['command']) is None:
         print("Speech Synthesizer (%s) is not available" % conf['command'])
         return None
-    voice = voice_name or conf['voice']
+    voice = voice_name or (ESPEAK_VOICES.get(language, conf['voice']) if backend_name == 'espeak' else conf['voice'])
     if backend_name == 'mbrola' and not os.path.exists(voice):
         print("MBROLA voice is not available: %s" % voice)
         return None
@@ -119,7 +144,7 @@ def synthesize_mbrola(text, wav_file, max_retry=3):
     try:
         for _ in range(max_retry):
             with open(pho_file, 'w') as fp:
-                fp.write(latin_prosody.to_pho(text, accent=accent))
+                fp.write(make_pho(text))
             result = run([command, '-e', voice, pho_file, wav_file],
                          capture_output=True, text=True)
             missing = {(a, b) for a, b in re.findall(r'Warning: (\S+?)-(\S+) unknown', result.stderr)}
@@ -193,9 +218,15 @@ def say_latin(text_uc, debug_mode=False, pause=False, wav_file=None):
         espeak(text_uc, pause=pause, wav_file=wav_file)
     elif backend == 'mbrola':
         if debug_mode:
-            print(latin_prosody.to_pho(text_uc, accent=accent))
+            if language == 'grc':
+                from greek import phonology as greek_phonology
+                print(greek_phonology.to_ipa(text_uc, pronunciation))
+            print(make_pho(text_uc))
         mbrola(text_uc, pause=pause, wav_file=wav_file)
     elif backend == 'piper':
+        if language == 'grc':
+            print('piper does not support Ancient Greek (use mbrola or espeak)')
+            return
         if debug_mode:
             print('\n'.join(latin_phonology.to_target_ipa(text_uc, os.path.basename(voice)[:2])))
         piper(text_uc, pause=pause, wav_file=wav_file)
@@ -206,14 +237,18 @@ def main(argv=None):
     import getopt
     import select
     argv = sys.argv[1:] if argv is None else argv
-    opts, args = getopt.getopt(argv, 'b:v:w:a:d', ['backend=', 'voice=', 'wav=', 'accent=', 'debug'])
+    opts, args = getopt.getopt(argv, 'b:v:w:a:d', ['backend=', 'voice=', 'wav=', 'accent=', 'debug',
+                                                    'lang=', 'pron='])
     opts = dict(opts)
     set_accent(opts.get('-a', opts.get('--accent', accent)))
+    set_language(opts.get('--lang', 'la'), opts.get('--pron'))
     init_synth(opts.get('-b', opts.get('--backend')),
                opts.get('-v', opts.get('--voice')))
     text = ' '.join(args)
     if not text and select.select([sys.stdin], [], [], 0.0)[0]:
         text = ' '.join(line.rstrip() for line in sys.stdin)
+    if language == 'grc':
+        text = text or 'μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος οὐλομένην.'
     text = text or 'Arma virumque canō, Trōiae quī prīmus ab ōrīs Ītaliam, fātō profugus, Lāvīniaque vēnit lītora.'
     debug_mode = '-d' in opts or '--debug' in opts
     say_latin(text, debug_mode=debug_mode, pause=True, wav_file=opts.get('-w', opts.get('--wav')))
