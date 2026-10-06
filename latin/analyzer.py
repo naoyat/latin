@@ -1184,7 +1184,7 @@ def _attach_to_predicate(words, group, verb_ix):
             if not word.items: continue
             first_item = word.items[0]
             if j == 0 and word.surface in ('quod', 'ut'):
-                if word.items[1].pos == 'conj':
+                if len(word.items) > 1 and word.items[1].pos == 'conj':
                     first_item = word.items[1]
                     word.items = word.items[1:]
             if first_item.pos == 'conj':

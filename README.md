@@ -344,6 +344,48 @@ python3 greek.py -s samples/greek.txt                                     # 解�
 * 長短どちらもある α ι υ は、辞書（Wiktionary の変化表の形の長短の印 θεᾱ́, ἔλῡσᾰ）で長さが分かればそれに従い、
   分からなければ曲アクセント・下書きのイオータ・長音の印があれば長く、なければ短く読みます（attic, erasmian）。
 
+## サンスクリット（作りかけ）
+
+ギリシア語と同じく、辞書引きだけをサンスクリット用に書き、解析・訳はラテン語と共通の解析器を使います。
+語形の解析・連声の分解・文字の変換には [Vidyut](https://github.com/ambuda-org/vidyut)（MIT。パーニニ文法に基づく
+語形の辞書 kosha）を使い、訳語は Wiktionary から取ります。デーヴァナーガリーでも IAST でも入力できます。
+
+```
+pip install vidyut
+mkdir -p ~/.local/share/latin-data/sa && cd ~/.local/share/latin-data/sa
+curl -L -o vidyut-data-0.4.0.zip https://github.com/ambuda-org/vidyut/releases/download/py-0.4.0/data-0.4.0.zip
+unzip vidyut-data-0.4.0.zip -d vidyut-data
+curl -L -o kaikki-Sanskrit.jsonl.gz "https://kaikki.org/dictionary/Sanskrit/kaikki.org-dictionary-Sanskrit.jsonl.gz"
+cd - && python3 tools/build_sanskrit_dic.py     # → ~/.local/share/latin-data/sa/wiktionary.sqlite
+python3 sanskrit.py samples/sanskrit.txt        # -w で語ごとの辞書引きを省く、-D 子孫語、-E 語源
+```
+
+```
+रामः लक्ष्मणः च वनं गच्छतः ।
+  →  RāmaとLakshmanaが / 森,森林,水,住居を / go
+सूर्ये उदिते सर्वे जनाः उत्तिष्ठन्ति ।
+// ABL.ABS #0..#1 (sūrye udite)
+  →  {太陽の神,スーリヤが speak[完了分詞・受動]} / {whole,entire,all}person,human being,humanが / stand up
+तत् त्वम् असि ।
+  →  それ,彼,彼女は / あなたである
+```
+
+* 語末の連声を戻して引きます（rāmo → rāmaḥ、vanaṃ → vanam、sa → saḥ）。引けなければ Vidyut の分解器で連声・複合語を分けます。
+* 後置の ca・vā（A B ca）は前の語の手前に移し、ラテン語と同じ並列（et A et B）として扱います。
+* 同綴の語根は、Vidyut の類（gaṇa）と使役かどうかを Wiktionary の動詞の見出し（class 1, root पा）と合わせて選びます
+  （pibati → pā「飲む」、pāti → pā「守る」）。接頭辞の付いた語根は、辞書に無ければ接頭辞を除いて引きます（udeti → ud-行く）。
+* タガーが無いので、定動詞の読みが一番の語を述語にし、形容詞と名詞は隣り合って性・数・格が合えば係り受けにします。
+* 独立奪格の枠組みで処格独立（sūrye udite「太陽が昇ると」）を探します。
+* 評価用に UD Sanskrit-Vedic と UD Sanskrit-UFAL（どちらも CC BY-SA 4.0）を `~/.local/share/latin-data/sa/ud/` に置き、
+  `python3 tools/ud_eval.py --lang=sa [--source=vedic,ufal]` で測ります（連声を解いて複合語を分けた語の列を入力にする）。
+
+| UD Sanskrit | 網羅率 | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 主語 | 目的語 |
+|---|---|---|---|---|---|---|---|
+| Vedic（test、約2.1万語） | 96.9% | 75.5% | 24.5% | 13.1% | 58.8% | 41.3% | 52.0% |
+| UFAL『パンチャタントラ』（test、約1,600語） | 97.7% | 73.4% | 34.5% | 28.6% | 59.9% | 47.2% | 38.5% |
+
+（述語の検出には、繋辞の無い名詞文の述語（UD では名詞が述語になる）も正解に含まれる）
+
 ## テスト
 
 ```
@@ -361,6 +403,7 @@ python3 -m unittest discover -s test -p '*_test.py'
 ```
 latin.py                 解析・訳のコマンド (REPL を含む)
 greek.py                 古典ギリシア語の解析・訳のコマンド (作りかけ)
+sanskrit.py              サンスクリットの解析・訳のコマンド (作りかけ)
 latin/
   analyzer.py            解析 (辞書引き、並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
   render.py              解析結果の表示
@@ -376,6 +419,8 @@ latin/
   latin_phonology.py latin_prosody.py speech.py         発音と音声合成
 greek/                   古典ギリシア語 (表記の正規化、Wiktionary の取り込み、辞書、冠詞の処理、格の読み替え、
                          発音と韻律。解析・音声合成は latin/ と共通)
+sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、Wiktionary の訳語。
+                         解析は latin/ と共通)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録

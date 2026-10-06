@@ -125,8 +125,9 @@ class Predicate (LatinObject):
                     else:
                         sum_complement.append(obj)
                 elif self.is_sum:
-                    # 形容詞（修飾語）の場合
-                    if isinstance(obj, Word) and obj.items[0].pos != 'noun':
+                    # 形容詞（修飾語）の場合 (サンスクリットでは代名詞も名詞と同じく主語になる: tat tvam asi)
+                    nominal = ('noun', 'pronoun') if self.language.name == 'sa' else ('noun',)
+                    if isinstance(obj, Word) and obj.items[0].pos not in nominal:
                         # sum なら補語として
                         sum_complement.append(obj)
                     elif (len(noms) > 0 or len(nom_objs) == 1):
