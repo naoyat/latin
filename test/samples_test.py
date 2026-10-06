@@ -45,6 +45,8 @@ class SamplesTestCase(unittest.TestCase):
             langs.append(('ru', russian_dictionary.available() and russian_morphology.available()))
         except ImportError:
             pass
+        from hebrew import dictionary as hebrew_dictionary
+        langs.append(('he', hebrew_dictionary.available()))
         for lang, available in langs:
             sections = samples.read_sections(samples.LANG_FILES[lang])
             self.assertTrue(all(title and sentences for title, sentences in sections), lang)

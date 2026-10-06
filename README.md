@@ -64,7 +64,7 @@ pip install -r requirements.txt
 ```
 python3 latin.py [オプション] [ファイル...]    # ファイルを解析
 python3 latin.py [オプション]                  # 対話モード (REPL)
-python3 read.py --lang=la|grc|sa|ru [オプション] [ファイル...]   # 言語を選んで (latin.py / greek.py / sanskrit.py / russian.py を呼ぶ)
+python3 read.py --lang=la|grc|sa|ru|he [オプション] [ファイル...]   # 言語を選んで (各言語のコマンドを呼ぶ)
 ```
 
 | オプション | |
@@ -475,6 +475,38 @@ python3 russian.py samples/russian.txt          # 解析の詳細 (-w, -D 子孫
 | Taiga（約1.3万語） | 93.0% | 76.3% | 72.1% | 65.1% | 76.1% | 55.5% | 40.4% |
 | SynTagRus（約13万語） | 96.7% | 79.1% | 76.4% | 73.0% | 84.1% | 63.5% | 41.6% |
 
+## 聖書ヘブライ語（作りかけ）
+
+[Open Scriptures Hebrew Bible](https://github.com/openscriptures/morphhb)（本文は Westminster Leningrad Codex、パブリック
+ドメイン。語形の解析は CC BY 4.0）の全語（約26万語）の解析を語形の辞書にし、見出し語の番号は
+[HebrewLexicon](https://github.com/openscriptures/HebrewLexicon)（Strong の辞書・BDB の索引）で語・転写・語義に、
+日本語訳は Wiktionary から付けます。解析・訳は共通の解析器（`core/`）をヘブライ語の設定で使います。
+
+```
+mkdir -p ~/.local/share/latin-data/he/oshb ~/.local/share/latin-data/he/lexicon
+# oshb/ に morphhb の wlc/*.xml、lexicon/ に HebrewLexicon の AugIndex.xml・LexicalIndex.xml・HebrewStrong.xml を置く
+python3 tools/build_hebrew_dic.py        # → ~/.local/share/latin-data/he/hebrew.sqlite (語形 約5.8万、見出し語 約9,300)
+python3 tools/samples.py --lang=he       # サンプルの訳
+python3 hebrew.py samples/hebrew.txt     # 解析の詳細 (-w, -D, -E, -s 音読)
+```
+
+```
+בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ׃  (bərēʾšît bārā ʾĕlōhîm ʾēt haššāmayim wəʾēt hāʾāreṣ)
+  →  神が / {最初,初め}〜で,〜の中で,〜によって / 天,天界,天国,神と大地,地面,地上を / 創造した,つくりだした
+וַיֹּאמֶר אֱלֹהִים יְהִי אוֹר וַיְהִי־אוֹר׃
+  →  そして / 神が / 言った  →  ひかりが / あれ  →  そして / ひかりが / あった
+```
+
+* 語を接続詞 ו・定冠詞 ה・前置詞 ב ל כ מ・本体・人称接尾辞に分けます（וְאִשְׁתּוֹ = ו + אִשָּׁה の連語形 +「彼の」）。
+* 格の無い言語なので、名詞は「主格か対格」のどちらにも読めるものにし、目的語の標識 אֵת の後ろは対格、
+  連語形（construct）の後ろの名詞・人称接尾辞は属格「〜の」、前置詞の後ろは前置詞句にします。主語は3人称の動詞と
+  性・数が合う名詞（動詞-主語-目的語の順で、動詞の後ろの最初のもの）。אֱלֹהִים は形が複数でも単数の動詞の主語。
+* 動詞の型: 完了 qatal「〜した」、連続未完了 wayyiqtol「そして〜した」、未完了 yiqtol、連続完了 weqatal、
+  命令・指示形（יְהִי「あれ」）。態の型（binyan: qal, niphal, piel…）は語ごとの表示に。
+* 動詞の無い文（名詞文: יְהוָה רֹעִי「主は私の羊飼い」）には見えない繋辞を補います。節の区切りに朗唱記号のアトナハ（֑）を使います。
+* 見出しの行はヘブライ文字（Unicode の隔離記号で囲む）と転写を並べます。音読は macOS の say のヘブライ語音声 Carmit
+  （現代ヘブライ語の発音）。
+
 ## テスト
 
 ```
@@ -490,11 +522,12 @@ python3 -m unittest discover -s test -p '*_test.py'
 ## 構成
 
 ```
-read.py                  言語を選んで解析・訳する (--lang=la|grc|sa|ru。下の各言語のコマンドを呼ぶ)
+read.py                  言語を選んで解析・訳する (--lang=la|grc|sa|ru|he。下の各言語のコマンドを呼ぶ)
 latin.py                 ラテン語の解析・訳のコマンド (REPL を含む)
 greek.py                 古典ギリシア語の解析・訳のコマンド (作りかけ)
 sanskrit.py              サンスクリットの解析・訳のコマンド (作りかけ)
 russian.py               ロシア語の解析・訳のコマンド (作りかけ)
+hebrew.py                聖書ヘブライ語の解析・訳のコマンド (作りかけ)
 core/                    言語に依存しない共通部分
   analyzer.py            解析の骨組み (並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
   language.py            言語ごとの設定 (接続詞・繋辞・否定・格の助詞・独立奪格の格、辞書を引く関数など)
@@ -518,6 +551,7 @@ greek/                   古典ギリシア語 (表記の正規化、Wiktionary 
 sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、複合語、Wiktionary の訳語、
                          発音と韻律)
 russian/                 ロシア語 (pymorphy3 による語形の解析、前置詞の格、繋辞の補い、Wiktionary の訳語と強勢)
+hebrew/                  聖書ヘブライ語 (OSHB の語形の解析、接頭辞・人称接尾辞の切り分け、格の代わりの手がかり、転写)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録

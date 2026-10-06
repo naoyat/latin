@@ -13,8 +13,9 @@
 #   python3 tools/samples.py --lang=grc      # 古典ギリシア語 (samples/greek.txt)
 #   python3 tools/samples.py --lang=sa       # サンスクリット (samples/sanskrit.txt)
 #   python3 tools/samples.py --lang=ru       # ロシア語 (samples/russian.txt)
+#   python3 tools/samples.py --lang=he       # 聖書ヘブライ語 (samples/hebrew.txt)
 #
-#   --lang=la|grc|sa|ru 言語 (既定は la。ラテン語)
+#   --lang=la|grc|sa|ru|he 言語 (既定は la。ラテン語)
 #   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
 #   -l, --list          節の見出しの一覧を表示する
 #   --no-wiktionary     手作りの辞書だけを使う
@@ -35,7 +36,8 @@ from latin import latindic, analyzer, macronizer
 
 DEFAULT_FILE = os.path.join(ROOT, 'samples', 'samples.txt')
 LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.txt'),
-              'sa': os.path.join(ROOT, 'samples', 'sanskrit.txt'), 'ru': os.path.join(ROOT, 'samples', 'russian.txt')}
+              'sa': os.path.join(ROOT, 'samples', 'sanskrit.txt'), 'ru': os.path.join(ROOT, 'samples', 'russian.txt'),
+              'he': os.path.join(ROOT, 'samples', 'hebrew.txt')}
 
 
 def analyzer_for(lang):
@@ -49,6 +51,9 @@ def analyzer_for(lang):
     if lang == 'ru':
         from russian import analyzer as russian_analyzer
         return russian_analyzer.analyze_text
+    if lang == 'he':
+        from hebrew import analyzer as hebrew_analyzer
+        return hebrew_analyzer.analyze_text
     return analyzer.analyze_text
 AUTO_MACRON = '[auto-macron]'
 ANSI = re.compile(r'\x1b\[[0-9;]*m')
@@ -99,6 +104,10 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
             if lang == 'sa':
                 from sanskrit import script
                 print('  (%s)' % script.iast(script.to_slp1(text)))  # デーヴァナーガリーの文は IAST も
+            elif lang == 'he':
+                from hebrew import script as hebrew_script
+                print('  (%s)' % ' '.join(hebrew_script.translit(w) for w in hebrew_script.pointed(text).split()
+                                          if hebrew_script.is_hebrew(w)))
             for analysis in analyze_text(text):
                 if mode == 'brief':
                     brief(analysis)

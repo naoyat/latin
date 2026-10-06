@@ -44,9 +44,9 @@ BACKENDS = {
     'say':    {'command': 'say', 'voice': None},
 }
 # macOS の say の言語ごとの音声 (現代語の読み方になる)
-SAY_VOICES = {'ru': 'Milena', 'sa': 'Lekha', 'grc': 'Melina'}
+SAY_VOICES = {'ru': 'Milena', 'sa': 'Lekha', 'grc': 'Melina', 'he': 'Carmit'}
 # 方式を指定しないときに試す順 (言語ごと。無ければ DEFAULT_BACKEND → FALLBACK_BACKEND)
-LANGUAGE_BACKENDS = {'ru': ('say', 'espeak')}
+LANGUAGE_BACKENDS = {'ru': ('say', 'espeak'), 'he': ('say', 'espeak')}
 DEFAULT_BACKEND = 'mbrola'
 FALLBACK_BACKEND = 'espeak'
 ESPEAK_SPEED = 140  # words per minute (espeak-ng の既定は175)
@@ -56,7 +56,7 @@ voice = None
 proc = None
 language = 'la'          # 'la' / 'grc' / 'sa'
 pronunciation = 'attic'  # ギリシア語の発音の流儀 (attic / koine / erasmian)
-ESPEAK_VOICES = {'la': 'la', 'grc': 'grc', 'sa': 'hi', 'ru': 'ru'}
+ESPEAK_VOICES = {'la': 'la', 'grc': 'grc', 'sa': 'hi', 'ru': 'ru', 'he': 'he'}
 # サンスクリットを読む MBROLA のヒンディー語音声 (in1 男声 / in2 女声)
 SANSKRIT_VOICE = os.path.join(MBROLA_HOME, 'voices', 'in1', 'in1')
 # 現代ギリシア語式 (--pron=modern) で読む MBROLA の現代ギリシア語音声 (gr1 / gr2)
@@ -184,6 +184,9 @@ def _plain_text(text):
     if language == 'ru':
         from russian import script
         return script.strip_stress(text)  # 強勢記号は読まれない (強勢は音声の辞書に任せる)
+    if language == 'he':
+        from hebrew import script
+        return script.pointed(text)  # 朗唱記号は除く (母音記号は残す)
     if language == 'grc' and backend == 'say':
         return _monotonic(text)  # 現代ギリシア語の音声は多調符 (気息記号・曲アクセント) を読めない
     return text
