@@ -196,6 +196,8 @@ class ImportTestCase(unittest.TestCase):
         self.assertEqual(gloss('道、道路、通路。'), '道,道路,通路')
         self.assertEqual(gloss('（動詞不定形）愛でる。好む。'), '愛でる,好む')
         self.assertEqual(gloss('dareの直説法現在第一人称単数形。'), '')
+        self.assertEqual(gloss('(女性形 (ἡ θεός) で) 女神。'), '女神')  # 入れ子の括弧の注記
+        self.assertEqual(gloss('都市、特に、古代の都市国家。'), '都市,古代の都市国家')  # 「特に」は訳語でない
 
     def test_english_gloss(self):
         entry = {'senses': [{'glosses': ['to love, be fond of']}, {'glosses': ['to like (something)']}]}

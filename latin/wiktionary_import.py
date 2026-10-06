@@ -111,18 +111,38 @@ def english_glosses(entry, senses=None, limit=3):
 FORM_DESCRIPTION = re.compile(r'の[^。]{0,40}(形|分詞|不定法|命令法|接続法|直説法)$')
 
 
+# 読点で切ったときに残る、訳語でない断片 (都市、特に、古代ギリシアの都市国家 → 「特に」)
+GLOSS_FILLERS = {'特に', '主に', '例えば', 'また', 'および', '及び', 'すなわち', '即ち', 'など', '等', 'あるいは',
+                 '或いは', 'または', '又は', 'ないし', '転じて', '比喩的に', '一般に'}
+
+
+def _strip_leading_note(text):
+    """先頭の括弧書きの注記を、入れ子の括弧ごと除く: '(女性形 (ἡ θεός) で) 女神' → '女神'"""
+    if not text or text[0] not in '（(':
+        return text
+    depth = 0
+    for i, c in enumerate(text):
+        if c in '（(':
+            depth += 1
+        elif c in '）)':
+            depth -= 1
+            if depth == 0:
+                return text[i + 1:].strip()
+    return text
+
+
 def japanese_gloss(entry, limit=4):
     """日本語版 Wiktionary の項目から訳語を取り出す: '道、道路、通路。' → '道,道路,通路'"""
     glosses = []
     for sense in entry.get('senses', []):
         for gloss in sense.get('glosses', [])[:1]:
             for sentence in re.split(r'[。．]\s*', gloss.strip()):
-                sentence = re.sub(r'^[（(][^）)]*[）)]\s*', '', sentence.strip())  # 先頭の注記
+                sentence = _strip_leading_note(sentence.strip())  # 先頭の注記 (入れ子の括弧も)
                 if not sentence or FORM_DESCRIPTION.search(sentence) or '"' in sentence:
                     continue
                 for g in re.split(r'[、,，;；]', sentence):
                     g = g.strip()
-                    if g and g not in glosses:
+                    if g and g not in glosses and g not in GLOSS_FILLERS:
                         glosses.append(g)
         if len(glosses) >= limit:
             break
