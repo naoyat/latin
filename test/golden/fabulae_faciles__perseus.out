@@ -15,7 +15,7 @@ Haec nārrantur ā poētīs dē Perseō .
 1 VERB FOUND: nārrantur
 
   nārrantur (indicative 3pl)
-    Nom:
+    Nom/Acc:
       Haec
     prep:
       ā <Abl>
@@ -288,7 +288,7 @@ Iuppiter tamen haec omnia vīdit , et fīlium suum servāre cōnstituit .
     Nom:
       Iuppiter
       haec
-    Nom/Acc:
+    Acc:
       omnia
 
   →  しかしながら,それでも / ユピテル=この,これが / すべてのを / 見た
@@ -356,12 +356,13 @@ Hūius īnsulae Polydectēs tum rēx erat .
 
   erat (indicative 3sg)
     (tum)
-    Nom:
+    Dat:
       īnsulae
         Hūius
+    Nom:
       rēx
 
-  →  {この,これ}島は / その時,その頃,当時 / 王,指導者であった
+  →  {この,これ}島には / 王,指導者が / その時,その頃,当時 / いた
 
 
 Postquam arca ad lītus appulsa est , Danaē in harēnā quiētem capiēbat .
@@ -1641,10 +1642,10 @@ Hōc cottīdiē ē marī veniēbat et hominēs dēvorābat .
 
   dēvorābat (indicative 3sg)
     (et)
-    Nom:
+    Acc:
       hominēs
 
-  →  そして / 人間が / 飲み込んでいた
+  →  そして / 彼,彼女,それが / 人間を / 飲み込んでいた
 
 
 Ob hanc causam pavor animōs omnium occupāverat .
@@ -1860,10 +1861,10 @@ Tum rēx diem certam dīxit et omnia parāvit .
 
   parāvit (indicative 3sg)
     (et)
-    Nom/Acc:
+    Acc:
       omnia
 
-  →  そして / すべての(人,物)が / 用意した
+  →  そして / 彼,彼女,それが / すべてのを / 用意した
 
 
 Ubi ea diēs vēnit , Andromeda ad lītus dēducta est , et in cōnspectū omnium ad rūpem adligāta est .
@@ -1942,15 +1943,14 @@ Omnēs fātum ēius dēplōrābant , nec lacrimās tenēbant .
     →  そして〜ない
 
   tenēbant (indicative 3pl)
-    Nom/Acc:
-      fātum
-    Gen:
-      ēius
     Acc:
+      fātum
       lacrimās
         Omnēs
+    Gen:
+      ēius
 
-  →  運命が / その,それの / {すべての}涙を / (手に)持っていた,とどめていた
+  →  彼ら,彼女ら,それらが / その,それの / 運命={すべての}涙を / (手に)持っていた,とどめていた
 
 
 At subitō , dum mōnstrum exspectant , Perseus accurrit ;
@@ -2657,12 +2657,12 @@ praetereā Andromedam ipsam eī in mātrimōnium dedit .
   dedit (indicative 3sg)
     Acc:
       ipsam
-    Nom:
+    Dat:
       eī
     prep:
       in <Acc>
 
-  →  その,それが / {(?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / (それ)自身を / 与えた
+  →  彼,彼女,それが / その,それに / {(?)}〜へ,〜の中へ,〜の上へ,〜に向かって,〜に対して / (それ)自身を / 与えた
 
 
 Ille libenter hōc dōnum accēpit et puellam dūxit .

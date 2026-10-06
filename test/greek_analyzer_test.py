@@ -48,7 +48,7 @@ class GreekAnalyzerTestCase(unittest.TestCase):
 
     def test_dative_of_possession(self):
         tr = analyze('ἔστι μοι βιβλίον.').clauses[0].predicate.translate()[0]
-        self.assertTrue(tr.endswith('私には / ある'), tr)
+        self.assertTrue(tr.startswith('私には / ') and tr.endswith('が / ある'), tr)
 
     def test_copula_subject_has_article(self):
         # θεὸς ἦν ὁ λόγος: 冠詞の付いた ὁ λόγος が主語、θεός が補語

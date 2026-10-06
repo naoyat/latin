@@ -1144,6 +1144,26 @@ def detect_infinitive_clauses(nodes, trace):
     return nodes, clauses
 
 
+def _agreeing_with_verb(cngs, pred):
+    """主格の読みのうち、3人称の動詞と数の合わないものを除く (Puellae est rosa の puellae は主格複数でなく与格単数。
+    vane siṃhaḥ asti の vane は主格双数でなく処格)。合う読みが残らなければそのまま。
+    単数の動詞1つに主語が並ぶ文 (nōn herba …, nōn ūvae …, nōn frūctūs erat) は見分けられない (近い主語に合わせた動詞)。
+    ギリシア語の中性複数の主語は単数の動詞を取る (τὰ ζῷα τρέχει) ので除かない"""
+    verb = pred.first_item
+    number = verb.attrib('number')
+    if number not in ('sg', 'pl', 'du') or verb.attrib('person') != 3 or verb.attrib('mood') == 'infinitive':
+        return cngs
+
+    def agrees(x):
+        if x[0] not in ('Nom', 'Voc') or x[1] == number:
+            return True  # 呼格も主格と同じ形なので、数の合わないものは一緒に除く (familia flēvērunt の「家族よ」)
+        return language.current().name == 'grc' and x[1] == 'pl' and x[2] == 'n' and number == 'sg'
+    kept = [x for x in cngs if agrees(x)]
+    if pred.is_sum and all(x[0] in ('Acc', 'Voc') for x in kept):
+        return cngs  # 繋辞の補語は数が合わなくてよい (flōrēs exemplum … sunt)。ほかの格の読みがあるときだけ除く
+    return kept or cngs
+
+
 def _attach_to_predicate(words, group, verb_ix):
     """グループ内の語を述語に結びつける。結びつけられなかった語のリストを返す"""
     not_solved = []
@@ -1186,7 +1206,8 @@ def _attach_to_predicate(words, group, verb_ix):
                 else:
                     pred.add_modifier(word)
             elif first_item._:
-                cases = [x[0] for x in first_item._]
+                agreeing = _agreeing_with_verb(first_item._, pred)
+                cases = [x[0] for x in agreeing]
                 case = None
                 if 'Voc' in cases and ix > 0 and words[ix-1].surface in language.current().vocative_particles:
                     case = 'Voc'
@@ -1194,7 +1215,7 @@ def _attach_to_predicate(words, group, verb_ix):
                 elif pred.is_sum and 'Nom' in cases and cases[0] in ('Nom', 'Acc'):
                     case = 'Nom'  # sum は対格を取らない (templum aureum est)。一番の読みが処格などの語は除く (vane「森に」)
                 else:
-                    cngs = first_item._
+                    cngs = agreeing
                     # 双数は、ほかの読みがあれば使わない (vane: 主格双数より処格単数)。
                     # 繋辞は対格を取らないので、ほかの読みがあれば対格は使わない (rājñaḥ putraḥ asti: 対格複数より属格単数)
                     if any(x[1] != 'du' for x in cngs):

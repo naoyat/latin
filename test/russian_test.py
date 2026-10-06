@@ -103,10 +103,10 @@ class AnalyzerTestCase(unittest.TestCase):
     def test_possession_and_existence(self):
         self.assertEqual(analyze('У меня есть книга.').clauses[0].predicate.translate()[0].split(' / ')[-1], 'ある')
         tr = analyze('У меня нет книги.').clauses[0].predicate.translate()[0]
-        self.assertTrue(tr.startswith('本'), tr)          # 生格の книги が主語
-        self.assertTrue(tr.endswith('ない'), tr)
-        self.assertIn('〜には', tr)
-        self.assertTrue(analyze('Мы были в театре.').clauses[0].predicate.translate()[0].endswith('いた'))
+        self.assertTrue(tr.endswith('本,書物,書籍,著書が / ない'), tr)  # 生格の книги が主語
+        self.assertTrue(tr.startswith('{私}〜には'), tr)
+        self.assertTrue(analyze('Мы были в театре.').clauses[0].predicate.translate()[0].startswith('私たちは'))
+        self.assertTrue(analyze('В лесу есть волк.').clauses[0].predicate.translate()[0].endswith('狼が / いる'))
         self.assertTrue(analyze('У меня не было времени.').clauses[0].predicate.translate()[0].endswith('なかった'))
 
     def test_est_after_modal_is_eat(self):
