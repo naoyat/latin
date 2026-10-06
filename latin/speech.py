@@ -14,6 +14,9 @@
 # 古典ギリシア語 (set_language('grc', pron)) は、mbrola では greek/prosody.py の .pho を同じ la1 音声で
 # (有気音・[y]・長母音があるので)、espeak では espeak-ng の古典ギリシア語音声 (-v grc) で読む
 #
+# サンスクリット (set_language('sa')) は、mbrola では sanskrit/prosody.py の .pho を MBROLA のヒンディー語音声 in1
+# (-v in2 で女声) で、espeak では espeak-ng のヒンディー語音声 (-v hi) にデーヴァナーガリーで渡して読む
+#
 # (2013年版は macOS の音声合成に自前の音素列 (TUNE形式) を渡していたが、
 #  現行の macOS では音素入力が解釈されないため削除した。git の履歴を参照)
 #
@@ -45,9 +48,11 @@ ESPEAK_SPEED = 140  # words per minute (espeak-ng の既定は175)
 backend = None
 voice = None
 proc = None
-language = 'la'          # 'la' / 'grc'
+language = 'la'          # 'la' / 'grc' / 'sa'
 pronunciation = 'attic'  # ギリシア語の発音の流儀 (attic / koine / erasmian)
-ESPEAK_VOICES = {'la': 'la', 'grc': 'grc'}
+ESPEAK_VOICES = {'la': 'la', 'grc': 'grc', 'sa': 'hi'}
+# サンスクリットを読む MBROLA のヒンディー語音声 (in1 男声 / in2 女声)
+SANSKRIT_VOICE = os.path.join(MBROLA_HOME, 'voices', 'in1', 'in1')
 # 現代ギリシア語式 (--pron=modern) で読む MBROLA の現代ギリシア語音声 (gr1 / gr2)
 MODERN_GREEK_VOICE = os.path.join(MBROLA_HOME, 'voices', 'gr2', 'gr2')
 # 声ごとの、収録されていないダイフォン (合成時に mbrola の警告から自動的に追加される)
@@ -65,6 +70,8 @@ def _default_voice(backend_name):
         return ESPEAK_VOICES.get(language, BACKENDS['espeak']['voice'])
     if backend_name == 'mbrola' and language == 'grc' and pronunciation == 'modern':
         return MODERN_GREEK_VOICE
+    if backend_name == 'mbrola' and language == 'sa':
+        return SANSKRIT_VOICE
     return BACKENDS[backend_name]['voice']
 
 
@@ -85,6 +92,10 @@ def make_pho(text):
         from greek import prosody as greek_prosody
         return greek_prosody.to_pho(text, pron=pronunciation, missing=missing_diphones(),
                                     phone_set='gr2' if voice.endswith('gr2') else 'gr1')
+    if language == 'sa':
+        from sanskrit import prosody as sanskrit_prosody
+        return sanskrit_prosody.to_pho(text, missing=missing_diphones(),
+                                       base_pitch=200 if voice.endswith('in2') else sanskrit_prosody.BASE_PITCH)
     return latin_prosody.to_pho(text, accent=accent, missing=missing_diphones())
 ACCENTS = ('pitch', 'stress')
 accent = 'pitch'  # mbrola: 'pitch' (高低アクセント) / 'stress' (強勢アクセント)
@@ -147,6 +158,9 @@ def _spawn(args, text, pause=False):
 
 
 def espeak(text, pause=False, wav_file=None, show_phonemes=False):
+    if language == 'sa':
+        from sanskrit import script
+        text = script.devanagari(script.to_slp1(text))  # espeak-ng のヒンディー語はデーヴァナーガリーで
     if backend != 'espeak': return None
     args = ['espeak-ng', '-v', voice, '-s', str(ESPEAK_SPEED), '--stdin']
     if wav_file:
@@ -242,11 +256,14 @@ def say_latin(text_uc, debug_mode=False, pause=False, wav_file=None):
             if language == 'grc':
                 from greek import phonology as greek_phonology
                 print(greek_phonology.to_ipa(text_uc, pronunciation))
+            elif language == 'sa':
+                from sanskrit import phonology as sanskrit_phonology
+                print(sanskrit_phonology.to_ipa(text_uc))
             print(make_pho(text_uc))
         mbrola(text_uc, pause=pause, wav_file=wav_file)
     elif backend == 'piper':
-        if language == 'grc':
-            print('piper does not support Ancient Greek (use mbrola or espeak)')
+        if language in ('grc', 'sa'):
+            print('piper does not support this language (use mbrola or espeak)')
             return
         if debug_mode:
             print('\n'.join(latin_phonology.to_target_ipa(text_uc, os.path.basename(voice)[:2])))
@@ -270,6 +287,8 @@ def main(argv=None):
         text = ' '.join(line.rstrip() for line in sys.stdin)
     if language == 'grc':
         text = text or 'μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος οὐλομένην.'
+    if language == 'sa':
+        text = text or 'धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः ।'
     text = text or 'Arma virumque canō, Trōiae quī prīmus ab ōrīs Ītaliam, fātō profugus, Lāvīniaque vēnit lītora.'
     debug_mode = '-d' in opts or '--debug' in opts
     say_latin(text, debug_mode=debug_mode, pause=True, wav_file=opts.get('-w', opts.get('--wav')))

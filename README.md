@@ -408,6 +408,23 @@ python3 sanskrit.py samples/sanskrit.txt        # 解析の詳細 (-w で語ご�
 
 （述語の検出には、繋辞の無い名詞文の述語（UD では名詞が述語になる）も正解に含まれる）
 
+#### 音読
+
+```
+mkdir -p ~/.local/share/mbrola/voices/in1 && cd ~/.local/share/mbrola/voices/in1
+curl -L -O https://github.com/numediart/MBROLA-voices/raw/master/data/in1/in1    # in2 (女声) も同様に
+cd - && python3 tools/speak.py --lang=sa -d "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः ।"   # -d で IPA と .pho
+python3 sanskrit.py -s samples/sanskrit.txt                                    # 解析しながら読む (-v in2 で女声)
+```
+
+* MBROLA のヒンディー語音声 in1 / in2 で読みます（そり舌音・有声有気音がある。短い i u・音節の ṛ は無いので、
+  ii uu を短くしたもの・r + 短い i で代用し、ṣ は ś と同じ sh、クシャ kṣ は in1 の ks）。無ければ espeak-ng の
+  ヒンディー語音声（`-b espeak`）にデーヴァナーガリーで渡します（ヒンディー語の読み方で、語末の a が落ちる）。
+* 母音の長さは短 1 : 長 2（e ai o au は長い）。ḥ は前の母音を短く添えて読み（rāmaḥ → rāmaha）、ṃ は後ろの子音と
+  同じ位置の鼻音（vanaṃ gacchati → vanaŋ）にします。古典期の文には元の高低アクセントが書かれないので、
+  現代のインドの読み方に近い「重い次末音節、無ければその前の重い音節」に軽い強勢（高さ）を置きます。
+* in1 には子音どうしのダイフォンがほとんど無いので、子音の間に短い無音を挟みます（音声の README の書き方 k a c _ r aa に従う）。
+
 ## テスト
 
 ```
@@ -441,8 +458,8 @@ latin/
   latin_phonology.py latin_prosody.py speech.py         発音と音声合成
 greek/                   古典ギリシア語 (表記の正規化、Wiktionary の取り込み、辞書、冠詞の処理、格の読み替え、
                          発音と韻律。解析・音声合成は latin/ と共通)
-sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、複合語、Wiktionary の訳語。
-                         解析は latin/ と共通)
+sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、複合語、Wiktionary の訳語、
+                         発音と音読。解析・音声合成は latin/ と共通)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録

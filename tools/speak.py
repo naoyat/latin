@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# ラテン語を音読する
+# ラテン語 (古典ギリシア語、サンスクリット) を音読する
 #
 #   python3 tools/speak.py "Arma virumque canō, Trōiae quī prīmus ab ōrīs"
 #   echo "..." | python3 tools/speak.py
@@ -15,7 +15,10 @@
 #   --pron=NAME          ギリシア語の発音: attic (既定、復元アッティカ発音・高低アクセント) / koine / erasmian /
 #                        modern (現代ギリシア語式。MBROLA の現代ギリシア語音声 gr2、-v gr1 で gr1)
 #
+#   --lang=sa            サンスクリットを読む (mbrola はヒンディー語音声 in1、-v in2 で女声。espeak は -v hi)
+#
 #   python3 tools/speak.py --lang=grc "μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος"
+#   python3 tools/speak.py --lang=sa -d "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः ।"
 #
 import os
 import sys
