@@ -22,6 +22,13 @@ GREEK = language.Language(
     negations=frozenset({'οὐ', 'οὐκ', 'οὐχ', 'μή'}),
     vocative_particles=frozenset({'ὦ'}),
     case_particles={'Nom': 'が', 'Acc': 'を', 'Gen': 'の', 'Dat': 'に', 'Voc': 'よ'},
+    absolute_case='Gen',  # 属格独立
+    # 属格を目的語に取る動詞 (知覚・接触・支配・記憶・欲求など)。主節の動詞がこれなら属格独立にしない
+    absolute_case_verbs=frozenset({'ἀκούω', 'ἀκροάομαι', 'αἰσθάνομαι', 'ἅπτω', 'ἅπτομαι', 'ἄρχω', 'κρατέω',
+                                   'βασιλεύω', 'ἡγέομαι', 'ἐπιθυμέω', 'ἐράω', 'μιμνῄσκω', 'μιμνήσκω', 'μνημονεύω',
+                                   'ἐπιλανθάνομαι', 'τυγχάνω', 'φείδομαι', 'γεύομαι', 'μετέχω', 'δέομαι', 'πειράω',
+                                   'κατηγορέω', 'ἀμελέω', 'φροντίζω', 'ἐπιμελέομαι', 'ἀντιλαμβάνω'}),
+    lookup=dictionary.lookup,
 )
 
 # 語 (ギリシア文字と結合文字、語末のアポストロフィ) と句読点 (· は上の点、; は疑問符)
@@ -83,8 +90,12 @@ def attach_articles(words, trace):
         head = None
         for j in range(i + 1, min(len(words), i + 1 + ARTICLE_WINDOW)):
             w = words[j]
-            if w.items is None or any(item.pos == 'verb' for item in w.items[:1]):
-                break  # 句読点・動詞は越えない
+            if w.items is None:
+                break  # 句読点は越えない
+            if w.items and w.items[0].pos == 'verb' and \
+                    not any(item.pos == 'participle' or item.attrib('mood') in ('participle', 'infinitive')
+                            for item in w.items):
+                break  # 定動詞は越えない (分詞・不定詞とも読める語は越える: τῶν ἐχόντων)
             if _agree(article, _cng(w, ('noun', 'pronoun'))):
                 head = w
                 break

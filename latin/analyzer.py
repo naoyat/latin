@@ -408,21 +408,24 @@ PUNCTUATION = (',', ';', ':', '.', '?', '!')
 
 
 def _abl_participle_tuples(node):
-    """奪格の分詞として読める語なら、その (格, 数, 性) のうち奪格のもの"""
+    """奪格の分詞として読める語なら、その (格, 数, 性) のうち奪格のもの
+    (格は言語の設定の absolute_case。ギリシア語は属格独立の属格)"""
     if not isinstance(node, Word) or not node.items:
         return []
+    case = language.current().absolute_case
     return [cng for item in node.items if item.pos == 'participle'
-            for cng in (item._ or []) if cng[0] == 'Abl']
+            for cng in (item._ or []) if cng[0] == case]
 
 
 def _abl_tuples(node):
     """奪格の名詞・代名詞として読める要素なら、その (格, 数, 性) のうち奪格のもの"""
+    case = language.current().absolute_case
     if isinstance(node, AndOr):
-        return [cng for cng in (node._ or []) if cng[0] == 'Abl'] if node.pos in ('noun', 'pronoun') else []
+        return [cng for cng in (node._ or []) if cng[0] == case] if node.pos in ('noun', 'pronoun') else []
     if not isinstance(node, Word) or not node.items:
         return []
     return [cng for item in node.items if item.pos in ('noun', 'pronoun')
-            for cng in (item._ or []) if cng[0] == 'Abl']
+            for cng in (item._ or []) if cng[0] == case]
 
 
 def _agrees(a, b):
@@ -440,9 +443,28 @@ def _is_clause_boundary(node):
 
 
 def _governed_by_abl_preposition(nodes, ix):
-    prev = nodes[ix - 1] if ix > 0 else None
+    """直前 (同じ格の名詞が挟まっていてもよい: διὰ Ἠσαΐου τοῦ προφήτου) が、その格を支配する前置詞"""
+    lang = language.current()
+    j = ix - 1
+    if lang.name != 'la':
+        while j >= 0 and _abl_tuples(nodes[j]) and not (isinstance(nodes[j], Word) and nodes[j].items and
+                                                       nodes[j].items[0].pos == 'preposition'):
+            j -= 1
+    prev = nodes[j] if j >= 0 else None
     return isinstance(prev, Word) and bool(prev.items) and \
-        any(item.pos == 'preposition' and item.dominates == ABL_PREPOSITIONS_CASE for item in prev.items)
+        any(item.pos == 'preposition' and item.dominates == lang.absolute_case for item in prev.items)
+
+
+def _governed_by_main_verb(nodes, i):
+    """主節の動詞が独立奪格の格を目的語に取る (ギリシア語: ἤκουσα φωνῆς λεγούσης「声が言うのを聞いた」)"""
+    lang = language.current()
+    if not lang.absolute_case_verbs:
+        return False
+    for node in nodes[i + 1:] + nodes[:i][::-1]:
+        if isinstance(node, Word) and node.items and node.items[0].pos == 'verb' and \
+                node.items[0].attrib('mood') not in ('infinitive', 'participle'):
+            return node.items[0].attrib('pres1sg') in lang.absolute_case_verbs
+    return False
 
 
 _lexicalized_cache = {}
@@ -505,6 +527,14 @@ def _is_pronominal(node):
     return False
 
 
+def _in_attributive_position(noun, participle):
+    """冠詞と名詞の間にある分詞は名詞の修飾 (ギリシア語: τοῦ λέγοντος ἀνθρώπου「話している人の」)"""
+    if not isinstance(noun, Word) or participle.index is None or noun.index is None:
+        return False
+    return any(isinstance(m, Word) and m.items and m.items[0].pos == 'article' and m.index is not None
+               and m.index < participle.index < noun.index for m in noun.modifiers)
+
+
 def detect_ablative_absolute(nodes, trace):
     """独立奪格: 奪格の分詞と、格・数・性の一致する奪格の名詞 (前3語以内、または直後)。
     名詞の直前が奪格を支配する前置詞なら前置詞句 (cum hīs rēbus cognitīs) なので対象外"""
@@ -536,10 +566,12 @@ def detect_ablative_absolute(nodes, trace):
         # (主語が代名詞・指示詞なら独立奪格: eō absente)。完了分詞にも同じ判定をすると、UD Latin-PROIEL の
         # カエサルで本物の独立奪格 (hīs rēbus acceptīs, equō incitātō) まで外れて再現率が下がるので、しない
         at_clause_start = min(subject_ix, i) == 0 or _is_clause_boundary(nodes[min(subject_ix, i) - 1])
-        if _is_gerundive(nodes[i]) or _not_absolute_form(nodes[i]) or \
-                _usually_modified(nodes[subject_ix], nodes[subject_ix + 1:i]) or \
-                (participle_kind(nodes[i]) == 'present' and _is_lexicalized_participle(nodes[i])
-                 and not _is_pronominal(nodes[subject_ix]) and not at_clause_start):
+        latin = language.current().name == 'la'  # ラテン語の語形・語彙による規則
+        if (latin and (_is_gerundive(nodes[i]) or _not_absolute_form(nodes[i]) or
+                       _usually_modified(nodes[subject_ix], nodes[subject_ix + 1:i]) or
+                       (participle_kind(nodes[i]) == 'present' and _is_lexicalized_participle(nodes[i])
+                        and not _is_pronominal(nodes[subject_ix]) and not at_clause_start))) or \
+                _in_attributive_position(nodes[subject_ix], nodes[i]) or _governed_by_main_verb(nodes, i):
             trace.append("// not ABL.ABS: %s %s" % (nodes[subject_ix].surface, nodes[i].surface))
             i += 1
             continue
@@ -1278,12 +1310,22 @@ def analyze_words(surfaces, words, word_details=None, trace=None):
     # 並列句・形容詞/属格の係り先
     nodes, visited_ix = detect_and_or([w for w in words if getattr(w, 'attached_to', None) is None], trace)
     nodes, adj_ix = detect_adj_correspondances(nodes, trace)
-    nodes, gen_ix = detect_genitive_correspondances(nodes, trace)
-    for ix in visited_ix + adj_ix + gen_ix:
-        nodes[ix] = None
-    nodes = [node for node in nodes if node]
-
-    nodes, absolutes = detect_ablative_absolute(nodes, trace)
+    if language.current().absolute_case == 'Gen':
+        # 属格独立 (ギリシア語) は、属格の係り先を決める前に探す (主語の属格を名詞の属格修飾にしないように)
+        for ix in visited_ix + adj_ix:
+            nodes[ix] = None
+        nodes = [node for node in nodes if node]
+        nodes, absolutes = detect_ablative_absolute(nodes, trace)
+        nodes, gen_ix = detect_genitive_correspondances(nodes, trace)
+        for ix in gen_ix:
+            nodes[ix] = None
+        nodes = [node for node in nodes if node]
+    else:
+        nodes, gen_ix = detect_genitive_correspondances(nodes, trace)
+        for ix in visited_ix + adj_ix + gen_ix:
+            nodes[ix] = None
+        nodes = [node for node in nodes if node]
+        nodes, absolutes = detect_ablative_absolute(nodes, trace)
     nodes, participles = detect_participle_phrases(nodes, trace)
     nodes, _verb_ix = detect_verbs(nodes)
     nodes = detect_prep_domination(nodes)

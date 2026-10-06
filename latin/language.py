@@ -23,6 +23,9 @@ class Language:
     negations: frozenset = frozenset()   # 否定の副詞 (小文字)
     vocative_particles: frozenset = frozenset()  # 呼びかけの間投詞 (ō)
     case_particles: dict = field(default_factory=dict)  # 格 → 既定の助詞
+    absolute_case: str = 'Abl'     # 独立奪格の格 (ギリシア語は属格独立の 'Gen')
+    absolute_case_verbs: frozenset = frozenset()  # その格を目的語に取る動詞 (主節の動詞がこれなら独立奪格にしない)
+    lookup: object = None          # 見出し語から辞書の項目 (dict) を引く関数 (分詞の元の動詞の訳語など。None ならラテン語の辞書)
 
     def is_copula(self, pres1sg):
         return pres1sg in self.copulas

@@ -47,5 +47,21 @@ class GreekAnalyzerTestCase(unittest.TestCase):
         self.assertIn('否定', tr)
 
 
+    def test_genitive_absolute(self):
+        a = analyze('τοῦ βασιλέως ἐλθόντος οἱ πολῖται ἔφυγον.')
+        self.assertEqual([(x.subject.surface, x.verb.surface) for x in a.absolutes], [('βασιλέως', 'ἐλθόντος')])
+        self.assertEqual(surfaces(a.clauses[0].predicate.case_slot['Nom']), ['πολῖται'])
+
+    def test_generated_participle(self):
+        # 変化形の項目の無い分詞 (活用表の主格から作った形): αὐτοῦ καθίσαντος
+        a = analyze('αὐτοῦ καθίσαντος οἱ μαθηταὶ ἦλθον.')
+        self.assertEqual(len(a.absolutes), 1)
+
+    def test_not_absolute(self):
+        # 冠詞と名詞の間の分詞は修飾 / 属格を取る動詞 (ἀκούω) の目的語
+        self.assertEqual(analyze('τοῦ λέγοντος ἀνθρώπου ἤκουσα.').absolutes, [])
+        self.assertEqual(analyze('ἤκουσα φωνῆς λεγούσης.').absolutes, [])
+
+
 if __name__ == '__main__':
     unittest.main()

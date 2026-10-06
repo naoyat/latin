@@ -8,6 +8,7 @@ import unittest
 
 from greek import orthography, dictionary
 from greek.wiktionary_import import convert_entry
+from greek.participles import declension
 
 
 def form(text, *tags):
@@ -80,13 +81,16 @@ class ImportTestCase(unittest.TestCase):
         self.assertNotIn('ὁ', table)
 
     def test_verb_tenses(self):
-        (info, forms), = convert_entry(LUO)
+        (info, forms), (participle, participle_forms) = convert_entry(LUO)
         by_surface = {surface: f for surface, f in forms}
         self.assertEqual(info['pres1sg'], 'λύω')
         self.assertEqual(by_surface['λύει']['tense'], 'present')
         self.assertEqual(by_surface['ἔλυε']['tense'], 'imperfect')  # 'perfect' と取り違えない
         self.assertEqual((by_surface['λῦσε']['tense'], by_surface['λῦσε']['dialect']), ('aorist', 'Epic'))
         self.assertEqual(by_surface['λυόμενος']['voice'], 'middle-passive')
+        # 活用表の分詞 (男性単数主格) から、変化形を作った分詞の項目
+        self.assertEqual((participle['pos'], participle['base'], participle['pres1sg']), ('participle', 'λυόμενος', 'λύω'))
+        self.assertIn(('Gen', 'sg', 'm'), dict(participle_forms)['λυομενου']['_'])
 
     def test_preposition_glosses_per_case(self):
         glosses = {info['dominates']: info['ja'] for info, _ in convert_entry(PARA)}
@@ -97,6 +101,19 @@ class ImportTestCase(unittest.TestCase):
     def test_preposition(self):
         (info, _), = convert_entry(EN)
         self.assertEqual((info['pos'], info['dominates']), ('preposition', 'Dat'))
+
+
+class ParticipleTestCase(unittest.TestCase):
+    def forms(self, nominative, cng):
+        return sorted(form for form, tuples in declension(nominative).items() if cng in tuples)
+
+    def test_declension(self):
+        self.assertEqual(self.forms('λύων', ('Gen', 'sg', 'm')), ['λυοντοσ'])
+        self.assertEqual(self.forms('λύσας', ('Gen', 'sg', 'f')), ['λυσασησ'])
+        self.assertEqual(self.forms('λυθείς', ('Dat', 'sg', 'm')), ['λυθεντι'])
+        self.assertEqual(self.forms('λελυκώς', ('Nom', 'sg', 'f')), ['λελυκυια'])
+        self.assertEqual(self.forms('λυόμενος', ('Gen', 'pl', 'f')), ['λυομενων'])
+        self.assertIn('ποιουντοσ', self.forms('ποιῶν', ('Gen', 'sg', 'm')))  # 縮約動詞
 
 
 @unittest.skipUnless(dictionary.available(), 'ギリシア語の辞書 (tools/build_greek_dic.py) が無い')

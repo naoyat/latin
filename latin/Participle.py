@@ -16,6 +16,7 @@ from .LatinObject import LatinObject
 from .Word import Word
 from .AndOr import AndOr
 from . import latindic
+from . import language
 
 KIND_LABELS = {'present': '現在分詞', 'passive': '完了分詞・受動', 'active': '完了分詞', 'future': '未来分詞'}
 
@@ -31,28 +32,40 @@ def participle_kind(word):
         return 'present'
     if tense == 'future':
         return 'future'
+    voice = item.attrib('voice')
+    if voice:
+        # ギリシア語のアオリスト・完了分詞は態で (γενόμενος アオリスト中動「〜して」, λυθείς アオリスト受動「〜されて」)
+        return 'passive' if voice == 'passive' or (voice == 'middle-passive' and tense == 'perfect') else 'active'
     pres1sg = item.attrib('pres1sg') or ''
     return 'active' if pres1sg.endswith('r') else 'passive'  # 形式受動態動詞 (loquor) の完了分詞は能動
 
 
-def verb_gloss(word):
-    """分詞のもとの動詞の訳語 (日本語なら活用させるため)。(訳語, 言語)"""
+def kind_label(word):
+    kind = participle_kind(word)
+    if participle_item(word).attrib('tense') == 'aorist':
+        return 'アオリスト分詞' + ('・受動' if kind == 'passive' else '')
+    return KIND_LABELS[kind]
+
+
+def verb_gloss(word, lang=None):
+    """分詞のもとの動詞の訳語 (日本語なら活用させるため)。(訳語, 言語)。lang は言語の設定 (辞書の引き先)"""
     item = participle_item(word)
     pres1sg = item.attrib('pres1sg')
+    lookup = (lang or language.current()).lookup or latindic.lookup
     if pres1sg:
-        for entry in latindic.lookup(pres1sg) or []:
+        for entry in lookup(pres1sg) or []:
             if entry.get('pos') == 'verb' and entry.get('ja'):
                 return entry['ja'].split(',')[0], entry.get('gloss_lang', 'ja')
     return item.ja.split(',')[0], item.attrib('gloss_lang', 'ja')
 
 
-def participle_translation(word, style):
+def participle_translation(word, style, language_=None):
     """分詞の訳。style は 'absolute' (独立奪格) / 'adverbial' / 'attributive'"""
     from .japanese import JaVerb
-    gloss, lang = verb_gloss(word)
+    gloss, lang = verb_gloss(word, language_)
     kind = participle_kind(word)
     if lang != 'ja':
-        return '%s[%s]' % (gloss, KIND_LABELS[kind])
+        return '%s[%s]' % (gloss, kind_label(word))
     try:
         verb = JaVerb(gloss)
         if style == 'adverbial':
@@ -71,6 +84,7 @@ def _objects(complements):
 
 class ParticiplePhrase(LatinObject):
     def __init__(self, participle, complements=(), head=None, adverbial=True):
+        self.language = language.current()  # 訳すときにもこの言語の設定 (辞書の引き先) を使う
         self.verb = participle                  # 分詞 (Word)
         self.complements = list(complements)    # 分詞の補語 (目的語・前置詞句・奪格など)
         self.head = head                        # 一致する名詞 (主語が省略されていれば None)
@@ -105,6 +119,6 @@ class ParticiplePhrase(LatinObject):
 
     def translate(self):
         complements = [c.translate()[0] + self._particle(c) for c in self.complements]
-        verb = participle_translation(self.verb, 'adverbial' if self.adverbial else 'attributive')
+        verb = participle_translation(self.verb, 'adverbial' if self.adverbial else 'attributive', self.language)
         text = ''.join(c + ' ' for c in complements) + verb
         return ('{' + text + '}' if self.adverbial else text, False)

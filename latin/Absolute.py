@@ -13,10 +13,12 @@
 from .LatinObject import LatinObject
 from .Word import Word
 from .Participle import participle_kind, participle_translation
+from . import language
 
 
 class AblativeAbsolute(LatinObject):
     def __init__(self, subject, participle, complements=()):
+        self.language = language.current()  # 訳すときにもこの言語の設定 (辞書の引き先) を使う
         self.subject = subject              # 意味上の主語 (奪格の名詞・代名詞。修飾語付き)
         self.verb = participle              # 分詞 (Word)
         self.complements = list(complements)  # 間に挟まった語 (分詞の補語: 前置詞句・対格など)
@@ -35,5 +37,5 @@ class AblativeAbsolute(LatinObject):
     def translate(self):
         subject = self.subject.translate()[0]
         complements = [c.translate()[0] for c in self.complements]
-        verb = participle_translation(self.verb, 'absolute')
+        verb = participle_translation(self.verb, 'absolute', self.language)
         return ('{' + subject + 'が' + ''.join(' ' + c for c in complements) + ' ' + verb + '}', False)

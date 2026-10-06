@@ -13,7 +13,7 @@ import re
 import unicodedata
 
 from latin.wiktionary_import import english_glosses, japanese_gloss, descendants_summary, etymology_summary
-from . import orthography
+from . import orthography, participles
 
 CASES = {'nominative': 'Nom', 'genitive': 'Gen', 'dative': 'Dat', 'accusative': 'Acc', 'vocative': 'Voc'}
 NUMBERS = {'singular': 'sg', 'dual': 'du', 'plural': 'pl'}
@@ -237,6 +237,25 @@ def ja_key(entry):
     return (orthography.key(entry.get('word', '')), NOMINAL_POS.get(entry.get('pos'), entry.get('pos')))
 
 
+def _generated_participles(verb, forms, ja, lang):
+    """活用表の男性単数主格の分詞から、変化形を作った分詞の項目 (greek/participles.py)"""
+    result, seen = [], set()
+    for surface, features in forms:
+        if features.get('mood') != 'participle' or ('Nom', 'sg', 'm') not in features.get('_', []):
+            continue
+        key = (surface, features['tense'], features['voice'])
+        if key in seen:
+            continue
+        seen.add(key)
+        table = participles.declension(surface)
+        if not table:
+            continue
+        info = {'pos': 'participle', 'base': surface, 'pres1sg': verb, 'tense': features['tense'],
+                'voice': features['voice'], 'ja': ja, 'gloss_lang': lang, 'generated': True}
+        result.append((info, [(form, {'_': cng}) for form, cng in table.items()]))
+    return result
+
+
 def _is_participle_entry(entry):
     """分詞の項目 (λυθείς): すべての語義が分詞"""
     senses = entry.get('senses', [])
@@ -279,7 +298,8 @@ def convert_entry(entry, ja_glosses=None):
     if pos == 'verb':
         ja, lang = _gloss(entry, ja_glosses)
         info = {'pos': 'verb', 'pres1sg': base, 'ja': ja, 'gloss_lang': lang}
-        return [(info, _verb_forms(entry))]
+        forms = _verb_forms(entry)
+        return [(info, forms)] + _generated_participles(base, forms, ja, lang)
 
     if pos == 'prep':
         cases, glosses = _prep_cases(entry)
