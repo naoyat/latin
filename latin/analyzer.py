@@ -11,6 +11,7 @@ import os
 from dataclasses import dataclass, field
 
 from . import latindic
+from . import language
 from . import ldt
 from . import rftagger
 from . import latin_char as char
@@ -256,10 +257,9 @@ def detect_and_or(words, trace):
                 ao_loc.add(aos[0])
                 # aos.append(aos[0])
 
-    detect('et')
-    detect('neque')
-
-    detect('aut')
+    lang = language.current()
+    for and_or_word in lang.and_words + lang.nor_words + lang.or_words:
+        detect(and_or_word)
 
     def same(word1, word2, pos_check=True):
         if not isinstance(word1, Word) or not isinstance(word2, Word):
@@ -293,7 +293,7 @@ def detect_and_or(words, trace):
             word2 = words[i+1]
             if same(word1, word2):
                 trace.append("// #%d ET #%d: %s == %s" % (i-1, i+1, word1.surface_utf8(), word2.surface_utf8()))
-                cl = AndOr('et')
+                cl = AndOr(language.current().and_words[0])
                 cl.add([word1])
                 cl.add([word2])
                 trace.extend(cl.messages)
@@ -324,7 +324,7 @@ def detect_and_or(words, trace):
 
             if same(word1, word2):
                 trace.append("// #%d #%d ET #%d (#%d): %s == %s" % (i-2, i-1, i+1, i+2, word1.surface_utf8(), word2.surface_utf8()))
-                cl = AndOr('et')
+                cl = AndOr(language.current().and_words[0])
                 word1.add_modifier(word1a)
                 cl.add([word1])
                 visited.add(i-2)
@@ -371,7 +371,7 @@ def detect_and_or(words, trace):
                 head1.add_modifier(m)
             for m in mods2:
                 head2.add_modifier(m)
-            cl = AndOr('et')
+            cl = AndOr(language.current().and_words[0])
             cl.add([head1])
             cl.add([head2])
             trace.extend(cl.messages)
@@ -382,7 +382,7 @@ def detect_and_or(words, trace):
             return True
 
         surface = word.surface
-        if surface == 'et' and i+1 < len(words):
+        if surface in language.current().and_words and i+1 < len(words):
             # print "// %d ET %s" % (i, words[i+1].surface_utf8())
             if i >= 1:
                 if not bind_two_if_same() and i >= 2:
@@ -395,6 +395,12 @@ def detect_and_or(words, trace):
 
     visited_ix = [ix for ix in visited if ix not in ao_loc]#[ix for ix in visited])
     return (words, visited_ix)
+
+
+def _coordinators():
+    """係り先を探すときに越えない並列の接続詞 (et, neque)"""
+    lang = language.current()
+    return lang.and_words + lang.nor_words
 
 
 ABL_PREPOSITIONS_CASE = 'Abl'
@@ -569,7 +575,7 @@ def _nominal_tuples(node):
 
 def _is_sum_word(node):
     return isinstance(node, Word) and bool(node.items) and node.items[0].pos == 'verb' and \
-        node.items[0].attrib('pres1sg') == 'sum'
+        language.current().is_copula(node.items[0].attrib('pres1sg'))
 
 
 def _finite_verb_numbers(nodes):
@@ -721,14 +727,14 @@ def detect_adj_correspondances(words, trace):
                 continue
             if word.items[0].pos == 'conj':
                 boundaries.add(i)
-            if word.surface in ('et', 'neque') or word.items[0].pos == 'preposition':
+            if word.surface in _coordinators() or word.items[0].pos == 'preposition':
                 blocks[i] = word
                 continue
 
             first_item = word.items[0]
             if first_item.pos == 'verb':
                 blocks[i] = word
-                if first_item.attrib('pres1sg') != 'sum':
+                if not language.current().is_copula(first_item.attrib('pres1sg')):
                     verb_blocks.add(i)
                 continue
             elif first_item.pos in ('adj', 'pp'):
@@ -796,7 +802,7 @@ def detect_adj_correspondances(words, trace):
     def is_sum(ix):
         w = words[ix] if 0 <= ix < M else None
         return isinstance(w, Word) and bool(w.items) and w.items[0].pos == 'verb' and \
-            w.items[0].attrib('pres1sg') == 'sum'
+            language.current().is_copula(w.items[0].attrib('pres1sg'))
 
     attached_determiners = []
     for det_ix, _ in determiners:
@@ -840,7 +846,7 @@ def detect_genitive_correspondances(words, trace):
                 continue
 
             first_item = word.items[0]
-            if word.surface in ('et', 'neque') or first_item.pos == 'preposition':
+            if word.surface in _coordinators() or first_item.pos == 'preposition':
                 blocks[i] = word
                 continue
             if first_item.pos == 'adj' and first_item.attrib('base') == 'plēnus':
@@ -928,7 +934,7 @@ def _group_by_verbs(words, verbs_ix, trace):
                     break
         if well_divided_at is None:
             for j in range(fr, to+1):
-                if words[j].surface == 'et':
+                if words[j].surface in language.current().and_words:
                     well_divided_at = j-1
                     break
         if well_divided_at is not None:
@@ -990,7 +996,7 @@ def _promote_complement(pred):
         first, _ = _span(m)
         return first is None or subject.index is None or abs(first - subject.index) > 1
 
-    negations = {w.index for w in pred.modifiers if isinstance(w, Word) and w.surface.lower() in ('nōn', 'non')}
+    negations = {w.index for w in pred.modifiers if isinstance(w, Word) and language.current().is_negation(w.surface)}
 
     def before_sum(m):
         # 名詞 形容詞 (nōn) sum の順
@@ -1138,10 +1144,10 @@ def _attach_to_predicate(words, group, verb_ix):
             elif first_item.pos == 'adv':
                 # 節の頭の副詞 (tum, deinde) は接続詞の枠に。2語の慣用句 (animō suspēnsō, quō pactō の
                 # ような文頭のものを除く) は述語の修飾語として動詞の前に置く
-                if j < 2 and not pred.conjunction and word.surface.lower() not in ('nōn', 'non') \
+                if j < 2 and not pred.conjunction and not language.current().is_negation(word.surface) \
                         and (' ' not in word.surface or j == 0):
                     pred.conjunction = word
-                elif word.surface in ('ō', 'Ō'):
+                elif word.surface in language.current().vocative_particles:
                     # 二重になってないかチェックする or conjunction を複数取る
                     pred.conjunction = word
                 else:
@@ -1149,7 +1155,7 @@ def _attach_to_predicate(words, group, verb_ix):
             elif first_item._:
                 cases = [x[0] for x in first_item._]
                 case = None
-                if 'Voc' in cases and ix > 0 and words[ix-1].surface in ('ō', 'Ō'):
+                if 'Voc' in cases and ix > 0 and words[ix-1].surface in language.current().vocative_particles:
                     case = 'Voc'
                     # 形的にVocしかありえないケースも拾いたい
                 elif pred.is_sum and 'Nom' in cases:

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from latin.LatinObject import LatinObject
+from latin import language
 
 def uniq(s):
     return list(dict.fromkeys(s))  # 順序を保って重複を除く
@@ -164,6 +165,6 @@ class AndOr (LatinObject):
             # tr.append(' '.join([word.translate() for word in words]))
             tr.append(words[0].translate()[0])
         if self.pos == 'adj':
-            return ('、かつ'.join(tr), self.and_or_word == 'neque')
+            return ('、かつ'.join(tr), language.current().is_nor(self.and_or_word))
         else:
-            return ('と'.join(tr), self.and_or_word == 'neque')
+            return ('と'.join(tr), language.current().is_nor(self.and_or_word))

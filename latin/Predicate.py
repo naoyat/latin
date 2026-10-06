@@ -5,6 +5,7 @@ from latin.LatinObject import LatinObject
 from latin.Word import Word
 
 from latin.AndOr import AndOr
+from latin import language
 from .japanese import JaVerb, copula_predicate, copula_conjunctive
 from . import verb_flags as Verb
 
@@ -34,7 +35,7 @@ class Predicate (LatinObject):
         self.conjunction = None
         self.subordinates = []  # 従属節 (独立奪格など)
         self.subordinate = False  # 不定詞句の中の述語 (主語は sum でも「は」でなく「が」)
-        self.is_sum = self.first_item.item.get('pres1sg', None) == 'sum'
+        self.is_sum = language.current().is_copula(self.first_item.item.get('pres1sg', None))  # 繋辞 (sum)
 
     def add_nominal(self, case, obj):
         # self.objects[case] = self.objects.get(case, []).append(obj)
@@ -73,7 +74,7 @@ class Predicate (LatinObject):
         person = verb.attrib('person', 0)
 
         if self.conjunction:
-            if self.conjunction.surface == 'et':
+            if self.conjunction.surface in language.current().and_words:
                 t = 'そして'
             else:
                 t, neg = self.conjunction.translate()
@@ -88,7 +89,7 @@ class Predicate (LatinObject):
             if not getattr(clause, 'adverbial', False):
                 tr.append(clause.translate()[0])
 
-        cases_ja = {'Nom':'が', 'Acc':'を', 'Gen':'の', 'Dat':'に', 'Abl':'で', 'Voc':'よ', 'Loc':'で'}
+        cases_ja = language.current().case_particles
 
         sum_complement = []
         # Nominative
@@ -237,7 +238,7 @@ class Predicate (LatinObject):
 
 
 def is_negation(word):
-    return isinstance(word, Word) and word.surface.lower() in ('nōn', 'non')
+    return isinstance(word, Word) and language.current().is_negation(word.surface)
 
 
 def copula_tense(tense):
