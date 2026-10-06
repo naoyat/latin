@@ -192,6 +192,8 @@ def _item(parse):
             return {'pos': 'pronoun', 'base': lemma, 'ja': PRONOUNS.get(lemma, lemma), 'gloss_lang': 'ja', '_': [cng]}
         ja, gloss_lang, entry = _gloss(lemma, ('noun', 'name'))
         item = {'pos': 'noun', 'base': lemma, 'ja': ja, 'gloss_lang': gloss_lang, '_': [cng]}
+        if tag.animacy == 'anim':
+            item['animate'] = True  # 人・動物 (存在の文で「いる」)
         if entry and entry['word'] != lemma:
             item['stressed'] = entry['word']
         return item
@@ -234,8 +236,18 @@ def _nominal_pronoun(parse):
     return parse.tag.POS == 'NPRO' or (parse.tag.POS == 'ADJF' and 'Apro' in parse.tag)
 
 
+# есть は быть の現在形「ある」(у меня есть книга) と動詞 есть「食べる」の不定形。pymorphy3 は後者だけを残すので両方を
+EST = [{'pos': 'verb', 'pres1sg': 'быть', 'base': 'быть', 'ja': '在る,居る', 'gloss_lang': 'ja', 'aspect': 'impf',
+        'voice': 'active', 'mood': 'indicative', 'tense': 'present', 'person': 3, 'number': 'sg', 'existential': True,
+        'source': 'table'}]
+
+
 @functools.lru_cache(maxsize=65536)
 def _analyze(key):
+    if key == 'есть':
+        return EST + [item for item in _analyze('есть ') if item['pos'] == 'verb']
+    if key == 'есть ':
+        key = 'есть'
     if key.isdigit():
         # 数字 (2012 года) は格の決まらない数詞
         return [{'pos': 'adj', 'base': key, 'ja': key, 'gloss_lang': 'ja', '_': list(NUMBER_CASES), 'desc': '数詞',

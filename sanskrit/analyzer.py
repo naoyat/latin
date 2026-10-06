@@ -37,6 +37,7 @@ SANSKRIT = language.Language(
                     'Voc': 'よ'},
     absolute_case='Loc',  # 処格独立 (sati saptamī)
     pronoun_subject=True,
+    possessor_cases=('Gen', 'Dat'),  # mama pustakam asti「私には本がある」
     lookup=_root_items,
 )
 

@@ -70,6 +70,27 @@ class Predicate (LatinObject):
         """言語の設定 (Language.particle) で決まる、格の枠の語の助詞。決まらなければ None (既定の助詞)"""
         return self.language.particle(case, obj, self) if self.language.particle else None
 
+    def _existential(self, case_slot):
+        """存在・所有の文か: 繋辞で、主格が名詞類1つだけ (補語の形容詞が無い) で、所有者 (与格、述語の枠に残った属格) か
+        場所 (前置詞句・処格) がある (Mihi est liber, Est in hortō rosa, У меня есть книга, ἔστι μοι βιβλίον)。
+        繋辞の項目に existential があればそれだけで (ロシア語の нет + 生格)。
+        存在文なら主語が人のとき 'animate'、それ以外は True"""
+        if not self.is_sum:
+            return False
+        noms = case_slot.get('Nom', []) + (case_slot.get('Nom/Acc', []) if self.person() == 3 else [])
+        if len(noms) != 1 or not _nominal(noms[0]) or case_slot.get('Acc'):
+            return False  # 対格があれば存在文ではない (繋辞は対格を取らない)
+        place = any(isinstance(case, tuple) for case in case_slot if case_slot[case]) or bool(case_slot.get('Loc'))
+        possessor = any(case_slot.get(case) for case in self.language.possessor_cases)
+        if self.first_item.attrib('existential'):
+            pass
+        elif isinstance(noms[0], Word) and noms[0].items[0].pos == 'pronoun':
+            if not place:
+                return False  # 代名詞の主語は場所があるときだけ (hoc est …「これは…だ」は存在文でない)
+        elif not (place or possessor):
+            return False
+        return 'animate' if _animate(noms[0]) else True
+
     def translate(self):
         # 訳の組み立てで格スロットを並べ替えるので、作業用のコピーを使う
         # (self.case_slot を書き換えると、表示や再度の translate() の結果が変わってしまう)
@@ -99,6 +120,7 @@ class Predicate (LatinObject):
         cases_ja = self.language.case_particles
 
         sum_complement = []
+        is_existential = self._existential(case_slot)
         # Nominative
         noms = []
         nom_acc_objs = case_slot.get('Nom/Acc', [])
@@ -119,7 +141,9 @@ class Predicate (LatinObject):
                 nom, neg = obj.translate()
                 if neg: negated = True
 
-                if articled:
+                if is_existential:
+                    noms.append(nom)  # 存在・所有の文の主語 (Mihi est liber「私には本がある」の liber)
+                elif articled:
                     if obj in articled:
                         noms.append(nom)
                     else:
@@ -159,7 +183,7 @@ class Predicate (LatinObject):
 
         if noms:
             nom_case_ja = 'が'
-            if self.is_sum and not self.subordinate:
+            if self.is_sum and not self.subordinate and not is_existential:
                 nom_case_ja = 'は'
             joined = '='.join(noms)
             if joined.endswith(nom_case_ja):
@@ -184,6 +208,8 @@ class Predicate (LatinObject):
                 if neg: negated = True  # neque ... neque ... は主語以外の枠にも現れる
                 trs.append(t)
             particles = [self._particle(case, obj) for obj in objs] if not isinstance(case, tuple) else []
+            if is_existential and case in self.language.possessor_cases:
+                particles = ['には'] * len(objs)  # 所有者 (mihi「私には」、μοι、राज्ञः)
             if any(particles):
                 # 言語の設定で語ごとに助詞を決める (ギリシア語: ἀκούω + 属格「〜を」, 比較の属格「〜より」)
                 tr.append('='.join(t + (p or case_ja) for t, p in zip(trs, particles)))
@@ -250,13 +276,19 @@ class Predicate (LatinObject):
             verb_tr = jas[0] + english_verb_label(verb, negated and not self.is_sum)
         else:
             verb_tr = ','.join([JaVerb(ja).form(flag, negated and not self.is_sum) for ja in jas])
-        if self.is_sum and not sum_complement and verb.attrib('gloss_lang', 'ja') == 'ja':
+        if is_existential:
+            # 存在・所有: 「ある / いる」(否定は「ない / いない」)
+            verb_tr = JaVerb('いる' if is_existential == 'animate' else 'ある').form(flag & ~Verb.ING, negated)
+            negated = False
+        elif self.is_sum and not sum_complement and verb.attrib('gloss_lang', 'ja') == 'ja':
             # 補語の無い繋辞は存在の意味で (εἰμί「有る,居る,存在する,〜である」→ 有った,居た,存在した)
             existential = [ja for ja in jas if not ja.startswith(('〜', '～'))]
             if existential:
                 verb_tr = ','.join(JaVerb(ja).form(flag, negated) for ja in existential)
                 negated = False
-        if self.is_sum and sum_complement:
+        if is_existential:
+            pass
+        elif self.is_sum and sum_complement:
             verb_tr = '='.join(copula_translation(obj, copula_tense(tense), negated) for obj in sum_complement)
         elif negated and self.is_sum:
             verb_tr = '¬'+ verb_tr  # 補語の無い sum (〜である) は否定の形を作れない
@@ -268,6 +300,20 @@ class Predicate (LatinObject):
 #        tr.append(self.first_item.ja )
 
         return (' / '.join(tr), False)
+
+
+PERSON_PRONOUNS = ('私', 'あなた', '彼', '彼女', '我々', '私たち', 'あなたたち', 'あなた方', '彼ら', '自分')
+
+
+def _nominal(obj):
+    return isinstance(obj, AndOr) or (isinstance(obj, Word) and obj.items and obj.items[0].pos in ('noun', 'pronoun'))
+
+
+def _animate(obj):
+    if isinstance(obj, Word) and obj.items:
+        item = obj.items[0]
+        return item.attrib('animate') or (item.pos == 'pronoun' and item.ja.split(',')[0] in PERSON_PRONOUNS)
+    return False
 
 
 def _has_article(obj):

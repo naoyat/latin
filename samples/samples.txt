@@ -27,6 +27,10 @@ Via longa et lāta nōn erat.
 Templum aureum est.
 Magnus vir est.
 
+## 所有と存在 (与格の所有者、場所)
+Mihi est liber.
+Est in hortō rosa.
+
 ## 時制・態・否定
 Puer ā magistrō laudātur.
 Servī epistulās portāvērunt.

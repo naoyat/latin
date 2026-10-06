@@ -140,6 +140,10 @@ class AnalyzerTestCase(unittest.TestCase):
     def test_copula(self):
         self.assertIn('あなたである', analyze('तत् त्वम् असि ।').clauses[0].predicate.translate()[0])
 
+    def test_possession_and_existence(self):
+        self.assertTrue(analyze('मम पुस्तकम् अस्ति ।').clauses[0].predicate.translate()[0].endswith('には / ある'))
+        self.assertTrue(analyze('वने सिंहः अस्ति ।').clauses[0].predicate.translate()[0].startswith('ライオンが'))
+
     def test_locative_absolute(self):
         a = analyze('सूर्ये उदिते सर्वे जनाः उत्तिष्ठन्ति ।')
         self.assertEqual(len(a.absolutes), 1)

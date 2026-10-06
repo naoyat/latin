@@ -1191,10 +1191,21 @@ def _attach_to_predicate(words, group, verb_ix):
                 if 'Voc' in cases and ix > 0 and words[ix-1].surface in language.current().vocative_particles:
                     case = 'Voc'
                     # 形的にVocしかありえないケースも拾いたい
-                elif pred.is_sum and 'Nom' in cases:
-                    case = 'Nom'  # sum は対格を取らない (templum aureum est)
+                elif pred.is_sum and 'Nom' in cases and cases[0] in ('Nom', 'Acc'):
+                    case = 'Nom'  # sum は対格を取らない (templum aureum est)。一番の読みが処格などの語は除く (vane「森に」)
                 else:
-                    for x in first_item._:
+                    cngs = first_item._
+                    # 双数は、ほかの読みがあれば使わない (vane: 主格双数より処格単数)。
+                    # 繋辞は対格を取らないので、ほかの読みがあれば対格は使わない (rājñaḥ putraḥ asti: 対格複数より属格単数)
+                    if any(x[1] != 'du' for x in cngs):
+                        cngs = [x for x in cngs if x[1] != 'du']
+                    if pred.is_sum and any(x[0] != 'Acc' for x in cngs):
+                        cngs = [x for x in cngs if x[0] != 'Acc']
+                    if pred.is_sum:
+                        # 繋辞の文では所有者の格を先に (rājñaḥ: 奪格より属格、Mārcō: 奪格より与格)
+                        possessor = language.current().possessor_cases
+                        cngs = sorted(cngs, key=lambda x: x[0] not in possessor)
+                    for x in cngs:
                         if x[0] == 'Nom':
                             if x[2] == 'n':
                                 case = 'Nom/Acc'

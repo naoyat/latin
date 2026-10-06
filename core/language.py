@@ -37,6 +37,7 @@ class Language:
     pronoun_subject: bool = False  # 繋辞の文で代名詞も名詞と同じく主語になる (tat tvam asi, Он студент)
     genitive_follows_head: bool = False  # 属格は前の名詞にだけ掛かり、動詞を越えない (ロシア語の книга брата)
     objects_follow_verb: bool = False  # 目的語が動詞の後ろに来る語順 (ロシア語)。2つの動詞の間の語を前の動詞に
+    possessor_cases: tuple = ('Dat',)  # 繋辞の文で所有者を表す格 (mihi est liber「私には本がある」。サンスクリットは属格)
 
     def is_copula(self, pres1sg):
         return pres1sg in self.copulas

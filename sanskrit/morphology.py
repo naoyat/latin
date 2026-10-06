@@ -238,10 +238,10 @@ def analyze(slp1):
             item['surface'] = script.iast(slp1)
             item['source'] = 'vidyut'
             merged[sig] = item
-    # 呼格は後ろに (tat, etat の中性単数は主格・対格・呼格が同形)
+    # 呼格・双数は後ろに (tat, etat の中性単数は主格・対格・呼格が同形。vane は処格単数か主格・対格の双数)
     for item in merged.values():
         if '_' in item:
-            item['_'].sort(key=lambda cng: cng[0] == 'Voc')
+            item['_'].sort(key=lambda cng: (cng[0] == 'Voc', cng[1] == 'du'))
     # 代名詞の読みを先に (saḥ「彼」と sas「アナペスト」)。bhavat「あなた」の処格 bhavati は動詞 bhavati「なる」の後
     return sorted(merged.values(), key=lambda item: item['pos'] != 'pronoun' or item['base'] == 'bhavat')
 

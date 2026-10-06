@@ -101,6 +101,10 @@ COPULA = {'pos': 'verb', 'pres1sg': 'быть', 'base': 'быть', 'ja': '在�
           'desc': '省略された繋辞'}
 
 
+def _genitive(word):
+    return bool(word.items) and any(cng[0] == 'Gen' for cng in word.items[0]._ or [])
+
+
 def _nominative(word):
     return bool(word.items) and word.items[0].pos in ('noun', 'pronoun', 'adj') and \
         any(cng[0] == 'Nom' for cng in word.items[0]._ or [])
@@ -158,14 +162,82 @@ def merge_compound_verbs(words):
     return out
 
 
+MODALS = {'хотеть', 'надо', 'нужно', 'можно', 'нельзя', 'мочь', 'любить', 'начать', 'начинать', 'стать', 'быть'}
+
+
+def choose_est(words):
+    """есть は быть の現在形「ある」を先に。ただし хочу есть「食べたい」のように動詞・述語副詞の後ろでは「食べる」"""
+    for i, word in enumerate(words):
+        if word.surface.lower() != 'есть' or not word.items:
+            continue
+        prev = words[i - 1].items[0] if i > 0 and words[i - 1].items else None
+        if prev is not None and (prev.pos == 'verb' or prev.attrib('base') in MODALS):
+            word.items = [item for item in word.items if not item.attrib('existential')] + \
+                [item for item in word.items if item.attrib('existential')]
+
+
+def _possessive_preposition(words):
+    """存在・所有の文の у + 生格 (у меня есть книга「私には本がある」) は「〜には」と訳す"""
+    for word in words:
+        if word.surface.lower() == 'у' and word.items:
+            for item in word.items:
+                if item.pos == 'preposition':
+                    item.ja = '〜には'
+                    item.item['ja'] = '〜には'
+
+
+def negative_existence(words):
+    """нет / не было / не будет + 生格「〜が無い」: 主格の名詞類が無ければ、生格の名詞を主語として読む
+    (У меня нет книги「私には本が無い」)。нет だけなら見えない繋辞を補う"""
+    surfaces = [w.surface.lower() for w in words]
+    has_net = 'нет' in surfaces
+    negated_byt = any(s == 'не' and i + 1 < len(words) and words[i + 1].items and
+                      words[i + 1].items[0].attrib('pres1sg') == 'быть' for i, s in enumerate(surfaces))
+    # 生格とも読める主格 (книги: 生格単数 / 主格複数) は主語の候補に数えない
+    if not (has_net or negated_byt) or any(_nominative(w) and not _genitive(w) for w in words):
+        return words
+    for i, word in enumerate(words):
+        if not word.items or word.items[0].pos not in ('noun', 'pronoun') or common._after_genitive_preposition(words, i):
+            continue
+        item = word.items[0]
+        gen = [c for c in item._ or [] if c[0] == 'Gen']
+        if gen:
+            item._ = gen + [c for c in item._ if c[0] != 'Gen']  # 生格の読みを先に
+        if item._ and item._[0][0] == 'Gen':
+            item._ = [('Nom',) + tuple(item._[0][1:])] + item._  # 存在の否定の主語
+            for adj in words[max(0, i - 3):i]:
+                if adj.items and adj.items[0].pos == 'adj' and adj.items[0]._ and adj.items[0]._[0][0] == 'Gen':
+                    adj.items[0]._ = [('Nom',) + tuple(c[1:]) for c in adj.items[0]._ if c[0] == 'Gen'] + adj.items[0]._
+    if has_net:
+        at = surfaces.index('нет')
+        copula = Word('(есть)', [dict(COPULA, surface='(есть)', existential=True)])
+        words = words[:at + 1] + [copula] + words[at + 1:]
+    else:
+        for word in words:
+            if word.items and word.items[0].attrib('pres1sg') == 'быть':
+                word.items[0].item['existential'] = True
+    _possessive_preposition(words)
+    return words
+
+
+def mark_existential(words):
+    """есть / был があって у + 生格がある文 (所有) は у を「〜には」と訳す"""
+    if any(w.items and w.items[0].attrib('pres1sg') == 'быть' for w in words) and \
+            any(w.surface.lower() == 'у' for w in words):
+        _possessive_preposition(words)
+
+
 def lookup_all(surfaces):
     words = [_word(s) for s in surfaces]
+    choose_est(words)
     for ix, word in enumerate(words):
         word.token_ix = ix  # 元の語の位置 (補った繋辞には無い)
     choose_verbs(words)
     words = merge_compound_verbs(words)
     prefer_governed_cases(words)
+    words = negative_existence(words)
     words = supply_copula(words)
+    mark_existential(words)
     for i, word in enumerate(words):
         word.index = i
     return words

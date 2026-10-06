@@ -110,6 +110,22 @@ class CoordinatedAdjectiveTestCase(unittest.TestCase):
         self.assertTrue(any(isinstance(m, AndOr) for m in modifiers))
 
 
+class ExistentialTestCase(unittest.TestCase):
+    """存在・所有の文 (与格の所有者、場所): 「〜には 〜が ある」"""
+
+    def translate(self, text):
+        return analyze(text).clauses[0].predicate.translate()[0]
+
+    def test_dative_of_possession(self):
+        self.assertTrue(self.translate('Mihi est liber.').endswith('私には / ある'))
+
+    def test_negated(self):
+        self.assertTrue(self.translate('Mihi nōn est liber.').endswith('私には / ない'))
+
+    def test_predicate_noun_is_not_existential(self):
+        self.assertFalse(self.translate('Mārcus est agricola.').endswith(' / ある'))
+
+
 class GloriaTestCase(unittest.TestCase):
     """Templum, glōria rēgis Siciliae, māgnum incolās dēlectābat."""
 
