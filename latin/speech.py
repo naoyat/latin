@@ -48,6 +48,24 @@ proc = None
 language = 'la'          # 'la' / 'grc'
 pronunciation = 'attic'  # ギリシア語の発音の流儀 (attic / koine / erasmian)
 ESPEAK_VOICES = {'la': 'la', 'grc': 'grc'}
+# 現代ギリシア語式 (--pron=modern) で読む MBROLA の現代ギリシア語音声 (gr1 / gr2)
+MODERN_GREEK_VOICE = os.path.join(MBROLA_HOME, 'voices', 'gr2', 'gr2')
+# 声ごとの、収録されていないダイフォン (合成時に mbrola の警告から自動的に追加される)
+MISSING_BY_VOICE = {}
+
+
+def missing_diphones():
+    if voice not in MISSING_BY_VOICE:
+        MISSING_BY_VOICE[voice] = latin_prosody.MISSING_DIPHONES if voice.endswith('la1') else set()
+    return MISSING_BY_VOICE[voice]
+
+
+def _default_voice(backend_name):
+    if backend_name == 'espeak':
+        return ESPEAK_VOICES.get(language, BACKENDS['espeak']['voice'])
+    if backend_name == 'mbrola' and language == 'grc' and pronunciation == 'modern':
+        return MODERN_GREEK_VOICE
+    return BACKENDS[backend_name]['voice']
 
 
 def set_language(lang, pron=None):
@@ -65,8 +83,9 @@ def make_pho(text):
     """いまの言語の .pho"""
     if language == 'grc':
         from greek import prosody as greek_prosody
-        return greek_prosody.to_pho(text, pron=pronunciation)
-    return latin_prosody.to_pho(text, accent=accent)
+        return greek_prosody.to_pho(text, pron=pronunciation, missing=missing_diphones(),
+                                    phone_set='gr2' if voice.endswith('gr2') else 'gr1')
+    return latin_prosody.to_pho(text, accent=accent, missing=missing_diphones())
 ACCENTS = ('pitch', 'stress')
 accent = 'pitch'  # mbrola: 'pitch' (高低アクセント) / 'stress' (強勢アクセント)
 
@@ -96,7 +115,9 @@ def _init_synth(backend_name, voice_name=None):
     if conf['command'] and shutil.which(conf['command']) is None:
         print("Speech Synthesizer (%s) is not available" % conf['command'])
         return None
-    voice = voice_name or (ESPEAK_VOICES.get(language, conf['voice']) if backend_name == 'espeak' else conf['voice'])
+    if backend_name == 'mbrola' and voice_name and not os.path.exists(voice_name):
+        voice_name = os.path.join(MBROLA_HOME, 'voices', voice_name, voice_name)  # -v gr1 のような名前だけ
+    voice = voice_name or _default_voice(backend_name)
     if backend_name == 'mbrola' and not os.path.exists(voice):
         print("MBROLA voice is not available: %s" % voice)
         return None
@@ -148,10 +169,10 @@ def synthesize_mbrola(text, wav_file, max_retry=3):
             result = run([command, '-e', voice, pho_file, wav_file],
                          capture_output=True, text=True)
             missing = {(a, b) for a, b in re.findall(r'Warning: (\S+?)-(\S+) unknown', result.stderr)}
-            new = missing - latin_prosody.MISSING_DIPHONES
+            new = missing - missing_diphones()
             if not new:
                 break
-            latin_prosody.MISSING_DIPHONES.update(new)
+            missing_diphones().update(new)
     finally:
         os.unlink(pho_file)
 

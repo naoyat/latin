@@ -24,11 +24,11 @@ def _nfc(text):
     return unicodedata.normalize('NFC', text)
 
 
-def key(word):
-    """辞書と照合する形"""
+def key(word, keep_length=False):
+    """辞書と照合する形 (keep_length なら長短の印 ᾱ ᾰ を残す。音読で母音の長さを知るため)"""
     for a in APOSTROPHES:
         word = word.replace(a, '’')
-    chars = [c for c in _nfd(word) if c not in (MACRON, BREVE)]
+    chars = [c for c in _nfd(word) if keep_length or c not in (MACRON, BREVE)]
     chars = [ACUTE if c == GRAVE else c for c in chars]
     # 前接語のアクセント: 鋭アクセントが2つあれば後ろのものを除く
     if chars.count(ACUTE) + chars.count(CIRCUMFLEX) >= 2 and chars.count(ACUTE) >= 1:

@@ -12,7 +12,8 @@
 #   -w, --wav=FILE       再生せずに WAV に書き出す
 #   -d, --debug          音素列 (.pho / IPA) を表示する
 #   --lang=grc           古典ギリシア語を読む (mbrola は la1 音声で、espeak は -v grc で)
-#   --pron=NAME          ギリシア語の発音: attic (既定、復元アッティカ発音・高低アクセント) / koine / erasmian
+#   --pron=NAME          ギリシア語の発音: attic (既定、復元アッティカ発音・高低アクセント) / koine / erasmian /
+#                        modern (現代ギリシア語式。MBROLA の現代ギリシア語音声 gr2、-v gr1 で gr1)
 #
 #   python3 tools/speak.py --lang=grc "μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος"
 #

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# 古典ギリシア語の韻律付け: 音素 (greek.phonology) → MBROLA の .pho (ラテン語音声 la1 で読む)
+# 古典ギリシア語の韻律付け: 音素 (greek.phonology) → MBROLA の .pho
+# (ラテン語音声 la1 で読む。現代ギリシア語式 (modern) は現代ギリシア語音声 gr1 / gr2 で読む)
 #
 # 高低アクセント (attic) は綴りのアクセント記号どおりに:
 #   鋭アクセント  短い母音ならその母音で上がる。長い母音・二重母音なら後半のモーラで上がる
@@ -65,7 +66,30 @@ def _pitch_targets(nucleus, k, n, pitch, style):
     return [(50, pitch)]
 
 
-def to_pho(text, pron='attic', speed=1.0, missing=MISSING_DIPHONES):
+# gr2 は SAMPA ではなく独自の記号 (UoA-TtS-PA) を使い、ks ps ts dz を1つの単位で持つ
+GR2_SYMBOLS = {'gj': 'q', 'jj': 'j', 'ts': 'S', 'dz': 'Z'}
+GR2_CLUSTERS = {('k', 's'): 'X', ('p', 's'): 'Y'}
+CONSONANT_SYMBOLS = set('pbtdkcgqfvTDszGjxCmMnNVrRlLSZXY') | {'gj', 'jj', 'ts', 'dz'}
+
+
+def _to_gr2(seq):
+    """現代ギリシア語式の音素の列を gr2 の記号に (ks → X、子音の後の r → R、g・q の前の n → V など)"""
+    out = []
+    for item in seq:
+        ph = GR2_SYMBOLS.get(item[0], item[0])
+        if out and out[-1][1] is None and item[1] is None and (out[-1][0], ph) in GR2_CLUSTERS:
+            out[-1] = [GR2_CLUSTERS[(out[-1][0], ph)]] + out[-1][1:]
+            continue
+        if ph == 'r' and out and out[-1][1] is None and out[-1][0] in CONSONANT_SYMBOLS:
+            ph = 'R'
+        if ph in ('g', 'q') and out and out[-1][0] == 'n':
+            out[-1] = ['V'] + out[-1][1:]
+        out.append([ph] + item[1:])
+    return out
+
+
+def to_pho(text, pron='attic', speed=1.0, missing=MISSING_DIPHONES, phone_set=None):
+    """phone_set は現代ギリシア語式の音声の記号 ('gr1' / 'gr2')"""
     style = ACCENT_STYLE[pron]
     lines = ['_ %d' % PAUSE['edge']]
     prev = '_'
@@ -79,6 +103,8 @@ def to_pho(text, pron='attic', speed=1.0, missing=MISSING_DIPHONES):
 
     for words, boundary in _phrases(analyze_text(text, pron)):
         seq = _sequence(words)
+        if pron == 'modern' and phone_set == 'gr2':
+            seq = _to_gr2(seq)
         n = len(seq)
         for i, (ph, nucleus, k, size) in enumerate(seq):
             progress = i / max(1, n - 1)
@@ -101,7 +127,7 @@ def to_pho(text, pron='attic', speed=1.0, missing=MISSING_DIPHONES):
                     targets = targets + [(100, pitch * 1.25)]
                 elif boundary == 'period':
                     targets = targets + [(100, pitch * 0.8)]
-            name = LA1.get(ph, ph)
+            name = ph if pron == 'modern' else LA1.get(ph, ph)  # 現代ギリシア語式は gr1/gr2 の音素のまま
             emit(name, '%s %d %s' % (name, dur / speed, ' '.join('%d %d' % t for t in targets)))
         emit('_', '_ %d' % PAUSE.get(boundary, PAUSE['comma']))
     lines.append('_ %d' % PAUSE['edge'])

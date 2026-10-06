@@ -55,12 +55,22 @@ def canonical(entry):
 def _surfaces(form):
     """表の形から辞書の表層形 (のリスト) を: 冠詞付き (ἡ ῐ̔́ππος) なら最後の語、長短の印などは除く。
     括弧の付いた文字は付けた形と付けない形の両方 (ἐστῐ́(ν) → ἐστί, ἐστίν。ν の付加)"""
+    return [orthography.key(w) for w in _words(form)]
+
+
+def _words(form):
+    """表の形の語 (長短の印つき)。括弧の付いた文字は付けた形と付けない形の両方"""
     word = form.strip().split()[-1] if form.strip() else ''
     m = re.search(r'\(([^)]*)\)', word)
     if m:
-        return [orthography.key(word[:m.start()] + word[m.end():]),
-                orthography.key(word[:m.start()] + m.group(1) + word[m.end():])]
-    return [orthography.key(word)]
+        return [word[:m.start()] + word[m.end():], word[:m.start()] + m.group(1) + word[m.end():]]
+    return [word]
+
+
+def _length(word):
+    """長短の印 (ᾱ ᾰ) の付いた形。印が無ければ None"""
+    marked = orthography.key(word, keep_length=True)
+    return marked if marked != orthography.key(word) else None
 
 
 ARTICLE_GENDERS = {'ὁ': 'm', 'ἡ': 'f', 'τό': 'n'}
@@ -109,12 +119,15 @@ def _nominal_features(entry, default_genders):
         if not cases or not numbers:
             continue
         genders = [g for tag, g in GENDERS.items() if tag in tags] or default_genders
-        for surface in _surfaces(form['form']):
+        for word in _words(form['form']):
+            surface = orthography.key(word)
             if not surface or surface == '-' or (surface in ARTICLE_FORMS and not article):
                 continue
             features = table.setdefault(surface, {'_': []})
             if dialect and 'dialect' not in features:
                 features['dialect'] = dialect
+            if _length(word) and 'length' not in features:
+                features['length'] = _length(word)  # 母音の長短 (音読で使う)
             for case in cases:
                 for number in numbers:
                     for gender in genders:
@@ -136,8 +149,8 @@ def _verb_forms(entry):
             continue
         if SKIP_FORM_TAGS & set(tags):
             continue
-        surfaces = [s for s in _surfaces(form['form']) if s and s != '-']
-        if not surfaces:
+        words = [w for w in _words(form['form']) if orthography.key(w) and orthography.key(w) != '-']
+        if not words:
             continue
         mood = next((m for m in MOODS if m in tags), None)
         if mood is None:
@@ -158,7 +171,11 @@ def _verb_forms(entry):
                 features['number'] = number
         if dialect:
             features['dialect'] = dialect
-        result.extend((surface, dict(features)) for surface in surfaces)
+        for word in words:
+            f = dict(features)
+            if _length(word):
+                f['length'] = _length(word)
+            result.append((orthography.key(word), f))
     return result
 
 

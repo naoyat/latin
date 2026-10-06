@@ -26,8 +26,8 @@ MACRON, BREVE = '̄', '̆'
 
 VOWELS = set('αεηιουω')
 DIPHTHONGS = {'αι', 'αυ', 'ει', 'ευ', 'οι', 'ου', 'υι', 'ηυ', 'ωυ'}
-PRONUNCIATIONS = ('attic', 'koine', 'erasmian')
-ACCENT_STYLE = {'attic': 'pitch', 'koine': 'stress', 'erasmian': 'stress'}
+PRONUNCIATIONS = ('attic', 'koine', 'erasmian', 'modern')
+ACCENT_STYLE = {'attic': 'pitch', 'koine': 'stress', 'erasmian': 'stress', 'modern': 'stress'}
 
 # 単母音 → (短い音素, 長い音素)。長さの決まっている η ω は常に長い
 SIMPLE = {
@@ -94,6 +94,8 @@ def _accent(marks):
 
 
 def phonemize_word(word, pron='attic'):
+    if pron == 'modern':
+        return phonemize_modern(word)
     units = _letters(word)
     result = Word(word)
     segments = result.segments
@@ -140,25 +142,31 @@ PAUSES = {',': 'comma', '·': 'comma', '·': 'comma', ':': 'comma', '.': 'period
 TOKEN = re.compile(r"[Ͱ-Ͽἀ-῿̀-ͯ]+|[,··:.;;!]")
 
 
-def analyze_text(text, pron='attic'):
-    """[('word', Word) / ('pause', 種類)]"""
+def analyze_text(text, pron='attic', lengths=True):
+    """[('word', Word) / ('pause', 種類)]。lengths なら、長短どちらもある母音の長さを辞書から知る (greek.length)"""
+    marker = None
+    if lengths and pron in ('attic', 'erasmian'):
+        from . import length
+        marker = length.mark
     result = []
     for token in TOKEN.findall(text):
         if token in PAUSES:
             result.append(('pause', PAUSES[token]))
         else:
-            result.append(('word', phonemize_word(token, pron)))
+            result.append(('word', phonemize_word(marker(token) if marker else token, pron)))
     return result
 
 
-def to_ipa(text, pron='attic'):
+def to_ipa(text, pron='attic', lengths=True):
     """確かめるための IPA 風の表記"""
     ipa = {'a': 'a', 'a:': 'aː', 'E': 'e', 'E:': 'ɛː', 'e:': 'eː', 'e': 'e', 'I': 'i', 'i:': 'iː', 'i': 'i',
            'O': 'o', 'O:': 'ɔː', 'o:': 'oː', 'u:': 'uː', 'u': 'u', 'U': 'u', 'y': 'y', 'y:': 'yː',
-           'aE': 'ai̯', 'aU': 'au̯', 'OE': 'oi̯', 'p_h': 'pʰ', 't_h': 'tʰ', 'k_h': 'kʰ', 'N': 'ŋ'}
+           'aE': 'ai̯', 'aU': 'au̯', 'OE': 'oi̯', 'p_h': 'pʰ', 't_h': 'tʰ', 'k_h': 'kʰ', 'N': 'ŋ',
+           # 現代ギリシア語式
+           'e': 'e', 'o': 'o', 'T': 'θ', 'D': 'ð', 'G': 'ɣ', 'jj': 'ʝ', 'C': 'ç', 'c': 'c', 'gj': 'ɟ', 'x': 'x'}
     marks = {'acute': '́', 'circumflex': '̂', 'grave': '̀'}
     words = []
-    for kind, value in analyze_text(text, pron):
+    for kind, value in analyze_text(text, pron, lengths):
         if kind != 'word':
             continue
         out = ''
@@ -167,10 +175,130 @@ def to_ipa(text, pron='attic'):
                 text_ = ''.join(ipa.get(p, p) for p in seg.phonemes)
                 if seg.accent in marks and ACCENT_STYLE[pron] == 'pitch':
                     text_ = text_[0] + marks[seg.accent] + text_[1:]
-                elif seg.accent in ('acute', 'circumflex'):
+                elif seg.accent in ('acute', 'circumflex', 'grave'):
                     text_ = 'ˈ' + text_
                 out += text_
             else:
                 out += ipa.get(seg, seg)
         words.append(out)
     return unicodedata.normalize('NFC', ' '.join(words))
+
+
+# ----------------------------------------------------------------------
+# 現代ギリシア語式 (pron='modern'): 古典の綴りを現代の発音で読む。音素は MBROLA の現代ギリシア語音声
+# gr1 / gr2 の SAMPA (a e i o u, p b t d k c g gj, ts dz, f v T D x C G jj, s z m n l r)。
+#   η ι υ ει οι υι = [i], αι = [e], ου = [u], ω = [o]、αυ ευ = [av ev] / [af ef] (無声音の前・語末)、
+#   β = [v], γ = [ɣ] / [ʝ] (前舌母音の前), δ = [ð], θ = [θ], φ = [f], χ = [x] / [ç]、κ = [k] / [c]、
+#   μπ ντ γκ = 語頭 [b d g] / 語中 [mb nd ŋg]、τσ τζ = [ts dz]、気息は読まず、重子音は1つ、アクセントは強弱
+MODERN_VOWELS = {'α': 'a', 'ε': 'e', 'η': 'i', 'ι': 'i', 'ο': 'o', 'υ': 'i', 'ω': 'o'}
+MODERN_DIPHTHONGS = {'αι': 'e', 'ει': 'i', 'οι': 'i', 'υι': 'i', 'ου': 'u'}
+MODERN_CONSONANTS = {'β': 'v', 'δ': 'D', 'ζ': 'z', 'θ': 'T', 'λ': 'l', 'μ': 'm', 'ν': 'n', 'π': 'p', 'ρ': 'r',
+                     'σ': 's', 'ς': 's', 'τ': 't', 'φ': 'f'}
+MODERN_VOICELESS = set('θκξπστφχψς')
+MODERN_VOICED_CONSONANTS = set('βγδζλμνρ')
+FRONT = {'e', 'i'}
+
+
+def _modern_units(word):
+    """(文字, 記号) の列から、母音の核 ('V', 音素, アクセント) と子音の文字 ('C', 文字) の列に"""
+    units = _letters(word)
+    out = []
+    i = 0
+    while i < len(units):
+        letter, marks = units[i]
+        nxt = units[i + 1] if i + 1 < len(units) else None
+        if letter in VOWELS:
+            pair = letter + nxt[0] if nxt else ''
+            plain = not (marks & {ACUTE, GRAVE, CIRCUMFLEX, DIAERESIS})
+            if nxt and DIAERESIS not in nxt[1] and plain and pair in MODERN_DIPHTHONGS:
+                out.append(('V', MODERN_DIPHTHONGS[pair], _accent(marks | nxt[1])))
+                i += 2
+                continue
+            if nxt and DIAERESIS not in nxt[1] and plain and pair in ('αυ', 'ευ', 'ηυ'):
+                # αυ ευ ηυ: 次が母音・有声子音なら [v]、無声子音・語末なら [f]
+                after = units[i + 2][0] if i + 2 < len(units) else None
+                voiced = after is not None and (after in VOWELS or after in MODERN_VOICED_CONSONANTS)
+                out.append(('V', MODERN_VOWELS[letter], _accent(marks | nxt[1])))
+                out.append(('P', 'v' if voiced else 'f'))
+                i += 2
+                continue
+            out.append(('V', MODERN_VOWELS[letter], _accent(marks)))
+        else:
+            out.append(('C', letter))
+        i += 1
+    return out
+
+
+def phonemize_modern(word):
+    units = _modern_units(word)
+    result = Word(word)
+    segments = result.segments
+
+    def next_vowel(k):
+        for u in units[k + 1:]:
+            if u[0] == 'V':
+                return u[1]
+            if u[0] == 'C' and u[1] in VOWELS:
+                return None
+        return None
+
+    k = 0
+    while k < len(units):
+        kind, value, *rest = units[k] + (None,) if len(units[k]) == 2 else units[k]
+        if kind == 'V':
+            segments.append(Nucleus([value], False, units[k][2]))
+            k += 1
+            continue
+        if kind == 'P':
+            segments.append(value)
+            k += 1
+            continue
+        letter = value
+        nxt = units[k + 1][1] if k + 1 < len(units) and units[k + 1][0] == 'C' else None
+        front = next_vowel(k + (1 if nxt in ('γ', 'κ', 'π', 'τ') and letter in ('γ', 'μ', 'ν') else 0)) in FRONT
+        initial = not segments
+        if letter == 'μ' and nxt == 'π':
+            segments.extend(['b'] if initial else ['m', 'b'])
+            k += 2
+        elif letter == 'ν' and nxt == 'τ':
+            segments.extend(['d'] if initial else ['n', 'd'])
+            k += 2
+        elif letter == 'γ' and nxt in ('γ', 'κ'):
+            g = 'gj' if front else 'g'
+            segments.extend([g] if initial and nxt == 'κ' else ['n', g])
+            k += 2
+        elif letter == 'γ' and nxt in ('ξ', 'χ'):
+            segments.append('n')  # γξ γχ の γ は [ŋ] (ここでは n)
+            k += 1
+        elif letter == 'τ' and nxt in ('σ', 'ς'):
+            segments.append('ts')
+            k += 2
+        elif letter == 'τ' and nxt == 'ζ':
+            segments.append('dz')
+            k += 2
+        elif letter == 'γ':
+            segments.append('jj' if next_vowel(k) in FRONT else 'G')
+            k += 1
+        elif letter == 'κ':
+            segments.append('c' if next_vowel(k) in FRONT else 'k')
+            k += 1
+        elif letter == 'χ':
+            segments.append('C' if next_vowel(k) in FRONT else 'x')
+            k += 1
+        elif letter == 'ξ':
+            segments.extend(['k', 's'])
+            k += 1
+        elif letter == 'ψ':
+            segments.extend(['p', 's'])
+            k += 1
+        elif letter in ('σ', 'ς') and nxt in MODERN_VOICED_CONSONANTS:
+            segments.append('z')  # κόσμος [kozmos]
+            k += 1
+        elif letter in MODERN_CONSONANTS:
+            ph = MODERN_CONSONANTS[letter]
+            if not (segments and segments[-1] == ph):  # 重子音は1つ (ἄλλος [alos])
+                segments.append(ph)
+            k += 1
+        else:
+            k += 1
+    return result
