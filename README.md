@@ -376,13 +376,30 @@ python3 sanskrit.py samples/sanskrit.txt        # -w で語ごとの辞書引き
   （pibati → pā「飲む」、pāti → pā「守る」）。接頭辞の付いた語根は、辞書に無ければ接頭辞を除いて引きます（udeti → ud-行く）。
 * タガーが無いので、定動詞の読みが一番の語を述語にし、形容詞と名詞は隣り合って性・数・格が合えば係り受けにします。
 * 独立奪格の枠組みで処格独立（sūrye udite「太陽が昇ると」）を探します。
+* 複合語（`sanskrit/compound.py`）: 辞書に無い語は、前の語を kosha の語幹（約17万）、最後の語を変化形として分けます。
+  語の境目の連声は Vidyut の連声の規則を逆にたどって戻します（nīlotpala = nīla + utpala、gajendra = gaja + indra、
+  mahā- ← mahat、vaṇik- ← vaṇij）。動詞の接頭辞（anu-, abhi-, sam- など）は複合語の語として分けません。
+  分けた語は六合釈の種類に分けて訳を合成します。辞書にある複合語にも成り立ちを書き添えます（rājaputra = rāja-putra 依主釈）。
+
+| 種類 | 例 | 訳 |
+|---|---|---|
+| 依主釈 tatpuruṣa | vaṇik-putreṇa | merchantのsonで（格の関係は「の」で代表） |
+| 持業釈 karmadhāraya | mahā-rājaḥ | 偉大な君主（前の語が形容詞・分詞） |
+| 帯数釈 dvigu | tri-lokaḥ | 三つの〜（前の語が数詞） |
+| 相違釈 dvandva | rāma-lakṣmaṇau | RāmaとLakshmana（双数・複数で固有名詞を含む） |
+| 有財釈 bahuvrīhi | pīta-ambaraḥ | 〜を持つ（者）（最後の語の本来の性と合わないか、隣の名詞に掛かるとき） |
+| 隣近釈 avyayībhāva | yathā-śakti | strengthに応じて（前の語が不変化詞で全体が副詞） |
+
+  UD Sanskrit-UFAL の複合語 136 語で、分けられたもの 94.9%、語の数が合うもの 90.4%、語幹まで合うもの 84.6%
+  （`python3 tools/sa_compound_eval.py`）。前の語の訳語は Wiktionary の語義の多い見出しの最初の訳語なので、
+  ずれることがあります（pīta「飲まれた / 黄色い」）。
 * 評価用に UD Sanskrit-Vedic と UD Sanskrit-UFAL（どちらも CC BY-SA 4.0）を `~/.local/share/latin-data/sa/ud/` に置き、
   `python3 tools/ud_eval.py --lang=sa [--source=vedic,ufal]` で測ります（連声を解いて複合語を分けた語の列を入力にする）。
 
 | UD Sanskrit | 網羅率 | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 主語 | 目的語 |
 |---|---|---|---|---|---|---|---|
-| Vedic（test、約2.1万語） | 96.9% | 75.5% | 24.5% | 13.1% | 58.8% | 41.3% | 52.0% |
-| UFAL『パンチャタントラ』（test、約1,600語） | 97.7% | 73.4% | 34.5% | 28.6% | 59.9% | 47.2% | 38.5% |
+| Vedic（test、約2.1万語） | 97.4% | 76.6% | 26.9% | 12.9% | 57.9% | 41.1% | 51.3% |
+| UFAL『パンチャタントラ』（test、約1,600語） | 98.9% | 75.7% | 38.8% | 14.3% | 60.3% | 45.6% | 38.5% |
 
 （述語の検出には、繋辞の無い名詞文の述語（UD では名詞が述語になる）も正解に含まれる）
 
@@ -419,7 +436,7 @@ latin/
   latin_phonology.py latin_prosody.py speech.py         発音と音声合成
 greek/                   古典ギリシア語 (表記の正規化、Wiktionary の取り込み、辞書、冠詞の処理、格の読み替え、
                          発音と韻律。解析・音声合成は latin/ と共通)
-sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、Wiktionary の訳語。
+sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、複合語、Wiktionary の訳語。
                          解析は latin/ と共通)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書

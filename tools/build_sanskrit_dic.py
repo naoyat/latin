@@ -80,7 +80,7 @@ def main():
         os.unlink(tmp)
     db = sqlite3.connect(tmp)
     db.executescript('''
-        CREATE TABLE lemmas (key TEXT, pos TEXT, ja TEXT, gloss_lang TEXT, word TEXT, gana INTEGER, causative INTEGER);
+        CREATE TABLE lemmas (key TEXT, pos TEXT, ja TEXT, gloss_lang TEXT, word TEXT, gana INTEGER, causative INTEGER, senses INTEGER);
         CREATE TABLE descendants (lemma TEXT, pos TEXT, data TEXT);
         CREATE TABLE etymology (lemma TEXT, pos TEXT, data TEXT);
     ''')
@@ -106,8 +106,9 @@ def main():
             gana, causative = verb_class(entry) if entry['pos'] == 'verb' else (None, 0)
             for i, key in enumerate(keys):
                 pos = POS[entry['pos']] if i == 0 else 'root'
-                db.execute('INSERT INTO lemmas VALUES (?, ?, ?, ?, ?, ?, ?)',
-                           (key, pos, gloss, gloss_lang, entry['word'], gana if i else None, causative if i else 0))
+                db.execute('INSERT INTO lemmas VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                           (key, pos, gloss, gloss_lang, entry['word'], gana if i else None, causative if i else 0,
+                            len(senses)))
                 n += 1
             if entry.get('descendants'):
                 summary = descendants_summary(entry, DESCENDANT_LANGS, INHERITING)

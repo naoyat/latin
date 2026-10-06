@@ -13,7 +13,7 @@ import re
 from latin import analyzer as common
 from latin import language
 from latin.Word import Word
-from . import dictionary, morphology, script
+from . import compound, dictionary, morphology, script
 
 PUNCTUATION = {'।': 'period', '॥': 'period', '.': 'period', ',': 'comma', ';': 'comma', '?': 'question', '!': 'period'}
 TOKEN = re.compile(r"[ऀ-ॣ०-ॿ᳐-᳿'ऽ]+|[A-Za-zĀāĪīŪūṚṛṜṝḶḷṂṃḤḥṄṅÑñṬṭḌḍṆṇŚśṢṣ"
@@ -78,8 +78,21 @@ def _words(token):
         return [Word(token, None)]
     slp1 = script.to_slp1(token)
     key, items = morphology.lookup(slp1)
+    if items and any(item['ja'] != item.get('base') for item in items):
+        return [Word(script.iast(key), compound.annotate(items))]
     if items:
+        # kosha にあって訳語の無い語は、複合語として分けた訳語と成り立ちを借りる (読みは kosha のまま)
+        for item in items:
+            for c in compound.analyze(key):
+                if c['pos'] == item['pos'] and set(map(tuple, c.get('_', []))) & set(map(tuple, item.get('_', []))):
+                    item.update(ja=c['ja'], base='%s = %s' % (item.get('base'), c['base']))
+                    break
         return [Word(script.iast(key), items)]
+    # 辞書に無い語は、複合語として分ける (mahārājaḥ → mahat-rāja「偉大な王」)
+    for candidate in morphology.unsandhi_candidates(slp1):
+        compound_items = compound.analyze(candidate)
+        if compound_items:
+            return [Word(script.iast(candidate), compound_items)]
     parts = _cheda(slp1)
     if len(parts) > 1:
         words = []

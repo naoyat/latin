@@ -7,7 +7,7 @@
 import unittest
 
 try:
-    from sanskrit import script, morphology, dictionary, analyzer
+    from sanskrit import script, morphology, dictionary, analyzer, compound
     HAVE_VIDYUT = True
 except ImportError:
     HAVE_VIDYUT = False
@@ -64,6 +64,49 @@ class MorphologyTestCase(unittest.TestCase):
     def test_vocative_is_not_preferred(self):
         _, items = morphology.lookup('tat')
         self.assertNotEqual(items[0]['_'][0][0], 'Voc')
+
+
+@unittest.skipUnless(HAVE_DATA, 'vidyut のデータかサンスクリットの辞書 (tools/build_sanskrit_dic.py) が無い')
+class CompoundTestCase(unittest.TestCase):
+    def first_split(self, word):
+        return compound.split(word)[0]
+
+    def test_split_with_sandhi(self):
+        self.assertEqual(self.first_split('rAjaputraH'), (('rAja',), 'putras'))
+        self.assertEqual(self.first_split('nIlotpalam'), (('nIla',), 'utpalam'))      # a + u → o
+        self.assertEqual(self.first_split('gajendraH'), (('gaja',), 'indras'))        # a + i → e
+        self.assertEqual(self.first_split('mahArAjaH'), (('mahat',), 'rAjas'))       # mahā- ← mahat
+
+    def test_pada_forms_and_anusvara(self):
+        self.assertEqual(self.first_split('vaRikputreRa')[0], ('vaRij',))             # vaṇik ← vaṇij
+        self.assertEqual(self.first_split('SrISAradAgaRapatiguruByaH')[0], ('SrI', 'SAradA', 'gaRapati'))
+
+    def test_upasarga_is_not_a_member(self):
+        for members, _ in compound.split('anucitasTAne')[:1]:
+            self.assertNotIn('anu', members)
+
+    def kinds(self, word):
+        return [item['compound'] for item in compound.analyze(word)]
+
+    def test_kinds(self):
+        self.assertEqual(self.kinds('mahArAjaH')[0], 'karmadharaya')
+        self.assertEqual(self.kinds('rAmalakzmaRO')[0], 'dvandva')
+        self.assertEqual(self.kinds('trilokaH')[0], 'dvigu')
+        self.assertEqual(self.kinds('aDarmaH')[0], 'negation')
+        self.assertEqual(self.kinds('yaTASakti')[0], 'avyayibhava')
+        self.assertEqual(self.kinds('vaRikputreRa')[0], 'tatpurusa')
+        # ambara は中性なので、男性の pītāmbaraḥ は「黄色い衣を持つ (者)」(有財釈)
+        self.assertEqual(self.kinds('pItAmbaraH')[0], 'bahuvrihi')
+
+    def test_gloss(self):
+        items = compound.analyze('mahArAjaH')
+        self.assertEqual(items[0]['_'], [('Nom', 'sg', 'm')])  # rāja (a 語幹) の単数主格。rāj の複数ではなく
+        self.assertTrue(items[0]['ja'].startswith('偉大な'))
+        self.assertEqual(compound.analyze('rAmalakzmaRO')[0]['ja'], 'RāmaとLakshmana')
+
+    def test_known_compound_is_annotated(self):
+        word = analyzer.lookup_all(['rAjaputraH'])[0]
+        self.assertIn('rāja-putra 依主釈', word.items[0].attrib('base'))
 
 
 @unittest.skipUnless(HAVE_DATA, 'vidyut のデータかサンスクリットの辞書 (tools/build_sanskrit_dic.py) が無い')

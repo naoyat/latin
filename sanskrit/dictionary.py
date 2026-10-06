@@ -27,13 +27,16 @@ def available():
 
 
 def lemmas(key):
-    """[{pos, ja, gloss_lang, word, gana, causative}] (gana, causative は動詞の見出しから引いた語根のみ)"""
+    """[{pos, ja, gloss_lang, word, gana, causative, senses}] (gana, causative は動詞の見出しから引いた語根のみ。
+    senses は Wiktionary の語義の数)"""
     db = _connect()
     if db is None or not key:
         return []
-    return [{'pos': pos, 'ja': ja, 'gloss_lang': lang, 'word': word, 'gana': gana, 'causative': bool(causative)}
-            for pos, ja, lang, word, gana, causative in db.execute(
-                'SELECT pos, ja, gloss_lang, word, gana, causative FROM lemmas WHERE key = ?', (key,)).fetchall()]
+    return [{'pos': pos, 'ja': ja, 'gloss_lang': lang, 'word': word, 'gana': gana, 'causative': bool(causative),
+             'senses': senses or 0}
+            for pos, ja, lang, word, gana, causative, senses in db.execute(
+                'SELECT pos, ja, gloss_lang, word, gana, causative, senses FROM lemmas WHERE key = ?',
+                (key,)).fetchall()]
 
 
 def _rows(table, key):

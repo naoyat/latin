@@ -69,15 +69,15 @@ def _get_kosha():
 
 def _gloss(key, root=False):
     """見出し語 (SLP1) の訳語と品詞。(訳語, 言語, 品詞)。辞書に無ければ None"""
-    lemmas = dictionary.lemmas(key)
-    # 固有名詞、名詞、形容詞の順 (rāma: 固有名詞「ラーマ」、中性名詞「暗闇」、形容詞「暗い」)
-    order = {'name': 0, 'noun': 1, 'pronoun': 2, 'adj': 3}
-    for lemma in sorted(lemmas, key=lambda l: order.get(l['pos'], 3)):
-        if root or lemma['pos'] != 'root':
-            return lemma['ja'], lemma['gloss_lang'], lemma['pos']
-    if root:
-        return None
-    return None
+    lemma = main_lemma([l for l in dictionary.lemmas(key) if root or l['pos'] != 'root'])
+    return (lemma['ja'], lemma['gloss_lang'], lemma['pos']) if lemma else None
+
+
+def main_lemma(lemmas, order=('name', 'noun', 'pronoun', 'adj')):
+    """同綴の見出しのうち主なもの: Wiktionary の語義の多いもの (bāhu: 名詞「腕」8 > 固有名詞 4)。
+    同じなら order の品詞の順 (rāma: 固有名詞「ラーマ」4 = 名詞「暗闇」4)"""
+    rank = {pos: i for i, pos in enumerate(order)}
+    return min(lemmas, key=lambda l: (-l.get('senses', 0), rank.get(l['pos'], len(order))), default=None)
 
 
 GANAS = {name: i + 1 for i, name in enumerate(
@@ -164,6 +164,8 @@ def _subanta(e, surface):
     pos = 'pronoun' if text in PRONOUNS else (gloss[2] if gloss and gloss[2] in ('noun', 'adj', 'pronoun') else 'noun')
     item = {'pos': pos, 'base': script.iast(text), '_': [cng],
             'ja': gloss[0] if gloss else script.iast(text), 'gloss_lang': gloss[1] if gloss else 'en'}
+    if gloss and gloss[2] == 'name':
+        item['name'] = True
     if text in DETERMINERS:
         item['desc'] = '指示代名詞'  # 名詞に掛かりうる (sarve janāḥ「すべての人々」, sa rājā「その王」)
     rank = 0 if gloss or text in PRONOUNS else 2
