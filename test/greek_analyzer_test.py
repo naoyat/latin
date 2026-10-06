@@ -42,6 +42,10 @@ class GreekAnalyzerTestCase(unittest.TestCase):
         self.assertTrue(pred.is_sum)
         self.assertIn('である', pred.translate()[0])
 
+    def test_coordinated_adjectives_between_article_and_noun(self):
+        pred = analyze('οἱ ἀγαθοὶ καὶ σοφοὶ ἄνδρες λέγουσιν.').clauses[0].predicate
+        self.assertEqual(surfaces(pred.case_slot['Nom']), ['ἄνδρες'])
+
     def test_copula_subject_has_article(self):
         # θεὸς ἦν ὁ λόγος: 冠詞の付いた ὁ λόγος が主語、θεός が補語
         tr = analyze('θεὸς ἦν ὁ λόγος.').clauses[0].predicate.translate()[0]

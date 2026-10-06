@@ -93,6 +93,23 @@ class TempleTestCase(unittest.TestCase):
         self.assertIn('plēnum', surfaces(templum.modifiers))
 
 
+class CoordinatedAdjectiveTestCase(unittest.TestCase):
+    """並列した形容詞が名詞の前にあっても名詞に係る (後ろの et を切れ目と見ない)"""
+
+    def modifiers_of_subject(self, text):
+        noun = analyze(text).clauses[0].predicate.case_slot['Nom'][0]
+        self.assertEqual(noun.surface.lower(), 'puella')
+        return noun.modifiers
+
+    def test_before_noun(self):
+        modifiers = self.modifiers_of_subject('Magna et pulchra puella cantat.')
+        self.assertTrue(any(isinstance(m, AndOr) for m in modifiers))
+
+    def test_after_noun(self):
+        modifiers = self.modifiers_of_subject('Puella magna et pulchra cantat.')
+        self.assertTrue(any(isinstance(m, AndOr) for m in modifiers))
+
+
 class GloriaTestCase(unittest.TestCase):
     """Templum, glōria rēgis Siciliae, māgnum incolās dēlectābat."""
 

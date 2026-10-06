@@ -674,7 +674,10 @@ def detect_verbs(words):
 DETERMINER_PRONOUNS = ('指示代名詞', '強意代名詞', '不定代名詞', '不定形容詞')
 
 
-def detect_adj_correspondances(words, trace):
+def detect_adj_correspondances(words, trace, consumed=()):
+    """consumed: 並列句に取り込まれて、まだ列に残っている語の位置 (Bonus et fortis vir の et, fortis)。
+    並列した形容詞 (et Bonus et fortis) が係り先を探すときは、自分の後ろに残っているそれらの語を飛ばす
+    (et を切れ目と見ないように。名詞の並列句の中の et は切れ目のまま: Rauracīs et Tulingīs et Latobrigīs fīnitimīs)"""
     M = len(words)
     nouns = {}
     adjs = []
@@ -729,8 +732,17 @@ def detect_adj_correspondances(words, trace):
         return any([b in _a for b in _b])
 
     def find_target(adj_ix, a_):
+        own = set()  # 並列した形容詞が取り込んだ、後ろに残っている語
+        if isinstance(words[adj_ix], AndOr):
+            j = adj_ix + 1
+            while j in consumed:
+                own.add(j)
+                j += 1
+
         def sub(fr, to, step, transparent=()):
             for i in range(fr, to, step):
+                if i in own:
+                    continue
                 if i in blocks and i not in transparent:
                     return -1
                 if transparent and i in boundaries:
@@ -1207,7 +1219,7 @@ def analyze_words(surfaces, words, word_details=None, trace=None):
 
     # 並列句・形容詞/属格の係り先
     nodes, visited_ix = detect_and_or([w for w in words if getattr(w, 'attached_to', None) is None], trace)
-    nodes, adj_ix = detect_adj_correspondances(nodes, trace)
+    nodes, adj_ix = detect_adj_correspondances(nodes, trace, set(visited_ix))
     if language.current().absolute_case == 'Gen':
         # 属格独立 (ギリシア語) は、属格の係り先を決める前に探す (主語の属格を名詞の属格修飾にしないように)
         for ix in visited_ix + adj_ix:

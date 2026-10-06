@@ -14,6 +14,7 @@ Et dominus et servus labōrant.
 
 ## 形容詞・属格・限定詞の係り先
 Fīlia agricolae rosās pulchrās amat.
+Bonus et fortis vir pugnat.
 Haec puella illum puerum videt.
 
 ## 繋辞 (sum)
