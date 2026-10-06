@@ -1265,10 +1265,18 @@ def analyze_sentence(surfaces, tags=None):
         if tags is None:
             tags, = rftagger.tag_sentences([list(surfaces)])
         apply_tags(words, _word_tags(words, tags))
-    trace = []
+    return analyze_words(surfaces, words, word_details)
+
+
+def analyze_words(surfaces, words, word_details=None, trace=None):
+    """辞書引き済みの語の列 (Word のリスト) を解析する。言語に依存しない部分 (ほかの言語の解析器からも使う)。
+    すでに別の語の修飾語として付けた語 (attached_to のあるもの。ギリシア語の冠詞など) は、解析の対象から外す"""
+    if word_details is None:
+        word_details = [word.detail() for word in words]
+    trace = [] if trace is None else trace
 
     # 並列句・形容詞/属格の係り先
-    nodes, visited_ix = detect_and_or(list(words), trace)
+    nodes, visited_ix = detect_and_or([w for w in words if getattr(w, 'attached_to', None) is None], trace)
     nodes, adj_ix = detect_adj_correspondances(nodes, trace)
     nodes, gen_ix = detect_genitive_correspondances(nodes, trace)
     for ix in visited_ix + adj_ix + gen_ix:

@@ -54,6 +54,7 @@ def group_pos(words):
 class AndOr (LatinObject):
     def __init__(self, and_or_word):
         self.and_or_word = and_or_word # u'et', u'neque', ...
+        self.language = language.current()  # 訳すときにもこの言語の設定を使う
         self.words_slots = []
         self.pos = None
         self.info = None
@@ -165,6 +166,6 @@ class AndOr (LatinObject):
             # tr.append(' '.join([word.translate() for word in words]))
             tr.append(words[0].translate()[0])
         if self.pos == 'adj':
-            return ('、かつ'.join(tr), language.current().is_nor(self.and_or_word))
+            return ('、かつ'.join(tr), self.language.is_nor(self.and_or_word))
         else:
-            return ('と'.join(tr), language.current().is_nor(self.and_or_word))
+            return ('と'.join(tr), self.language.is_nor(self.and_or_word))

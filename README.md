@@ -260,20 +260,26 @@ cd - && python3 tools/build_morpheus_dic.py
 
 ## 古典ギリシア語（作りかけ）
 
-同じ枠組みで古典ギリシア語も扱えるようにしていくところです。いまは語ごとの辞書引きまでで、文の解析はこれからです。
+同じ枠組みで古典ギリシア語も扱えるようにしていくところです。辞書引きと冠詞の処理だけをギリシア語用に書き、
+並列・係り先・格の枠・日本語訳はラテン語と共通の解析器を、ギリシア語の設定（接続詞・繋辞・否定など。
+`latin/language.py`）で使います。
 
 ```
 mkdir -p ~/.local/share/latin-data/grc && cd ~/.local/share/latin-data/grc
 curl -L -o kaikki-AncientGreek.jsonl.gz "https://kaikki.org/dictionary/Ancient%20Greek/kaikki.org-dictionary-AncientGreek.jsonl.gz"
 cd - && python3 tools/build_greek_dic.py      # → ~/.local/share/latin-data/grc/wiktionary.sqlite（約2.2万語・106万形）
-echo "ἐν ἀρχῇ ἦν ὁ λόγος." | python3 greek.py -D -E
+python3 greek.py samples/greek.txt           # 自作の文などのサンプル (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
 ```
 
 ```
-   2  ἦν    (εἰμί) v.有る,居る,存在する,〜である 3sg 直説法.能動.未完了 | …
-   4  λόγος (λόγος) ロゴス [Nom.sg.m] // []
-            λόγος: ラテン logarithmus (借用) / 英 logos (借用), logarithm (借用)
+ὁ ἀγαθὸς ἀνὴρ τῷ παιδὶ βιβλίον δίδωσιν.
+  →  {good,brave,noble}男性,夫,人,人間が / 息子,娘,年少者,少年に / パピルスの一片,小冊子,書物を / 与える,許す,許可する
+καὶ θεὸς ἦν ὁ λόγος.
+  →  そして / ロゴスは / 神…であった
 ```
+
+* 冠詞は後ろの一致する名詞（間に形容詞が入ってもよい）に付け、その名詞の格の候補を絞ります（訳には出さない）。
+  繋辞の文では冠詞の付いた主格を主語とします（θεὸς ἦν ὁ λόγος「ことばは神であった」）。
 
 * 表記は、重アクセントを鋭アクセントに（τὸν → τόν）、長短の印・前接語で付いた2つ目のアクセントを除いて照合し、
   見つからなければアクセント・気息記号を除いた形で引きます。
@@ -298,7 +304,7 @@ python3 -m unittest discover -s test -p '*_test.py'
 
 ```
 latin.py                 解析・訳のコマンド (REPL を含む)
-greek.py                 古典ギリシア語の辞書引きのコマンド (作りかけ)
+greek.py                 古典ギリシア語の解析・訳のコマンド (作りかけ)
 latin/
   analyzer.py            解析 (辞書引き、並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
   render.py              解析結果の表示
@@ -312,7 +318,7 @@ latin/
   japanese.py verb_flags.py                             日本語の動詞の活用
   macronizer.py hidden_quantity.py catalog.py           マクロンの推定、テキストの目録
   latin_phonology.py latin_prosody.py speech.py         発音と音声合成
-greek/                   古典ギリシア語 (表記の正規化、Wiktionary の取り込み、辞書。共通の部分は latin/ のものを使う)
+greek/                   古典ギリシア語 (表記の正規化、Wiktionary の取り込み、辞書、冠詞の処理。解析は latin/ と共通)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録

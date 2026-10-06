@@ -85,6 +85,8 @@ class Word (LatinObject):
             for gen in self.genitives:
                 tr.append(gen.translate()[0] + 'の')
             for mod in self.modifiers:
+                if isinstance(mod, Word) and mod.items and mod.items[0].pos == 'article':
+                    continue  # 冠詞 (ギリシア語) は訳に出さない
                 tr.append(mod.translate()[0])
             # tr.append(  )
             if self.items:

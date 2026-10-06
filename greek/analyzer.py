@@ -1,0 +1,113 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# 古典ギリシア語の文の解析
+#
+# 辞書引き (greek.dictionary) と冠詞の処理だけをここで行い、並列・係り先・格の枠・日本語訳は
+# ラテン語と共通の解析器 (latin.analyzer.analyze_words) を、ギリシア語の設定 (GREEK) で使う
+#
+import re
+
+from latin import analyzer as common
+from latin import language
+from latin.Word import Word
+from . import dictionary, orthography
+
+GREEK = language.Language(
+    name='grc',
+    and_words=('καί',),
+    nor_words=('οὐδέ', 'μηδέ', 'οὔτε', 'μήτε'),
+    or_words=('ἤ',),
+    copulas=frozenset({'εἰμί'}),
+    negations=frozenset({'οὐ', 'οὐκ', 'οὐχ', 'μή'}),
+    vocative_particles=frozenset({'ὦ'}),
+    case_particles={'Nom': 'が', 'Acc': 'を', 'Gen': 'の', 'Dat': 'に', 'Voc': 'よ'},
+)
+
+# 語 (ギリシア文字と結合文字、語末のアポストロフィ) と句読点 (· は上の点、; は疑問符)
+TOKEN = re.compile(r"[Ͱ-Ͽἀ-῿̀-ͯ]+(?:[’'ʼ᾽][Ͱ-Ͽἀ-῿̀-ͯ]*)?"
+                   r"|[.,·;·;:!]")
+PUNCTUATION = set('.,·;·;:!')
+SENTENCE_END = re.compile(r'(?<=[.;;··])\s+')
+
+ARTICLE_WINDOW = 4  # 冠詞と名詞の間に入りうる語の数 (ὁ ἀγαθὸς ἀνήρ, ὁ τοῦ βασιλέως υἱός)
+
+
+def tokens(text):
+    return TOKEN.findall(text)
+
+
+def sentences(text):
+    """テキストを文に分け、各文の語の列を返す"""
+    for sentence in SENTENCE_END.split(text.strip()):
+        if orthography.is_greek(sentence):
+            yield tokens(sentence)
+
+
+def _word(surface):
+    if surface in PUNCTUATION:
+        return Word(surface, None)
+    key = orthography.key(surface)
+    if key.lower() in GREEK.negations:
+        # 否定 (οὐ, οὐκ, οὐχ, μή): 述語を否定形にする副詞として (οὐκ, οὐχ は辞書に無い)
+        return Word(key, [{'surface': key, 'pos': 'adv', 'ja': '〜ない', 'base': key}])
+    items = dictionary.lookup(surface)
+    for item in items:
+        if item['pos'] == 'particle':
+            item['pos'] = 'conj'  # δέ, γάρ, οὖν などの後置の小辞は接続詞と同じに扱う
+    return Word(key, items)
+
+
+def lookup_all(surfaces):
+    words = [_word(s) for s in surfaces]
+    for i, word in enumerate(words):
+        word.index = i
+    return words
+
+
+def _cng(word, pos):
+    return [cng for item in (word.items or []) if item.pos in pos for cng in (item._ or [])]
+
+
+def _agree(a, b):
+    return [x for x in a for y in b if x[0] == y[0] and x[1] == y[1] and (x[2] == y[2] or None in (x[2], y[2]))]
+
+
+def attach_articles(words, trace):
+    """冠詞を、後ろの一致する名詞 (無ければ名詞として使われた形容詞・分詞) の修飾語にする。
+    冠詞は訳に出さず、付けた語の格の候補を冠詞と一致するものに絞る"""
+    for i, word in enumerate(words):
+        article = _cng(word, ('article',))
+        if not article:
+            continue
+        head = None
+        for j in range(i + 1, min(len(words), i + 1 + ARTICLE_WINDOW)):
+            w = words[j]
+            if w.items is None or any(item.pos == 'verb' for item in w.items[:1]):
+                break  # 句読点・動詞は越えない
+            if _agree(article, _cng(w, ('noun', 'pronoun'))):
+                head = w
+                break
+            if head is None and _agree(article, _cng(w, ('adj', 'participle'))):
+                head = w  # 名詞が無ければこれ (οἱ ἀγαθοί「善い人々」)。後ろに名詞があればそちら
+        if head is None:
+            continue
+        cng = _agree(_cng(head, ('noun', 'pronoun', 'adj', 'participle')), article)
+        word.items = [item for item in word.items if item.pos == 'article']
+        head.restrict_cases(list(dict.fromkeys(c for c, _, _ in cng)))
+        head.add_modifier(word)
+        trace.append('// ART#%d (%s) -> #%d (%s)' % (i, word.surface, head.index, head.surface))
+
+
+def analyze_sentence(surfaces):
+    words = lookup_all(surfaces)
+    word_details = [word.detail() for word in words]
+    trace = []
+    attach_articles(words, trace)
+    with language.using(GREEK):
+        return common.analyze_words(surfaces, words, word_details, trace)
+
+
+def analyze_text(text):
+    for surfaces in sentences(text):
+        yield analyze_sentence(surfaces)

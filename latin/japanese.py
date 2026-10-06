@@ -226,8 +226,8 @@ class JaVerb:
             return self.stop_form + "などした"
 
     def is_stative(self):
-        """状態を表す訳語 (〜である, いる, ある)。現在分詞でも「〜ている」にしない"""
-        return self.stop_form.endswith(('ある', 'いる'))
+        """状態を表す訳語 (〜である, いる, ある, 居る, 有る)。現在分詞・未完了でも「〜ている」にしない"""
+        return self.stop_form.endswith(('ある', 'いる', '居る', '有る', '在る'))
 
     def clause_form(self, kind):
         """従属節 (分詞構文) の形: present 〜していると / passive 〜されて / active 〜して / future 〜しようとして
@@ -350,8 +350,8 @@ class JaVerb:
             else:
                 # 能動態
                 # stem = self.present_active_form()
-                if flag & Verb.ING and self.body in ('ある'):
-                    flag -= Verb.ING
+                if flag & Verb.ING and self.is_stative():
+                    flag -= Verb.ING  # 状態の動詞 (ある, いる, 居る) は「〜ていた」にしない
 
                 if flag & Verb.ING:
                     ing_stem = self.active_ing_stem()

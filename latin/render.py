@@ -140,8 +140,9 @@ def render_sentence_header(text):
 
 
 def render_analysis(analysis, show_word_detail=True, show_translation=True, show_descendants=False,
-                    show_etymology=False):
-    # 辞書引きの結果 (show_descendants なら語ごとに英語・フランス語などに残った語を、show_etymology なら語源も)
+                    show_etymology=False, word_notes=None):
+    # 辞書引きの結果 (show_descendants なら語ごとに英語・フランス語などに残った語を、show_etymology なら語源も。
+    # word_notes は語ごとに添える行を返す関数で、ほかの言語の解析器が自分の辞書の子孫語・語源を出すのに使う)
     if show_word_detail:
         print("  --- ")
         maxlen_uc = max([0] + [word.surface_len for word in analysis.words])
@@ -156,6 +157,9 @@ def render_analysis(analysis, show_word_detail=True, show_translation=True, show
                     print(indent + ansi_color.fgcolor(ansi_color.MAGENTA, '%s の語源:' % lemma))
                     for line in lines:
                         print(indent + '  ' + line)
+            if word_notes and word.items:
+                for line in word_notes(word):
+                    print(indent + line)
         print("  --- ")
         print()
 

@@ -10,15 +10,17 @@ from .japanese import JaVerb, copula_predicate, copula_conjunctive
 from . import verb_flags as Verb
 
 TENSE_LABELS = {'imperfect': '未完了', 'future': '未来', 'perfect': '完了',
-                'past-perfect': '過去完了', 'future-perfect': '未来完了'}
+                'past-perfect': '過去完了', 'future-perfect': '未来完了', 'aorist': 'アオリスト'}
 
 
 def english_verb_label(verb, negated=False):
     labels = [TENSE_LABELS[verb.attrib('tense')]] if verb.attrib('tense') in TENSE_LABELS else []
     if verb.attrib('voice') == 'passive':
         labels.append('受動')
-    if verb.attrib('mood') in ('subjunctive', 'imperative'):
-        labels.append({'subjunctive': '接続法', 'imperative': '命令'}[verb.attrib('mood')])
+    elif verb.attrib('voice') in ('middle', 'middle-passive'):
+        labels.append('中動')
+    if verb.attrib('mood') in ('subjunctive', 'imperative', 'optative'):
+        labels.append({'subjunctive': '接続法', 'imperative': '命令', 'optative': '希求'}[verb.attrib('mood')])
     if negated:
         labels.append('否定')
     return '[%s]' % '・'.join(labels) if labels else ''
@@ -35,7 +37,8 @@ class Predicate (LatinObject):
         self.conjunction = None
         self.subordinates = []  # 従属節 (独立奪格など)
         self.subordinate = False  # 不定詞句の中の述語 (主語は sum でも「は」でなく「が」)
-        self.is_sum = language.current().is_copula(self.first_item.item.get('pres1sg', None))  # 繋辞 (sum)
+        self.language = language.current()  # 訳すときにもこの言語の設定を使う (訳は解析の後で行うので)
+        self.is_sum = self.language.is_copula(self.first_item.item.get('pres1sg', None))  # 繋辞 (sum)
 
     def add_nominal(self, case, obj):
         # self.objects[case] = self.objects.get(case, []).append(obj)
@@ -74,7 +77,7 @@ class Predicate (LatinObject):
         person = verb.attrib('person', 0)
 
         if self.conjunction:
-            if self.conjunction.surface in language.current().and_words:
+            if self.conjunction.surface in self.language.and_words:
                 t = 'そして'
             else:
                 t, neg = self.conjunction.translate()
@@ -89,7 +92,7 @@ class Predicate (LatinObject):
             if not getattr(clause, 'adverbial', False):
                 tr.append(clause.translate()[0])
 
-        cases_ja = language.current().case_particles
+        cases_ja = self.language.case_particles
 
         sum_complement = []
         # Nominative
@@ -106,11 +109,18 @@ class Predicate (LatinObject):
                 nom_objs += nom_acc_objs[0:insufficient]
                 nom_acc_objs = nom_acc_objs[insufficient:]
 
+            # 繋辞の文で冠詞の付いた主格があれば、それが主語 (ギリシア語: θεὸς ἦν ὁ λόγος「ことばは神であった」)
+            articled = [o for o in nom_objs if self.is_sum and _has_article(o)]
             for obj in nom_objs:
                 nom, neg = obj.translate()
                 if neg: negated = True
 
-                if self.is_sum:
+                if articled:
+                    if obj in articled:
+                        noms.append(nom)
+                    else:
+                        sum_complement.append(obj)
+                elif self.is_sum:
                     # 形容詞（修飾語）の場合
                     if isinstance(obj, Word) and obj.items[0].pos != 'noun':
                         # sum なら補語として
@@ -185,7 +195,7 @@ class Predicate (LatinObject):
 
         # adverb
         for adv in self.modifiers:
-            if is_negation(adv):
+            if is_negation(adv, self.language):
                 negated = True
                 continue
             ja = adv.items[0].ja
@@ -211,7 +221,7 @@ class Predicate (LatinObject):
         tense = verb.attrib('tense')
         if tense == 'imperfect':
             flag |= Verb.PAST | Verb.ING
-        elif tense == 'perfect':
+        elif tense in ('perfect', 'aorist'):  # ギリシア語のアオリストは過去の形で
             flag |= Verb.PERFECT
         elif tense == 'future':
             flag |= Verb.FUTURE
@@ -223,6 +233,12 @@ class Predicate (LatinObject):
             verb_tr = jas[0] + english_verb_label(verb, negated and not self.is_sum)
         else:
             verb_tr = ','.join([JaVerb(ja).form(flag, negated and not self.is_sum) for ja in jas])
+        if self.is_sum and not sum_complement and verb.attrib('gloss_lang', 'ja') == 'ja':
+            # 補語の無い繋辞は存在の意味で (εἰμί「有る,居る,存在する,〜である」→ 有った,居た,存在した)
+            existential = [ja for ja in jas if not ja.startswith(('〜', '～'))]
+            if existential:
+                verb_tr = ','.join(JaVerb(ja).form(flag, negated) for ja in existential)
+                negated = False
         if self.is_sum and sum_complement:
             verb_tr = '='.join(copula_translation(obj, copula_tense(tense), negated) for obj in sum_complement)
         elif negated and self.is_sum:
@@ -237,8 +253,13 @@ class Predicate (LatinObject):
         return (' / '.join(tr), False)
 
 
-def is_negation(word):
-    return isinstance(word, Word) and language.current().is_negation(word.surface)
+def _has_article(obj):
+    return isinstance(obj, Word) and any(isinstance(m, Word) and m.items and m.items[0].pos == 'article'
+                                         for m in obj.modifiers)
+
+
+def is_negation(word, lang=None):
+    return isinstance(word, Word) and (lang or language.current()).is_negation(word.surface)
 
 
 def copula_tense(tense):
