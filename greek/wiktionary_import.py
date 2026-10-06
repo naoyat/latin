@@ -52,10 +52,15 @@ def canonical(entry):
     return orthography.key(entry['word'])
 
 
-def _surface(form):
-    """表の形から辞書の表層形を: 冠詞付き (ἡ ῐ̔́ππος) なら最後の語、長短の印などは除く"""
+def _surfaces(form):
+    """表の形から辞書の表層形 (のリスト) を: 冠詞付き (ἡ ῐ̔́ππος) なら最後の語、長短の印などは除く。
+    括弧の付いた文字は付けた形と付けない形の両方 (ἐστῐ́(ν) → ἐστί, ἐστίν。ν の付加)"""
     word = form.strip().split()[-1] if form.strip() else ''
-    return orthography.key(word)
+    m = re.search(r'\(([^)]*)\)', word)
+    if m:
+        return [orthography.key(word[:m.start()] + word[m.end():]),
+                orthography.key(word[:m.start()] + m.group(1) + word[m.end():])]
+    return [orthography.key(word)]
 
 
 ARTICLE_GENDERS = {'ὁ': 'm', 'ἡ': 'f', 'τό': 'n'}
@@ -104,17 +109,17 @@ def _nominal_features(entry, default_genders):
         if not cases or not numbers:
             continue
         genders = [g for tag, g in GENDERS.items() if tag in tags] or default_genders
-        surface = _surface(form['form'])
-        if not surface or surface == '-' or (surface in ARTICLE_FORMS and not article):
-            continue
-        features = table.setdefault(surface, {'_': []})
-        if dialect and 'dialect' not in features:
-            features['dialect'] = dialect
-        for case in cases:
-            for number in numbers:
-                for gender in genders:
-                    if (case, number, gender) not in features['_']:
-                        features['_'].append((case, number, gender))
+        for surface in _surfaces(form['form']):
+            if not surface or surface == '-' or (surface in ARTICLE_FORMS and not article):
+                continue
+            features = table.setdefault(surface, {'_': []})
+            if dialect and 'dialect' not in features:
+                features['dialect'] = dialect
+            for case in cases:
+                for number in numbers:
+                    for gender in genders:
+                        if (case, number, gender) not in features['_']:
+                            features['_'].append((case, number, gender))
     return table
 
 
@@ -131,8 +136,8 @@ def _verb_forms(entry):
             continue
         if SKIP_FORM_TAGS & set(tags):
             continue
-        surface = _surface(form['form'])
-        if not surface or surface == '-':
+        surfaces = [s for s in _surfaces(form['form']) if s and s != '-']
+        if not surfaces:
             continue
         mood = next((m for m in MOODS if m in tags), None)
         if mood is None:
@@ -153,7 +158,7 @@ def _verb_forms(entry):
                 features['number'] = number
         if dialect:
             features['dialect'] = dialect
-        result.append((surface, features))
+        result.extend((surface, dict(features)) for surface in surfaces)
     return result
 
 

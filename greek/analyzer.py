@@ -11,7 +11,7 @@ import re
 from latin import analyzer as common
 from latin import language
 from latin.Word import Word
-from . import dictionary, orthography
+from . import dictionary, orthography, government
 
 GREEK = language.Language(
     name='grc',
@@ -29,6 +29,9 @@ GREEK = language.Language(
                                    'ἐπιλανθάνομαι', 'τυγχάνω', 'φείδομαι', 'γεύομαι', 'μετέχω', 'δέομαι', 'πειράω',
                                    'κατηγορέω', 'ἀμελέω', 'φροντίζω', 'ἐπιμελέομαι', 'ἀντιλαμβάνω'}),
     lookup=dictionary.lookup,
+    particle=government.particle,
+    keep_genitive=government.keep_genitive,
+    predicative_adjective=government.predicative_adjective,
 )
 
 # 語 (ギリシア文字と結合文字、語末のアポストロフィ) と句読点 (· は上の点、; は疑問符)

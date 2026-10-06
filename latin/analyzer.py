@@ -821,6 +821,12 @@ def detect_adj_correspondances(words, trace):
     for adj_ix, _ in adjs:
         msg = "// ADJ#%d (%s)" % (adj_ix, words[adj_ix].surface_utf8())
         noun_ix = find_target(adj_ix, _)
+        predicative = language.current().predicative_adjective
+        if noun_ix >= 0 and predicative and predicative(words[adj_ix], words[noun_ix]):
+            # 述語的位置の形容詞 (ギリシア語: ὁ υἱὸς μείζων ἐστί「息子は大きい」) は名詞に掛けない
+            trace.append(msg + " -> predicative (NOUN#%d %s)" % (noun_ix, words[noun_ix].surface_utf8()))
+            as_noun.add(adj_ix)
+            continue
         if noun_ix >= 0:
             trace.append(msg + " -> NOUN#%d (%s)" % (noun_ix, words[noun_ix].surface_utf8()))
             words[noun_ix].add_modifier(words[adj_ix])
@@ -856,6 +862,10 @@ def detect_adj_correspondances(words, trace):
             attached_determiners.append(det_ix)
 
     return (words, [ix for ix in [adj_ix for adj_ix, _ in adjs] if ix not in as_noun] + attached_determiners)
+
+
+def _has_other_cases(word, case):
+    return any(c != case for item in (getattr(word, 'items', None) or []) for c, _, _ in (item._ or []))
 
 
 def detect_genitive_correspondances(words, trace):
@@ -924,6 +934,12 @@ def detect_genitive_correspondances(words, trace):
 
     for gen_ix in gen:
         msg = "// GEN#%d (%s)" % (gen_ix, words[gen_ix].surface_utf8())
+        keep = language.current().keep_genitive
+        if keep and keep(words, gen_ix):
+            # 名詞に掛けずに述語の枠に残す属格 (ギリシア語の比較の属格: μείζων τοῦ πατρός「父より大きい」)
+            trace.append(msg + " -> kept for the predicate")
+            non_gen.add(gen_ix)
+            continue
         target_ix = find_target(gen_ix)
         if target_ix >= 0:
             trace.append(msg + " -> TARGET#%d (%s)" % (target_ix, words[target_ix].surface_utf8()))
@@ -932,7 +948,10 @@ def detect_genitive_correspondances(words, trace):
         else:
             trace.append(msg + " -> no target noun detected")
             non_gen.add(gen_ix)
-            words[gen_ix].restrict_cases(('Nom','Voc','Acc','Dat','Abl','Loc'))
+            # 係り先の無い属格は、ほかの格としても読めるならそちらに (nautae: 属格・与格・主格)。
+            # ギリシア語では属格としてしか読めない語は属格のまま残す (動詞の目的語: ἤκουσα τοῦ ἀνθρώπου)
+            if language.current().name == 'la' or _has_other_cases(words[gen_ix], 'Gen'):
+                words[gen_ix].restrict_cases(('Nom','Voc','Acc','Dat','Abl','Loc'))
 
     return (words, [ix for ix in gen if ix not in non_gen])
 

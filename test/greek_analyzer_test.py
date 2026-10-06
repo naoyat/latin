@@ -63,5 +63,28 @@ class GreekAnalyzerTestCase(unittest.TestCase):
         self.assertEqual(analyze('ἤκουσα φωνῆς λεγούσης.').absolutes, [])
 
 
+    def translation(self, text):
+        return analyze(text).clauses[0].predicate.translate()[0]
+
+    def test_verb_government(self):
+        # 属格・与格を取る動詞は、その動詞の助詞で (ἀκούω + 属格「〜を聞く」, μάχομαι + 与格「〜と戦う」)
+        self.assertIn('人,人間,人類,奴隷を', self.translation('ἤκουσα τοῦ ἀνθρώπου.'))
+        self.assertIn('と / ', self.translation('οἱ Ἀθηναῖοι τοῖς Πέρσαις ἐμάχοντο.'))
+
+    def test_time_nouns(self):
+        self.assertIn('夜のうちに', self.translation('νυκτὸς ἦλθεν.'))
+        self.assertIn('の間', self.translation('τρεῖς ἡμέρας ἔμεινεν.'))
+
+    def test_comparative_genitive(self):
+        tr = self.translation('ὁ υἱὸς μείζων ἐστὶ τοῦ πατρός.')
+        self.assertIn('父,父親,父なる神より', tr)
+        self.assertTrue(tr.startswith('son'), tr)  # 述語的位置の μείζων は補語 (息子は父より大きい)
+
+    def test_predicative_position(self):
+        pred = analyze('ὁ ἀνὴρ ἀγαθός ἐστιν.').clauses[0].predicate
+        self.assertTrue(pred.translate()[0].endswith('である'))
+        self.assertEqual(analyze('ὁ ἀγαθὸς ἀνὴρ λέγει.').words[1].attached_to.surface, 'ἀνήρ')  # 限定的位置
+
+
 if __name__ == '__main__':
     unittest.main()

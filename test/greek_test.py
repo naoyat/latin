@@ -121,7 +121,7 @@ class DictionaryTestCase(unittest.TestCase):
     def test_lookup(self):
         poses = {i['pos'] for i in dictionary.lookup('τὸν')}
         self.assertIn('article', poses)
-        verb, = [i for i in dictionary.lookup('ἦν') if i.get('pres1sg') == 'εἰμί']
+        verb, = [i for i in dictionary.lookup('ἦν') if i.get('pres1sg') == 'εἰμί' and i.get('person') == 3]
         self.assertEqual((verb['tense'], verb['person'], verb['number']), ('imperfect', 3, 'sg'))
 
     def test_lookup_without_accents(self):

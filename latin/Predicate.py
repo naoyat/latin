@@ -66,6 +66,10 @@ class Predicate (LatinObject):
     def detail(self):
         return self.verb.detail()
 
+    def _particle(self, case, obj):
+        """言語の設定 (Language.particle) で決まる、格の枠の語の助詞。決まらなければ None (既定の助詞)"""
+        return self.language.particle(case, obj, self) if self.language.particle else None
+
     def translate(self):
         # 訳の組み立てで格スロットを並べ替えるので、作業用のコピーを使う
         # (self.case_slot を書き換えると、表示や再度の translate() の結果が変わってしまう)
@@ -175,7 +179,12 @@ class Predicate (LatinObject):
                 t, neg = obj.translate()
                 if neg: negated = True  # neque ... neque ... は主語以外の枠にも現れる
                 trs.append(t)
-            tr.append('='.join(trs) + case_ja)
+            particles = [self._particle(case, obj) for obj in objs] if not isinstance(case, tuple) else []
+            if any(particles):
+                # 言語の設定で語ごとに助詞を決める (ギリシア語: ἀκούω + 属格「〜を」, 比較の属格「〜より」)
+                tr.append('='.join(t + (p or case_ja) for t, p in zip(trs, particles)))
+            else:
+                tr.append('='.join(trs) + case_ja)
 
         # Accusative
         if 'Acc' in case_slot:
@@ -187,7 +196,11 @@ class Predicate (LatinObject):
                 if neg: negated = True
                 accs.append(t)
             accs = [acc[:-1] if acc[-1:] == 'が' else acc for acc in accs]
-            tr.append('='.join(accs) + 'を') #[acc for acc in accs]))
+            particles = [self._particle('Acc', obj) for obj in acc_objs]
+            if any(particles):
+                tr.append('='.join(t + (p or 'を') for t, p in zip(accs, particles)))  # 時の対格「〜の間」など
+            else:
+                tr.append('='.join(accs) + 'を') #[acc for acc in accs]))
 
         # 不定詞句 ({少年が 遊ぶ}と / {本を 読む}ことが)
         for clause in case_slot.get('Inf', []):
