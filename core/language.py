@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# 解析器 (latin/analyzer.py) と訳 (latin/Predicate.py など) の、言語ごとの設定
+# 解析器 (core/analyzer.py) と訳 (core/Predicate.py など) の、言語ごとの設定
 #
 # 解析の骨組み (並列・係り先・格の枠・日本語訳) は言語に依存しないように書き、言語ごとに違う語 (接続詞・繋辞・
 # 否定・呼びかけ) と、格 → 助詞の既定の対応をここに置く。解析中の言語は using() で切り替える
 #
-#   with language.using(language.GREEK):
+#   with language.using(GREEK):
 #       analysis = analyzer.analyze_words(words)
+#
+# 各言語の設定は latin/profile.py (LATIN), greek/analyzer.py (GREEK), sanskrit/analyzer.py (SANSKRIT)。
+# using() の外での既定はラテン語 (latin パッケージを読み込むと set_default される)
 #
 import contextlib
 from dataclasses import dataclass, field
@@ -25,10 +28,12 @@ class Language:
     case_particles: dict = field(default_factory=dict)  # 格 → 既定の助詞
     absolute_case: str = 'Abl'     # 独立奪格の格 (ギリシア語は属格独立の 'Gen')
     absolute_case_verbs: frozenset = frozenset()  # その格を目的語に取る動詞 (主節の動詞がこれなら独立奪格にしない)
-    lookup: object = None          # 見出し語から辞書の項目 (dict) を引く関数 (分詞の元の動詞の訳語など。None ならラテン語の辞書)
+    lookup: object = None          # 見出し語から辞書の項目 (dict) を引く関数 (分詞の元の動詞の訳語など)
     particle: object = None        # 格の枠の語の助詞を文脈で決める関数 (case, obj, predicate) → 助詞 / None
     keep_genitive: object = None   # 名詞に掛けずに述語の枠に残す属格を決める関数 (words, ix) → bool
     predicative_adjective: object = None  # 名詞に掛けない述語的位置の形容詞を決める関数 (adj, noun) → bool
+    lexicalized_participle: object = None  # 形容詞になった分詞か (base, 比較級の形のリスト) → bool
+    dictionary: object = None      # 子孫語・語源を引く辞書 (descendants(lemma), etymology(lemma) を持つモジュール)
 
     def is_copula(self, pres1sg):
         return pres1sg in self.copulas
@@ -40,22 +45,17 @@ class Language:
         return and_or_word in self.nor_words
 
 
-LATIN = Language(
-    name='la',
-    and_words=('et',),
-    nor_words=('neque',),
-    or_words=('aut',),
-    copulas=frozenset({'sum'}),
-    negations=frozenset({'nōn', 'non'}),
-    vocative_particles=frozenset({'ō', 'Ō'}),
-    case_particles={'Nom': 'が', 'Acc': 'を', 'Gen': 'の', 'Dat': 'に', 'Abl': 'で', 'Voc': 'よ', 'Loc': 'で'},
-)
-
-_current = LATIN
+_current = None
 
 
 def current():
     return _current
+
+
+def set_default(language):
+    """using() の外で使う言語"""
+    global _current
+    _current = language
 
 
 @contextlib.contextmanager

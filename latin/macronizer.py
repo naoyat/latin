@@ -22,7 +22,7 @@ from . import ldt
 from . import hidden_quantity
 from . import catalog
 from . import orthography
-from .wiktionary_import import flatten
+from core.wiktionary_import import flatten
 
 MACRON = '\u0304'  # 結合マクロン
 BREVE = '\u0306'   # 結合ブレーヴェ

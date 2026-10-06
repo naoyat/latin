@@ -10,7 +10,7 @@ import os
 import json
 import sqlite3
 
-from latin.wiktionary_import import make_item
+from core.wiktionary_import import make_item
 from . import orthography
 
 DATA_DIR = os.path.join(os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data')), 'grc')

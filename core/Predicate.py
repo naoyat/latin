@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from latin.LatinObject import LatinObject
-from latin.Word import Word
+from core.LatinObject import LatinObject
+from core.Word import Word
 
-from latin.AndOr import AndOr
-from latin import language
+from core.AndOr import AndOr
+from core import language
 from .japanese import JaVerb, copula_predicate, copula_conjunctive
 from . import verb_flags as Verb
 

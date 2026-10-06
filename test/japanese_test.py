@@ -5,9 +5,9 @@
 #
 import unittest
 
-from latin import japanese
-from latin.japanese import JaVerb, copula_predicate, copula_conjunctive
-from latin import verb_flags as Verb
+from core import japanese
+from core.japanese import JaVerb, copula_predicate, copula_conjunctive
+from core import verb_flags as Verb
 
 
 class CopulaTestCase(unittest.TestCase):

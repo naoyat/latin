@@ -20,7 +20,7 @@ import getopt
 import sys
 
 from sanskrit import analyzer, compound, dictionary, morphology, script
-from latin import ansi_color, descendants, etymology, render
+from core import ansi_color, descendants, etymology, render
 
 DESCENDANT_LANGS = ('pi', 'hi', 'en', 'ja')
 FALLBACK_LANGS = ('bn', 'mr')
@@ -69,7 +69,7 @@ def main():
         sys.exit('no Sanskrit data (vidyut data and python3 tools/build_sanskrit_dic.py)')
     notes = word_notes(show_descendants, show_etymology)
     if speech_mode:
-        from latin import speech
+        from core import speech
         speech.set_language('sa')
         speech_mode = speech.init_synth(tts, voice) is not None
     texts = [open(path, encoding='utf-8').read() for path in args] if args else [sys.stdin.read()]

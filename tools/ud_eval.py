@@ -39,10 +39,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from latin import latindic, analyzer, macronizer
 from greek import analyzer as greek_analyzer
 from sanskrit import analyzer as sanskrit_analyzer
-from latin.Word import Word
-from latin.AndOr import AndOr
-from latin.PrepClause import PrepClause
-from latin.Predicate import Predicate
+from core.Word import Word
+from core.AndOr import AndOr
+from core.PrepClause import PrepClause
+from core.Predicate import Predicate
 
 DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
 DEFAULT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ud', 'la_proiel-ud-*.conllu')))

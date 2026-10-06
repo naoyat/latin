@@ -179,7 +179,7 @@ def _subanta(e, surface):
 
 def _absolutive_gloss(gloss, root):
     if gloss and gloss[1] == 'ja':
-        from latin.japanese import JaVerb
+        from core.japanese import JaVerb
         try:
             return JaVerb(gloss[0].split(',')[0]).adverbial_form('active')
         except Exception:

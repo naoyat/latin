@@ -10,7 +10,7 @@ import re
 import json
 import sqlite3
 
-from .wiktionary_import import make_item, flatten
+from core.wiktionary_import import make_item, flatten
 from .katakana import katakana
 from . import orthography
 

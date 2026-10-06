@@ -3,7 +3,7 @@
 #
 # Wiktionary (kaikki.org の抽出データ) の古典ギリシア語の項目を、辞書の項目に変換する
 #
-# 項目の形はラテン語の辞書 (latin/wiktionary_import.py) と同じ: lemma_info (pos, base/pres1sg, ja, gloss_lang …)
+# 項目の形はラテン語の辞書 (core/wiktionary_import.py) と同じ: lemma_info (pos, base/pres1sg, ja, gloss_lang …)
 # と、表層形ごとの features (名詞類は '_': [(格, 数, 性)]、動詞は mood/voice/tense/person/number)。
 # ギリシア語にだけあるもの: 双数 (du)、中動態 (middle)、アオリスト (aorist)、希求法 (optative)、
 # 方言 (dialect: Epic, Ionic, Attic, Koine …)、冠詞 (pos 'article')
@@ -12,7 +12,7 @@
 import re
 import unicodedata
 
-from latin.wiktionary_import import english_glosses, japanese_gloss, descendants_summary, etymology_summary
+from core.wiktionary_import import english_glosses, japanese_gloss, descendants_summary, etymology_summary
 from . import orthography, participles
 
 CASES = {'nominative': 'Nom', 'genitive': 'Gen', 'dative': 'Dat', 'accusative': 'Acc', 'vocative': 'Voc'}

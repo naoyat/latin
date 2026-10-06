@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import latin.util as util # render
-import latin.ansi_color as ansi_color
+import core.util as util # render
+import core.ansi_color as ansi_color
 
 class Item:
     def __init__(self, item):

@@ -4,7 +4,7 @@
 import unittest
 
 from latin.latin_verb_reg import *
-import latin.util
+import core.util
 
 def decode_utf8(s):
     if isinstance(s, str):
@@ -51,8 +51,8 @@ class LatinVerbTestCase(unittest.TestCase):
                     pass
 
         if actual_forms != expected_forms:
-            print("ACTUAL:", latin.util.render(actual_forms))
-            print("EXPECTED:", latin.util.render(expected_forms))
+            print("ACTUAL:", core.util.render(actual_forms))
+            print("EXPECTED:", core.util.render(expected_forms))
 
         self.assertEqual(actual_forms, expected_forms)
 
@@ -77,8 +77,8 @@ class LatinVerbTestCase(unittest.TestCase):
                     pass
 
         if actual_forms != expected_forms:
-            print("ACTUAL:", latin.util.render(actual_forms))
-            print("EXPECTED:", latin.util.render(expected_forms))
+            print("ACTUAL:", core.util.render(actual_forms))
+            print("EXPECTED:", core.util.render(expected_forms))
 
         self.assertEqual(actual_forms, expected_forms)
 

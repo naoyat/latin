@@ -3,7 +3,7 @@
 
 from . import latin_noun
 from . import latin_adj
-from . import util
+from core import util
 
 #def make_declined_tags(prefix, prefix_tag, suffix, suffix_tag):
 #    d = prefix_tag.copy()

@@ -5,7 +5,7 @@ import unittest
 
 from latin.latin_noun import *
 import latin.latindic
-import latin.util
+import core.util
 import sys
 
 class StringTestCase(unittest.TestCase):

@@ -14,7 +14,7 @@ from . import latin_prep
 from . import latin_verb_reg
 from . import latin_verb_irreg
 
-from . import util
+from core import util
 from . import wiktionary
 
 

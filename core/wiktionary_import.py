@@ -12,7 +12,7 @@
 import re
 import unicodedata
 
-from . import orthography
+from .keys import flat as key_of
 
 CASES = {'nominative': 'Nom', 'vocative': 'Voc', 'accusative': 'Acc', 'genitive': 'Gen',
          'dative': 'Dat', 'ablative': 'Abl', 'locative': 'Loc'}
@@ -43,7 +43,7 @@ POS_GROUP = {'noun': 'noun', 'name': 'noun', 'verb': 'verb', 'adj': 'adj', 'det'
 
 def flatten(text):
     """突き合わせ用のキー: マクロン除去・小文字化・j→i"""
-    return orthography.flat(text)
+    return key_of(text)
 
 
 def _is_form_of(entry):
@@ -416,7 +416,7 @@ def _descendant_kind(node):
 
 def lemma_key(entry):
     """子孫語・語源の表の見出し語のキー: ページ名 (pater noster のような句は句のまま) のマクロンを除いた形"""
-    return orthography.flat(entry.get('word', ''), merge_uv=True)
+    return key_of(entry.get('word', ''), merge_uv=True)
 
 
 def descendants_summary(entry, langs=DESCENDANT_LANGS, inheriting=ROMANCE_CODES):

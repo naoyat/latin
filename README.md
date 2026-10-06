@@ -64,6 +64,7 @@ pip install -r requirements.txt
 ```
 python3 latin.py [オプション] [ファイル...]    # ファイルを解析
 python3 latin.py [オプション]                  # 対話モード (REPL)
+python3 read.py --lang=la|grc|sa [オプション] [ファイル...]   # 言語を選んで (latin.py / greek.py / sanskrit.py を呼ぶ)
 ```
 
 | オプション | |
@@ -262,8 +263,8 @@ cd - && python3 tools/build_morpheus_dic.py
 ## 古典ギリシア語（作りかけ）
 
 同じ枠組みで古典ギリシア語も扱えるようにしていくところです。辞書引きと冠詞の処理だけをギリシア語用に書き、
-並列・係り先・格の枠・日本語訳はラテン語と共通の解析器を、ギリシア語の設定（接続詞・繋辞・否定など。
-`latin/language.py`）で使います。
+並列・係り先・格の枠・日本語訳はラテン語と共通の解析器（`core/`）を、ギリシア語の設定（接続詞・繋辞・否定など。
+`core/language.py`）で使います。
 
 ```
 mkdir -p ~/.local/share/latin-data/grc && cd ~/.local/share/latin-data/grc
@@ -440,26 +441,32 @@ python3 -m unittest discover -s test -p '*_test.py'
 ## 構成
 
 ```
-latin.py                 解析・訳のコマンド (REPL を含む)
+read.py                  言語を選んで解析・訳する (--lang=la|grc|sa。下の各言語のコマンドを呼ぶ)
+latin.py                 ラテン語の解析・訳のコマンド (REPL を含む)
 greek.py                 古典ギリシア語の解析・訳のコマンド (作りかけ)
 sanskrit.py              サンスクリットの解析・訳のコマンド (作りかけ)
-latin/
-  analyzer.py            解析 (辞書引き、並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
+core/                    言語に依存しない共通部分
+  analyzer.py            解析の骨組み (並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
+  language.py            言語ごとの設定 (接続詞・繋辞・否定・格の助詞・独立奪格の格、辞書を引く関数など)
   render.py              解析結果の表示
   Word.py Item.py AndOr.py PrepClause.py Predicate.py   解析の要素と訳
   Absolute.py Participle.py Infinitive.py               独立奪格・分詞句・不定詞句
+  japanese.py verb_flags.py                             日本語の動詞の活用
+  wiktionary_import.py keys.py                          Wiktionary (kaikki.org) の項目の取り込み、照合用のキー
+  descendants.py etymology.py languages.py              子孫語・語源の表示 (言語名の日本語表記)
+  speech.py                                             音声合成 (MBROLA / espeak-ng / Piper)
+latin/                   ラテン語
+  analyzer.py profile.py 辞書引き・品詞タガーによる前処理と、ラテン語の設定
   latindic.py words.py   辞書 (手作りの辞書の読み込みと検索)
   latin_noun.py latin_adj.py latin_verb_reg.py ...      変化形の生成
-  wiktionary*.py morpheus.py ldt.py rftagger.py         補助辞書と品詞タガー
-  descendants.py etymology.py languages.py              子孫語・語源の表示 (言語名の日本語表記)
-  katakana.py                                           固有名詞のカタカナ表記
-  japanese.py verb_flags.py                             日本語の動詞の活用
+  wiktionary.py morpheus.py ldt.py rftagger.py          補助辞書と品詞タガー
+  orthography.py katakana.py                            綴りの流儀の吸収、固有名詞のカタカナ表記
   macronizer.py hidden_quantity.py catalog.py           マクロンの推定、テキストの目録
-  latin_phonology.py latin_prosody.py speech.py         発音と音声合成
+  latin_phonology.py latin_prosody.py                   発音と韻律
 greek/                   古典ギリシア語 (表記の正規化、Wiktionary の取り込み、辞書、冠詞の処理、格の読み替え、
-                         発音と韻律。解析・音声合成は latin/ と共通)
+                         発音と韻律)
 sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、複合語、Wiktionary の訳語、
-                         発音と音読。解析・音声合成は latin/ と共通)
+                         発音と韻律)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# なんちゃってラテン語スピーチ
+# 音声合成 (ラテン語・古典ギリシア語・サンスクリット)
 # by naoya_t
 #
 # バックエンド:
@@ -27,8 +27,6 @@ import shutil
 import tempfile
 from subprocess import Popen, PIPE, DEVNULL, run
 
-from latin import latin_prosody
-from latin import latin_phonology
 
 MBROLA_HOME = os.environ.get('MBROLA_HOME', os.path.expanduser('~/.local/share/mbrola'))
 PIPER_VOICES = os.environ.get('PIPER_VOICES', os.path.expanduser('~/.local/share/piper/voices'))
@@ -61,7 +59,11 @@ MISSING_BY_VOICE = {}
 
 def missing_diphones():
     if voice not in MISSING_BY_VOICE:
-        MISSING_BY_VOICE[voice] = latin_prosody.MISSING_DIPHONES if voice.endswith('la1') else set()
+        if voice.endswith('la1'):
+            from latin import latin_prosody
+            MISSING_BY_VOICE[voice] = latin_prosody.MISSING_DIPHONES
+        else:
+            MISSING_BY_VOICE[voice] = set()
     return MISSING_BY_VOICE[voice]
 
 
@@ -96,6 +98,7 @@ def make_pho(text):
         from sanskrit import prosody as sanskrit_prosody
         return sanskrit_prosody.to_pho(text, missing=missing_diphones(),
                                        base_pitch=200 if voice.endswith('in2') else sanskrit_prosody.BASE_PITCH)
+    from latin import latin_prosody
     return latin_prosody.to_pho(text, accent=accent, missing=missing_diphones())
 ACCENTS = ('pitch', 'stress')
 accent = 'pitch'  # mbrola: 'pitch' (高低アクセント) / 'stress' (強勢アクセント)
@@ -222,6 +225,7 @@ def synthesize_piper(text, wav_file):
     silence = np.zeros(int(rate * PIPER_SENTENCE_PAUSE), dtype=np.float32)
 
     chunks = []
+    from latin import latin_phonology
     for sentence in latin_phonology.to_target_ipa(text, lang):
         ids = piper_voice.phonemes_to_ids(list(sentence))
         chunks += [piper_voice.phoneme_ids_to_audio(ids, config), silence]
@@ -266,6 +270,7 @@ def say_latin(text_uc, debug_mode=False, pause=False, wav_file=None):
             print('piper does not support this language (use mbrola or espeak)')
             return
         if debug_mode:
+            from latin import latin_phonology
             print('\n'.join(latin_phonology.to_target_ipa(text_uc, os.path.basename(voice)[:2])))
         piper(text_uc, pause=pause, wav_file=wav_file)
 

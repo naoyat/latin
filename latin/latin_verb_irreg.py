@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from . import util
+from core import util
 
 from .latin_verb_reg import *
 

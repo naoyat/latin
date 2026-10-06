@@ -10,9 +10,9 @@
 import os
 import re
 
-from latin import analyzer as common
-from latin import language
-from latin.Word import Word
+from core import analyzer as common
+from core import language
+from core.Word import Word
 from . import compound, dictionary, morphology, script
 
 PUNCTUATION = {'।': 'period', '॥': 'period', '.': 'period', ',': 'comma', ';': 'comma', '?': 'question', '!': 'period'}

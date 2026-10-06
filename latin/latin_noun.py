@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from .words import words_path
-from . import util
+from core import util
 
 #
 # 格変化

@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from .words import words_path
-from . import util
+from core import util
 
 from . import latin_adj
 from . import latin_pronoun
-from .japanese import JaVerb
-from . import verb_flags as Verb
+from core.japanese import JaVerb
+from core import verb_flags as Verb
 
 CONJ_1 = '1'
 CONJ_2 = '2'

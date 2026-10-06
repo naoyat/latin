@@ -10,11 +10,11 @@
 import unittest
 
 from latin import latindic, analyzer, wiktionary
-from latin.Absolute import AblativeAbsolute
-from latin.Participle import ParticiplePhrase
-from latin.Infinitive import InfinitiveClause
-from latin.AndOr import AndOr
-from latin.PrepClause import PrepClause
+from core.Absolute import AblativeAbsolute
+from core.Participle import ParticiplePhrase
+from core.Infinitive import InfinitiveClause
+from core.AndOr import AndOr
+from core.PrepClause import PrepClause
 
 
 _saved = None

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from latin.LatinObject import LatinObject
-from latin import language
+from core.LatinObject import LatinObject
+from core import language
 
 def uniq(s):
     return list(dict.fromkeys(s))  # 順序を保って重複を除く

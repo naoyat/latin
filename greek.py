@@ -17,7 +17,7 @@ import getopt
 import sys
 
 from greek import analyzer, dictionary
-from latin import ansi_color, descendants, etymology, render
+from core import ansi_color, descendants, etymology, render
 
 DESCENDANT_LANGS = ('la', 'en', 'fr')
 FALLBACK_LANGS = ('it', 'es')
@@ -63,7 +63,7 @@ def main():
         sys.exit('no Greek dictionary (python3 tools/build_greek_dic.py)')
     notes = word_notes(show_descendants, show_etymology)
     if speech_mode:
-        from latin import speech
+        from core import speech
         speech.set_language('grc', pron)
         speech_mode = speech.init_synth(tts) is not None
     texts = [open(path, encoding='utf-8').read() for path in args] if args else [sys.stdin.read()]

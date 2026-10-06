@@ -15,7 +15,6 @@
 from .LatinObject import LatinObject
 from .Word import Word
 from .AndOr import AndOr
-from . import latindic
 from . import language
 
 KIND_LABELS = {'present': '現在分詞', 'passive': '完了分詞・受動', 'active': '完了分詞', 'future': '未来分詞'}
@@ -51,8 +50,8 @@ def verb_gloss(word, lang=None):
     """分詞のもとの動詞の訳語 (日本語なら活用させるため)。(訳語, 言語)。lang は言語の設定 (辞書の引き先)"""
     item = participle_item(word)
     pres1sg = item.attrib('pres1sg')
-    lookup = (lang or language.current()).lookup or latindic.lookup
-    if pres1sg:
+    lookup = (lang or language.current()).lookup
+    if pres1sg and lookup:
         for entry in lookup(pres1sg) or []:
             if entry.get('pos') == 'verb' and entry.get('ja'):
                 return entry['ja'].split(',')[0], entry.get('gloss_lang', 'ja')

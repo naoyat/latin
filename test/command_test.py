@@ -40,5 +40,18 @@ class ConjugTestCase(unittest.TestCase):
         self.assertIn('    present: esse', out)
 
 
+
+class ReadCommandTestCase(unittest.TestCase):
+    def test_lang_option(self):
+        result = subprocess.run([sys.executable, 'read.py', '--lang=la', '-w'], cwd=ROOT,
+                                input='Rōma magna est.\n', capture_output=True, text=True)
+        self.assertIn('→', ANSI_ESCAPE.sub('', result.stdout))
+
+    def test_unknown_lang(self):
+        result = subprocess.run([sys.executable, 'read.py', '--lang=xx'], cwd=ROOT, input='', capture_output=True,
+                                text=True)
+        self.assertNotEqual(result.returncode, 0)
+
+
 if __name__ == '__main__':
     unittest.main()

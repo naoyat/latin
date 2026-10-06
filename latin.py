@@ -8,12 +8,12 @@ import getopt
 import latin.textutil as textutil
 import latin.latin_char as char
 import latin.latindic as latindic
-import latin.util as util
+import core.util as util
 from latin import analyzer
-from latin import render
+from core import render
 from latin import macronizer
 
-from latin import speech as speak_latin
+from core import speech as speak_latin
 
 def analyse_text(text, options):
     if options.auto_macron_mode:

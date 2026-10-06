@@ -3,7 +3,7 @@
 
 from .words import words_path
 from . import latin_noun
-from . import util
+from core import util
 
 def decline_adj_comparative(nom_sg_mf, tags):
     table = []

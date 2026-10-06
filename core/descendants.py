@@ -6,7 +6,7 @@
 #   acūtus   仏 aigu (継承: 古仏 agu → 中仏 aigu) / 英 acute (借用: 中英 acute)
 #   fragilis 仏 frêle (継承: 古仏 fraile), fragile (借用) / 英 frail (借用: 古仏 fraile), fragile (借用)
 #
-from . import wiktionary
+from . import language
 from .languages import lang_name
 
 KIND_NAMES = {'inherited': '継承', 'borrowed': '借用', 'semi-learned': '半借用', 'calque': '翻訳借用'}
@@ -22,7 +22,7 @@ def lemma_of(item):
 def describe(lemma, langs=DEFAULT_LANGS, source=None, fallback=FALLBACK_LANGS):
     """見出し語の子孫語を1行で。langs の言語が無ければ fallback の言語を。どれも無ければ None。
     source は子孫語を引く辞書 (descendants(lemma) を持つモジュール。既定はラテン語の Wiktionary 辞書)"""
-    found = (source or wiktionary).descendants(lemma)
+    found = (source or language.current().dictionary).descendants(lemma)
     if fallback and not any(d['lang'] in langs for d in found):
         langs = fallback
     by_lang = {}

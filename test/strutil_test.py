@@ -3,7 +3,7 @@
 
 import unittest
 
-from latin.strutil import *
+from core.strutil import *
 
 class StringTestCase(unittest.TestCase):
     def test_ends_with(self):

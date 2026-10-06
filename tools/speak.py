@@ -25,7 +25,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from latin import speech
+from core import speech
 
 if __name__ == '__main__':
     speech.main()

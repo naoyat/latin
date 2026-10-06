@@ -29,7 +29,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from latin import latindic, analyzer, render, macronizer, ansi_color
+from core import render, ansi_color
+from latin import latindic, analyzer, macronizer
 
 DEFAULT_FILE = os.path.join(ROOT, 'samples', 'samples.txt')
 LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.txt'),

@@ -10,7 +10,8 @@ import glob
 import contextlib
 import unittest
 
-from latin import latindic, analyzer, render, wiktionary, rftagger
+from core import render
+from latin import latindic, analyzer, wiktionary, rftagger
 from latin.catalog import PRIVATE_TEXTS_DIR
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

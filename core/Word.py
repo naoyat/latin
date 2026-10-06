@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import latin.util as util # render
+import core.util as util # render
 
-from latin.LatinObject import LatinObject
-from latin.Item import Item
+from core.LatinObject import LatinObject
+from core.Item import Item
 
 class Word (LatinObject):
     # has surface

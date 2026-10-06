@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from latin.LatinObject import LatinObject
+from core.LatinObject import LatinObject
 
 # 前置詞支配された名詞節
 class PrepClause (LatinObject):

@@ -7,7 +7,7 @@
 #          同源: 古ラテン Diēspiter “Father Jove”, ラテン Iuppiter “Jupiter”
 #          From Proto-Italic *patēr, from Proto-Indo-European *ph₂tḗr. ...
 #
-from . import wiktionary
+from . import language
 from .languages import lang_name
 from .descendants import lemma_of
 
@@ -26,7 +26,7 @@ def _term(code, term, tr='', gloss=''):
 def describe(lemma, source=None):
     """見出し語の語源を行のリストで。無ければ []。source は語源を引く辞書 (既定はラテン語の Wiktionary 辞書)"""
     lines = []
-    for ety in (source or wiktionary).etymology(lemma):
+    for ety in (source or language.current().dictionary).etymology(lemma):
         chain, roots = [], []
         for kind, code, term, gloss in ety['ancestors']:
             if kind == 'root':

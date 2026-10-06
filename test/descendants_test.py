@@ -5,7 +5,8 @@
 #
 import unittest
 
-from latin import descendants, wiktionary
+from core import descendants
+from latin import wiktionary
 
 FAKE = {
     'acutus': [{'lang': 'fr', 'word': 'aigu', 'kind': 'inherited', 'via': [['fro', 'agu'], ['frm', 'aigu']]},
