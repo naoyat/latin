@@ -9,7 +9,7 @@
 #
 import unicodedata
 
-from . import dictionary
+from . import dictionary, elision
 
 MACRON, BREVE = '̄', '̆'
 DICHRONA = set('αιυ')
@@ -44,11 +44,17 @@ def mark(word):
     if not dictionary.available():
         return word
     letters = _letters(word)
+    # 省略された語 (μυρί’) は元の形 (μυρία) で引き、残っている文字の分だけ使う
+    restored = elision.restore(word)
     variants = []
-    for item in dictionary.lookup(word):
+    for item in dictionary.lookup(restored or word):
         marked = item.get('length')
-        if marked and [c for c, _ in _letters(marked)] == [c for c, _ in letters]:
-            variants.append(_long_positions(marked))
+        if not marked:
+            continue
+        marked_letters = [c for c, _ in _letters(marked)]
+        if marked_letters[:len(letters)] == [c for c, _ in letters] and (restored or len(marked_letters) == len(letters)):
+            long, short = _long_positions(marked)
+            variants.append(({p for p in long if p < len(letters)}, {p for p in short if p < len(letters)}))
     if not variants:
         return word
     # どの候補でも長く、どの候補でも短くないもの

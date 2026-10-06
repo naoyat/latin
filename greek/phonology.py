@@ -139,7 +139,8 @@ def phonemize_word(word, pron='attic'):
 # 句読点 (· は上の点、; と ; は疑問符)
 PAUSES = {',': 'comma', '·': 'comma', '·': 'comma', ':': 'comma', '.': 'period', ';': 'question',
           ';': 'question', '!': 'period'}
-TOKEN = re.compile(r"[Ͱ-Ͽἀ-῿̀-ͯ]+|[,··:.;;!]")
+# 語 (語末のアポストロフィ = 母音の省略を含む) と句読点
+TOKEN = re.compile("[\u0370-\u03ff\u1f00-\u1fff\u0300-\u036f]+[\u2019'\u02bc\u1fbd]?|[,\u00b7\u0387:.;\u037e!]")
 
 
 def analyze_text(text, pron='attic', lengths=True):

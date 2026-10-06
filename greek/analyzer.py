@@ -11,7 +11,7 @@ import re
 from latin import analyzer as common
 from latin import language
 from latin.Word import Word
-from . import dictionary, orthography, government
+from . import dictionary, orthography, government, elision
 
 GREEK = language.Language(
     name='grc',
@@ -54,9 +54,13 @@ def sentences(text):
             yield tokens(sentence)
 
 
-def _word(surface):
+def _word(surface, next_surface=None):
     if surface in PUNCTUATION:
         return Word(surface, None)
+    restored = elision.restore(surface, next_surface)
+    if restored:
+        # 母音の省略 (ἀλλ’ → ἀλλά, ἐφ’ ἡμῖν → ἐπί): 元の形で引き、解析も元の形で
+        surface = restored
     key = orthography.key(surface)
     if key.lower() in GREEK.negations:
         # 否定 (οὐ, οὐκ, οὐχ, μή): 述語を否定形にする副詞として (οὐκ, οὐχ は辞書に無い)
@@ -69,7 +73,7 @@ def _word(surface):
 
 
 def lookup_all(surfaces):
-    words = [_word(s) for s in surfaces]
+    words = [_word(s, surfaces[i + 1] if i + 1 < len(surfaces) else None) for i, s in enumerate(surfaces)]
     for i, word in enumerate(words):
         word.index = i
     return words
