@@ -949,7 +949,15 @@ def _group_by_verbs(words, verbs_ix, trace):
     for i in range(verb_count-1):
         fr = groups[i][-1] + 1
         to = groups[i+1][0] - 1
-        if fr == to: continue
+        if fr > to: continue
+        if fr == to:
+            # 動詞の間の1語: 目的語が動詞の後ろに来る言語 (ロシア語・ヘブライ語) は前の動詞に、ほかは後ろの動詞に
+            # (以前はどちらにも入らず落ちていた: וַיֹּאמֶר אֱלֹהִים יְהִי אוֹר の אֱלֹהִים)
+            if language.current().objects_follow_verb:
+                groups[i].append(fr)
+            else:
+                groups[i+1] = [fr] + groups[i+1]
+            continue
 
         well_divided_at = None
         for j in range(fr, to+1):
