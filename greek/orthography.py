@@ -24,8 +24,24 @@ def _nfc(text):
     return unicodedata.normalize('NFC', text)
 
 
+SMOOTH = '\u0313'
+
+
+def _elision_mark(word):
+    """語末の子音に付いた気息記号 (δ̓) や ῤ (ὄφῤ) は、省略のアポストロフィの書き方 (Perseus のテキストなど)"""
+    nfd = _nfd(word)
+    if nfd.endswith(SMOOTH):
+        base = [c for c in nfd[:-1] if not unicodedata.combining(c)]
+        if base and base[-1].isalpha() and base[-1].lower() not in 'αεηιουω':
+            return _nfc(nfd[:-1]) + '’'  # δ̓, ῥ̓ (ρ に気息記号が2つ)
+    if word.endswith('ῤ'):
+        return word[:-1] + 'ρ’'
+    return word
+
+
 def key(word, keep_length=False):
     """辞書と照合する形 (keep_length なら長短の印 ᾱ ᾰ を残す。音読で母音の長さを知るため)"""
+    word = _elision_mark(word)
     for a in APOSTROPHES:
         word = word.replace(a, '’')
     chars = [c for c in _nfd(word) if keep_length or c not in (MACRON, BREVE)]

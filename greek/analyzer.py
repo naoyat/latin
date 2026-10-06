@@ -11,7 +11,7 @@ import re
 from latin import analyzer as common
 from latin import language
 from latin.Word import Word
-from . import dictionary, orthography, government, elision
+from . import dictionary, orthography, government, elision, dialect
 
 GREEK = language.Language(
     name='grc',
@@ -58,6 +58,9 @@ def _word(surface, next_surface=None):
     if surface in PUNCTUATION:
         return Word(surface, None)
     restored = elision.restore(surface, next_surface)
+    if not restored and not dictionary.lookup(surface):
+        # 辞書に無い異形 (ἐξ → ἐκ) と、叙事詩・イオニア方言の語形 (ἀγορήν → ἀγοράν。greek/dialect.py)
+        restored = elision.variant(surface) or dialect.attic(surface)
     if restored:
         # 母音の省略 (ἀλλ’ → ἀλλά, ἐφ’ ἡμῖν → ἐπί): 元の形で引き、解析も元の形で
         surface = restored
