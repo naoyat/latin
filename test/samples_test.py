@@ -40,6 +40,11 @@ class SamplesTestCase(unittest.TestCase):
             langs.append(('sa', sanskrit_dictionary.available() and morphology.available()))
         except ImportError:
             pass
+        try:
+            from russian import dictionary as russian_dictionary, morphology as russian_morphology
+            langs.append(('ru', russian_dictionary.available() and russian_morphology.available()))
+        except ImportError:
+            pass
         for lang, available in langs:
             sections = samples.read_sections(samples.LANG_FILES[lang])
             self.assertTrue(all(title and sentences for title, sentences in sections), lang)

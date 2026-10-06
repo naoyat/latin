@@ -59,6 +59,8 @@ def detect_prep_domination(words):
             w = words[j]
             if isinstance(w, Word):
                 if w.items is None:
+                    if w.surface in (',', ';', ':') and language.current().objects_follow_verb:
+                        break # while-j-loop (句読点で前置詞句を閉じる: в Новуре, но …)
                     j += 1
                     continue # while-j-loop
                 stop = False
@@ -72,14 +74,18 @@ def detect_prep_domination(words):
                         can_skip = False
                         yes = False
                         for case, number, gender in item._:
-                            if case == 'Gen':
-                                can_skip = True
-                            elif case in dominates:
+                            if case in dominates:
                                 dominates = [case] # 絞り込み
                                 yes = True
                                 break # for-cng-loop
+                            elif case == 'Gen':
+                                can_skip = True  # 前置詞句の中の属格の修飾語 (属格を支配する前置詞なら上で合う)
                             else:
                                 pass
+                        if yes and k == 0 and language.current().objects_follow_verb:
+                            # 一番の読みが支配する格なら、ほかの読み (副詞など) は見ない (ロシア語の из дома。
+                            # ラテン語では別の品詞にも読める語を取り込みすぎて、UD の主語・目的語が少し下がる)
+                            break # for-k-loop
                         if not yes and not can_skip:
                             stop = True
                             break # for-k-loop
@@ -819,6 +825,19 @@ def _has_other_cases(word, case):
     return any(c != case for item in (getattr(word, 'items', None) or []) for c, _, _ in (item._ or []))
 
 
+def _after_genitive_preposition(words, ix):
+    """属格を支配する前置詞の後ろ (間に形容詞があってもよい) の語か"""
+    for j in range(ix - 1, max(-1, ix - 4), -1):
+        word = words[j]
+        if not isinstance(word, Word) or not word.items:
+            return False
+        if any(item.pos == 'preposition' and item.dominates == 'Gen' for item in word.items):
+            return True
+        if word.items[0].pos not in ('adj', 'participle'):
+            return False
+    return False
+
+
 def detect_genitive_correspondances(words, trace):
     M = len(words)
     targets = {}
@@ -841,6 +860,9 @@ def detect_genitive_correspondances(words, trace):
             first_item = word.items[0]
             if word.surface in _coordinators() or first_item.pos == 'preposition':
                 blocks[i] = word
+                continue
+            if first_item.pos == 'verb' and language.current().genitive_follows_head:
+                blocks[i] = word  # 動詞を越えて掛けない (рефери дисквалифицировал Диксона: 対格の Диксона)
                 continue
             if first_item.pos == 'adj' and first_item.attrib('base') == 'plēnus':
                 targets[i] = word
@@ -873,6 +895,8 @@ def detect_genitive_correspondances(words, trace):
 
         pre = sub(gen_ix-1, -1, -1)
         if pre >= 0: return pre
+        if language.current().genitive_follows_head:
+            return -1  # 後ろの名詞には掛けない
 
         post = sub(gen_ix+1, M, 1)
         if post >= 0: return post
@@ -901,6 +925,9 @@ def detect_genitive_correspondances(words, trace):
             non_gen.add(gen_ix)
             # 係り先の無い属格は、ほかの格としても読めるならそちらに (nautae: 属格・与格・主格)。
             # ギリシア語では属格としてしか読めない語は属格のまま残す (動詞の目的語: ἤκουσα τοῦ ἀνθρώπου)
+            # 属格を支配する前置詞の後ろの属格 (ロシア語の от соседей「隣人から」) はそのまま
+            if _after_genitive_preposition(words, gen_ix):
+                continue
             if language.current().name == 'la' or _has_other_cases(words[gen_ix], 'Gen'):
                 words[gen_ix].restrict_cases(('Nom','Voc','Acc','Dat','Abl','Loc'))
 
@@ -939,6 +966,10 @@ def _group_by_verbs(words, verbs_ix, trace):
                 if words[j].surface in language.current().and_words:
                     well_divided_at = j-1
                     break
+        if well_divided_at is None and language.current().objects_follow_verb:
+            # 接続詞の前で分ける (но, а)。無ければ前の動詞に (目的語は動詞の後ろ)
+            well_divided_at = next((j - 1 for j in range(fr, to + 1) if isinstance(words[j], Word)
+                                    and words[j].items and words[j].items[0].pos == 'conj'), to)
         if well_divided_at is not None:
             groups[i] += list(range(fr, well_divided_at+1))
             groups[i+1] = list(range(well_divided_at+1, to+1)) + groups[i+1]

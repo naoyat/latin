@@ -34,6 +34,9 @@ class Language:
     predicative_adjective: object = None  # 名詞に掛けない述語的位置の形容詞を決める関数 (adj, noun) → bool
     lexicalized_participle: object = None  # 形容詞になった分詞か (base, 比較級の形のリスト) → bool
     dictionary: object = None      # 子孫語・語源を引く辞書 (descendants(lemma), etymology(lemma) を持つモジュール)
+    pronoun_subject: bool = False  # 繋辞の文で代名詞も名詞と同じく主語になる (tat tvam asi, Он студент)
+    genitive_follows_head: bool = False  # 属格は前の名詞にだけ掛かり、動詞を越えない (ロシア語の книга брата)
+    objects_follow_verb: bool = False  # 目的語が動詞の後ろに来る語順 (ロシア語)。2つの動詞の間の語を前の動詞に
 
     def is_copula(self, pres1sg):
         return pres1sg in self.copulas

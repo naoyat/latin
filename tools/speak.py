@@ -15,6 +15,7 @@
 #   --pron=NAME          ギリシア語の発音: attic (既定、復元アッティカ発音・高低アクセント) / koine / erasmian /
 #                        modern (現代ギリシア語式。MBROLA の現代ギリシア語音声 gr2、-v gr1 で gr1)
 #
+#   --lang=ru            ロシア語を読む (espeak-ng のロシア語音声。-b espeak)
 #   --lang=sa            サンスクリットを読む (mbrola はヒンディー語音声 in1、-v in2 で女声。espeak は -v hi)
 #
 #   python3 tools/speak.py --lang=grc "μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος"

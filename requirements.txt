@@ -5,6 +5,9 @@ unidic-lite
 # 以下は任意
 # サンスクリット (sanskrit.py。辞書引き・連声の分解・文字の変換)
 #vidyut
+# ロシア語 (russian.py。語形の解析)
+#pymorphy3
+#pymorphy3-dicts-ru
 # 音読 (piper バックエンド)
 #piper-tts
 # 合成音声の評価 (tools/tts_eval.py)。Apple Silicon なら mlx-whisper の方が速い

@@ -6,6 +6,7 @@
 #   python3 tools/ud_eval.py [--source=caesar,cicero-off] [--limit=N] [-e N] FILE.conllu...
 #   python3 tools/ud_eval.py --lang=grc [--source=nt,herodotus]     古典ギリシア語
 #   python3 tools/ud_eval.py --lang=sa [--source=vedic,ufal]         サンスクリット
+#   python3 tools/ud_eval.py --lang=ru [--source=gsd,taiga,syntagrus] ロシア語
 #
 # 古典ギリシア語 (--lang=grc) の既定は $LATIN_DATA/grc/ud/grc_*-ud-*.conllu (UD Ancient Greek-PROIEL / Perseus,
 # CC BY-NC-SA) のうち、新約聖書とヘロドトス『歴史』。マクロンの推定・品詞タガーは使わない。
@@ -14,6 +15,9 @@
 # サンスクリット (--lang=sa) の既定は $LATIN_DATA/sa/ud/sa_*-ud-test.conllu (UD Sanskrit-Vedic と
 # UD Sanskrit-UFAL『パンチャタントラ』。どちらも CC BY-SA 4.0)。どちらも連声を解いて複合語を分けた語の列。
 # 独立奪格の項目は処格独立を測る。
+#
+# ロシア語 (--lang=ru) の既定は $LATIN_DATA/ru/ud/ru_*-ud-test.conllu (UD Russian-GSD, Taiga (CC BY-SA 4.0)、
+# SynTagRus (CC BY-NC-SA 4.0))。独立奪格にあたる構文は無い。
 #
 # 既定は $LATIN_DATA/ud/la_proiel-ud-*.conllu (UD Latin-PROIEL, CC BY-NC-SA 3.0。リポジトリには入れない)
 # のうち、カエサル『ガリア戦記』とキケロ『義務について』『アッティクス宛書簡』の文。
@@ -39,6 +43,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from latin import latindic, analyzer, macronizer
 from greek import analyzer as greek_analyzer
 from sanskrit import analyzer as sanskrit_analyzer
+from russian import analyzer as russian_analyzer
 from core.Word import Word
 from core.AndOr import AndOr
 from core.PrepClause import PrepClause
@@ -48,13 +53,14 @@ DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin
 DEFAULT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ud', 'la_proiel-ud-*.conllu')))
 GREEK_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'grc', 'ud', 'grc_*-ud-*.conllu')))
 SANSKRIT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'sa', 'ud', 'sa_*-ud-test.conllu')))
+RUSSIAN_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ru', 'ud', 'ru_*-ud-test.conllu')))
 # Perseus の作品番号 (TLG) → 作品
 TLG_WORKS = {'tlg0012': 'homer', 'tlg0016': 'herodotus', 'tlg0003': 'thucydides', 'tlg0011': 'sophocles',
              'tlg0085': 'aeschylus', 'tlg0006': 'euripides', 'tlg0020': 'hesiod', 'tlg0008': 'athenaeus',
              'tlg0060': 'diodorus', 'tlg0007': 'plutarch', 'tlg0013': 'homeric-hymns', 'tlg0059': 'plato',
              'tlg0032': 'xenophon', 'tlg0540': 'lysias'}
 UD_CASES = {'Nom': 'Nom', 'Gen': 'Gen', 'Dat': 'Dat', 'Acc': 'Acc', 'Abl': 'Abl', 'Voc': 'Voc', 'Loc': 'Loc',
-            'Ins': 'Ins'}
+            'Ins': 'Ins', 'Par': 'Gen'}
 NOMINAL_UPOS = {'NOUN', 'PROPN', 'ADJ', 'DET', 'PRON', 'NUM'}
 SUBJ_RELS = ('nsubj', 'nsubj:pass')
 
@@ -167,9 +173,9 @@ def words_in(node):
 
 
 def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
-    greek, sanskrit = lang == 'grc', lang == 'sa'
-    if greek or sanskrit:
-        macronize = False  # ギリシア語はアクセントなどが、サンスクリットは長音が書かれている
+    greek, sanskrit, russian = lang == 'grc', lang == 'sa', lang == 'ru'
+    if greek or sanskrit or russian:
+        macronize = False  # マクロンの推定はラテン語だけ
     absolute_case = 'Gen' if greek else 'Loc' if sanskrit else 'Abl'  # 独立奪格 / 属格独立 / 処格独立
     stats = collections.Counter()
     errors = collections.defaultdict(collections.Counter)
@@ -177,6 +183,7 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
     for path in files:
         for meta, tokens in read_conllu(path):
             work = (greek_work_of(meta) if greek else sanskrit_work_of(meta) if sanskrit
+                    else os.path.basename(path).split('_')[1].split('-')[0] if russian
                     else work_of(meta.get('source', '')))
             if work in sources:
                 sentences.append(tokens)
@@ -200,6 +207,7 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
         try:
             analysis = (greek_analyzer.analyze_sentence(surfaces) if greek
                         else sanskrit_analyzer.analyze_sentence(surfaces) if sanskrit
+                        else russian_analyzer.analyze_sentence(surfaces) if russian
                         else analyzer.analyze_sentence(surfaces, tags))
         except Exception as e:  # 解析器が落ちた文は数えて飛ばす
             stats['crashed'] += 1
@@ -369,13 +377,14 @@ def main():
         elif option == '--no-wiktionary':
             latindic.LatinDic.use_wiktionary = False
         elif option in ('-h', '--help'):
-            print('Usage: python %s [--lang=la|grc|sa] [--source=caesar,cicero-off,cicero-att,vulgate,other] [--limit=N] '
+            print('Usage: python %s [--lang=la|grc|sa|ru] [--source=caesar,cicero-off,cicero-att,vulgate,other] [--limit=N] '
                   '[-e N] [--no-macronize] [--no-tagger] [--no-wiktionary] [FILE.conllu...]' % sys.argv[0])
             sys.exit()
     if sources is None:
         sources = ({'nt', 'herodotus'} if lang == 'grc' else {'vedic', 'ufal'} if lang == 'sa'
+                   else {'gsd', 'taiga', 'syntagrus'} if lang == 'ru'
                    else {'caesar', 'cicero-off', 'cicero-att'})
-    files = files or {'grc': GREEK_FILES, 'sa': SANSKRIT_FILES}.get(lang, DEFAULT_FILES)
+    files = files or {'grc': GREEK_FILES, 'sa': SANSKRIT_FILES, 'ru': RUSSIAN_FILES}.get(lang, DEFAULT_FILES)
     if not files:
         sys.exit('no CoNLL-U files (put UD Latin-PROIEL in %s/ud/)' % DATA_DIR)
     latindic.load()

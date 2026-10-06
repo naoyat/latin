@@ -12,8 +12,9 @@
 #   python3 tools/samples.py > before.txt    # パイプやファイルへは色なしで出す (版ごとの比較に)
 #   python3 tools/samples.py --lang=grc      # 古典ギリシア語 (samples/greek.txt)
 #   python3 tools/samples.py --lang=sa       # サンスクリット (samples/sanskrit.txt)
+#   python3 tools/samples.py --lang=ru       # ロシア語 (samples/russian.txt)
 #
-#   --lang=la|grc|sa    言語 (既定は la。ラテン語)
+#   --lang=la|grc|sa|ru 言語 (既定は la。ラテン語)
 #   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
 #   -l, --list          節の見出しの一覧を表示する
 #   --no-wiktionary     手作りの辞書だけを使う
@@ -34,7 +35,7 @@ from latin import latindic, analyzer, macronizer
 
 DEFAULT_FILE = os.path.join(ROOT, 'samples', 'samples.txt')
 LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.txt'),
-              'sa': os.path.join(ROOT, 'samples', 'sanskrit.txt')}
+              'sa': os.path.join(ROOT, 'samples', 'sanskrit.txt'), 'ru': os.path.join(ROOT, 'samples', 'russian.txt')}
 
 
 def analyzer_for(lang):
@@ -45,6 +46,9 @@ def analyzer_for(lang):
     if lang == 'sa':
         from sanskrit import analyzer as sanskrit_analyzer
         return sanskrit_analyzer.analyze_text
+    if lang == 'ru':
+        from russian import analyzer as russian_analyzer
+        return russian_analyzer.analyze_text
     return analyzer.analyze_text
 AUTO_MACRON = '[auto-macron]'
 ANSI = re.compile(r'\x1b\[[0-9;]*m')

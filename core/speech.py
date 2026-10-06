@@ -14,6 +14,7 @@
 # 古典ギリシア語 (set_language('grc', pron)) は、mbrola では greek/prosody.py の .pho を同じ la1 音声で
 # (有気音・[y]・長母音があるので)、espeak では espeak-ng の古典ギリシア語音声 (-v grc) で読む
 #
+# ロシア語 (set_language('ru')) は espeak-ng のロシア語音声 (-v ru) で読む。
 # サンスクリット (set_language('sa')) は、mbrola では sanskrit/prosody.py の .pho を MBROLA のヒンディー語音声 in1
 # (-v in2 で女声) で、espeak では espeak-ng のヒンディー語音声 (-v hi) にデーヴァナーガリーで渡して読む
 #
@@ -48,7 +49,7 @@ voice = None
 proc = None
 language = 'la'          # 'la' / 'grc' / 'sa'
 pronunciation = 'attic'  # ギリシア語の発音の流儀 (attic / koine / erasmian)
-ESPEAK_VOICES = {'la': 'la', 'grc': 'grc', 'sa': 'hi'}
+ESPEAK_VOICES = {'la': 'la', 'grc': 'grc', 'sa': 'hi', 'ru': 'ru'}
 # サンスクリットを読む MBROLA のヒンディー語音声 (in1 男声 / in2 女声)
 SANSKRIT_VOICE = os.path.join(MBROLA_HOME, 'voices', 'in1', 'in1')
 # 現代ギリシア語式 (--pron=modern) で読む MBROLA の現代ギリシア語音声 (gr1 / gr2)
@@ -164,6 +165,9 @@ def espeak(text, pause=False, wav_file=None, show_phonemes=False):
     if language == 'sa':
         from sanskrit import script
         text = script.devanagari(script.to_slp1(text))  # espeak-ng のヒンディー語はデーヴァナーガリーで
+    elif language == 'ru':
+        from russian import script
+        text = script.strip_stress(text)  # espeak-ng は強勢記号を読まない (強勢は espeak-ng の辞書に任せる)
     if backend != 'espeak': return None
     args = ['espeak-ng', '-v', voice, '-s', str(ESPEAK_SPEED), '--stdin']
     if wav_file:
@@ -294,6 +298,8 @@ def main(argv=None):
         text = text or 'μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος οὐλομένην.'
     if language == 'sa':
         text = text or 'धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः ।'
+    if language == 'ru':
+        text = text or 'Девочка читала интересную книгу в школе.'
     text = text or 'Arma virumque canō, Trōiae quī prīmus ab ōrīs Ītaliam, fātō profugus, Lāvīniaque vēnit lītora.'
     debug_mode = '-d' in opts or '--debug' in opts
     say_latin(text, debug_mode=debug_mode, pause=True, wav_file=opts.get('-w', opts.get('--wav')))

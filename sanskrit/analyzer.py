@@ -36,6 +36,7 @@ SANSKRIT = language.Language(
     case_particles={'Nom': 'が', 'Acc': 'を', 'Ins': 'で', 'Dat': 'に', 'Abl': 'から', 'Gen': 'の', 'Loc': 'で',
                     'Voc': 'よ'},
     absolute_case='Loc',  # 処格独立 (sati saptamī)
+    pronoun_subject=True,
     lookup=_root_items,
 )
 

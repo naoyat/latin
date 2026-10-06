@@ -64,7 +64,7 @@ pip install -r requirements.txt
 ```
 python3 latin.py [オプション] [ファイル...]    # ファイルを解析
 python3 latin.py [オプション]                  # 対話モード (REPL)
-python3 read.py --lang=la|grc|sa [オプション] [ファイル...]   # 言語を選んで (latin.py / greek.py / sanskrit.py を呼ぶ)
+python3 read.py --lang=la|grc|sa|ru [オプション] [ファイル...]   # 言語を選んで (latin.py / greek.py / sanskrit.py / russian.py を呼ぶ)
 ```
 
 | オプション | |
@@ -426,6 +426,44 @@ python3 sanskrit.py -s samples/sanskrit.txt                                    #
   現代のインドの読み方に近い「重い次末音節、無ければその前の重い音節」に軽い強勢（高さ）を置きます。
 * in1 には子音どうしのダイフォンがほとんど無いので、子音の間に短い無音を挟みます（音声の README の書き方 k a c _ r aa に従う）。
 
+## ロシア語（作りかけ）
+
+語形の解析は [pymorphy3](https://github.com/no-plagiarism/pymorphy3)（MIT。OpenCorpora の辞書）、訳語・強勢の位置・語源は
+Wiktionary から取り、解析・訳は共通の解析器（`core/`）をロシア語の設定で使います。
+
+```
+pip install pymorphy3 pymorphy3-dicts-ru
+mkdir -p ~/.local/share/latin-data/ru && cd ~/.local/share/latin-data/ru
+curl -L -o kaikki-Russian.jsonl.gz "https://kaikki.org/dictionary/Russian/kaikki.org-dictionary-Russian.jsonl.gz"
+cd - && python3 tools/build_russian_dic.py      # → ~/.local/share/latin-data/ru/wiktionary.sqlite (約5.8万語、強勢付きの変化形 約140万)
+python3 tools/samples.py --lang=ru              # サンプルの訳
+python3 russian.py samples/russian.txt          # 解析の詳細 (-w, -D 子孫語, -E 語源, -s 音読)
+```
+
+```
+Девочка читала интересную книгу в школе.   (Де́вочка чита́ла интере́сную кни́гу в шко́ле.)
+  →  少女が / {学校 }〜で,〜の中で / {面白い,興味深い,きれいな,魅力的な}本,書物,書籍,著書を / 読んでいた,…
+Москва — столица России.
+  →  モスクワ,ロシア連邦の首都,モスクワ川は / {ロシアの}首都である
+```
+
+* 見出しの行に、Wiktionary の変化表から強勢記号を付けた文と学術転写を添えます。
+* 動詞のアスペクト: 不完了体の過去は「〜していた」、完了体の過去は「〜した」。быть の未来形 + 不定形（буду читать）は
+  未来、быть + 短語尾分詞（была прочитана）は受動にまとめます。副動詞（читая）は「〜して」。
+* 前置詞は支配する格ごとに訳を持たせ（в + 対格「〜へ」/ 前置格「〜で」）、前置詞の後ろの語は支配する格の読みを先にします。
+* 現在形で省かれる繋辞（Он студент. / Москва — столица России.）は、主格の名詞類が2つあれば補います。
+* 語順の違いは言語の設定で吸収します: 属格は前の名詞にだけ掛け、動詞を越えない（`genitive_follows_head`）。
+  2つの動詞の間の語は前の動詞へ（目的語は動詞の後ろ、`objects_follow_verb`）。
+* 音読は espeak-ng のロシア語音声です（`-s`。強勢は espeak-ng の辞書に任せる）。
+* 評価用に UD Russian-GSD・Taiga（CC BY-SA 4.0）と SynTagRus（CC BY-NC-SA 4.0）の test を `~/.local/share/latin-data/ru/ud/` に置き、
+  `python3 tools/ud_eval.py --lang=ru [--source=gsd,taiga,syntagrus]` で測ります。
+
+| UD Russian | 網羅率 | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 主語 | 目的語 |
+|---|---|---|---|---|---|---|---|
+| GSD（約1万語） | 91.8% | 72.4% | 69.6% | 72.4% | 81.6% | 58.4% | 39.7% |
+| Taiga（約1.3万語） | 93.0% | 76.3% | 72.1% | 65.1% | 76.1% | 55.5% | 40.4% |
+| SynTagRus（約13万語） | 96.7% | 79.1% | 76.4% | 73.0% | 84.1% | 63.5% | 41.6% |
+
 ## テスト
 
 ```
@@ -441,10 +479,11 @@ python3 -m unittest discover -s test -p '*_test.py'
 ## 構成
 
 ```
-read.py                  言語を選んで解析・訳する (--lang=la|grc|sa。下の各言語のコマンドを呼ぶ)
+read.py                  言語を選んで解析・訳する (--lang=la|grc|sa|ru。下の各言語のコマンドを呼ぶ)
 latin.py                 ラテン語の解析・訳のコマンド (REPL を含む)
 greek.py                 古典ギリシア語の解析・訳のコマンド (作りかけ)
 sanskrit.py              サンスクリットの解析・訳のコマンド (作りかけ)
+russian.py               ロシア語の解析・訳のコマンド (作りかけ)
 core/                    言語に依存しない共通部分
   analyzer.py            解析の骨組み (並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
   language.py            言語ごとの設定 (接続詞・繋辞・否定・格の助詞・独立奪格の格、辞書を引く関数など)
@@ -467,6 +506,7 @@ greek/                   古典ギリシア語 (表記の正規化、Wiktionary 
                          発音と韻律)
 sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、複合語、Wiktionary の訳語、
                          発音と韻律)
+russian/                 ロシア語 (pymorphy3 による語形の解析、前置詞の格、繋辞の補い、Wiktionary の訳語と強勢)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録

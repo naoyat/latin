@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# 言語を選んで解析・訳する (各言語のコマンド latin.py / greek.py / sanskrit.py を呼ぶ)
+# 言語を選んで解析・訳する (各言語のコマンド latin.py / greek.py / sanskrit.py / russian.py を呼ぶ)
 #
 #   python3 read.py --lang=la [latin.py のオプション] [FILE]       ラテン語 (既定)
 #   python3 read.py --lang=grc [greek.py のオプション] [FILE]      古典ギリシア語
 #   python3 read.py --lang=sa [sanskrit.py のオプション] [FILE]    サンスクリット
+#   python3 read.py --lang=ru [russian.py のオプション] [FILE]     ロシア語
 #
 #   echo "रामो वनं गच्छति ।" | python3 read.py --lang=sa -w
 #
@@ -14,7 +15,7 @@ import runpy
 import sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-COMMANDS = {'la': 'latin.py', 'grc': 'greek.py', 'sa': 'sanskrit.py'}
+COMMANDS = {'la': 'latin.py', 'grc': 'greek.py', 'sa': 'sanskrit.py', 'ru': 'russian.py'}
 
 
 def main():
