@@ -9,6 +9,9 @@
 # 方言 (dialect: Epic, Ionic, Attic, Koine …)、冠詞 (pos 'article')
 #
 
+import re
+import unicodedata
+
 from latin.wiktionary_import import english_glosses, japanese_gloss, descendants_summary, etymology_summary
 from . import orthography
 
@@ -154,20 +157,66 @@ def _verb_forms(entry):
     return result
 
 
+CASE_MARKER = re.compile(r'^[\[(]with (genitive|dative|accusative)[^\])]*[\])]\s*', re.I)
+CASE_NAMES = {'genitive': 'Gen', 'dative': 'Dat', 'accusative': 'Acc'}
+
+
+def _sense_case(sense, umbrellas=()):
+    """前置詞の語義が支配する格と、その意味の訳語 (無ければ None)。
+    語義の書き出しの [with genitive] / (with dative) を優先し、無ければタグ (対格 > 与格 > 属格の順。
+    属格のタグは誤って付いていることが多いので最後に)。訳語が複数あるとき、最初が全体の要約
+    (πρός の「on the side of, from, at, to …」) なら最後のものを使う"""
+    glosses = [g for g in sense.get('glosses', []) if g.strip()]
+    if not glosses:
+        return None, None
+    m = CASE_MARKER.match(glosses[0])
+    if m:
+        rest = glosses[0][m.end():].strip()
+        meaning = rest or (glosses[1] if len(glosses) > 1 else '')
+        return CASE_NAMES[m.group(1).lower()], meaning or None
+    # 最初の訳語がほかの語義と共通の要約なら、残りを使う
+    meaning = ', '.join(glosses[1:]) if glosses[0] in umbrellas and len(glosses) > 1 else glosses[-1]
+    tags = sense.get('tags', [])
+    for tag, case in (('with-accusative', 'Acc'), ('with-dative', 'Dat'), ('with-genitive', 'Gen')):
+        if tag in tags:
+            return case, meaning
+    return None, meaning
+
+
+def _clean_prep_gloss(texts, limit=3):
+    words = []
+    for text in texts:
+        text = re.sub(r'\([^)]*\)', '', text.split('\n')[0])
+        for part in re.split(r'[;,]', text):
+            part = part.strip().rstrip('.')
+            # 例文 (εἰς τὴν πόλιν) とそのローマ字表記 (eis tḕn pólin) は除く
+            if any(orthography.is_greek(c) or '\u1e00' <= c <= '\u1eff' or unicodedata.combining(c) for c in part):
+                continue
+            if part and part not in words:
+                words.append(part)
+    return ','.join(words[:limit])
+
+
 def _prep_cases(entry):
-    """前置詞が支配する格と、格ごとの訳語の語義"""
+    """前置詞が支配する格 (見出しのテンプレートの順) と、格ごとの英語の訳語"""
     cases = []
     for head in entry.get('head_templates', []):
         for k in sorted(k for k in head.get('args', {}) if k.isdigit()):
             case = PREP_CASES.get(head['args'][k])
             if case and case not in cases:
                 cases.append(case)
+    firsts = [s['glosses'][0] for s in entry.get('senses', []) if s.get('glosses')]
+    umbrellas = {g for g in firsts if firsts.count(g) >= 2 and not CASE_MARKER.match(g)}
     by_case = {}
-    for s in entry.get('senses', []):
-        tagged = [CASES[t[len('with-'):]] for t in s.get('tags', []) if t.startswith('with-') and t[len('with-'):] in CASES]
-        for case in tagged or cases[:1]:
-            by_case.setdefault(case, []).append(s)
-    return cases, by_case
+    for sense in entry.get('senses', []):
+        case, meaning = _sense_case(sense, umbrellas)
+        case = case or (cases[0] if cases else None)
+        if case and meaning:
+            by_case.setdefault(case, []).append(meaning)
+    for case in by_case:
+        if case not in cases:
+            cases.append(case)
+    return cases, {case: _clean_prep_gloss(texts) for case, texts in by_case.items()}
 
 
 JA_GLOSS_MAX = 12  # これより長い日本語の訳語は説明文 (ほかに訳語があれば落とす)
@@ -233,10 +282,13 @@ def convert_entry(entry, ja_glosses=None):
         return [(info, _verb_forms(entry))]
 
     if pos == 'prep':
-        cases, by_case = _prep_cases(entry)
+        cases, glosses = _prep_cases(entry)
         result = []
-        for case in cases or ['Gen']:
-            ja, lang = _gloss(entry, ja_glosses, by_case.get(case))
+        for i, case in enumerate(cases or ['Gen']):
+            # 日本語の訳語は主な格 (最初の格) にだけ使う (ほかの格は意味が違う: παρά + 属格「〜から」/ 与格「〜のそばで」)
+            ja, lang = _gloss(entry, ja_glosses if i == 0 else None)
+            if lang == 'en' and glosses.get(case):
+                ja = glosses[case]
             result.append(({'pos': 'preposition', 'dominates': case, 'base': base, 'ja': ja, 'gloss_lang': lang},
                            [(base, {})]))
         return result

@@ -41,6 +41,22 @@ EN = {
     'senses': [{'glosses': ['(with dative) in, on'], 'tags': ['with-dative']}],
 }
 
+# 語義の書き出しに格がある前置詞と、最初の訳語が全体の要約の前置詞 (πρός)
+PARA = {
+    'word': 'παρά', 'lang_code': 'grc', 'pos': 'prep',
+    'head_templates': [{'name': 'grc-preposition', 'args': {'1': 'πᾰρᾰ́', '2': 'gen', '3': 'dat', '4': 'acc'}}],
+    'senses': [{'glosses': ['[with genitive]', 'from'], 'tags': ['with-genitive']},
+               {'glosses': ['[with dative]', 'beside'], 'tags': ['with-genitive']},
+               {'glosses': ['[with accusative]', 'contrary to'], 'tags': ['with-genitive']}],
+}
+PROS = {
+    'word': 'πρός', 'lang_code': 'grc', 'pos': 'prep',
+    'head_templates': [{'name': 'grc-preposition', 'args': {'1': 'gen', '2': 'dat', '3': 'acc'}}],
+    'senses': [{'glosses': ['on the side of, to', 'from'], 'tags': ['with-genitive']},
+               {'glosses': ['on the side of, to', 'near to'], 'tags': ['with-dative', 'with-genitive']},
+               {'glosses': ['on the side of, to', 'towards'], 'tags': ['with-accusative', 'with-genitive']}],
+}
+
 
 class OrthographyTestCase(unittest.TestCase):
     def test_key(self):
@@ -71,6 +87,12 @@ class ImportTestCase(unittest.TestCase):
         self.assertEqual(by_surface['ἔλυε']['tense'], 'imperfect')  # 'perfect' と取り違えない
         self.assertEqual((by_surface['λῦσε']['tense'], by_surface['λῦσε']['dialect']), ('aorist', 'Epic'))
         self.assertEqual(by_surface['λυόμενος']['voice'], 'middle-passive')
+
+    def test_preposition_glosses_per_case(self):
+        glosses = {info['dominates']: info['ja'] for info, _ in convert_entry(PARA)}
+        self.assertEqual(glosses, {'Gen': 'from', 'Dat': 'beside', 'Acc': 'contrary to'})
+        glosses = {info['dominates']: info['ja'] for info, _ in convert_entry(PROS)}
+        self.assertEqual(glosses, {'Gen': 'from', 'Dat': 'near to', 'Acc': 'towards'})
 
     def test_preposition(self):
         (info, _), = convert_entry(EN)
