@@ -10,8 +10,11 @@
 #   python3 tools/samples.py -d -D           # 語ごとに英語・フランス語などに残った語 (子孫語) も
 #   python3 tools/samples.py -d -E           # 語ごとに語源 (祖語の系統・同源語) も
 #   python3 tools/samples.py > before.txt    # パイプやファイルへは色なしで出す (版ごとの比較に)
+#   python3 tools/samples.py --lang=grc      # 古典ギリシア語 (samples/greek.txt)
+#   python3 tools/samples.py --lang=sa       # サンスクリット (samples/sanskrit.txt)
 #
-#   -f, --file=FILE     例文のファイル (既定は samples/samples.txt)
+#   --lang=la|grc|sa    言語 (既定は la。ラテン語)
+#   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
 #   -l, --list          節の見出しの一覧を表示する
 #   --no-wiktionary     手作りの辞書だけを使う
 #   --no-tagger         品詞タガーを使わない
@@ -29,6 +32,19 @@ sys.path.insert(0, ROOT)
 from latin import latindic, analyzer, render, macronizer, ansi_color
 
 DEFAULT_FILE = os.path.join(ROOT, 'samples', 'samples.txt')
+LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.txt'),
+              'sa': os.path.join(ROOT, 'samples', 'sanskrit.txt')}
+
+
+def analyzer_for(lang):
+    """言語ごとの analyze_text"""
+    if lang == 'grc':
+        from greek import analyzer as greek_analyzer
+        return greek_analyzer.analyze_text
+    if lang == 'sa':
+        from sanskrit import analyzer as sanskrit_analyzer
+        return sanskrit_analyzer.analyze_text
+    return analyzer.analyze_text
 AUTO_MACRON = '[auto-macron]'
 ANSI = re.compile(r'\x1b\[[0-9;]*m')
 
@@ -60,7 +76,8 @@ def brief(analysis):
             print('     (行き場の無い語句: %s → %s)' % (item.surface, render.translate(item)))
 
 
-def show(sections, mode, show_descendants=False, show_etymology=False):
+def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'):
+    analyze_text = analyzer_for(lang)
     for title, sentences in sections:
         print()
         print(ansi_color.underline(ansi_color.bold('■ ' + title)))
@@ -74,7 +91,10 @@ def show(sections, mode, show_descendants=False, show_etymology=False):
             else:
                 print()
                 print(text)
-            for analysis in analyzer.analyze_text(text):
+            if lang == 'sa':
+                from sanskrit import script
+                print('  (%s)' % script.iast(script.to_slp1(text)))  # デーヴァナーガリーの文は IAST も
+            for analysis in analyze_text(text):
                 if mode == 'brief':
                     brief(analysis)
                 else:
@@ -91,12 +111,12 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'tdDEf:lh',
                                    ['tree', 'detail', 'descendants', 'etymology', 'file=', 'list', 'no-wiktionary', 'no-tagger',
-                                    'help'])
+                                    'lang=', 'help'])
     except getopt.GetoptError as e:
         print(e)
         sys.exit(1)
 
-    mode, path, list_only = 'brief', DEFAULT_FILE, False
+    mode, path, list_only, lang = 'brief', None, False, 'la'
     show_descendants = show_etymology = False
     for option, arg in opts:
         if option in ('-t', '--tree'):
@@ -105,6 +125,11 @@ def main():
             mode = 'detail'
         elif option in ('-f', '--file'):
             path = arg
+        elif option == '--lang':
+            if arg not in LANG_FILES:
+                print('--lang: %s のどれか' % '|'.join(LANG_FILES))
+                sys.exit(1)
+            lang = arg
         elif option in ('-l', '--list'):
             list_only = True
         elif option in ('-D', '--descendants'):
@@ -119,7 +144,7 @@ def main():
             usage()
             return
 
-    sections = read_sections(path)
+    sections = read_sections(path or LANG_FILES[lang])
     if list_only:
         for title, sentences in sections:
             print('%s (%d)' % (title, len(sentences)))
@@ -132,12 +157,12 @@ def main():
 
     latindic.load()
     if sys.stdout.isatty():
-        show(sections, mode, show_descendants, show_etymology)
+        show(sections, mode, show_descendants, show_etymology, lang)
     else:
         # パイプやファイルへは色を落として出す
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            show(sections, mode, show_descendants, show_etymology)
+            show(sections, mode, show_descendants, show_etymology, lang)
         sys.stdout.write(ANSI.sub('', buf.getvalue()))
 
 

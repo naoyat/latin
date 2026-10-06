@@ -32,6 +32,23 @@ class SamplesTestCase(unittest.TestCase):
             self.assertTrue(title)
             self.assertTrue(sentences, title)
 
+    def test_other_languages(self):
+        from greek import dictionary as greek_dictionary
+        langs = [('grc', greek_dictionary.available())]
+        try:
+            from sanskrit import dictionary as sanskrit_dictionary, morphology
+            langs.append(('sa', sanskrit_dictionary.available() and morphology.available()))
+        except ImportError:
+            pass
+        for lang, available in langs:
+            sections = samples.read_sections(samples.LANG_FILES[lang])
+            self.assertTrue(all(title and sentences for title, sentences in sections), lang)
+            if available:
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    samples.show(sections, 'tree', lang=lang)
+                self.assertIn('→', buf.getvalue())
+
     def test_show_all_modes(self):
         sections = samples.read_sections(samples.DEFAULT_FILE)
         for mode in ('brief', 'tree', 'detail'):

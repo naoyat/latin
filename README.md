@@ -112,6 +112,7 @@ python3 tools/samples.py                 # 全サンプルの訳を1行ずつ
 python3 tools/samples.py 独立 繋辞        # 見出しにその文字列を含む節だけ (-l で見出しの一覧)
 python3 tools/samples.py -t              # 述語と格の枠の構造も表示 (-d でさらに語ごとの辞書引きも)
 python3 tools/samples.py > before.txt    # ファイルへは色なしで出るので、版ごとに diff で比べられる
+python3 tools/samples.py --lang=grc      # 古典ギリシア語 (samples/greek.txt)。--lang=sa でサンスクリット
 ```
 
 ```
@@ -268,7 +269,8 @@ cd - && python3 tools/build_morpheus_dic.py
 mkdir -p ~/.local/share/latin-data/grc && cd ~/.local/share/latin-data/grc
 curl -L -o kaikki-AncientGreek.jsonl.gz "https://kaikki.org/dictionary/Ancient%20Greek/kaikki.org-dictionary-AncientGreek.jsonl.gz"
 cd - && python3 tools/build_greek_dic.py      # → ~/.local/share/latin-data/grc/wiktionary.sqlite（約2.2万語・106万形）
-python3 greek.py samples/greek.txt           # 自作の文などのサンプル (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
+python3 tools/samples.py --lang=grc           # サンプルの訳 (-t 構造、-d 語ごとの辞書引き)
+python3 greek.py samples/greek.txt           # 解析の詳細 (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
 ```
 
 ```
@@ -290,9 +292,9 @@ python3 greek.py samples/greek.txt           # 自作の文などのサンプル
 
 | UD Ancient Greek | 網羅率 | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 属格独立 | 主語 | 目的語 |
 |---|---|---|---|---|---|---|---|---|
-| 新約聖書（約13万語） | 98.3% | 81.7% | 87.3% | 55.4% | 80.7% | 35.4%（適合率 51.2%） | 59.5% | 45.3% |
-| ヘロドトス（約10万語） | 97.3% | 78.8% | 72.9% | 38.8% | 79.4% | 25.7%（適合率 52.5%） | 48.4% | 38.9% |
-| ホメロス（UD Perseus、約7万語） | 98.5% | 80.2% | 44.9% | 37.9% | 85.8% | 38.5%（適合率 27.8%） | 77.6% | 50.4% |
+| 新約聖書（約13万語） | 98.3% | 81.7% | 87.3% | 55.4% | 81.9% | 35.4%（適合率 51.2%） | 61.0% | 46.0% |
+| ヘロドトス（約10万語） | 97.3% | 78.9% | 72.9% | 38.9% | 80.4% | 25.7%（適合率 52.5%） | 49.4% | 40.2% |
+| ホメロス（UD Perseus、約7万語） | 98.5% | 80.2% | 44.9% | 37.9% | 86.2% | 38.5%（適合率 27.8%） | 78.0% | 50.8% |
 
 （Morpheus あり。UD Perseus の語形の注釈は Morpheus を使って作られているので、ホメロスの数字はやや良く出うる）
 
@@ -357,7 +359,8 @@ curl -L -o vidyut-data-0.4.0.zip https://github.com/ambuda-org/vidyut/releases/d
 unzip vidyut-data-0.4.0.zip -d vidyut-data
 curl -L -o kaikki-Sanskrit.jsonl.gz "https://kaikki.org/dictionary/Sanskrit/kaikki.org-dictionary-Sanskrit.jsonl.gz"
 cd - && python3 tools/build_sanskrit_dic.py     # → ~/.local/share/latin-data/sa/wiktionary.sqlite
-python3 sanskrit.py samples/sanskrit.txt        # -w で語ごとの辞書引きを省く、-D 子孫語、-E 語源
+python3 tools/samples.py --lang=sa             # サンプルの訳 (-t 構造、-d 語ごとの辞書引き)
+python3 sanskrit.py samples/sanskrit.txt        # 解析の詳細 (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
 ```
 
 ```

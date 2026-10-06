@@ -135,11 +135,29 @@ def attach_articles(words, trace):
         trace.append('// ART#%d (%s) -> #%d (%s)' % (i, word.surface, head.index, head.surface))
 
 
+FINITE_MOODS = ('indicative', 'imperative', 'optative', 'subjunctive')
+
+
+def _finite(item):
+    return item.pos == 'verb' and item.attrib('mood', 'indicative') in FINITE_MOODS
+
+
+def choose_verb(words):
+    """動詞の読みだけを持つ語が無い文では、定動詞の読みが一番の語のうち最後のものを動詞に絞る
+    (πιστεύουσιν: 定動詞「信じる」3人称複数と、分詞 πιστεύων の与格複数)"""
+    if any(w.items and all(item.pos == 'verb' for item in w.items) for w in words):
+        return
+    candidates = [w for w in words if w.items and _finite(w.items[0])]
+    if candidates:
+        candidates[-1].items = [item for item in candidates[-1].items if _finite(item)]
+
+
 def analyze_sentence(surfaces):
     words = lookup_all(surfaces)
     word_details = [word.detail() for word in words]
     trace = []
     attach_articles(words, trace)
+    choose_verb(words)
     with language.using(GREEK):
         return common.analyze_words(surfaces, words, word_details, trace)
 
