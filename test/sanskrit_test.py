@@ -142,9 +142,9 @@ class AnalyzerTestCase(unittest.TestCase):
 
     def test_possession_and_existence(self):
         self.assertTrue(analyze('मम पुस्तकम् अस्ति ।').clauses[0].predicate.translate()[0].startswith('私には'))
-        # 森にはライオンがいる (処格の場所を先に「には」、生き物は「いる」)
+        # 森にライオンがいる (処格の場所を先に「に」、生き物は「いる」)
         tr = analyze('वने सिंहः अस्ति ।').clauses[0].predicate.translate()[0]
-        self.assertTrue(tr.endswith('には / ライオンが / いる'), tr)
+        self.assertTrue(tr.endswith('に / ライオンが / いる'), tr)
 
     def test_locative_absolute(self):
         a = analyze('सूर्ये उदिते सर्वे जनाः उत्तिष्ठन्ति ।')

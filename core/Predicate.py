@@ -131,14 +131,18 @@ class Predicate (LatinObject):
             # 人称代名詞が主語なら主語を先に「は」で (私たちは劇場にいた)。場所は「〜に」
             is_existential = 'personal'
         elif is_existential:
-            # 存在・所有の文は、場所・所有者を先に「〜には」で (森にはライオンがいる、私には本がある)
+            # 存在・所有の文は、場所・所有者を先に。場所は「〜に」(森にライオンがいる)、所有者は「〜には」(私には本がある)。
+            # 場所に「〜には」を付けると主題・対比 (森というところにはライオンがいるものだ) の含みになるので付けない
             for case, objs in list(case_slot.items()):
                 if not objs or not (isinstance(case, tuple) or case == 'Loc' or case in self.language.possessor_cases):
                     continue
                 for obj in objs:
                     t, neg = obj.translate()
                     if neg: negated = True
-                    tr.append(_existential_place(t) if isinstance(case, tuple) else t + 'には')
+                    if isinstance(case, tuple):
+                        tr.append(_existential_place(t))
+                    else:
+                        tr.append(t + ('に' if case == 'Loc' else 'には'))
                 case_slot[case] = []
         # Nominative
         noms = []
@@ -230,7 +234,7 @@ class Predicate (LatinObject):
             if is_existential == 'personal' and (case == 'Loc' or case in self.language.possessor_cases):
                 particles = ['に'] * len(objs)
             if is_existential == 'personal' and isinstance(case, tuple):
-                trs = [_existential_place(t)[:-1] for t in trs]  # {劇場}〜に
+                trs = [_existential_place(t).replace('〜には', '〜に') for t in trs]  # {劇場}〜に
             if any(particles):
                 # 言語の設定で語ごとに助詞を決める (ギリシア語: ἀκούω + 属格「〜を」, 比較の属格「〜より」)
                 tr.append('='.join(t + (p or case_ja) for t, p in zip(trs, particles)))
@@ -339,12 +343,14 @@ def _animate(obj):
 
 
 def _existential_place(t):
-    """存在の文の場所の前置詞句: 最初の訳だけにして「〜には」に ({庭}〜で,〜の中で → {庭}〜には)"""
+    """存在の文の場所の前置詞句: 最初の訳だけにして「〜に」に ({庭}〜で,〜の中で → {庭}〜に)。
+    所有の前置詞句 (ロシア語の у + 生格「〜には」) はそのまま"""
     first = t.split(',')[0]
-    for ending in ('で', 'に'):
-        if first.endswith(ending):
-            return first[:-1] + 'には'
-    return first if first.endswith('には') else first + 'には'
+    if first.endswith('には'):
+        return first
+    if first.endswith(('で', 'に')):
+        return first[:-1] + 'に'
+    return first + 'に'
 
 
 def _has_article(obj):
