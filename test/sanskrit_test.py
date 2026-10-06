@@ -145,6 +145,9 @@ class AnalyzerTestCase(unittest.TestCase):
         # 森にライオンがいる (処格の場所を先に「に」、生き物は「いる」)
         tr = analyze('वने सिंहः अस्ति ।').clauses[0].predicate.translate()[0]
         self.assertTrue(tr.endswith('に / ライオンが / いる'), tr)
+        # nāsti = na asti。否定の存在文の場所は「〜には」
+        tr = analyze('वने सिंहः नास्ति ।').clauses[0].predicate.translate()[0]
+        self.assertTrue(tr.endswith('には / ライオンが / いない'), tr)
 
     def test_locative_absolute(self):
         a = analyze('सूर्ये उदिते सर्वे जनाः उत्तिष्ठन्ति ।')

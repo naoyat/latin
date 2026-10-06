@@ -71,6 +71,13 @@ class Predicate (LatinObject):
         """言語の設定 (Language.particle) で決まる、格の枠の語の助詞。決まらなければ None (既定の助詞)"""
         return self.language.particle(case, obj, self) if self.language.particle else None
 
+    def _negative(self):
+        """否定の副詞 (nōn, не, нет, οὐ, na) がある文か"""
+        words = list(self.modifiers) + ([self.conjunction] if self.conjunction else [])
+        return any(is_negation(w, self.language) or
+                   (isinstance(w, Word) and w.items and w.items[0].ja.endswith(('〜ない', '〜しない')))
+                   for w in words)
+
     def _personal_subject(self, case_slot):
         noms = case_slot.get('Nom', []) + (case_slot.get('Nom/Acc', []) if self.person() == 3 else [])
         return len(noms) == 1 and isinstance(noms[0], Word) and noms[0].items[0].pos == 'pronoun' and \
@@ -132,7 +139,9 @@ class Predicate (LatinObject):
             is_existential = 'personal'
         elif is_existential:
             # 存在・所有の文は、場所・所有者を先に。場所は「〜に」(森にライオンがいる)、所有者は「〜には」(私には本がある)。
-            # 場所に「〜には」を付けると主題・対比 (森というところにはライオンがいるものだ) の含みになるので付けない
+            # 場所に「〜には」を付けると主題・対比 (森というところにはライオンがいるものだ) の含みになるので付けない。
+            # ただし否定の文は「〜には」が自然 (部屋には机がない、シチリアにはケレースがいなかった)
+            negative = self._negative()
             for case, objs in list(case_slot.items()):
                 if not objs or not (isinstance(case, tuple) or case == 'Loc' or case in self.language.possessor_cases):
                     continue
@@ -140,9 +149,10 @@ class Predicate (LatinObject):
                     t, neg = obj.translate()
                     if neg: negated = True
                     if isinstance(case, tuple):
-                        tr.append(_existential_place(t))
+                        place = _existential_place(t)
+                        tr.append(place + 'は' if negative and not place.endswith('には') else place)
                     else:
-                        tr.append(t + ('に' if case == 'Loc' else 'には'))
+                        tr.append(t + ('に' if case == 'Loc' and not negative else 'には'))
                 case_slot[case] = []
         # Nominative
         noms = []

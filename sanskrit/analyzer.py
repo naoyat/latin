@@ -74,11 +74,17 @@ def sentences(text):
         yield current
 
 
+# na + a… の連声 (nāsti = na asti「無い」)。辞書に1語として載っている形も2語に分けて読む
+NA_FUSED = ('nAsti', 'nAsIt', 'nAsan', 'nAsmi', 'nAsi', 'nAham', 'nAyam', 'nAtra', 'nApi', 'nAnyaH', 'nAnyat')
+
+
 def _words(token):
     """1語 (の表記) → Word のリスト (連声で融合していれば複数)"""
     if token in PUNCTUATION:
         return [Word(token, None)]
     slp1 = script.to_slp1(token)
+    if slp1 in NA_FUSED:
+        return _words('na') + _words(script.iast('a' + slp1[2:]))
     key, items = morphology.lookup(slp1)
     if items and any(item['ja'] != item.get('base') for item in items):
         return [Word(script.iast(key), compound.annotate(items))]
