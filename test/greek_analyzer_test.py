@@ -86,5 +86,11 @@ class GreekAnalyzerTestCase(unittest.TestCase):
         self.assertEqual(analyze('ὁ ἀγαθὸς ἀνὴρ λέγει.').words[1].attached_to.surface, 'ἀνήρ')  # 限定的位置
 
 
+    def test_crasis(self):
+        pred = analyze('κἀγὼ τὸν ἵππον βλέπω.').clauses[0].predicate
+        self.assertEqual(pred.conjunction.surface, 'καί')
+        self.assertEqual(surfaces(pred.case_slot['Nom']), ['ἐγώ'])
+
+
 if __name__ == '__main__':
     unittest.main()

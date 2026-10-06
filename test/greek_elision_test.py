@@ -21,6 +21,13 @@ class FunctionWordTestCase(unittest.TestCase):
         self.assertIsNone(elision.restore('λόγος'))
 
 
+class CrasisTestCase(unittest.TestCase):
+    def test_split(self):
+        self.assertEqual(elision.split_crasis('κἀγὼ'), ('καί', 'ἐγώ'))  # 重アクセントの書き方でも
+        self.assertEqual(elision.split_crasis('τοὐναντίον'), ('τό', 'ἐναντίον'))
+        self.assertIsNone(elision.split_crasis('καί'))
+
+
 @unittest.skipUnless(dictionary.available(), 'ギリシア語の辞書 (tools/build_greek_dic.py) が無い')
 class DictionaryTestCase(unittest.TestCase):
     def test_restore_by_dictionary(self):

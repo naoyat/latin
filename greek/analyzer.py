@@ -73,7 +73,11 @@ def _word(surface, next_surface=None):
 
 
 def lookup_all(surfaces):
-    words = [_word(s, surfaces[i + 1] if i + 1 < len(surfaces) else None) for i, s in enumerate(surfaces)]
+    # 母音の融合 (κἀγώ = καὶ ἐγώ) は元の2語に分ける
+    expanded = []
+    for s in surfaces:
+        expanded.extend(elision.split_crasis(s) or (s,))
+    words = [_word(s, expanded[i + 1] if i + 1 < len(expanded) else None) for i, s in enumerate(expanded)]
     for i, word in enumerate(words):
         word.index = i
     return words
