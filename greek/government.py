@@ -83,9 +83,21 @@ def _article(word):
                  and m.items[0].pos == 'article'), None)
 
 
+def _members(node):
+    """並列句 (A καὶ B) の語"""
+    return [w for slot in getattr(node, 'words_slots', []) for w in slot if hasattr(w, 'items')]
+
+
 def predicative_adjective(adj, noun):
     """述語的位置の形容詞: 名詞に冠詞があり、形容詞はその冠詞と名詞の間に無く、自分の冠詞も無い
-    (ὁ ἀνὴρ ἀγαθός / ἀγαθὸς ὁ ἀνήρ「その人は善い」。修飾なら ὁ ἀγαθὸς ἀνήρ, ὁ ἀνὴρ ὁ ἀγαθός)"""
+    (ὁ ἀνὴρ ἀγαθός / ἀγαθὸς ὁ ἀνήρ「その人は善い」。修飾なら ὁ ἀγαθὸς ἀνήρ, ὁ ἀνὴρ ὁ ἀγαθός)。
+    並列した形容詞はすべてが述語的位置のとき、並列した名詞は最初の名詞で見る"""
+    if not hasattr(adj, 'items'):
+        members = _members(adj)
+        return bool(members) and all(predicative_adjective(a, noun) for a in members)
+    if not hasattr(noun, 'items'):
+        members = _members(noun)
+        return bool(members) and predicative_adjective(adj, members[0])
     article = _article(noun)
     if article is None or _article(adj) is not None:
         return False
