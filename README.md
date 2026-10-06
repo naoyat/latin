@@ -454,7 +454,10 @@ python3 russian.py samples/russian.txt          # 解析の詳細 (-w, -D 子孫
 * 現在形で省かれる繋辞（Он студент. / Москва — столица России.）は、主格の名詞類が2つあれば補います。
 * 語順の違いは言語の設定で吸収します: 属格は前の名詞にだけ掛け、動詞を越えない（`genitive_follows_head`）。
   2つの動詞の間の語は前の動詞へ（目的語は動詞の後ろ、`objects_follow_verb`）。
-* 音読は espeak-ng のロシア語音声です（`-s`。強勢は espeak-ng の辞書に任せる）。
+* 音読（`-s`）は macOS の音声合成 `say` のロシア語音声 Milena にテキストをそのまま渡します（無ければ espeak-ng の
+  ロシア語音声。`-t espeak`）。強勢記号はどちらも読まないので、強勢は音声の辞書に任せます。
+* `say` は現代語向けの方式として `tools/speak.py -b say` でほかの言語にも使えます（サンスクリットはヒンディー語の Lekha、
+  ギリシア語は現代ギリシア語の Melina で、多調符を単調符に直して渡す。どちらも現代語の読み方になる）。
 * 評価用に UD Russian-GSD・Taiga（CC BY-SA 4.0）と SynTagRus（CC BY-NC-SA 4.0）の test を `~/.local/share/latin-data/ru/ud/` に置き、
   `python3 tools/ud_eval.py --lang=ru [--source=gsd,taiga,syntagrus]` で測ります。
 

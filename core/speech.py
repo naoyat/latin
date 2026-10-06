@@ -10,6 +10,8 @@
 #   espeak : espeak-ng のラテン語音声 (-v la) にテキストをそのまま渡す
 #            （MBROLA が使えない場合の代替）
 #   piper  : 自前の音韻処理で作った IPA を、Piper のイタリア語/スペイン語モデルで合成する
+#   say    : macOS の音声合成にテキストをそのまま渡す (現代語向け。ロシア語は Milena、-b say でサンスクリットは
+#            ヒンディー語の Lekha、ギリシア語は現代ギリシア語の Melina)
 #
 # 古典ギリシア語 (set_language('grc', pron)) は、mbrola では greek/prosody.py の .pho を同じ la1 音声で
 # (有気音・[y]・長母音があるので)、espeak では espeak-ng の古典ギリシア語音声 (-v grc) で読む
@@ -39,7 +41,12 @@ BACKENDS = {
     'mbrola': {'command': os.path.join(MBROLA_HOME, 'bin', 'mbrola'),
                'voice': os.path.join(MBROLA_HOME, 'voices', 'la1', 'la1')},
     'piper':  {'command': None, 'voice': 'it_IT-paola-medium'},
+    'say':    {'command': 'say', 'voice': None},
 }
+# macOS の say の言語ごとの音声 (現代語の読み方になる)
+SAY_VOICES = {'ru': 'Milena', 'sa': 'Lekha', 'grc': 'Melina'}
+# 方式を指定しないときに試す順 (言語ごと。無ければ DEFAULT_BACKEND → FALLBACK_BACKEND)
+LANGUAGE_BACKENDS = {'ru': ('say', 'espeak')}
 DEFAULT_BACKEND = 'mbrola'
 FALLBACK_BACKEND = 'espeak'
 ESPEAK_SPEED = 140  # words per minute (espeak-ng の既定は175)
@@ -69,6 +76,8 @@ def missing_diphones():
 
 
 def _default_voice(backend_name):
+    if backend_name == 'say':
+        return SAY_VOICES.get(language)
     if backend_name == 'espeak':
         return ESPEAK_VOICES.get(language, BACKENDS['espeak']['voice'])
     if backend_name == 'mbrola' and language == 'grc' and pronunciation == 'modern':
@@ -117,7 +126,10 @@ def set_accent(accent_name):
 def init_synth(backend_name=None, voice_name=None):
     """backend_name を省略すると DEFAULT_BACKEND、使えなければ FALLBACK_BACKEND"""
     if backend_name is None:
-        return _init_synth(DEFAULT_BACKEND, voice_name) or _init_synth(FALLBACK_BACKEND, voice_name)
+        for name in LANGUAGE_BACKENDS.get(language, (DEFAULT_BACKEND, FALLBACK_BACKEND)):
+            if _init_synth(name, voice_name):
+                return backend
+        return None
     return _init_synth(backend_name, voice_name)
 
 
@@ -133,6 +145,9 @@ def _init_synth(backend_name, voice_name=None):
     if backend_name == 'mbrola' and voice_name and not os.path.exists(voice_name):
         voice_name = os.path.join(MBROLA_HOME, 'voices', voice_name, voice_name)  # -v gr1 のような名前だけ
     voice = voice_name or _default_voice(backend_name)
+    if backend_name == 'say' and not _say_voice_available(voice):
+        print("say has no voice for this language (%s)" % language if not voice else "say voice is not available: %s" % voice)
+        return None
     if backend_name == 'mbrola' and not os.path.exists(voice):
         print("MBROLA voice is not available: %s" % voice)
         return None
@@ -161,13 +176,52 @@ def _spawn(args, text, pause=False):
         pause_while_speaking()
 
 
-def espeak(text, pause=False, wav_file=None, show_phonemes=False):
+def _plain_text(text):
+    """テキストをそのまま読む方式 (espeak, say) に渡す形"""
     if language == 'sa':
         from sanskrit import script
-        text = script.devanagari(script.to_slp1(text))  # espeak-ng のヒンディー語はデーヴァナーガリーで
-    elif language == 'ru':
+        return script.devanagari(script.to_slp1(text))  # ヒンディー語の音声にはデーヴァナーガリーで
+    if language == 'ru':
         from russian import script
-        text = script.strip_stress(text)  # espeak-ng は強勢記号を読まない (強勢は espeak-ng の辞書に任せる)
+        return script.strip_stress(text)  # 強勢記号は読まれない (強勢は音声の辞書に任せる)
+    if language == 'grc' and backend == 'say':
+        return _monotonic(text)  # 現代ギリシア語の音声は多調符 (気息記号・曲アクセント) を読めない
+    return text
+
+
+def _monotonic(text):
+    """多調符のギリシア文字を単調符に (ἀρχῇ → αρχή): 気息記号・下書きのイオタ・長短の印を除き、
+    重アクセント・曲アクセントを鋭アクセント (トノス) に"""
+    import unicodedata
+    out = []
+    for c in unicodedata.normalize('NFD', text):
+        if c in '\u0313\u0314\u0345\u0304\u0306':
+            continue
+        out.append('\u0301' if c in '\u0300\u0342' else c)
+    return unicodedata.normalize('NFC', ''.join(out))
+
+
+def _say_voice_available(name):
+    if not name:
+        return False
+    try:
+        listing = run(['say', '-v', '?'], capture_output=True, text=True).stdout
+    except OSError:
+        return False
+    return any(line.split()[0] == name for line in listing.splitlines() if line.strip())
+
+
+def say(text, pause=False, wav_file=None):
+    """macOS の say で読む"""
+    if backend != 'say': return None
+    args = ['say', '-v', voice, '-f', '-']
+    if wav_file:
+        args += ['-o', wav_file, '--file-format=WAVE', '--data-format=LEI16@22050']
+    _spawn(args, _plain_text(text), pause=pause or bool(wav_file))
+
+
+def espeak(text, pause=False, wav_file=None, show_phonemes=False):
+    text = _plain_text(text)
     if backend != 'espeak': return None
     args = ['espeak-ng', '-v', voice, '-s', str(ESPEAK_SPEED), '--stdin']
     if wav_file:
@@ -257,7 +311,9 @@ def _synthesize_and_play(synthesize, text, pause=False, wav_file=None):
 
 
 def say_latin(text_uc, debug_mode=False, pause=False, wav_file=None):
-    if backend == 'espeak':
+    if backend == 'say':
+        say(text_uc, pause=pause, wav_file=wav_file)
+    elif backend == 'espeak':
         espeak(text_uc, pause=pause, wav_file=wav_file)
     elif backend == 'mbrola':
         if debug_mode:

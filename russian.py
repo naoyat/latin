@@ -9,7 +9,8 @@
 #   -w, --no-word-detail   語ごとの辞書引きの結果を表示しない
 #   -D, --descendants      英語・日本語などに借用された語 (子孫語) も表示する
 #   -E, --etymology        語源 (祖語の系統・同源語・説明文) も表示する
-#   -s, --speech           音読する (espeak-ng のロシア語音声。強勢の位置は Wiktionary の変化表から)
+#   -s, --speech           音読する (macOS の say のロシア語音声 Milena。使えなければ espeak-ng のロシア語音声)
+#   -t, --tts=BACKEND      音読の方式 (say / espeak)
 #
 import getopt
 import sys
@@ -49,10 +50,10 @@ def stressed_text(surfaces):
 
 
 def main():
-    opts, args = getopt.getopt(sys.argv[1:], 'wDEsh', ['no-word-detail', 'descendants', 'etymology', 'speech',
-                                                       'help'])
-    show_word_detail, show_descendants, show_etymology, speech_mode = True, False, False, False
-    for option, _ in opts:
+    opts, args = getopt.getopt(sys.argv[1:], 'wDEst:h', ['no-word-detail', 'descendants', 'etymology', 'speech',
+                                                         'tts=', 'help'])
+    show_word_detail, show_descendants, show_etymology, speech_mode, tts = True, False, False, False, None
+    for option, arg in opts:
         if option in ('-w', '--no-word-detail'):
             show_word_detail = False
         elif option in ('-D', '--descendants'):
@@ -61,6 +62,8 @@ def main():
             show_etymology = True
         elif option in ('-s', '--speech'):
             speech_mode = True
+        elif option in ('-t', '--tts'):
+            speech_mode, tts = True, arg
         elif option in ('-h', '--help'):
             print(open(__file__, encoding='utf-8').read().split('\nimport')[0])
             return
@@ -70,7 +73,7 @@ def main():
     if speech_mode:
         from core import speech
         speech.set_language('ru')
-        speech_mode = speech.init_synth('espeak') is not None
+        speech_mode = speech.init_synth(tts) is not None
     texts = [open(path, encoding='utf-8').read() for path in args] if args else [sys.stdin.read()]
     texts = ['\n'.join(l for l in t.splitlines() if not l.lstrip().startswith('#')) for t in texts]
     for text in texts:
