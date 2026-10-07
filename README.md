@@ -485,7 +485,8 @@ python3 russian.py samples/russian.txt          # 解析の詳細 (-w, -D 子孫
 
 ```
 mkdir -p ~/.local/share/latin-data/he/oshb ~/.local/share/latin-data/he/lexicon
-# oshb/ に morphhb の wlc/*.xml、lexicon/ に HebrewLexicon の AugIndex.xml・LexicalIndex.xml・HebrewStrong.xml を置く
+# oshb/ に morphhb の wlc/*.xml、lexicon/ に HebrewLexicon の AugIndex.xml・LexicalIndex.xml・HebrewStrong.xml
+# (態ごとの語義には BrownDriverBriggs.xml も) を置く
 python3 tools/build_hebrew_dic.py        # → ~/.local/share/latin-data/he/hebrew.sqlite (語形 約5.8万、見出し語 約9,300)
 python3 tools/samples.py --lang=he       # サンプルの訳
 python3 hebrew.py samples/hebrew.txt     # 解析の詳細 (-w, -D, -E, -s 音読)
@@ -514,6 +515,8 @@ python3 hebrew.py samples/hebrew.txt     # 解析の詳細 (-w, -D, -E, -s 音�
     聖書に現れた形から類推し（上位9語根の多数決。同じ分類が無ければ、形への影響の小さい性質から分類をゆるめる）、
     † と借りた語根を添える（נפל の niphal † nippal ← נגש、בוא の完了 † bāʾ ← שוב）。中空動詞は polel、重複語根は piel か poel の系統。
   * 強い語根は強い語根の型から作って * を付ける（hiphil * hiḵtîv הִכְתִּיב）。歯擦音で始まる語根の hithpael は ת と入れ替え（hištammēr）。
+  * 態ごとの語義を BDB（Brown-Driver-Briggs の本体 BrownDriverBriggs.xml、パブリックドメイン。`lexicon/` に置く）から添える
+    （כתב: qal write, write down… / niphal be written, recorded）。語ごとの解説にも「この語根の niphal (BDB): …」と出す。
   * 作った形の当たり具合（聖書によく出る 400 語根で、自分の形を使わずに作って比べる）: 強い語根 73.5%、弱い語根 62.3%
     （`python3 tools/hebrew_binyan_eval.py`。外れの多くは状態動詞 זָקֵן・מָלֵא や piel の母音の揺れ קִדַּשׁ/קִדֵּשׁ など語ごとの性質）。
 * 見出しの行はヘブライ文字（Unicode の隔離記号で囲む）と転写を並べます。音読は macOS の say のヘブライ語音声 Carmit

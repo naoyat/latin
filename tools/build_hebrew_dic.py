@@ -8,8 +8,8 @@
 # 入力 ($LATIN_DATA/he/):
 #   oshb/*.xml        Open Scriptures Hebrew Bible (https://github.com/openscriptures/morphhb の wlc/)。
 #                     本文は Westminster Leningrad Codex (パブリックドメイン)、語形の解析は CC BY 4.0
-#   lexicon/          https://github.com/openscriptures/HebrewLexicon の AugIndex.xml, LexicalIndex.xml, HebrewStrong.xml
-#                     (Strong の辞書・BDB の索引)
+#   lexicon/          https://github.com/openscriptures/HebrewLexicon の AugIndex.xml, LexicalIndex.xml, HebrewStrong.xml,
+#                     BrownDriverBriggs.xml (Strong の辞書・BDB の索引・BDB の本体。態ごとの語義に使う。任意)
 #   kaikki-Hebrew.jsonl.gz, ../ja-extract.jsonl.gz   Wiktionary (日本語訳・語源。任意)
 # 出力:
 #   hebrew.sqlite
@@ -56,6 +56,7 @@ def load_lexical_index(path):
         out[entry.get('id')] = {'word': text_of(w) if w is not None else '', 'xlit': w.get('xlit') if w is not None else '',
                                 'pos': text_of(pos) if pos is not None else '', 'def': text_of(d) if d is not None else '',
                                 'strong': xref.get('strong') if xref is not None else None,
+                                'bdb': xref.get('bdb') if xref is not None else None,
                                 'root': etym.get('root') if etym is not None else None}
         if etym is not None and etym.get('type') == 'sub' and etym.text:
             parents[entry.get('id')] = etym.text.split(',')[0].strip()
@@ -66,6 +67,47 @@ def load_lexical_index(path):
             seen.add(parent)
             entry['root'] = out.get(parent, {}).get('root')
             parent = parents.get(parent)
+    return out
+
+
+# BDB の態の名前 (略記・書き方の揺れ) → 表の名前。中空動詞の polel と重複語根の poel は同じ略記 (Po‛l)
+BDB_STEMS = {'qal': ['qal'], 'qalpass': ['qal passive'], 'niph': ['niphal'], 'pi': ['piel'], 'piel': ['piel'],
+             'pu': ['pual'], 'pual': ['pual'], 'hiph': ['hiphil'], 'hoph': ['hophal'], 'hithp': ['hithpael'],
+             'pilp': ['pilpel'], 'pilpel': ['pilpel'], 'hithpalp': ['hithpalpel'], 'nithp': ['nithpael'],
+             'hothp': ['hothpaal'],
+             'po': ['polel', 'poel'], 'pol': ['polel', 'poel'], 'polel': ['polel', 'poel'], 'poel': ['polel', 'poel'],
+             'poal': ['polal', 'poal'], 'polal': ['polal', 'poal'], 'pul': ['polal', 'poal'],
+             'hithpo': ['hithpolel', 'hithpoel'], 'hithpol': ['hithpolel', 'hithpoel'],
+             'hithpolel': ['hithpolel', 'hithpoel'], 'hithpoel': ['hithpolel', 'hithpoel'],
+             'pilel': ['pilel'], 'pulal': ['pulal']}
+
+
+def _stem_key(text):
+    """BDB の態の名前の揺れをそろえる (Po‛l, Pō‛l, Po‛lel → pol / polel)"""
+    import unicodedata
+    plain = ''.join(c for c in unicodedata.normalize('NFD', text) if c.isascii() and c.isalpha())
+    return plain.lower()
+
+
+def load_bdb(path):
+    """BDB の項目 id → {態の名前: [語義]} (語義は <def> の順。態の前の語義は 'general')"""
+    out = {}
+    if not os.path.exists(path):
+        return out
+    for entry in ET.parse(path).getroot().iter():
+        if not entry.tag.endswith('entry') or entry.get('id') is None:
+            continue
+        current, senses = ['general'], {}
+        for element in entry.iter():
+            tag = element.tag.split('}')[-1]
+            if tag == 'stem':
+                current = BDB_STEMS.get(_stem_key(text_of(element)), [])
+            elif tag == 'def':
+                definition = ' '.join(text_of(element).split())
+                for stem in current:
+                    if definition and definition not in senses.setdefault(stem, []) and len(senses[stem]) < 4:
+                        senses[stem].append(definition)
+        out[entry.get('id')] = senses
     return out
 
 
@@ -117,6 +159,7 @@ def main():
     lexical = load_lexical_index(os.path.join(base, 'lexicon', 'LexicalIndex.xml'))
     strong = load_strong(os.path.join(base, 'lexicon', 'HebrewStrong.xml'))
     ja = load_japanese(os.path.join(os.path.dirname(base), 'ja-extract.jsonl.gz'))
+    bdb = load_bdb(os.path.join(base, 'lexicon', 'BrownDriverBriggs.xml'))
 
     forms = collections.Counter()
     used = set()
@@ -138,7 +181,7 @@ def main():
     db.executescript('''
         CREATE TABLE forms (key TEXT, cons TEXT, segments TEXT, lemmas TEXT, morph TEXT, count INTEGER);
         CREATE TABLE lexicon (aug TEXT PRIMARY KEY, word TEXT, xlit TEXT, pos TEXT, ja TEXT, gloss_lang TEXT, strong TEXT,
-                              root TEXT);
+                              root TEXT, stems TEXT);
         CREATE TABLE verbs (root TEXT, lemma TEXT, stem TEXT, type TEXT, pgn TEXT, form TEXT, lang TEXT, count INTEGER,
                             bare INTEGER);
         CREATE TABLE descendants (lemma TEXT, pos TEXT, data TEXT);
@@ -180,9 +223,10 @@ def main():
                 gloss, gloss_lang = j, 'ja'
                 n_ja += 1
                 break
-        db.execute('INSERT OR REPLACE INTO lexicon VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        senses = {k: v for k, v in bdb.get(entry.get('bdb') or '', {}).items() if k != 'general' and v}
+        db.execute('INSERT OR REPLACE INTO lexicon VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                    (aug, script.pointed(entry['word']), entry['xlit'], entry['pos'], gloss, gloss_lang, number,
-                    entry['root']))
+                    entry['root'], json.dumps(senses, ensure_ascii=False) if senses else None))
     kaikki = os.path.join(base, 'kaikki-Hebrew.jsonl.gz')
     if os.path.exists(kaikki):
         with gzip.open(kaikki, 'rt') as fp:
@@ -211,8 +255,8 @@ def main():
     db.commit()
     db.close()
     os.replace(tmp, out)
-    print('%d forms, %d lemmas (Japanese glosses: %d) -> %s (%.1fMB, %.0fs)' % (
-        len(forms), len(used), n_ja, out, os.path.getsize(out) / 1e6, time.time() - t0))
+    print('%d forms, %d lemmas (Japanese glosses: %d, BDB entries: %d) -> %s (%.1fMB, %.0fs)' % (
+        len(forms), len(used), n_ja, len(bdb), out, os.path.getsize(out) / 1e6, time.time() - t0))
 
 
 if __name__ == '__main__':

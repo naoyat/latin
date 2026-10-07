@@ -100,6 +100,12 @@ class BinyanAnalogyTestCase(unittest.TestCase):
         self.assertEqual(self.made('בוא', 'qal', 'qatal'), nfc('בָּא'))         # II-ו + III-א (分類をゆるめて שוב から)
         self.assertEqual(self.made('עמד', 'niphal', 'yiqtol'), nfc('יֵעָמֵד'))  # 喉音は重ねず前の母音を長く
 
+    def test_bdb_stem_senses(self):
+        from hebrew import binyan
+        self.assertIn('be written', dictionary.lexicon('3789')['stems']['niphal'])
+        self.assertIn('raise up', dictionary.lexicon('6965b')['stems']['polel'])  # Po‛l → polel
+        self.assertTrue(any('語義 (BDB): be written' in line for line in binyan.table('כתב')))
+
     def test_hollow_root_uses_polel(self):
         from hebrew import binyan
         self.assertEqual(binyan._stem_code('קום', 'piel'), 'o')

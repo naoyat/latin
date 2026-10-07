@@ -43,15 +43,18 @@ def forms(word):
 
 
 def lexicon(aug):
-    """見出し語の番号 (1254a, 430) → {word, xlit, pos, ja, gloss_lang, strong, root}"""
+    """見出し語の番号 (1254a, 430) → {word, xlit, pos, ja, gloss_lang, strong, root, stems}。
+    stems は BDB の態ごとの語義 {態の名前: [語義]} (動詞のみ)"""
     db = _connect()
     if db is None:
         return None
-    row = db.execute('SELECT word, xlit, pos, ja, gloss_lang, strong, root FROM lexicon WHERE aug = ?',
+    row = db.execute('SELECT word, xlit, pos, ja, gloss_lang, strong, root, stems FROM lexicon WHERE aug = ?',
                      (aug,)).fetchone()
     if row is None:
         return None
-    return dict(zip(('word', 'xlit', 'pos', 'ja', 'gloss_lang', 'strong', 'root'), row))
+    entry = dict(zip(('word', 'xlit', 'pos', 'ja', 'gloss_lang', 'strong', 'root', 'stems'), row))
+    entry['stems'] = json.loads(entry['stems']) if entry['stems'] else {}
+    return entry
 
 
 def verb_forms(root):

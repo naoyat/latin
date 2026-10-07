@@ -447,6 +447,10 @@ def table(root_text):
     forms = dictionary.verb_forms(root)
     lemmas = {f['lemma'] for f in forms if f['lang'] == 'H'}  # アラム語の見出し語は除く
     glosses = [dictionary.lexicon(l) for l in sorted(lemmas)]
+    senses = {}  # BDB の態ごとの語義 (見出し語が複数あれば合わせる)
+    for entry in glosses:
+        for stem_name, defs in ((entry or {}).get('stems') or {}).items():
+            senses.setdefault(stem_name, [d for d in defs])
     lines = ['語根 %s' % explain.root_text(root)]
     for entry in glosses:
         if entry:
@@ -465,6 +469,10 @@ def table(root_text):
             lines.append('%s (この語根の %s): %s%s' % (' / '.join(used_names), stem, desc, mark))
         else:
             lines.append('%s (%s %s): %s%s' % (stem, modern, kana, desc, mark))
+        for name, _ in names:
+            if senses.get(name):
+                lines.append('    語義 (BDB%s): %s' % (' ' + name if name != stem else '', ', '.join(senses[name])))
+                break
         for label, column, _ in COLUMNS:
             found = attested(forms, stem, column, root)
             if found:

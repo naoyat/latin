@@ -65,6 +65,9 @@ def notes(word):
             modern, kana, desc = BINYANIM.get(stem, ('', '', ''))
             name = stem + (' (%s %s)' % (modern, kana) if modern else '')
             lines.append('態 %s: %s' % (name, desc) if desc else '態 ' + name)
+            senses = (entry or {}).get('stems', {}).get(stem)
+            if senses:
+                lines.append('   この語根の %s (BDB): %s' % (stem, ', '.join(senses)))
         if item.pos == 'participle':
             lines.append('型 分詞 (%s)「%s」' % ('受動' if item.attrib('voice') == 'passive' else '能動',
                                             '〜された' if item.attrib('voice') == 'passive' else '〜している / 〜する者'))
