@@ -23,6 +23,14 @@ class ScriptTestCase(unittest.TestCase):
         self.assertEqual(script.translit('יִשְׂרָאֵל'), 'yiśrāʾēl')     # ś
         self.assertEqual(script.translit('מֶלֶךְ'), 'meleḵ')           # 弱いダゲシュの無い כ
         self.assertEqual(script.translit('וַיְהִי־אוֹר'), 'wayhî-ʾôr')  # マカフ
+        self.assertEqual(script.translit('מִזְבֵּחַ'), 'mizbēaḥ')        # 盗まれたパタハ
+        self.assertEqual(script.translit('גָּבֹהַּ'), 'gāvōah')          # 点付きの הּ
+
+    def test_translit_of_prefix_segments(self):
+        # 1字だけの切れ目は盗まれたパタハにせず (הַ は ah でなく ha)、シェヴァは有声
+        self.assertEqual(script.translit('הַ'), 'ha')
+        self.assertEqual(script.translit('וְ'), 'wə')
+        self.assertEqual(script.translit('וּ'), 'û')
 
     def test_isolate(self):
         self.assertEqual(script.isolate('אוֹר'), '⁧אוֹר⁩')

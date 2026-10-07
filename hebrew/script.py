@@ -73,6 +73,16 @@ def translit(word):
     out = []
     prev_sheva = True  # 語頭のシェヴァは有声
     n = len(clusters)
+    if n == 1:
+        # 1字だけの切れ目 (接続詞 וְ・前置詞 בְּ・冠詞 הַ): シェヴァは有声、וּ は û、盗まれたパタハは無い
+        c, marks = clusters[0]
+        if c == 'ו' and DAGESH in marks and not (marks - {DAGESH}):
+            return 'û'
+        cons = 'ś' if c == 'ש' and SIN_DOT in marks else (SPIRANT[c] if c in SPIRANT and DAGESH not in marks
+                                                         else CONSONANTS.get(c, c))
+        vowel = next((VOWELS[v] for v in (HATAF_SEGOL, HATAF_PATAH, HATAF_QAMATS, HIRIQ, TSERE, SEGOL, PATAH, QAMATS,
+                                         HOLAM, HOLAM_HASER, QUBUTS, QAMATS_QATAN, SHEVA) if v in marks), '')
+        return cons + vowel
     for i, (c, marks) in enumerate(clusters):
         nxt = clusters[i + 1] if i + 1 < n else None
         # 母音の読みの文字: וּ (ū), וֹ (ō), ִי (ī), ֵי (ê), ָה 語末 (â)
@@ -114,8 +124,9 @@ def translit(word):
         doubled = DAGESH in marks and i > 0 and out and out[-1][-1:] in 'aāeēiouûôîê' and c not in 'אהחער'
         out.append((cons + cons if doubled else cons) + vowel)
         prev_sheva = SHEVA in marks and vowel == ''
-        if PATAH in marks and i == n - 1 and c in 'חעה':
-            out[-1] = 'a' + cons  # 盗まれたパタハ (rûaḥ)
+        if PATAH in marks and i == n - 1 and len(out) > 1 and (c in 'חע' or c == 'ה' and DAGESH in marks) and \
+                out[-2][-1:] in 'aāăeēĕiîoōŏuûêô':
+            out[-1] = 'a' + cons  # 盗まれたパタハ (rûaḥ): 母音の後ろの語末の ח・ע・הּ のパタハは子音の前で読む
     return ''.join(out)
 
 
