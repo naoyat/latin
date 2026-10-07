@@ -124,7 +124,8 @@ class ExplainTestCase(unittest.TestCase):
         self.assertTrue(lines[0].startswith('語根 '), lines)
         self.assertIn('(ʾ-m-r)', lines[0])
         self.assertIn('qal (paʿal パアル)', lines[1])
-        self.assertIn('wayyiqtol', lines[2])
+        self.assertTrue(any('この語根の qal (BDB): Say' in line for line in lines), lines)
+        self.assertTrue(any('wayyiqtol' in line for line in lines), lines)
 
     def test_noun_root(self):
         self.assertIn('(ʾ-l-h)', self.notes('אֱלֹהִים', 0)[0])
