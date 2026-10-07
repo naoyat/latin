@@ -15,6 +15,8 @@
 #   --pron=NAME          ギリシア語の発音: attic (既定、復元アッティカ発音・高低アクセント) / koine / erasmian /
 #                        modern (現代ギリシア語式。MBROLA の現代ギリシア語音声 gr2、-v gr1 で gr1)
 #
+#   --lang=he            聖書ヘブライ語を読む (say のヘブライ語音声 Carmit)
+#   --divine-name=MODE   ヘブライ語の神の名 יְהוָה の読み方: adonai (既定。ヒリクの形はエロヒム) / hashem / literal (字面のまま)
 #   --lang=ru            ロシア語を読む (say のロシア語音声 Milena。無ければ espeak-ng)
 #   --lang=sa            サンスクリットを読む (mbrola はヒンディー語音声 in1、-v in2 で女声。espeak は -v hi)
 #

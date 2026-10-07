@@ -12,6 +12,8 @@
 #   -s, --speech           音読する (macOS の say のヘブライ語音声 Carmit。現代ヘブライ語の発音)
 #   -r, --romanize         語ごとの辞書引きの結果に、語の転写を添える
 #   --no-explain           動詞の語根・態の型 (binyan)・時制の型、名詞の語根の解説を出さない
+#   --divine-name=MODE     音読での神の名 יְהוָה の読み方: adonai (既定。ヒリクの形はエロヒム) / hashem「ハシェム」/
+#                          literal (字面のまま)
 #   --binyan=ROOT          語根 (כתב / ktb / 語形でも) の態の型の表を出す (聖書に現れた形と、規則から作った形 *)
 #
 # 見出しの行は、ヘブライ文字 (右から左。Unicode の隔離記号で囲む) と転写を並べる
@@ -48,9 +50,9 @@ def sentence_text(surfaces):
 
 def main():
     opts, args = getopt.getopt(sys.argv[1:], 'wDEsrh', ['no-word-detail', 'descendants', 'etymology', 'speech',
-                                                        'romanize', 'no-explain', 'binyan=', 'help'])
+                                                        'romanize', 'no-explain', 'binyan=', 'divine-name=', 'help'])
     show_word_detail, show_descendants, show_etymology, speech_mode = True, False, False, False
-    romanize, show_explanation = False, True
+    romanize, show_explanation, divine_name = False, True, 'adonai'
     for option, arg in opts:
         if option == '--binyan':
             from hebrew import binyan
@@ -68,6 +70,10 @@ def main():
             romanize = True
         elif option == '--no-explain':
             show_explanation = False
+        elif option == '--divine-name':
+            if arg not in script.DIVINE_NAME_MODES:
+                sys.exit('--divine-name: %s のどれか' % '|'.join(script.DIVINE_NAME_MODES))
+            divine_name = arg
         elif option in ('-h', '--help'):
             print(open(__file__, encoding='utf-8').read().split('\nimport')[0])
             return
@@ -77,6 +83,7 @@ def main():
     if speech_mode:
         from core import speech
         speech.set_language('he')
+        speech.divine_name = divine_name
         speech_mode = speech.init_synth(None) is not None
     texts = [open(path, encoding='utf-8').read() for path in args] if args else [sys.stdin.read()]
     texts = ['\n'.join(l for l in t.splitlines() if not l.lstrip().startswith('#')) for t in texts]

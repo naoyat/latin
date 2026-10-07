@@ -37,6 +37,8 @@ class ScriptTestCase(unittest.TestCase):
         self.assertEqual(script.qere('יְהוָה רֹעִי'), 'אֲדֹנָי רֹעִי')
         self.assertEqual(script.qere('אֲדֹנָי יֱהֹוִה'), 'אֲדֹנָי אֱלֹהִים')
         self.assertTrue(script.qere('וַיהוָה').endswith('אֲדֹנָי'))
+        self.assertEqual(script.qere('יְהוָה רֹעִי', 'hashem'), 'הַשֵּׁם רֹעִי')
+        self.assertEqual(script.qere('יְהוָה רֹעִי', 'literal'), 'יְהוָה רֹעִי')
 
     def test_isolate(self):
         self.assertEqual(script.isolate('אוֹר'), '⁧אוֹר⁩')

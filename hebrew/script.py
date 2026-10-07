@@ -132,12 +132,17 @@ def translit(word):
 
 ADONAI = 'אֲדֹנָי'
 ELOHIM = 'אֱלֹהִים'
+HASHEM = 'הַשֵּׁם'
+DIVINE_NAME_MODES = ('adonai', 'hashem', 'literal')
 
 
-def qere(text):
+def qere(text, mode='adonai'):
     """音読のための読み替え (qere perpetuum): 神の名 יְהוָה は母音記号のとおり אֲדֹנָי「アドナイ」と読む。
     ヒリクの付いた形 (יֱהֹוִה。אֲדֹנָי יְהוִה と並ぶとき) は אֱלֹהִים「エロヒム」と読む (アドナイが重ならないように)。
-    前に付いた接頭辞 (וַיהוָה, לַיהוָה) はそのまま残す"""
+    前に付いた接頭辞 (וַיהוָה, לַיהוָה) はそのまま残す。
+    mode: 'adonai' (既定)、'hashem' (すべて הַשֵּׁם「ハシェム」。日常の言い方)、'literal' (読み替えない)"""
+    if mode == 'literal':
+        return text
     out = []
     for word in text.split():
         letters = consonants(word)
@@ -153,7 +158,7 @@ def qere(text):
                         break
                     count += 1
                 head += c
-            reading = ELOHIM if HIRIQ in nfd[len(head):] else ADONAI
+            reading = HASHEM if mode == 'hashem' else ELOHIM if HIRIQ in nfd[len(head):] else ADONAI
             out.append(unicodedata.normalize('NFC', head) + reading)
         else:
             out.append(word)

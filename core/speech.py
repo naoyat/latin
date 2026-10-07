@@ -55,6 +55,7 @@ backend = None
 voice = None
 proc = None
 language = 'la'          # 'la' / 'grc' / 'sa'
+divine_name = 'adonai'   # ヘブライ語の神の名の読み方 (adonai / hashem / literal。hebrew.script.qere)
 pronunciation = 'attic'  # ギリシア語の発音の流儀 (attic / koine / erasmian)
 ESPEAK_VOICES = {'la': 'la', 'grc': 'grc', 'sa': 'hi', 'ru': 'ru', 'he': 'he'}
 # サンスクリットを読む MBROLA のヒンディー語音声 (in1 男声 / in2 女声)
@@ -187,7 +188,7 @@ def _plain_text(text):
     if language == 'he':
         from hebrew import script
         # 朗唱記号は除く (母音記号は残す)。神の名 יְהוָה は伝統どおり アドナイ (エロヒム) と読み替える
-        return script.qere(script.pointed(text))
+        return script.qere(script.pointed(text), divine_name)
     if language == 'grc' and backend == 'say':
         return _monotonic(text)  # 現代ギリシア語の音声は多調符 (気息記号・曲アクセント) を読めない
     return text
@@ -345,10 +346,12 @@ def main(argv=None):
     import select
     argv = sys.argv[1:] if argv is None else argv
     opts, args = getopt.getopt(argv, 'b:v:w:a:d', ['backend=', 'voice=', 'wav=', 'accent=', 'debug',
-                                                    'lang=', 'pron='])
+                                                    'lang=', 'pron=', 'divine-name='])
     opts = dict(opts)
     set_accent(opts.get('-a', opts.get('--accent', accent)))
     set_language(opts.get('--lang', 'la'), opts.get('--pron'))
+    global divine_name
+    divine_name = opts.get('--divine-name', divine_name)
     init_synth(opts.get('-b', opts.get('--backend')),
                opts.get('-v', opts.get('--voice')))
     text = ' '.join(args)
