@@ -178,6 +178,18 @@ class AnalyzerTestCase(unittest.TestCase):
         self.assertEqual(trs[1], 'ひかりが / あれ')
         self.assertEqual(trs[2], 'そして / ひかりが / あった')
 
+    def test_biblical_aramaic(self):
+        from hebrew import analyzer
+        a = self.analyze('מַלְכָּא֙ לְעָלְמִ֣ין חֱיִ֔י אֱמַ֥ר חֶלְמָ֛א לְעַבְדָ֖ךְ וּפִשְׁרָ֥א נְחַוֵּֽא׃')[0]
+        trs = [c.predicate.translate()[0] for c in a.clauses]
+        self.assertTrue(trs[0].startswith('王よ'), trs)       # 命令形の前の限定状態の名詞は呼びかけ
+        self.assertIn('dreamを', trs[1])                      # 命令形の後ろの名詞は目的語
+        self.assertIn('我々が / interpretationを', trs[2])    # 1人称の動詞: 3人称の名詞は主語にならない
+        words = analyzer.lookup_all(analyzer.tokens('נְחַוֵּֽא'))
+        self.assertEqual(words[0].items[0].attrib('stem'), 'pael')   # アラム語の態の名前
+        words = analyzer.lookup_all(analyzer.tokens('מַלְכָּא'))
+        self.assertTrue(words[1].items[0].attrib('emphatic'))        # 限定状態の語尾 -āʾ
+
     def test_nominal_sentence_and_vocative(self):
         a = self.analyze('יְהוָ֥ה רֹ֝עִ֗י לֹ֣א אֶחְסָֽר׃')[0]
         self.assertTrue(a.clauses[0].predicate.translate()[0].startswith('主 (ヤハウェ)は / 私の'))

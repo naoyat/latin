@@ -79,7 +79,11 @@ BDB_STEMS = {'qal': ['qal'], 'qalpass': ['qal passive'], 'niph': ['niphal'], 'pi
              'poal': ['polal', 'poal'], 'polal': ['polal', 'poal'], 'pul': ['polal', 'poal'],
              'hithpo': ['hithpolel', 'hithpoel'], 'hithpol': ['hithpolel', 'hithpoel'],
              'hithpolel': ['hithpolel', 'hithpoel'], 'hithpoel': ['hithpolel', 'hithpoel'],
-             'pilel': ['pilel'], 'pulal': ['pulal']}
+             'pilel': ['pilel'], 'pulal': ['pulal'],
+             # 聖書アラム語 (BDB の後半)
+             'pe': ['peal'], 'peal': ['peal'], 'peil': ['peil'], 'pa': ['pael'], 'pael': ['pael'],
+             'haph': ['haphel'], 'aph': ['aphel'], 'shaph': ['shaphel'], 'hithpe': ['hithpeel'],
+             'ithpe': ['ithpeel'], 'hithpa': ['hithpaal'], 'ithpa': ['ithpaal'], 'hishtaph': ['hishtaphel']}
 
 
 def _stem_key(text):

@@ -12,6 +12,7 @@
 #   - 主語は動詞と性・数が合う名詞 (ヘブライ語の動詞は性も変わる)
 #   - 動詞の無い文 (名詞文) には見えない繋辞を補う (יְהוָה רֹעִי「主は私の羊飼い」)
 #
+import dataclasses
 import re
 
 from core import analyzer as common
@@ -47,6 +48,11 @@ HEBREW = language.Language(
 ATNAH = '\u0591'  # 節を前半と後半に分ける朗唱記号 (アトナハ ֑)
 
 
+# 聖書アラム語: 繋辞 הֲוָא「〜である」、否定 לָא。ほかはヘブライ語と同じ
+ARAMAIC = dataclasses.replace(HEBREW, name='arc', copulas=frozenset({'הֲוָא'}),
+                              negations=frozenset({'לָא', 'לָא־', 'אַל'}))
+
+
 def tokens(text):
     """語 (マカフ ־ でつながった語は分ける) と句読点 (ソフ・パスーク ׃)。アトナハのある語の後ろには節の切れ目 (,) を"""
     out = []
@@ -68,13 +74,31 @@ def sentences(text):
         yield current
 
 
-def _words(token, ix):
-    """1語 → 切れ目ごとの Word のリスト"""
+def _languages(token):
+    """語の OSHB の解析にある言語の集合 (H / A)"""
+    return {f['morph'][:1] for f in morphology.analyses(token)} if token not in PUNCTUATION else set()
+
+
+def choose_languages(surfaces):
+    """語ごとの言語 (H ヘブライ語 / A アラム語)。どちらにも読める語は前 (無ければ後ろ) の語に合わせる
+    (ダニエル書 2:4 は文の途中でアラム語に変わる)"""
+    langs = [_languages(s) for s in surfaces]
+    out = [next(iter(l)) if len(l) == 1 else None for l in langs]
+    for i in range(len(out)):
+        if out[i] is None and langs[i]:
+            prev = next((out[j] for j in range(i - 1, -1, -1) if out[j]), None)
+            nxt = next((out[j] for j in range(i + 1, len(out)) if out[j]), None)
+            out[i] = prev or nxt or 'H'
+    return out
+
+
+def _words(token, ix, prefer='H'):
+    """1語 → 切れ目ごとの Word のリスト。prefer はどちらにも読める語の言語"""
     if token in PUNCTUATION:
         word = Word(token, None)
         word.token_ix = ix
         return [word]
-    found = morphology.analyses(token)
+    found = morphology.analyses(token, prefer or 'H')
     if not found:
         word = Word(script.pointed(token), [])
         word.token_ix = ix
@@ -120,9 +144,16 @@ def _nominal(word):
 
 
 def attach_markers(words):
-    """定冠詞 ה と目的語の標識 אֵת を後ろの名詞類の修飾語にする (訳には出さない)。אֵת の後ろは対格"""
+    """定冠詞 ה と目的語の標識 אֵת を後ろの名詞類の修飾語にする (訳には出さない)。אֵת の後ろは対格。
+    アラム語の限定状態の語尾 -āʾ は前の名詞に付ける"""
     for i, word in enumerate(words):
         if not word.items or word.items[0].pos != 'article':
+            continue
+        if word.items[0].attrib('emphatic'):
+            target = next((w for w in reversed(words[:i]) if _nominal(w)), None)
+            if target is not None:
+                target.items[0].item['definite'] = True
+                target.add_modifier(word)
             continue
         target = next((w for w in words[i + 1:i + 4] if _nominal(w)), None)
         if target is None:
@@ -192,7 +223,21 @@ def choose_subject(words):
     性の合わない名詞は主語にしない"""
     free = _free_nominals(words)
     for i, word in enumerate(words):
-        if not word.items or not _finite(word.items[0]) or word.items[0].attrib('person') != 3:
+        if not word.items or not _finite(word.items[0]):
+            continue
+        if word.items[0].attrib('person') in (1, 2):
+            # 1・2人称の動詞 (אֱמַר「言え」、נְחַוֵּא「私たちは告げよう」) の節の3人称の名詞は主語にならない → 目的語
+            nxt = next((j for j in range(i + 1, len(words)) if _finite_word(words[j]) or words[j].items is None),
+                       len(words))
+            prv = next((j for j in range(i - 1, -1, -1) if _finite_word(words[j]) or words[j].items is None), -1)
+            for j in free:
+                if prv < j < nxt and words[j].items[0].pos == 'noun':
+                    item = words[j].items[0]
+                    accusative = [c for c in item._ or [] if c[0] == 'Acc']
+                    if accusative and not any(c[0] == 'Voc' for c in item._):
+                        item._ = accusative
+            continue
+        if word.items[0].attrib('person') != 3:
             continue
         verb = word.items[0]
         gender, number = verb.attrib('gender'), verb.attrib('number')
@@ -241,7 +286,9 @@ def _supply_copula(words):
         while first > 0 and words[first - 1].items and words[first - 1].items[0].pos == 'adv':
             first -= 1  # 動詞の前の否定・副詞 (לֹא אֶחְסָר) は動詞の側に
     head = words if first is None else words[:first]
-    free = [i for i, w in enumerate(head) if _nominal(w) and getattr(w, 'attached_to', None) is None
+    nominals = set(_free_nominals(head))  # 前置詞の目的語 (לְעָלְמִין「とこしえに」) は数えない
+    free = [i for i, w in enumerate(head) if (i in nominals or w.items and w.items[0].pos in ('adj', 'participle'))
+            and _nominal(w) and getattr(w, 'attached_to', None) is None
             and any(c[0] == 'Nom' for c in w.items[0]._ or [])]
     if len(free) < 2:
         return words
@@ -260,28 +307,80 @@ def mark_vocatives(words):
         if not word.items or word.items[0].pos != 'verb' or word.items[0].attrib('mood') != 'imperative' \
                 or word.items[0].attrib('person') != 2:
             continue
-        for other in words[max(0, i - 2):i + 3]:
-            if other.items and other.items[0].attrib('proper') and getattr(other, 'attached_to', None) is None:
-                other.items[0]._ = [('Voc',) + tuple(c[1:]) for c in other.items[0]._ if c[0] == 'Nom']
+        for other in words[max(0, i - 4):i + 3]:
+            if not other.items or getattr(other, 'attached_to', None) is not None:
+                continue
+            item = other.items[0]
+            # 固有名詞、またはアラム語の限定状態の名詞 (מַלְכָּא לְעָלְמִין חֱיִי「王よ、とこしえに生きよ」)
+            # (アラム語の限定状態の名詞は命令形の前のものだけ。後ろは目的語が多い: אֱמַר חֶלְמָא「夢を言え」)
+            position = words.index(other)
+            emphatic = item.attrib('lang') == 'arc' and item.pos == 'noun' and position < i and \
+                _has_emphatic(words, position)
+            if item.attrib('proper') or emphatic:
+                item._ = [('Voc',) + tuple(c[1:]) for c in item._ if c[0] == 'Nom'] or item._
+
+
+def mark_di(words):
+    """アラム語の דִּי: 名詞の後ろで、すぐ後ろが名詞なら属格「〜の」(שְׁמֵהּ דִּי־אֱלָהָא「神の名」)。
+    דִּי は名詞に付けて訳に出さず、後ろの名詞を属格にする。それ以外は関係詞・接続詞「〜するところの / 〜ということ」"""
+    for i, word in enumerate(words):
+        if not word.items or not word.items[0].attrib('relative'):
+            continue
+        prev = next((w for w in reversed(words[:i]) if w.items is not None
+                     and getattr(w, 'attached_to', None) is None and not w.items[0].attrib('emphatic')), None)
+        nxt = next((w for w in words[i + 1:] if w.items is not None), None)
+        if prev is None or nxt is None or not _nominal(prev) or not _nominal(nxt) or nxt.items[0].pos == 'adj':
+            continue
+        # 後ろに定動詞が続けば関係詞 (אֱלָהַיָּא דִּי שְׁמַיָּא וְאַרְקָא לָא עֲבַדוּ「天と地を造らなかった神々」)
+        rest = []
+        for w in words[i + 1:]:
+            if w.items is None:
+                break
+            rest.append(w)
+        if any(_finite(w.items[0]) for w in rest if w.items):
+            continue
+        for it in nxt.items:
+            if it._:
+                it._ = [('Gen',) + tuple(c[1:]) for c in it._ if c[0] in ('Nom', 'Acc')] or it._
+        item = word.items[0].item
+        item.update(pos='article', ja=DI_GENITIVE_NOTE, genitive=True)
+        word.items = [type(word.items[0])(item)]
+        nxt.add_modifier(word)
+
+
+DI_GENITIVE_NOTE = ' ※属格の dî「〜の」: 前の名詞に後ろの名詞を掛ける (šəmēh dî ʾĕlāhāʾ「神の名」)。'
+
+
+def _has_emphatic(words, i):
+    nxt = words[i + 1] if i + 1 < len(words) else None
+    return nxt is not None and bool(nxt.items) and bool(nxt.items[0].attrib('emphatic'))
 
 
 def lookup_all(surfaces):
-    words = [w for ix, s in enumerate(surfaces) for w in _words(s, ix)]
+    langs = choose_languages(surfaces)
+    words = [w for ix, s in enumerate(surfaces) for w in _words(s, ix, langs[ix])]
     mark_vocatives(words)
     choose_construct(words)
     attach_markers(words)
+    mark_di(words)
     mark_construct(words)
+    words = supply_copula(words)  # 名詞文の繋辞を先に補う (後ろの1・2人称の動詞の節と分けるため)
     choose_subject(words)
-    words = supply_copula(words)
     for i, word in enumerate(words):
         word.index = i
     return words
 
 
+def sentence_language(words):
+    """文の言語: 語の多いほう (アラム語なら ARAMAIC の設定)"""
+    langs = [w.items[0].attrib('lang') for w in words if w.items]
+    return ARAMAIC if langs.count('arc') > langs.count('heb') else HEBREW
+
+
 def analyze_sentence(surfaces):
     words = lookup_all(surfaces)
     word_details = [word.detail() for word in words]
-    with language.using(HEBREW):
+    with language.using(sentence_language(words)):
         return common.analyze_words([w.surface for w in words], words, word_details, [])
 
 

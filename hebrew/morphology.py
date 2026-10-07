@@ -24,6 +24,16 @@ STEMS = {'q': 'qal', 'N': 'niphal', 'p': 'piel', 'P': 'pual', 'h': 'hiphil', 'H'
          'i': 'pilel', 'u': 'hothpaal', 'c': 'tiphil', 'v': 'hishtaphel', 'w': 'nithpalel', 'y': 'nithpoel',
          'z': 'hithpoel'}
 PASSIVE_STEMS = {'N', 'P', 'H', 'Q', 'M', 'K', 'L', 'O'}
+# 聖書アラム語の態の型 (OSHB の符号が同じでも名前が違う)。受動・再帰のもの
+ARAMAIC_STEMS = {'q': 'peal', 'Q': 'peil', 'u': 'hithpeel', 'p': 'pael', 'P': 'ithpaal', 'M': 'hithpaal',
+                 'a': 'aphel', 'h': 'haphel', 's': 'saphel', 'e': 'shaphel', 'H': 'hophal', 'i': 'ithpeel',
+                 't': 'hishtaphel', 'v': 'ithaphal', 'w': 'hithaphal', 'o': 'palel', 'z': 'ithpalpal',
+                 'r': 'hithpolel'}
+ARAMAIC_PASSIVE_STEMS = {'Q', 'u', 'P', 'M', 'H', 'i', 'v', 'w', 'z', 'r'}
+# 聖書アラム語の限定状態 (emphatic) の語尾 -āʾ: OSHB は定冠詞 (Td) として区切る (מַלְכָּ/א「その王」)
+EMPHATIC_NOTE = ' ※限定状態 (emphatic) の語尾 -āʾ「その」: アラム語の定冠詞にあたる。'
+# 聖書アラム語の דִּי: 関係詞「〜するところの」、属格「〜の」、接続詞「〜ということ」
+DI_GLOSS = '〜するところの,〜ということ'
 # 動詞の型 → (tense, mood)。wayyiqtol (連続未完了) は物語の過去、weqatal (連続完了) は未来・命令の続き
 VERB_TYPES = {'p': ('perfect', 'indicative', 'qatal'), 'q': ('future', 'indicative', 'weqatal'),
               'i': ('present', 'indicative', 'yiqtol'), 'w': ('perfect', 'indicative', 'wayyiqtol'),
@@ -70,10 +80,15 @@ def _personal(code):
     return person, code[1:2], code[2:3]
 
 
-def segment_item(code, lemma, surface):
-    """切れ目1つの符号 (Ncbsa, Vqw3ms, R, Td, Sp3ms) と見出し語 → 項目 (dict)"""
+def segment_item(code, lemma, surface, language='H'):
+    """切れ目1つの符号 (Ncbsa, Vqw3ms, R, Td, Sp3ms) と見出し語 → 項目 (dict)。language は OSHB の言語 (H / A)"""
     kind = code[:1]
-    item = {'surface': surface, 'source': 'oshb', 'morph': code}
+    aramaic = language == 'A'
+    item = {'surface': surface, 'source': 'oshb', 'morph': code, 'lang': 'arc' if aramaic else 'heb'}
+    if aramaic and code == 'Td':
+        return dict(item, pos='article', base=surface, ja=EMPHATIC_NOTE, gloss_lang='ja', emphatic=True)
+    if aramaic and code == 'Tr':
+        return dict(item, pos='conj', base='דִּי', ja=DI_GLOSS, gloss_lang='ja', relative=True)
     if lemma in PREFIXES and kind in 'CT' and code[:2] != 'To':
         pos, ja = PREFIXES[lemma]
         if pos == 'article':
@@ -118,6 +133,8 @@ def segment_item(code, lemma, surface):
             item['_'] += _cngs(gender, 's')  # אֱלֹהִים「神」は形が複数でも単数の動詞を取る (尊厳の複数)
         if code[1:2] == 'p':
             item['proper'] = True
+            # 固有名詞の符号 (Np) には数が無い: 単数・複数のどちらにも (הַכַּשְׂדִּים「カルデア人たち」は複数の動詞の主語)
+            item['_'] = _cngs('', 's') + _cngs('', 'p')
         return item
     if kind == 'A':
         gender, number, state = code[2:3], code[3:4], code[4:5]
@@ -139,8 +156,12 @@ def segment_item(code, lemma, surface):
         return dict(item, pos='pronoun', _=_cngs('', ''))
     if kind == 'V':
         stem, vtype = code[1:2], code[2:3]
-        voice = 'passive' if stem in PASSIVE_STEMS else 'active'
-        item.update(pres1sg=word, stem=STEMS.get(stem, stem), voice=voice)
+        if aramaic:
+            voice = 'passive' if stem in ARAMAIC_PASSIVE_STEMS else 'active'
+            item.update(pres1sg=word, stem=ARAMAIC_STEMS.get(stem, stem), voice=voice)
+        else:
+            voice = 'passive' if stem in PASSIVE_STEMS else 'active'
+            item.update(pres1sg=word, stem=STEMS.get(stem, stem), voice=voice)
         if vtype in 'rs':
             gender, number, state = code[3:4], code[4:5], code[5:6]
             item.update(pos='participle', tense='present', voice='passive' if vtype == 's' else voice,
@@ -158,23 +179,23 @@ def segment_item(code, lemma, surface):
     return dict(item, pos='adv', base=surface, ja=gloss, gloss_lang=lang)
 
 
-def analyses(word):
+def analyses(word, prefer='H'):
     """語 (母音記号付き、朗唱記号はあってもよい) → OSHB の解析の候補 [{segments, lemmas, morph, count}]。
-    ヘブライ語 (H) をアラム語 (A) より先に、多いものから"""
+    prefer の言語 (H ヘブライ語 / A アラム語) を先に、多いものから"""
     found = dictionary.forms(word)
-    return sorted(found, key=lambda f: (not f['morph'].startswith('H'), -f['count']))
+    return sorted(found, key=lambda f: (not f['morph'].startswith(prefer), -f['count']))
 
 
 def segments(analysis):
     """解析1つ → [(切れ目の表記, 項目)]"""
-    morph = analysis['morph'][1:]  # 先頭の言語 (H / A) を除く
+    lang, morph = analysis['morph'][:1], analysis['morph'][1:]  # 先頭は言語 (H / A)
     codes = morph.split('/')
     out = []
     for surface, lemma, code in zip(analysis['segments'], analysis['lemmas'] + [None] * 4, codes):
-        out.append((surface, segment_item(code, lemma, surface)))
+        out.append((surface, segment_item(code, lemma, surface, lang)))
     # 人称接尾辞は lemma の列に無い (本体と同じ見出し語の後ろ)
     for surface, code in zip(analysis['segments'][len(out):], codes[len(out):]):
-        out.append((surface, segment_item(code, None, surface)))
+        out.append((surface, segment_item(code, None, surface, lang)))
     # 冠詞の後ろが喉音・ר なら、説明を「重ねず母音を長く」に
     for k, (surface, item) in enumerate(out[:-1]):
         if item.get('ja') == ARTICLE_NOTE and script.consonants(out[k + 1][0])[:1] in 'אהחער':

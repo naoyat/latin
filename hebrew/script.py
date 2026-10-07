@@ -82,6 +82,8 @@ def translit(word):
                                                          else CONSONANTS.get(c, c))
         vowel = next((VOWELS[v] for v in (HATAF_SEGOL, HATAF_PATAH, HATAF_QAMATS, HIRIQ, TSERE, SEGOL, PATAH, QAMATS,
                                          HOLAM, HOLAM_HASER, QUBUTS, QAMATS_QATAN, SHEVA) if v in marks), '')
+        if c in 'ךםןףץ' and vowel == 'ə':
+            vowel = ''  # 語末形の字 (人称接尾辞 ךְ) のシェヴァは黙字
         return cons + vowel
     for i, (c, marks) in enumerate(clusters):
         nxt = clusters[i + 1] if i + 1 < n else None
