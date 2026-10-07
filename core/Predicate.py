@@ -403,5 +403,6 @@ def copula_translation(obj, tense, negated):
         cut = gloss.rindex('}') + 1
         modifier, head = gloss[:cut], gloss[cut:]
     if not head:
-        return gloss + 'である'
+        # 括った並列 ({匂い,香り}と{形,型,姿}) など: 名詞の述語の形 (である / ではない / であった) を後ろに
+        return gloss + copula_predicate('〇', False, tense, negated)[1:]
     return modifier + copula_predicate(head, _is_adjective(obj), tense, negated)

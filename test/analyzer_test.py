@@ -131,6 +131,16 @@ class ExistentialTestCase(unittest.TestCase):
         self.assertFalse(self.translate('Mārcus est agricola.').endswith(' / ある'))
 
 
+class CoordinationBracketTestCase(unittest.TestCase):
+    """並列した語の訳語に候補が複数あれば括る ({主,主人}と奴隷。「主人と奴隷」の項に見えないように)"""
+
+    def test_bracket(self):
+        from core.AndOr import _bracket
+        self.assertEqual(_bracket('主,主人'), '{主,主人}')
+        self.assertEqual(_bracket('奴隷'), '奴隷')
+        self.assertEqual(_bracket('{美しい,きれいな}花'), '{美しい,きれいな}花')  # 括弧の中の読点だけなら括らない
+
+
 class GloriaTestCase(unittest.TestCase):
     """Templum, glōria rēgis Siciliae, māgnum incolās dēlectābat."""
 

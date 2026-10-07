@@ -169,7 +169,27 @@ class AndOr (LatinObject):
         for words in self.words_slots:
             # tr.append(' '.join([word.translate() for word in words]))
             tr.append(words[0].translate()[0])
+        if len(tr) > 1:
+            # 訳語の候補が複数ある語は括る ({天,天界,天国,神}と{大地,地面,地上}。「神と大地」という項に見えないように)
+            tr = [_bracket(t) for t in tr]
         if self.pos == 'adj':
             return ('、かつ'.join(tr), self.language.is_nor(self.and_or_word))
         else:
             return ('と'.join(tr), self.language.is_nor(self.and_or_word))
+
+
+def _has_top_level_comma(text):
+    depth = 0
+    for c in text:
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+        elif c == ',' and depth == 0:
+            return True
+    return False
+
+
+def _bracket(text):
+    """読点 (訳語の候補の区切り) を括弧の外に含む訳を {…} で括る"""
+    return '{%s}' % text if _has_top_level_comma(text) else text
