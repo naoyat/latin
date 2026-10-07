@@ -63,7 +63,15 @@ def verb_forms(root):
     keys = ('lemma', 'stem', 'type', 'pgn', 'form', 'lang', 'count', 'bare')
     return [dict(zip(keys, row)) for row in db.execute(
         'SELECT lemma, stem, type, pgn, form, lang, count, bare FROM verbs WHERE root = ? ORDER BY count DESC',
-        (script.consonants(root),)).fetchall()]
+        (script.with_final(script.consonants(root)),)).fetchall()]
+
+
+def bare_verb_forms():
+    """接頭辞も人称接尾辞も付いていない、ヘブライ語の動詞の形すべて [(root, stem, type, pgn, form, count)] (類推の材料)"""
+    db = _connect()
+    if db is None:
+        return []
+    return db.execute("SELECT root, stem, type, pgn, form, count FROM verbs WHERE bare = 1 AND lang = 'H'").fetchall()
 
 
 def _rows(table, key):

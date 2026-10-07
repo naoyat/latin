@@ -41,7 +41,7 @@ FORMS = {
 
 def root_text(root):
     """語根 (ברא) → ב-ר-א (b-r-ʾ)"""
-    letters = script.consonants(root)
+    letters = script.with_final(script.consonants(root))
     if not letters:
         return root
     latin = '-'.join(script.CONSONANTS.get(c, c) for c in letters)

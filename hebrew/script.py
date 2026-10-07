@@ -30,6 +30,15 @@ SPIRANT = {'ב': 'v', 'כ': 'ḵ', 'ך': 'ḵ', 'פ': 'f', 'ף': 'f'}  # 弱い�
 FINALS = {'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ'}
 
 
+FINAL_FORMS = {v: k for k, v in FINALS.items()}
+
+
+def with_final(letters):
+    """子音の列の最後の字を語末形に (קומ → קום)"""
+    letters = ''.join(FINALS.get(c, c) for c in letters)
+    return letters[:-1] + FINAL_FORMS.get(letters[-1], letters[-1]) if letters else letters
+
+
 def pointed(text):
     """朗唱記号を除き、母音記号は残す"""
     return unicodedata.normalize('NFC', CANTILLATION.sub('', unicodedata.normalize('NFD', text)))

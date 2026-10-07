@@ -84,6 +84,28 @@ class BinyanTemplateTestCase(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_DATA, 'ヘブライ語の辞書 (tools/build_hebrew_dic.py) が無い')
+class BinyanAnalogyTestCase(unittest.TestCase):
+    """弱い語根・喉音を含む語根の形を、同じ分類の別の語根の形から類推する"""
+
+    def made(self, root, stem, column):
+        import unicodedata
+        from hebrew import binyan
+        guess = binyan.analogize(root, stem, column)
+        return unicodedata.normalize('NFC', guess[0]) if guess else None
+
+    def test_weak_roots(self):
+        import unicodedata
+        nfc = lambda t: unicodedata.normalize('NFC', t)
+        self.assertEqual(self.made('נפל', 'niphal', 'qatal'), nfc('נִפַּל'))      # I-נ: נ が次の字に同化
+        self.assertEqual(self.made('בוא', 'qal', 'qatal'), nfc('בָּא'))         # II-ו + III-א (分類をゆるめて שוב から)
+        self.assertEqual(self.made('עמד', 'niphal', 'yiqtol'), nfc('יֵעָמֵד'))  # 喉音は重ねず前の母音を長く
+
+    def test_hollow_root_uses_polel(self):
+        from hebrew import binyan
+        self.assertEqual(binyan._stem_code('קום', 'piel'), 'o')
+
+
+@unittest.skipUnless(HAVE_DATA, 'ヘブライ語の辞書 (tools/build_hebrew_dic.py) が無い')
 class ExplainTestCase(unittest.TestCase):
     """初学者向けの解説: 動詞の語根・態の型・時制の型"""
 
