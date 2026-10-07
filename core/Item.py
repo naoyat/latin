@@ -63,7 +63,8 @@ class Item:
                                                                  name.get(self.item.get('tense', 'present'), '?'),
                                                                  )
         elif self.pos == 'article' or (self.pos == 'pronoun' and self.item.get('source') == 'wiktionary'):
-            return get_base('base') + '%s.%s [%s]' % (self.pos[:3], self.ja, short_(self._ or []))
+            cases = ' [%s]' % short_(self._) if self._ else ''  # 格の無い冠詞 (ヘブライ語) は [] を出さない
+            return get_base('base') + '%s.%s%s' % (self.pos[:3], self.ja, cases)
         elif self.pos == 'preposition':
             return 'prep<%s> %s' % (self.dominates, self.ja)
         else:

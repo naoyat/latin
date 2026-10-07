@@ -42,6 +42,10 @@ PARTICLES = {'a': ('adv', '実に'), 'e': ('adv', 'どうか'), 'i': ('adv', '�
 PERSONAL = {(1, 'sg'): '私', (2, 'sg'): 'あなた', (3, 'sg'): '彼', (1, 'pl'): '私たち', (2, 'pl'): 'あなたたち',
             (3, 'pl'): '彼ら'}
 NOMINAL_CASES = ('Nom', 'Acc')
+# 冠詞として名詞に付けて訳に出さない語の、語ごとの表示の説明 (訳には出ない)
+ARTICLE_NOTE = '定冠詞「その」: 次の字を重ねる (haš-šāmayim)。訳には出さない'
+ARTICLE_NOTE_GUTTURAL = '定冠詞「その」: 喉音・ר は重ねられないので母音を長く (hā-ʾāreṣ)。訳には出さない'
+OBJECT_MARKER_NOTE = '目的語の標識: 定まった目的語の前に置く。訳には出さない'
 
 
 def _cngs(gender, number, cases=NOMINAL_CASES):
@@ -72,6 +76,8 @@ def segment_item(code, lemma, surface):
     item = {'surface': surface, 'source': 'oshb', 'morph': code}
     if lemma in PREFIXES and kind in 'CT' and code[:2] != 'To':
         pos, ja = PREFIXES[lemma]
+        if pos == 'article':
+            ja = ARTICLE_NOTE
         return dict(item, pos=pos, base=surface, ja=ja, gloss_lang='ja')
     if kind == 'R':
         ja = PREPOSITIONS.get(lemma) or _lemma(lemma)[1]
@@ -83,10 +89,10 @@ def segment_item(code, lemma, surface):
     if kind == 'T':
         pos, ja = PARTICLES.get(code[1:2], ('adv', ''))
         if code[1:2] == 'd':
-            return dict(item, pos='article', base=surface, ja='', gloss_lang='ja')
+            return dict(item, pos='article', base=surface, ja=ARTICLE_NOTE, gloss_lang='ja')
         if code[1:2] == 'o':
             # 目的語の標識 אֵת: 後ろの名詞を対格にして、冠詞と同じく名詞に付け、訳には出さない
-            return dict(item, pos='article', base='אֵת', ja='', gloss_lang='ja', desc='目的語の標識')
+            return dict(item, pos='article', base='אֵת', ja=OBJECT_MARKER_NOTE, gloss_lang='ja', desc='目的語の標識')
         word, gloss, lang, _ = _lemma(lemma)
         return dict(item, pos=pos, base=word, ja=ja or gloss, gloss_lang='ja' if ja else lang)
     if kind == 'D':
@@ -169,4 +175,8 @@ def segments(analysis):
     # 人称接尾辞は lemma の列に無い (本体と同じ見出し語の後ろ)
     for surface, code in zip(analysis['segments'][len(out):], codes[len(out):]):
         out.append((surface, segment_item(code, None, surface)))
+    # 冠詞の後ろが喉音・ר なら、説明を「重ねず母音を長く」に
+    for k, (surface, item) in enumerate(out[:-1]):
+        if item.get('ja') == ARTICLE_NOTE and script.consonants(out[k + 1][0])[:1] in 'אהחער':
+            item['ja'] = ARTICLE_NOTE_GUTTURAL
     return out
