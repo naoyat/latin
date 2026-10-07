@@ -44,16 +44,27 @@ def text_of(element):
 
 
 def load_lexical_index(path):
-    """id → {word, xlit, pos, def, strong}"""
-    out = {}
+    """id → {word, xlit, pos, def, strong, root}。語根 (root) は項目の etym の root、無ければ派生元 (type="sub") を
+    たどる (אָב → אבה)"""
+    out, parents = {}, {}
     for entry in ET.parse(path).getroot().iter():
         if not entry.tag.endswith('entry'):
             continue
         get = lambda name: next((c for c in entry if c.tag.endswith(name)), None)
-        w, pos, d, xref = get('w'), get('pos'), get('def'), get('xref')
+        w, pos, d, xref, etym = get('w'), get('pos'), get('def'), get('xref'), get('etym')
         out[entry.get('id')] = {'word': text_of(w) if w is not None else '', 'xlit': w.get('xlit') if w is not None else '',
                                 'pos': text_of(pos) if pos is not None else '', 'def': text_of(d) if d is not None else '',
-                                'strong': xref.get('strong') if xref is not None else None}
+                                'strong': xref.get('strong') if xref is not None else None,
+                                'root': etym.get('root') if etym is not None else None}
+        if etym is not None and etym.get('type') == 'sub' and etym.text:
+            parents[entry.get('id')] = etym.text.split(',')[0].strip()
+    for id_, entry in out.items():
+        seen = set()
+        parent = parents.get(id_)
+        while not entry['root'] and parent and parent not in seen:
+            seen.add(parent)
+            entry['root'] = out.get(parent, {}).get('root')
+            parent = parents.get(parent)
     return out
 
 
@@ -125,7 +136,8 @@ def main():
     db = sqlite3.connect(tmp)
     db.executescript('''
         CREATE TABLE forms (key TEXT, cons TEXT, segments TEXT, lemmas TEXT, morph TEXT, count INTEGER);
-        CREATE TABLE lexicon (aug TEXT PRIMARY KEY, word TEXT, xlit TEXT, pos TEXT, ja TEXT, gloss_lang TEXT, strong TEXT);
+        CREATE TABLE lexicon (aug TEXT PRIMARY KEY, word TEXT, xlit TEXT, pos TEXT, ja TEXT, gloss_lang TEXT, strong TEXT,
+                              root TEXT);
         CREATE TABLE descendants (lemma TEXT, pos TEXT, data TEXT);
         CREATE TABLE etymology (lemma TEXT, pos TEXT, data TEXT);
     ''')
@@ -148,8 +160,9 @@ def main():
                 gloss, gloss_lang = j, 'ja'
                 n_ja += 1
                 break
-        db.execute('INSERT OR REPLACE INTO lexicon VALUES (?, ?, ?, ?, ?, ?, ?)',
-                   (aug, script.pointed(entry['word']), entry['xlit'], entry['pos'], gloss, gloss_lang, number))
+        db.execute('INSERT OR REPLACE INTO lexicon VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                   (aug, script.pointed(entry['word']), entry['xlit'], entry['pos'], gloss, gloss_lang, number,
+                    entry['root']))
     kaikki = os.path.join(base, 'kaikki-Hebrew.jsonl.gz')
     if os.path.exists(kaikki):
         with gzip.open(kaikki, 'rt') as fp:

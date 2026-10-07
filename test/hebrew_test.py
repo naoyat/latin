@@ -55,6 +55,25 @@ class MorphCodeTestCase(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_DATA, 'ヘブライ語の辞書 (tools/build_hebrew_dic.py) が無い')
+class ExplainTestCase(unittest.TestCase):
+    """初学者向けの解説: 動詞の語根・態の型・時制の型"""
+
+    def notes(self, text, ix):
+        from hebrew import analyzer, explain
+        return explain.notes(analyzer.lookup_all(analyzer.tokens(text))[ix])
+
+    def test_verb(self):
+        lines = self.notes('וַיֹּאמֶר', 1)
+        self.assertTrue(lines[0].startswith('語根 '), lines)
+        self.assertIn('(ʾ-m-r)', lines[0])
+        self.assertIn('qal (paʿal パアル)', lines[1])
+        self.assertIn('wayyiqtol', lines[2])
+
+    def test_noun_root(self):
+        self.assertIn('(ʾ-l-h)', self.notes('אֱלֹהִים', 0)[0])
+
+
+@unittest.skipUnless(HAVE_DATA, 'ヘブライ語の辞書 (tools/build_hebrew_dic.py) が無い')
 class AnalyzerTestCase(unittest.TestCase):
     def analyze(self, text):
         from hebrew import analyzer

@@ -140,14 +140,17 @@ def render_sentence_header(text):
 
 
 def render_analysis(analysis, show_word_detail=True, show_translation=True, show_descendants=False,
-                    show_etymology=False, word_notes=None):
+                    show_etymology=False, word_notes=None, romanize=None):
     # 辞書引きの結果 (show_descendants なら語ごとに英語・フランス語などに残った語を、show_etymology なら語源も。
-    # word_notes は語ごとに添える行を返す関数で、ほかの言語の解析器が自分の辞書の子孫語・語源を出すのに使う)
+    # word_notes は語ごとに添える行を返す関数で、ほかの言語の解析器が自分の辞書の子孫語・語源を出すのに使う。
+    # romanize はラテン文字以外の語に転写を添える関数 (Девочка [Dévočka])
     if show_word_detail:
         print("  --- ")
-        maxlen_uc = max([0] + [word.surface_len for word in analysis.words])
+        shown = [word.surface + (' [%s]' % romanize(word.surface) if romanize and word.items else '')
+                 for word in analysis.words]
+        maxlen_uc = max([0] + [len(s) for s in shown])
         for i, (word, detail) in enumerate(zip(analysis.words, analysis.word_details)):
-            print('  %2d  ' % (i,) + word.surface + ' '*(maxlen_uc - word.surface_len + 1), detail)
+            print('  %2d  ' % (i,) + shown[i] + ' '*(maxlen_uc - len(shown[i]) + 1), detail)
             indent = ' ' * (maxlen_uc + 7)
             if show_descendants and word.items:
                 for lemma, text in descendants.describe_word(word):

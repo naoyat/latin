@@ -11,6 +11,7 @@
 #   -E, --etymology        語源 (祖語の系統・同源語・説明文) も表示する
 #   -s, --speech           音読する (macOS の say のロシア語音声 Milena。使えなければ espeak-ng のロシア語音声)
 #   -t, --tts=BACKEND      音読の方式 (say / espeak)
+#   -r, --romanize         語ごとの辞書引きの結果に、強勢付きの転写を添える (見出しの文には常に添える)
 #
 import getopt
 import sys
@@ -49,10 +50,16 @@ def stressed_text(surfaces):
     return out
 
 
+def romanized(word):
+    """強勢付きの転写 (Девочка → Dévočka)"""
+    return script.translit(morphology.stressed(word))
+
+
 def main():
-    opts, args = getopt.getopt(sys.argv[1:], 'wDEst:h', ['no-word-detail', 'descendants', 'etymology', 'speech',
-                                                         'tts=', 'help'])
+    opts, args = getopt.getopt(sys.argv[1:], 'wDEst:rh', ['no-word-detail', 'descendants', 'etymology', 'speech',
+                                                          'tts=', 'romanize', 'help'])
     show_word_detail, show_descendants, show_etymology, speech_mode, tts = True, False, False, False, None
+    romanize = False
     for option, arg in opts:
         if option in ('-w', '--no-word-detail'):
             show_word_detail = False
@@ -64,6 +71,8 @@ def main():
             speech_mode = True
         elif option in ('-t', '--tts'):
             speech_mode, tts = True, arg
+        elif option in ('-r', '--romanize'):
+            romanize = True
         elif option in ('-h', '--help'):
             print(open(__file__, encoding='utf-8').read().split('\nimport')[0])
             return
@@ -82,7 +91,8 @@ def main():
             render.render_sentence_header('%s  (%s)' % (stressed, script.translit(stressed)))
             if speech_mode:
                 speech.say_latin(stressed)
-            render.render_analysis(analysis, show_word_detail=show_word_detail, word_notes=notes)
+            render.render_analysis(analysis, show_word_detail=show_word_detail, word_notes=notes,
+                                   romanize=romanized if romanize else None)
             if speech_mode:
                 speech.pause_while_speaking()
 

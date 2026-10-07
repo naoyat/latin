@@ -10,21 +10,25 @@
 #   -D, --descendants      ほかの言語に入った語 (子孫語) も表示する
 #   -E, --etymology        語源も表示する
 #   -s, --speech           音読する (macOS の say のヘブライ語音声 Carmit。現代ヘブライ語の発音)
+#   -r, --romanize         語ごとの辞書引きの結果に、語の転写を添える
+#   --no-explain           動詞の語根・態の型 (binyan)・時制の型、名詞の語根の解説を出さない
 #
 # 見出しの行は、ヘブライ文字 (右から左。Unicode の隔離記号で囲む) と転写を並べる
 #
 import getopt
 import sys
 
-from hebrew import analyzer, dictionary, script
+from hebrew import analyzer, dictionary, explain, script
 from core import ansi_color, descendants, etymology, render
 
 DESCENDANT_LANGS = ('en', 'ja', 'el', 'la', 'ar')
 
 
-def word_notes(show_descendants, show_etymology):
+def word_notes(show_descendants, show_etymology, show_explanation=True):
     def notes(word):
         lines = []
+        if show_explanation:
+            lines += [ansi_color.fgcolor(ansi_color.GREEN, line) for line in explain.notes(word)]
         if show_descendants:
             for lemma, line in descendants.describe_word(word, DESCENDANT_LANGS, dictionary):
                 lines.append(ansi_color.fgcolor(ansi_color.CYAN, '%s: %s' % (lemma, line)))
@@ -33,7 +37,7 @@ def word_notes(show_descendants, show_etymology):
                 lines.append(ansi_color.fgcolor(ansi_color.MAGENTA, '%s の語源:' % lemma))
                 lines.extend('  ' + line for line in ety)
         return lines
-    return notes if (show_descendants or show_etymology) else None
+    return notes if (show_descendants or show_etymology or show_explanation) else None
 
 
 def sentence_text(surfaces):
@@ -42,9 +46,10 @@ def sentence_text(surfaces):
 
 
 def main():
-    opts, args = getopt.getopt(sys.argv[1:], 'wDEsh', ['no-word-detail', 'descendants', 'etymology', 'speech',
-                                                       'help'])
+    opts, args = getopt.getopt(sys.argv[1:], 'wDEsrh', ['no-word-detail', 'descendants', 'etymology', 'speech',
+                                                        'romanize', 'no-explain', 'help'])
     show_word_detail, show_descendants, show_etymology, speech_mode = True, False, False, False
+    romanize, show_explanation = False, True
     for option, _ in opts:
         if option in ('-w', '--no-word-detail'):
             show_word_detail = False
@@ -54,12 +59,16 @@ def main():
             show_etymology = True
         elif option in ('-s', '--speech'):
             speech_mode = True
+        elif option in ('-r', '--romanize'):
+            romanize = True
+        elif option == '--no-explain':
+            show_explanation = False
         elif option in ('-h', '--help'):
             print(open(__file__, encoding='utf-8').read().split('\nimport')[0])
             return
     if not dictionary.available():
         sys.exit('no Hebrew data (python3 tools/build_hebrew_dic.py)')
-    notes = word_notes(show_descendants, show_etymology)
+    notes = word_notes(show_descendants, show_etymology, show_explanation)
     if speech_mode:
         from core import speech
         speech.set_language('he')
@@ -74,7 +83,8 @@ def main():
                                                         ' '.join(script.translit(w) for w in original.split())))
             if speech_mode:
                 speech.say_latin(original)
-            render.render_analysis(analysis, show_word_detail=show_word_detail, word_notes=notes)
+            render.render_analysis(analysis, show_word_detail=show_word_detail, word_notes=notes,
+                                   romanize=script.translit if romanize else None)
             if speech_mode:
                 speech.pause_while_speaking()
 

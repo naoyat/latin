@@ -355,11 +355,15 @@ def _animate(obj):
 def _existential_place(t):
     """存在の文の場所の前置詞句: 最初の訳だけにして「〜に」に ({庭}〜で,〜の中で → {庭}〜に)。
     所有の前置詞句 (ロシア語の у + 生格「〜には」) はそのまま"""
-    first = t.split(',')[0]
+    brace = t.rfind('}')
+    head, gloss = t[:brace + 1], t[brace + 1:]  # 中括弧の中 (前置詞の目的語の訳) の読点では切らない
+    first = head + gloss.split(',')[0]
     if first.endswith('には'):
         return first
     if first.endswith(('で', 'に')):
         return first[:-1] + 'に'
+    if first[-1:].isascii():
+        return first  # 英語の訳語 (πρός「towards」) には助詞を付けない
     return first + 'に'
 
 

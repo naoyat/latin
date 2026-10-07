@@ -43,14 +43,15 @@ def forms(word):
 
 
 def lexicon(aug):
-    """見出し語の番号 (1254a, 430) → {word, xlit, pos, ja, gloss_lang, strong}"""
+    """見出し語の番号 (1254a, 430) → {word, xlit, pos, ja, gloss_lang, strong, root}"""
     db = _connect()
     if db is None:
         return None
-    row = db.execute('SELECT word, xlit, pos, ja, gloss_lang, strong FROM lexicon WHERE aug = ?', (aug,)).fetchone()
+    row = db.execute('SELECT word, xlit, pos, ja, gloss_lang, strong, root FROM lexicon WHERE aug = ?',
+                     (aug,)).fetchone()
     if row is None:
         return None
-    return dict(zip(('word', 'xlit', 'pos', 'ja', 'gloss_lang', 'strong'), row))
+    return dict(zip(('word', 'xlit', 'pos', 'ja', 'gloss_lang', 'strong', 'root'), row))
 
 
 def _rows(table, key):

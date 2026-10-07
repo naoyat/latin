@@ -114,6 +114,7 @@ python3 tools/samples.py 独立 繋辞        # 見出しにその文字列を�
 python3 tools/samples.py -t              # 述語と格の枠の構造も表示 (-d でさらに語ごとの辞書引きも)
 python3 tools/samples.py > before.txt    # ファイルへは色なしで出るので、版ごとに diff で比べられる
 python3 tools/samples.py --lang=grc      # 古典ギリシア語 (samples/greek.txt)。--lang=sa でサンスクリット
+python3 tools/samples.py --lang=grc -r   # ラテン文字以外の文に転写を添える (-d なら語ごとにも)
 ```
 
 ```
@@ -504,8 +505,18 @@ python3 hebrew.py samples/hebrew.txt     # 解析の詳細 (-w, -D, -E, -s 音�
 * 動詞の型: 完了 qatal「〜した」、連続未完了 wayyiqtol「そして〜した」、未完了 yiqtol、連続完了 weqatal、
   命令・指示形（יְהִי「あれ」）。態の型（binyan: qal, niphal, piel…）は語ごとの表示に。
 * 動詞の無い文（名詞文: יְהוָה רֹעִי「主は私の羊飼い」）には見えない繋辞を補います。節の区切りに朗唱記号のアトナハ（֑）を使います。
+* 語ごとの表示に初学者向けの解説を添えます（`--no-explain` で出さない）: 動詞は語根（א-מ-ר ʾ-m-r。BDB の索引から。
+  名詞は派生元の語根までたどる）、態の型（qal (paʿal パアル): 基本の態、hithpael (hitpaʿel ヒトパエル): 再帰・相互 …）、
+  時制の型（wayyiqtol: 物語の流れ「そして〜した」…）。
 * 見出しの行はヘブライ文字（Unicode の隔離記号で囲む）と転写を並べます。音読は macOS の say のヘブライ語音声 Carmit
   （現代ヘブライ語の発音）。
+
+## ラテン文字への転写
+
+ラテン文字以外の言語では、`-r` / `--romanize` で語ごとの辞書引きの結果に転写を添えます（greek.py, russian.py, hebrew.py。
+`tools/samples.py -r` は文にも）。ギリシア語は学術的な転写の簡略版（ἐν ἀρχῇ ἦν ὁ λόγος → en archêi ên ho lógos）、
+ロシア語は Wiktionary の強勢を付けた学術転写（Девочка → Dévočka）、ヘブライ語は母音記号からの転写（וַיֹּאמֶר → wayyōʾmer）。
+サンスクリットは語の表示がもとから IAST です。
 
 ## テスト
 

@@ -17,6 +17,7 @@
 #
 #   --lang=la|grc|sa|ru|he 言語 (既定は la。ラテン語)
 #   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
+#   -r, --romanize      ラテン文字以外の文に転写を添える (-d なら語ごとにも)
 #   -l, --list          節の見出しの一覧を表示する
 #   --no-wiktionary     手作りの辞書だけを使う
 #   --no-tagger         品詞タガーを使わない
@@ -86,8 +87,27 @@ def brief(analysis):
             print('     (行き場の無い語句: %s → %s)' % (item.surface, render.translate(item)))
 
 
-def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'):
+def romanizer(lang):
+    """言語ごとの (文の転写, 語の転写)。ラテン文字の言語は None"""
+    if lang == 'grc':
+        from greek import romanize as greek_romanize
+        return greek_romanize.romanize, greek_romanize.romanize_word
+    if lang == 'ru':
+        import re
+        from russian import morphology as russian_morphology, script as russian_script
+        word = lambda w: russian_script.translit(russian_morphology.stressed(w))
+        cyrillic = re.compile('[а-яёА-ЯЁ\u0301-]+')
+        return (lambda text: cyrillic.sub(lambda m: word(m.group(0)), text)), word
+    if lang == 'he':
+        from hebrew import script as hebrew_script
+        return (lambda text: ' '.join(hebrew_script.translit(w) for w in hebrew_script.pointed(text).split()
+                                      if hebrew_script.is_hebrew(w))), hebrew_script.translit
+    return None, None
+
+
+def show(sections, mode, show_descendants=False, show_etymology=False, lang='la', romanize=False):
     analyze_text = analyzer_for(lang)
+    romanize_text, romanize_word = romanizer(lang) if romanize else (None, None)
     for title, sentences in sections:
         print()
         print(ansi_color.underline(ansi_color.bold('■ ' + title)))
@@ -108,13 +128,15 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
                 from hebrew import script as hebrew_script
                 print('  (%s)' % ' '.join(hebrew_script.translit(w) for w in hebrew_script.pointed(text).split()
                                           if hebrew_script.is_hebrew(w)))
+            elif romanize_text:
+                print('  (%s)' % romanize_text(text))
             for analysis in analyze_text(text):
                 if mode == 'brief':
                     brief(analysis)
                 else:
                     render.render_analysis(analysis, show_word_detail=(mode == 'detail'),
                                            show_descendants=show_descendants,
-                                           show_etymology=show_etymology)
+                                           show_etymology=show_etymology, romanize=romanize_word)
 
 
 def usage():
@@ -123,14 +145,14 @@ def usage():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'tdDEf:lh',
+        opts, args = getopt.getopt(sys.argv[1:], 'tdDEf:lrh',
                                    ['tree', 'detail', 'descendants', 'etymology', 'file=', 'list', 'no-wiktionary', 'no-tagger',
-                                    'lang=', 'help'])
+                                    'lang=', 'romanize', 'help'])
     except getopt.GetoptError as e:
         print(e)
         sys.exit(1)
 
-    mode, path, list_only, lang = 'brief', None, False, 'la'
+    mode, path, list_only, lang, romanize = 'brief', None, False, 'la', False
     show_descendants = show_etymology = False
     for option, arg in opts:
         if option in ('-t', '--tree'):
@@ -139,6 +161,8 @@ def main():
             mode = 'detail'
         elif option in ('-f', '--file'):
             path = arg
+        elif option in ('-r', '--romanize'):
+            romanize = True
         elif option == '--lang':
             if arg not in LANG_FILES:
                 print('--lang: %s のどれか' % '|'.join(LANG_FILES))
@@ -171,12 +195,12 @@ def main():
 
     latindic.load()
     if sys.stdout.isatty():
-        show(sections, mode, show_descendants, show_etymology, lang)
+        show(sections, mode, show_descendants, show_etymology, lang, romanize)
     else:
         # パイプやファイルへは色を落として出す
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            show(sections, mode, show_descendants, show_etymology, lang)
+            show(sections, mode, show_descendants, show_etymology, lang, romanize)
         sys.stdout.write(ANSI.sub('', buf.getvalue()))
 
 
