@@ -48,6 +48,19 @@ def root_text(root):
     return '%s (%s)' % (script.isolate('-'.join(letters)), latin)
 
 
+def construct_note(item):
+    """連語形 (smikhut) の解説: 組んでいる後ろの名詞・人称接尾辞"""
+    own = (item.ja or '').split(',')[0]
+    kind, surface, gloss = item.attrib('construct_with') or ('none', '', '')
+    if kind == 'suffix':
+        return '連語形 (smikhut): 人称接尾辞 -%s (%s)「%sの」が付いた形 →「%sの%s」' % (
+            script.translit(surface), script.isolate(surface), gloss, gloss, own)
+    if kind == 'noun':
+        return '連語形 (smikhut): 後ろの %s (%s)「%s」と組んで「%sの%s」' % (
+            script.translit(surface), script.isolate(surface), gloss, gloss, own)
+    return '連語形 (smikhut): 後ろの名詞と組んで「〜の%s」となる形 (ここでは後ろに名詞が無い)' % own
+
+
 def notes(word):
     """語の解説の行 (動詞・分詞は語根・態・型、名詞・形容詞は語根)"""
     if not word.items:
@@ -57,6 +70,8 @@ def notes(word):
     lemma = item.attrib('lemma')
     entry = dictionary.lexicon(lemma) if lemma else None
     root = entry.get('root') if entry else None
+    if item.pos in ('noun', 'adj', 'participle') and item.attrib('state') == 'construct':
+        lines.append(construct_note(item))
     if item.pos in ('verb', 'participle'):
         if root:
             lines.append('語根 ' + root_text(root))

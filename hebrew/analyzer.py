@@ -80,11 +80,39 @@ def _words(token, ix):
         word.token_ix = ix
         return [word]
     out = []
-    for surface, item in morphology.segments(found[0]):
+    for k, (surface, item) in enumerate(morphology.segments(found[0])):
         word = Word(surface, [item])
         word.token_ix = ix
+        # 同じ綴りで連語形の解析もある名詞 (רוּחַ「霊」は絶対形と連語形が同じ形) は、その項目を持っておく
+        construct = _construct_alternative(found, k)
+        if construct is not None and item.get('state') == 'absolute':
+            word.construct_item = construct
         out.append(word)
     return out
+
+
+def _construct_alternative(found, k):
+    """OSHB の解析の候補のうち、切れ目 k が連語形の名詞で、ほかの切れ目は1つ目の解析と同じもの (の項目)"""
+    first = morphology.segments(found[0])
+    for analysis in found[1:]:
+        segments = morphology.segments(analysis)
+        if len(segments) != len(first) or segments[k][1].get('state') != 'construct':
+            continue
+        if all(a[1]['pos'] == b[1]['pos'] for a, b in zip(first, segments)):
+            return segments[k][1]
+    return None
+
+
+def choose_construct(words):
+    """連語形とも読める名詞は、すぐ後ろ (冠詞を除く) が名詞なら連語形に (רוּחַ אֱלֹהִים「神の霊」)"""
+    for i, word in enumerate(words):
+        construct = getattr(word, 'construct_item', None)
+        if construct is None:
+            continue
+        nxt = next((w for w in words[i + 1:] if w.items is not None and
+                    not (w.items and w.items[0].pos == 'article')), None)
+        if nxt is not None and nxt.items and nxt.items[0].pos == 'noun' and not nxt.items[0].attrib('suffix'):
+            word.items = [type(word.items[0])(construct)]
 
 
 def _nominal(word):
@@ -121,6 +149,13 @@ def mark_construct(words):
         if item.pos in ('noun', 'adj', 'participle') and item.attrib('state') == 'construct':
             # すぐ後ろ (冠詞を除く) の名詞類だけ (動詞を越えない)
             nxt = next((w for w in words[i + 1:] if getattr(w, 'attached_to', None) is None), None)
+            # 組んでいる相手を書いておく (解説の「連語形」の行に使う)
+            if nxt is not None and nxt.items and nxt.items[0].attrib('suffix'):
+                item.item['construct_with'] = ('suffix', nxt.surface, nxt.items[0].ja)
+            elif nxt is not None and _nominal(nxt):
+                item.item['construct_with'] = ('noun', nxt.surface, nxt.items[0].ja.split(',')[0])
+            else:
+                item.item['construct_with'] = ('none', '', '')
             if nxt is not None and _nominal(nxt) and not nxt.items[0].attrib('suffix'):
                 for it in nxt.items:
                     if it._:
@@ -233,6 +268,7 @@ def mark_vocatives(words):
 def lookup_all(surfaces):
     words = [w for ix, s in enumerate(surfaces) for w in _words(s, ix)]
     mark_vocatives(words)
+    choose_construct(words)
     attach_markers(words)
     mark_construct(words)
     choose_subject(words)

@@ -127,6 +127,16 @@ class ExplainTestCase(unittest.TestCase):
         self.assertTrue(any('この語根の qal (BDB): Say' in line for line in lines), lines)
         self.assertTrue(any('wayyiqtol' in line for line in lines), lines)
 
+    def test_construct_state(self):
+        from hebrew import analyzer, explain
+        words = analyzer.lookup_all(analyzer.tokens('וְר֣וּחַ אֱלֹהִ֔ים מְרַחֶ֖פֶת'))
+        # רוּחַ は絶対形と連語形が同じ綴り: 後ろに名詞があるので連語形「神の霊」
+        self.assertEqual(words[1].items[0].attrib('state'), 'construct')
+        self.assertTrue(explain.notes(words[1])[0].startswith('連語形 (smikhut): 後ろの ʾĕlōhîm'))
+        words = analyzer.lookup_all(analyzer.tokens('יְהוָ֥ה רֹ֝עִ֗י'))
+        note = next(line for w in words for line in explain.notes(w) if line.startswith('連語形'))
+        self.assertIn('人称接尾辞', note)
+
     def test_noun_root(self):
         self.assertIn('(ʾ-l-h)', self.notes('אֱלֹהִים', 0)[0])
 
