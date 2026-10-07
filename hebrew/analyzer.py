@@ -48,9 +48,12 @@ HEBREW = language.Language(
 ATNAH = '\u0591'  # 節を前半と後半に分ける朗唱記号 (アトナハ ֑)
 
 
-# 聖書アラム語: 繋辞 הֲוָא「〜である」、否定 לָא。ほかはヘブライ語と同じ
-ARAMAIC = dataclasses.replace(HEBREW, name='arc', copulas=frozenset({'הֲוָא'}),
-                              negations=frozenset({'לָא', 'לָא־', 'אַל'}))
+# 聖書アラム語: 繋辞 הֲוָא「〜である」、否定 לָא。ほかはヘブライ語と同じ。
+# 文の中で言語が混ざっても否定・繋辞を取りこぼさないよう、どちらの設定にも両方の語を入れる
+COPULAS = frozenset({'הָיָה', 'הֲוָא'})
+NEGATIONS = frozenset({'לֹא', 'אַל', 'לֹא־', 'אַל־', 'לָא', 'לָא־'})
+HEBREW = dataclasses.replace(HEBREW, copulas=COPULAS, negations=NEGATIONS)
+ARAMAIC = dataclasses.replace(HEBREW, name='arc')
 
 
 def tokens(text):
