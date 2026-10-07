@@ -15,8 +15,9 @@
 #   python3 tools/samples.py --lang=ru       # ロシア語 (samples/russian.txt)
 #   python3 tools/samples.py --lang=he       # 聖書ヘブライ語 (samples/hebrew.txt)
 #   python3 tools/samples.py --lang=ar       # アラビア語 (samples/arabic.txt)
+#   python3 tools/samples.py --lang=fa       # ペルシア語 (samples/persian.txt)
 #
-#   --lang=la|grc|sa|ru|he|ar 言語 (既定は la。ラテン語)
+#   --lang=la|grc|sa|ru|he|ar|fa 言語 (既定は la。ラテン語)
 #   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
 #   -r, --romanize      ラテン文字以外の文に転写を添える (-d なら語ごとにも)
 #   -l, --list          節の見出しの一覧を表示する
@@ -39,7 +40,8 @@ from latin import latindic, analyzer, macronizer
 DEFAULT_FILE = os.path.join(ROOT, 'samples', 'samples.txt')
 LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.txt'),
               'sa': os.path.join(ROOT, 'samples', 'sanskrit.txt'), 'ru': os.path.join(ROOT, 'samples', 'russian.txt'),
-              'he': os.path.join(ROOT, 'samples', 'hebrew.txt'), 'ar': os.path.join(ROOT, 'samples', 'arabic.txt')}
+              'he': os.path.join(ROOT, 'samples', 'hebrew.txt'), 'ar': os.path.join(ROOT, 'samples', 'arabic.txt'),
+              'fa': os.path.join(ROOT, 'samples', 'persian.txt')}
 
 
 def analyzer_for(lang):
@@ -59,6 +61,9 @@ def analyzer_for(lang):
     if lang == 'ar':
         from arabic import analyzer as arabic_analyzer
         return arabic_analyzer.analyze_text
+    if lang == 'fa':
+        from persian import analyzer as persian_analyzer
+        return persian_analyzer.analyze_text
     return analyzer.analyze_text
 AUTO_MACRON = '[auto-macron]'
 ANSI = re.compile(r'\x1b\[[0-9;]*m')
@@ -109,6 +114,9 @@ def romanizer(lang):
     if lang == 'ar':
         from arabic import script as arabic_script
         return None, arabic_script.translit  # 文の転写は解析の後で (選んだ読み・格の語尾から)
+    if lang == 'fa':
+        from persian import script as persian_script
+        return None, persian_script.rough_translit  # 文の転写は解析の後で (辞書の転写とエザーフェから)
     return None, None
 
 
@@ -143,6 +151,9 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
                     from arabic import analyzer as arabic_analyzer, script as arabic_script
                     vocalized, latin = arabic_analyzer.sentence_text(analysis.forms)
                     print('  %s  (%s)' % (arabic_script.isolate(vocalized), latin))
+                elif lang == 'fa':
+                    from persian import analyzer as persian_analyzer
+                    print('  (%s)' % persian_analyzer.sentence_text(analysis.forms)[1])  # エザーフェを補った転写
                 if mode == 'brief':
                     brief(analysis)
                 else:

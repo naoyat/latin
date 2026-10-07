@@ -52,6 +52,8 @@ class SamplesTestCase(unittest.TestCase):
             langs.append(('ar', arabic_dictionary.available() and arabic_morphology.available()))
         except ImportError:
             pass
+        from persian import dictionary as persian_dictionary
+        langs.append(('fa', persian_dictionary.available()))
         for lang, available in langs:
             sections = samples.read_sections(samples.LANG_FILES[lang])
             self.assertTrue(all(title and sentences for title, sentences in sections), lang)

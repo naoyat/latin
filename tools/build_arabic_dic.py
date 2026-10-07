@@ -25,7 +25,8 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from arabic import dictionary, script
-from core.wiktionary_import import english_glosses, japanese_gloss, descendants_summary, etymology_summary
+from core.wiktionary_import import (english_glosses, japanese_gloss, descendants_summary, etymology_summary,
+                                   japanese_translation_pairs)
 
 POS = {'noun': 'noun', 'name': 'name', 'adj': 'adj', 'num': 'num', 'pron': 'pronoun', 'det': 'pronoun',
        'verb': 'verb', 'adv': 'adv', 'conj': 'conj', 'particle': 'particle', 'prep': 'preposition', 'intj': 'intj'}
@@ -47,36 +48,6 @@ def load_japanese_glosses(path):
                 if gloss and entry.get('pos') in POS:
                     glosses.setdefault((script.normalize(entry['word']), POS[entry['pos']]), gloss)
     return glosses
-
-
-KANA = re.compile('^[ぁ-ゖー]+$')
-
-
-def load_translation_glosses(path):
-    """日本語版 Wiktionary の日本語の項目の訳語の表 (アラビア語) を逆に引く: (キー, 品詞) → [(アラビア語の形, 日本語の見出し語)]。
-    かなだけの見出し語は、語義の説明の頭の漢字の語にする (は「葉　語義1」→ 葉)"""
-    out = {}
-    if not os.path.exists(path):
-        return out
-    with gzip.open(path, 'rt') as fp:
-        for line in fp:
-            if '"lang_code": "ar"' not in line:
-                continue
-            entry = json.loads(line)
-            if entry.get('lang_code') != 'ja' or entry.get('pos') not in POS:
-                continue
-            for t in entry.get('translations', []):
-                if t.get('lang_code') != 'ar' or not script.is_arabic(t.get('word', '')):
-                    continue
-                ja = entry['word']
-                sense = (t.get('sense') or '').split()[0] if t.get('sense') else ''
-                if KANA.match(ja) and sense and not KANA.match(sense) and len(sense) <= 6:
-                    ja = sense
-                key = (script.normalize(t['word']), POS[entry['pos']])
-                pairs = out.setdefault(key, [])
-                if ja not in [j for _, j in pairs]:
-                    pairs.append((t['word'], ja))
-    return out
 
 
 def translation_gloss(pairs, vocalized):
@@ -119,7 +90,7 @@ def main():
     t0 = time.time()
     ja_path = os.path.join(os.path.dirname(dictionary.DATA_DIR), 'ja-extract.jsonl.gz')
     ja = load_japanese_glosses(ja_path)
-    translations = load_translation_glosses(ja_path)
+    translations = japanese_translation_pairs(ja_path, 'ar', script.normalize, POS)
     used = set()
     out = dictionary.DB_PATH
     tmp = out + '.tmp'

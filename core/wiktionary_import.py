@@ -539,3 +539,38 @@ def etymology_summary(entry):
     if not (ancestors or cognates or text):
         return None
     return {'ancestors': ancestors, 'cognates': cognates, 'text': text}
+
+
+KANA_ONLY = re.compile('^[ぁ-ゖー]+$')
+
+
+def japanese_translation_pairs(path, lang_code, normalize, pos_map):
+    """日本語版 Wiktionary の日本語の項目の訳語の表を逆に引く: (キー, 品詞) → [(訳語の表の語形, 日本語の見出し語)]。
+    キーは normalize(語形)、品詞は pos_map で変換したもの。かなだけの見出し語は、語義の説明の頭の漢字の語にする
+    (は「葉　語義1」→ 葉)。ja-extract.jsonl.gz (日本語版 Wiktionary の抽出) を読む"""
+    import gzip
+    import json
+    import os
+    out = {}
+    if not os.path.exists(path):
+        return out
+    needle = '"lang_code": "%s"' % lang_code
+    with gzip.open(path, 'rt') as fp:
+        for line in fp:
+            if needle not in line:
+                continue
+            entry = json.loads(line)
+            if entry.get('lang_code') != 'ja' or entry.get('pos') not in pos_map:
+                continue
+            for t in entry.get('translations', []):
+                if t.get('lang_code') != lang_code or not t.get('word'):
+                    continue
+                ja = entry['word']
+                sense = (t.get('sense') or '').split()[0] if (t.get('sense') or '').split() else ''
+                if KANA_ONLY.match(ja) and sense and not KANA_ONLY.match(sense) and len(sense) <= 6 and \
+                        not re.search(r'語義|[0-9０-９;；:：(（]', sense):
+                    ja = sense
+                pairs = out.setdefault((normalize(t['word']), pos_map[entry['pos']]), [])
+                if ja not in [j for _, j in pairs]:
+                    pairs.append((t['word'], ja))
+    return out

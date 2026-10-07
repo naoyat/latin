@@ -73,6 +73,8 @@ class Predicate (LatinObject):
 
     def _negative(self):
         """否定の副詞 (nōn, не, нет, οὐ, na) がある文か"""
+        if self.first_item.attrib('negative'):
+            return True  # 否定の接頭辞の付いた動詞 (ペルシア語の نمی‌روم「行かない」)
         words = list(self.modifiers) + ([self.conjunction] if self.conjunction else [])
         return any(is_negation(w, self.language) or
                    (isinstance(w, Word) and w.items and w.items[0].ja.endswith(('〜ない', '〜しない')))
@@ -271,6 +273,8 @@ class Predicate (LatinObject):
         for clause in case_slot.get('Inf', []):
             tr.append(clause.translate()[0])
 
+        if verb.attrib('negative'):
+            negated = True  # 否定の接頭辞の付いた動詞 (ペルシア語の na- / ne-)
         # adverb
         for adv in self.modifiers:
             if is_negation(adv, self.language):
