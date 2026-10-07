@@ -54,6 +54,18 @@ def lexicon(aug):
     return dict(zip(('word', 'xlit', 'pos', 'ja', 'gloss_lang', 'strong', 'root'), row))
 
 
+def verb_forms(root):
+    """語根 (子音だけ) の動詞の形 [{lemma, stem, type, pgn, form, lang, count, bare}] (OSHB に現れたもの)。
+    bare は接頭辞も人称接尾辞も付いていない語"""
+    db = _connect()
+    if db is None:
+        return []
+    keys = ('lemma', 'stem', 'type', 'pgn', 'form', 'lang', 'count', 'bare')
+    return [dict(zip(keys, row)) for row in db.execute(
+        'SELECT lemma, stem, type, pgn, form, lang, count, bare FROM verbs WHERE root = ? ORDER BY count DESC',
+        (script.consonants(root),)).fetchall()]
+
+
 def _rows(table, key):
     db = _connect()
     if db is None or not key:

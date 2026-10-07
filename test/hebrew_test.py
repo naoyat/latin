@@ -54,6 +54,35 @@ class MorphCodeTestCase(unittest.TestCase):
         self.assertEqual((item['pos'], item['ja']), ('article', ''))
 
 
+class BinyanTemplateTestCase(unittest.TestCase):
+    """強い語根の型から態の型の形を作る (辞書を引かない)"""
+
+    def generate(self, root, stem, column):
+        from hebrew import binyan
+        return binyan.generate(root, stem, column)
+
+    def assertEqual(self, first, second, msg=None):
+        import unicodedata
+        nfc = lambda t: unicodedata.normalize('NFC', t) if isinstance(t, str) else t
+        super().assertEqual(nfc(first), nfc(second), msg)
+
+    def test_ktb(self):
+        self.assertEqual(self.generate('כתב', 'qal', 'qatal'), 'כָּתַב')
+        self.assertEqual(self.generate('כתב', 'qal', 'yiqtol'), 'יִכְתֹּב')       # 黙字のシェヴァの後ろの ת にダゲシュ
+        self.assertEqual(self.generate('כתב', 'niphal', 'qatal'), 'נִכְתַּב')
+        self.assertEqual(self.generate('כתב', 'piel', 'qatal'), 'כִּתֵּב')         # 2字目を重ねる
+        self.assertEqual(self.generate('כתב', 'hiphil', 'qatal'), 'הִכְתִּיב')
+        self.assertEqual(script.translit(self.generate('כתב', 'hiphil', 'qatal')), 'hiḵtîv')
+
+    def test_sibilant_metathesis(self):
+        self.assertEqual(self.generate('שמר', 'hithpael', 'qatal'), 'הִשְׁתַּמֵּר')  # hit-šammēr → hištammēr
+
+    def test_root_input(self):
+        from hebrew import binyan
+        self.assertEqual(binyan.parse_root('ktb'), 'כתב')
+        self.assertEqual(binyan.parse_root('כתב'), 'כתב')
+
+
 @unittest.skipUnless(HAVE_DATA, 'ヘブライ語の辞書 (tools/build_hebrew_dic.py) が無い')
 class ExplainTestCase(unittest.TestCase):
     """初学者向けの解説: 動詞の語根・態の型・時制の型"""

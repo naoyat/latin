@@ -14,7 +14,8 @@
 # 出力:
 #   hebrew.sqlite
 #     forms   (key: 朗唱記号を除いた語形, cons: 子音だけ, segments, lemmas, morph, count)
-#     lexicon (aug: 見出し語の番号 → 語・転写・品詞・語義・日本語訳)
+#     lexicon (aug: 見出し語の番号 → 語・転写・品詞・語義・日本語訳・語根)
+#     verbs   (語根・態・時制の型・人称性数 → 動詞の形と回数。態の型の表 hebrew/binyan.py に使う)
 #
 import os
 import re
@@ -138,6 +139,8 @@ def main():
         CREATE TABLE forms (key TEXT, cons TEXT, segments TEXT, lemmas TEXT, morph TEXT, count INTEGER);
         CREATE TABLE lexicon (aug TEXT PRIMARY KEY, word TEXT, xlit TEXT, pos TEXT, ja TEXT, gloss_lang TEXT, strong TEXT,
                               root TEXT);
+        CREATE TABLE verbs (root TEXT, lemma TEXT, stem TEXT, type TEXT, pgn TEXT, form TEXT, lang TEXT, count INTEGER,
+                            bare INTEGER);
         CREATE TABLE descendants (lemma TEXT, pos TEXT, data TEXT);
         CREATE TABLE etymology (lemma TEXT, pos TEXT, data TEXT);
     ''')
@@ -145,6 +148,23 @@ def main():
         db.execute('INSERT INTO forms VALUES (?, ?, ?, ?, ?, ?)',
                    (key, script.consonants(key), json.dumps(segments, ensure_ascii=False),
                     json.dumps(ids), morph, n))
+    # 動詞の形 (語根ごと)
+    verbs = collections.Counter()
+    for (key, segments, ids, morph), n in forms.items():
+        codes = morph[1:].split('/')
+        for k, code in enumerate(codes):
+            if not code.startswith('V') or k >= len(segments) or k >= len(ids):
+                continue
+            entry = lexical.get(aug_index.get(ids[k], ''), {})
+            root = script.consonants(entry.get('root') or entry.get('word') or '')
+            if not root:
+                continue
+            stem, vtype, rest = code[1:2], code[2:3], code[3:]
+            bare = k == 0 and k == len(codes) - 1  # 接頭辞 (ו など) も人称接尾辞も付いていない語
+            verbs[(root, ids[k], stem, vtype, rest, segments[k], morph[:1], bare)] += n
+    for (root, lemma, stem, vtype, pgn, form, lang, bare), n in verbs.items():
+        db.execute('INSERT INTO verbs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                   (root, lemma, stem, vtype, pgn, form, lang, n, int(bare)))
     n_ja = 0
     for aug in sorted(used):
         entry = lexical.get(aug_index.get(aug, ''), None)
@@ -184,6 +204,7 @@ def main():
     db.executescript('''
         CREATE INDEX forms_key ON forms (key);
         CREATE INDEX forms_cons ON forms (cons);
+        CREATE INDEX verbs_root ON verbs (root);
         CREATE INDEX descendants_lemma ON descendants (lemma);
         CREATE INDEX etymology_lemma ON etymology (lemma);
     ''')

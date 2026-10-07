@@ -12,6 +12,7 @@
 #   -s, --speech           音読する (macOS の say のヘブライ語音声 Carmit。現代ヘブライ語の発音)
 #   -r, --romanize         語ごとの辞書引きの結果に、語の転写を添える
 #   --no-explain           動詞の語根・態の型 (binyan)・時制の型、名詞の語根の解説を出さない
+#   --binyan=ROOT          語根 (כתב / ktb / 語形でも) の態の型の表を出す (聖書に現れた形と、規則から作った形 *)
 #
 # 見出しの行は、ヘブライ文字 (右から左。Unicode の隔離記号で囲む) と転写を並べる
 #
@@ -47,10 +48,14 @@ def sentence_text(surfaces):
 
 def main():
     opts, args = getopt.getopt(sys.argv[1:], 'wDEsrh', ['no-word-detail', 'descendants', 'etymology', 'speech',
-                                                        'romanize', 'no-explain', 'help'])
+                                                        'romanize', 'no-explain', 'binyan=', 'help'])
     show_word_detail, show_descendants, show_etymology, speech_mode = True, False, False, False
     romanize, show_explanation = False, True
-    for option, _ in opts:
+    for option, arg in opts:
+        if option == '--binyan':
+            from hebrew import binyan
+            print('\n'.join(binyan.table(arg)))
+            return
         if option in ('-w', '--no-word-detail'):
             show_word_detail = False
         elif option in ('-D', '--descendants'):
