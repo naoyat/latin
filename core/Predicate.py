@@ -303,8 +303,10 @@ class Predicate (LatinObject):
         tense = verb.attrib('tense')
         if tense == 'imperfect':
             flag |= Verb.PAST | Verb.ING
-        elif tense in ('perfect', 'aorist'):  # ギリシア語のアオリストは過去の形で
+        elif tense in ('perfect', 'aorist', 'pluperfect'):  # ギリシア語のアオリストは過去の形で
             flag |= Verb.PERFECT
+        elif tense == 'progressive':
+            flag |= Verb.ING  # 現在進行 (ヒンディー語の पढ़ रहा है「読んでいる」)
         elif tense == 'future':
             flag |= Verb.FUTURE
 

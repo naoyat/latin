@@ -861,7 +861,7 @@ def detect_genitive_correspondances(words, trace):
             if word.surface in _coordinators() or first_item.pos == 'preposition':
                 blocks[i] = word
                 continue
-            if first_item.pos == 'verb' and language.current().genitive_follows_head:
+            if first_item.pos == 'verb' and (language.current().genitive_follows_head or language.current().genitive_precedes_head):
                 blocks[i] = word  # 動詞を越えて掛けない (рефери дисквалифицировал Диксона: 対格の Диксона)
                 continue
             if first_item.pos == 'adj' and first_item.attrib('base') == 'plēnus':
@@ -893,6 +893,8 @@ def detect_genitive_correspondances(words, trace):
                 return i
             return -1
 
+        if language.current().genitive_precedes_head:
+            return sub(gen_ix+1, M, 1)  # 後ろの名詞にだけ掛ける
         pre = sub(gen_ix-1, -1, -1)
         if pre >= 0: return pre
         if language.current().genitive_follows_head:

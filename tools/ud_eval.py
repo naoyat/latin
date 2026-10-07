@@ -9,6 +9,7 @@
 #   python3 tools/ud_eval.py --lang=ru [--source=gsd,taiga,syntagrus] ロシア語
 #   python3 tools/ud_eval.py --lang=ar                               アラビア語
 #   python3 tools/ud_eval.py --lang=fa [--source=perdt,seraji]       ペルシア語
+#   python3 tools/ud_eval.py --lang=hi                               ヒンディー語
 #
 # 古典ギリシア語 (--lang=grc) の既定は $LATIN_DATA/grc/ud/grc_*-ud-*.conllu (UD Ancient Greek-PROIEL / Perseus,
 # CC BY-NC-SA) のうち、新約聖書とヘロドトス『歴史』。マクロンの推定・品詞タガーは使わない。
@@ -27,6 +28,10 @@
 #
 # ペルシア語 (--lang=fa) の既定は $LATIN_DATA/fa/ud/fa_*-ud-test.conllu (UD Persian-PerDT, Seraji。CC BY-SA 4.0)。
 # 格の無い言語なので格は測らず、属格→名詞 の項目はエザーフェでつながった名詞 (nmod) を測る。
+#
+# ヒンディー語 (--lang=hi) の既定は $LATIN_DATA/hi/ud/hi_hdtb-ud-test.conllu (UD Hindi-HDTB, CC BY-NC-SA 4.0)。
+# UD の格 (直格 Nom・斜格 Acc) と解析器の格 (後置詞の働きで読み替えた主格・対格・与格・属格) は体系が違うので格は測らず、
+# 属格→名詞 は名詞に掛かる名詞 (nmod) を測る。
 #
 # 既定は $LATIN_DATA/ud/la_proiel-ud-*.conllu (UD Latin-PROIEL, CC BY-NC-SA 3.0。リポジトリには入れない)
 # のうち、カエサル『ガリア戦記』とキケロ『義務について』『アッティクス宛書簡』の文。
@@ -55,6 +60,7 @@ from sanskrit import analyzer as sanskrit_analyzer
 from russian import analyzer as russian_analyzer
 from arabic import analyzer as arabic_analyzer
 from persian import analyzer as persian_analyzer
+from hindi import analyzer as hindi_analyzer
 from core.Word import Word
 from core.AndOr import AndOr
 from core.PrepClause import PrepClause
@@ -67,6 +73,7 @@ SANSKRIT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'sa', 'ud', 'sa_*-ud-te
 RUSSIAN_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ru', 'ud', 'ru_*-ud-test.conllu')))
 ARABIC_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ar', 'ud', 'ar_*-ud-test.conllu')))
 PERSIAN_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'fa', 'ud', 'fa_*-ud-test.conllu')))
+HINDI_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'hi', 'ud', 'hi_*-ud-test.conllu')))
 # Perseus の作品番号 (TLG) → 作品
 TLG_WORKS = {'tlg0012': 'homer', 'tlg0016': 'herodotus', 'tlg0003': 'thucydides', 'tlg0011': 'sophocles',
              'tlg0085': 'aeschylus', 'tlg0006': 'euripides', 'tlg0020': 'hesiod', 'tlg0008': 'athenaeus',
@@ -248,7 +255,8 @@ def words_in(node):
 
 def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
     greek, sanskrit, russian, arabic = lang == 'grc', lang == 'sa', lang == 'ru', lang == 'ar'
-    persian = lang == 'fa'
+    persian = lang in ('fa', 'hi')  # 格を測らず、nmod を属格として測る言語
+    hindi = lang == 'hi'
     mwt = arabic or persian  # 書かれたとおりの語を渡し、解析器の切れ目を UD の語に対応させる
     if greek or sanskrit or russian or mwt:
         macronize = False  # マクロンの推定はラテン語だけ
@@ -283,6 +291,7 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
         try:
             analysis = (greek_analyzer.analyze_sentence(surfaces) if greek
                         else arabic_analyzer.analyze_sentence(surfaces) if arabic
+                        else hindi_analyzer.analyze_sentence(surfaces) if hindi
                         else persian_analyzer.analyze_sentence(surfaces) if persian
                         else sanskrit_analyzer.analyze_sentence(surfaces) if sanskrit
                         else russian_analyzer.analyze_sentence(surfaces) if russian
@@ -303,7 +312,7 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
                 continue
             stats['tokens'] += 1
             stats['covered'] += bool(word.items)
-            if not (gold.nominal and gold.case):
+            if hindi or not (gold.nominal and gold.case):
                 continue
             stats['case_total'] += 1
             cases = [cng[0] for item in (word.items or []) for cng in (item._ or [])]
@@ -462,16 +471,16 @@ def main():
         elif option == '--no-wiktionary':
             latindic.LatinDic.use_wiktionary = False
         elif option in ('-h', '--help'):
-            print('Usage: python %s [--lang=la|grc|sa|ru|ar|fa] [--source=caesar,cicero-off,cicero-att,vulgate,other] [--limit=N] '
+            print('Usage: python %s [--lang=la|grc|sa|ru|ar|fa|hi] [--source=caesar,cicero-off,cicero-att,vulgate,other] [--limit=N] '
                   '[-e N] [--no-macronize] [--no-tagger] [--no-wiktionary] [FILE.conllu...]' % sys.argv[0])
             sys.exit()
     if sources is None:
         sources = ({'nt', 'herodotus'} if lang == 'grc' else {'vedic', 'ufal'} if lang == 'sa'
                    else {'gsd', 'taiga', 'syntagrus'} if lang == 'ru' else {'padt'} if lang == 'ar'
-                   else {'perdt', 'seraji'} if lang == 'fa'
+                   else {'perdt', 'seraji'} if lang == 'fa' else {'hdtb'} if lang == 'hi'
                    else {'caesar', 'cicero-off', 'cicero-att'})
     files = files or {'grc': GREEK_FILES, 'sa': SANSKRIT_FILES, 'ru': RUSSIAN_FILES,
-                      'ar': ARABIC_FILES, 'fa': PERSIAN_FILES}.get(lang, DEFAULT_FILES)
+                      'ar': ARABIC_FILES, 'fa': PERSIAN_FILES, 'hi': HINDI_FILES}.get(lang, DEFAULT_FILES)
     if not files:
         sys.exit('no CoNLL-U files (put UD Latin-PROIEL in %s/ud/)' % DATA_DIR)
     latindic.load()
