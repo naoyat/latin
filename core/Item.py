@@ -67,6 +67,10 @@ class Item:
             return get_base('base') + '%s.%s%s' % (self.pos[:3], self.ja, cases)
         elif self.pos == 'preposition':
             return 'prep<%s> %s' % (self.dominates, self.ja)
+        elif self.item.get('compact'):
+            # 解析の内部の値を並べない語 (アラビア語の機能語・代名詞)
+            cases = ' [%s]' % short_(self._) if self._ else ''
+            return get_base('base') + '%s.%s%s' % (self.pos[:4], self.ja, cases)
         else:
             if len(self.item) > 0:
                 item_ = self.item.copy()

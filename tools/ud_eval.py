@@ -7,6 +7,7 @@
 #   python3 tools/ud_eval.py --lang=grc [--source=nt,herodotus]     古典ギリシア語
 #   python3 tools/ud_eval.py --lang=sa [--source=vedic,ufal]         サンスクリット
 #   python3 tools/ud_eval.py --lang=ru [--source=gsd,taiga,syntagrus] ロシア語
+#   python3 tools/ud_eval.py --lang=ar                               アラビア語
 #
 # 古典ギリシア語 (--lang=grc) の既定は $LATIN_DATA/grc/ud/grc_*-ud-*.conllu (UD Ancient Greek-PROIEL / Perseus,
 # CC BY-NC-SA) のうち、新約聖書とヘロドトス『歴史』。マクロンの推定・品詞タガーは使わない。
@@ -18,6 +19,10 @@
 #
 # ロシア語 (--lang=ru) の既定は $LATIN_DATA/ru/ud/ru_*-ud-test.conllu (UD Russian-GSD, Taiga (CC BY-SA 4.0)、
 # SynTagRus (CC BY-NC-SA 4.0))。独立奪格にあたる構文は無い。
+#
+# アラビア語 (--lang=ar) の既定は $LATIN_DATA/ar/ud/ar_padt-ud-test.conllu (UD Arabic-PADT, CC BY-NC-SA 3.0。
+# 新聞記事)。解析器には書かれたとおりの語 (接続詞・前置詞・人称接尾辞の付いた形) を渡し、解析器が分けた切れ目を
+# UD の語 (複合語の行の中の語) に対応させる。
 #
 # 既定は $LATIN_DATA/ud/la_proiel-ud-*.conllu (UD Latin-PROIEL, CC BY-NC-SA 3.0。リポジトリには入れない)
 # のうち、カエサル『ガリア戦記』とキケロ『義務について』『アッティクス宛書簡』の文。
@@ -44,6 +49,7 @@ from latin import latindic, analyzer, macronizer
 from greek import analyzer as greek_analyzer
 from sanskrit import analyzer as sanskrit_analyzer
 from russian import analyzer as russian_analyzer
+from arabic import analyzer as arabic_analyzer
 from core.Word import Word
 from core.AndOr import AndOr
 from core.PrepClause import PrepClause
@@ -54,6 +60,7 @@ DEFAULT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ud', 'la_proiel-ud-*.co
 GREEK_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'grc', 'ud', 'grc_*-ud-*.conllu')))
 SANSKRIT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'sa', 'ud', 'sa_*-ud-test.conllu')))
 RUSSIAN_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ru', 'ud', 'ru_*-ud-test.conllu')))
+ARABIC_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ar', 'ud', 'ar_*-ud-test.conllu')))
 # Perseus の作品番号 (TLG) → 作品
 TLG_WORKS = {'tlg0012': 'homer', 'tlg0016': 'herodotus', 'tlg0003': 'thucydides', 'tlg0011': 'sophocles',
              'tlg0085': 'aeschylus', 'tlg0006': 'euripides', 'tlg0020': 'hesiod', 'tlg0008': 'athenaeus',
@@ -113,7 +120,9 @@ class Token:
 
 
 def read_conllu(path):
+    """(メタデータ, 語の列)。複合語の行 (16-18 بموجبه) の中の語には、書かれた形 (orth) と先頭の語の番号 (orth_start) を付ける"""
     meta, tokens = {}, []
+    mwt = None
     for line in open(path, encoding='utf-8'):
         line = line.rstrip('\n')
         if not line:
@@ -123,8 +132,15 @@ def read_conllu(path):
         elif line.startswith('#'):
             key, _, value = line[2:].partition(' = ')
             meta[key] = value
-        elif '-' not in line.split('\t', 1)[0] and '.' not in line.split('\t', 1)[0]:
-            tokens.append(Token(line.split('\t')))
+        elif '-' in line.split('\t', 1)[0]:
+            fields = line.split('\t')
+            start, end = fields[0].split('-')
+            mwt = (int(start), int(end), fields[1])
+        elif '.' not in line.split('\t', 1)[0]:
+            token = Token(line.split('\t'))
+            if mwt and mwt[0] <= int(token.id) <= mwt[1]:
+                token.orth, token.orth_start = mwt[2], mwt[0]
+            tokens.append(token)
     if tokens:
         yield meta, tokens
 
@@ -140,6 +156,49 @@ def surfaces_of(tokens):
         words.append(token.form)
         owners.append(token)
     return words, owners
+
+
+def arabic_surfaces(tokens):
+    """書かれたとおりの語の列と、語の位置 → 正解の語のリスト"""
+    words, owners = [], []
+    for token in tokens:
+        start = getattr(token, 'orth_start', None)
+        if start is not None and owners and getattr(owners[-1][0], 'orth_start', None) == start:
+            owners[-1].append(token)
+            continue
+        words.append(getattr(token, 'orth', token.form))
+        owners.append([token])
+    return words, owners
+
+
+CONTENT_UPOS = ('NOUN', 'PROPN', 'VERB', 'ADJ', 'NUM', 'X', 'PRON', 'DET', 'ADV', 'AUX')
+
+
+def arabic_word_map(analysis, owners):
+    """解析器の切れ目 → 正解の語: 数が同じなら順に、違えば本体を内容語に、接頭辞・人称接尾辞を残りに順に"""
+    by_ix = {}
+    for word in analysis.words:
+        ix = getattr(word, 'token_ix', None)
+        if ix is not None and ix < len(owners) and not word.surface.startswith('('):
+            by_ix.setdefault(ix, []).append(word)
+    mapping = {}
+    for ix, words in by_ix.items():
+        golds = owners[ix]
+        if len(words) == len(golds):
+            mapping.update((id(w), g) for w, g in zip(words, golds))
+            continue
+        stem = next((w for w in words if getattr(w, 'reading', None) is not None), words[-1])
+        content = next((g for g in golds if g.upos in CONTENT_UPOS and g.upos != 'PRON'), golds[-1])
+        mapping[id(stem)] = content
+        rest_w = [w for w in words if w is not stem]
+        rest_g = [g for g in golds if g is not content]
+        before_w = [w for w in rest_w if words.index(w) < words.index(stem)]
+        after_w = [w for w in rest_w if words.index(w) > words.index(stem)]
+        before_g = [g for g in rest_g if int(g.id) < int(content.id)]
+        after_g = [g for g in rest_g if int(g.id) > int(content.id)]
+        mapping.update((id(w), g) for w, g in zip(before_w, before_g))
+        mapping.update((id(w), g) for w, g in zip(after_w, after_g))
+    return mapping
 
 
 def word_map(analysis, owners):
@@ -173,8 +232,8 @@ def words_in(node):
 
 
 def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
-    greek, sanskrit, russian = lang == 'grc', lang == 'sa', lang == 'ru'
-    if greek or sanskrit or russian:
+    greek, sanskrit, russian, arabic = lang == 'grc', lang == 'sa', lang == 'ru', lang == 'ar'
+    if greek or sanskrit or russian or arabic:
         macronize = False  # マクロンの推定はラテン語だけ
     absolute_case = 'Gen' if greek else 'Loc' if sanskrit else 'Abl'  # 独立奪格 / 属格独立 / 処格独立
     stats = collections.Counter()
@@ -183,7 +242,7 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
     for path in files:
         for meta, tokens in read_conllu(path):
             work = (greek_work_of(meta) if greek else sanskrit_work_of(meta) if sanskrit
-                    else os.path.basename(path).split('_')[1].split('-')[0] if russian
+                    else os.path.basename(path).split('_')[1].split('-')[0] if russian or arabic
                     else work_of(meta.get('source', '')))
             if work in sources:
                 sentences.append(tokens)
@@ -191,7 +250,7 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
         sentences = sentences[:limit]
 
     # マクロンの推定は文書単位 (時制の傾向など) なので、まとめて行う
-    plain = [surfaces_of(tokens)[0] + ['.'] for tokens in sentences]
+    plain = [(arabic_surfaces(tokens) if arabic else surfaces_of(tokens))[0] + ['.'] for tokens in sentences]
     if macronize:
         context = macronizer.Context(frequency=macronizer.default_frequency())
         flat = macronizer.macronize_words([w for s in plain for w in s], context)
@@ -203,9 +262,10 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
                 else [None] * len(macronized))
 
     for tokens, surfaces, tags in zip(sentences, macronized, all_tags):
-        _, owners = surfaces_of(tokens)
+        _, owners = arabic_surfaces(tokens) if arabic else surfaces_of(tokens)
         try:
             analysis = (greek_analyzer.analyze_sentence(surfaces) if greek
+                        else arabic_analyzer.analyze_sentence(surfaces) if arabic
                         else sanskrit_analyzer.analyze_sentence(surfaces) if sanskrit
                         else russian_analyzer.analyze_sentence(surfaces) if russian
                         else analyzer.analyze_sentence(surfaces, tags))
@@ -213,7 +273,7 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
             stats['crashed'] += 1
             errors['crash']['%s: %s' % (type(e).__name__, ' '.join(surfaces)[:60])] += 1
             continue
-        gold_of = word_map(analysis, owners)
+        gold_of = arabic_word_map(analysis, owners) if arabic else word_map(analysis, owners)
         word_of = {gold.id: word for wid, gold in gold_of.items()
                    for word in analysis.words if id(word) == wid}
         by_id = {t.id: t for t in tokens}
@@ -304,6 +364,13 @@ def evaluate(files, sources, limit=0, show_errors=0, macronize=True, lang='la'):
             gold_verb = gold_of.get(id(pred.verb))  # 独立奪格・分詞句は分詞を述語として扱う
             if gold_verb is not None:
                 preds[gold_verb.id] = pred
+            elif isinstance(pred.verb, Word) and pred.verb.surface.startswith('('):
+                # 補った繋辞 (名詞文): UD では述語の名詞・形容詞が中心語なので、枠の中で主語を従える語を述語とみなす
+                for objs in pred.case_slot.values():
+                    for w in (w for node in objs for w in words_in(node)):
+                        gold = gold_of.get(id(w))
+                        if gold is not None and any(t.head == gold.id and t.deprel in SUBJ_RELS for t in tokens):
+                            preds.setdefault(gold.id, pred)
         cop_of = {t.head: t.id for t in tokens if t.deprel == 'cop'}
         heads = {t.head for t in tokens if t.deprel in SUBJ_RELS + ('obj',)}
         for head_id in heads:
@@ -377,14 +444,15 @@ def main():
         elif option == '--no-wiktionary':
             latindic.LatinDic.use_wiktionary = False
         elif option in ('-h', '--help'):
-            print('Usage: python %s [--lang=la|grc|sa|ru] [--source=caesar,cicero-off,cicero-att,vulgate,other] [--limit=N] '
+            print('Usage: python %s [--lang=la|grc|sa|ru|ar] [--source=caesar,cicero-off,cicero-att,vulgate,other] [--limit=N] '
                   '[-e N] [--no-macronize] [--no-tagger] [--no-wiktionary] [FILE.conllu...]' % sys.argv[0])
             sys.exit()
     if sources is None:
         sources = ({'nt', 'herodotus'} if lang == 'grc' else {'vedic', 'ufal'} if lang == 'sa'
-                   else {'gsd', 'taiga', 'syntagrus'} if lang == 'ru'
+                   else {'gsd', 'taiga', 'syntagrus'} if lang == 'ru' else {'padt'} if lang == 'ar'
                    else {'caesar', 'cicero-off', 'cicero-att'})
-    files = files or {'grc': GREEK_FILES, 'sa': SANSKRIT_FILES, 'ru': RUSSIAN_FILES}.get(lang, DEFAULT_FILES)
+    files = files or {'grc': GREEK_FILES, 'sa': SANSKRIT_FILES, 'ru': RUSSIAN_FILES,
+                      'ar': ARABIC_FILES}.get(lang, DEFAULT_FILES)
     if not files:
         sys.exit('no CoNLL-U files (put UD Latin-PROIEL in %s/ud/)' % DATA_DIR)
     latindic.load()

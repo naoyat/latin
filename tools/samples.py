@@ -14,8 +14,9 @@
 #   python3 tools/samples.py --lang=sa       # サンスクリット (samples/sanskrit.txt)
 #   python3 tools/samples.py --lang=ru       # ロシア語 (samples/russian.txt)
 #   python3 tools/samples.py --lang=he       # 聖書ヘブライ語 (samples/hebrew.txt)
+#   python3 tools/samples.py --lang=ar       # アラビア語 (samples/arabic.txt)
 #
-#   --lang=la|grc|sa|ru|he 言語 (既定は la。ラテン語)
+#   --lang=la|grc|sa|ru|he|ar 言語 (既定は la。ラテン語)
 #   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
 #   -r, --romanize      ラテン文字以外の文に転写を添える (-d なら語ごとにも)
 #   -l, --list          節の見出しの一覧を表示する
@@ -38,7 +39,7 @@ from latin import latindic, analyzer, macronizer
 DEFAULT_FILE = os.path.join(ROOT, 'samples', 'samples.txt')
 LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.txt'),
               'sa': os.path.join(ROOT, 'samples', 'sanskrit.txt'), 'ru': os.path.join(ROOT, 'samples', 'russian.txt'),
-              'he': os.path.join(ROOT, 'samples', 'hebrew.txt')}
+              'he': os.path.join(ROOT, 'samples', 'hebrew.txt'), 'ar': os.path.join(ROOT, 'samples', 'arabic.txt')}
 
 
 def analyzer_for(lang):
@@ -55,6 +56,9 @@ def analyzer_for(lang):
     if lang == 'he':
         from hebrew import analyzer as hebrew_analyzer
         return hebrew_analyzer.analyze_text
+    if lang == 'ar':
+        from arabic import analyzer as arabic_analyzer
+        return arabic_analyzer.analyze_text
     return analyzer.analyze_text
 AUTO_MACRON = '[auto-macron]'
 ANSI = re.compile(r'\x1b\[[0-9;]*m')
@@ -102,6 +106,9 @@ def romanizer(lang):
         from hebrew import script as hebrew_script
         return (lambda text: ' '.join(hebrew_script.translit(w) for w in hebrew_script.pointed(text).split()
                                       if hebrew_script.is_hebrew(w))), hebrew_script.translit
+    if lang == 'ar':
+        from arabic import script as arabic_script
+        return None, arabic_script.translit  # 文の転写は解析の後で (選んだ読み・格の語尾から)
     return None, None
 
 
@@ -131,6 +138,11 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
             elif romanize_text:
                 print('  (%s)' % romanize_text(text))
             for analysis in analyze_text(text):
+                if lang == 'ar':
+                    # 母音記号を補った形 (選んだ読みと格の語尾) と転写
+                    from arabic import analyzer as arabic_analyzer, script as arabic_script
+                    vocalized, latin = arabic_analyzer.sentence_text(analysis.forms)
+                    print('  %s  (%s)' % (arabic_script.isolate(vocalized), latin))
                 if mode == 'brief':
                     brief(analysis)
                 else:

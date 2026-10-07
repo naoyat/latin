@@ -47,6 +47,11 @@ class SamplesTestCase(unittest.TestCase):
             pass
         from hebrew import dictionary as hebrew_dictionary
         langs.append(('he', hebrew_dictionary.available()))
+        try:
+            from arabic import dictionary as arabic_dictionary, morphology as arabic_morphology
+            langs.append(('ar', arabic_dictionary.available() and arabic_morphology.available()))
+        except ImportError:
+            pass
         for lang, available in langs:
             sections = samples.read_sections(samples.LANG_FILES[lang])
             self.assertTrue(all(title and sentences for title, sentences in sections), lang)
