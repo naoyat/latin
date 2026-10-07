@@ -42,10 +42,10 @@ PARTICLES = {'a': ('adv', '実に'), 'e': ('adv', 'どうか'), 'i': ('adv', '�
 PERSONAL = {(1, 'sg'): '私', (2, 'sg'): 'あなた', (3, 'sg'): '彼', (1, 'pl'): '私たち', (2, 'pl'): 'あなたたち',
             (3, 'pl'): '彼ら'}
 NOMINAL_CASES = ('Nom', 'Acc')
-# 冠詞として名詞に付けて訳に出さない語の、語ごとの表示の説明 (訳には出ない)
-ARTICLE_NOTE = '定冠詞「その」: 次の字を重ねる (haš-šāmayim)。訳には出さない'
-ARTICLE_NOTE_GUTTURAL = '定冠詞「その」: 喉音・ר は重ねられないので母音を長く (hā-ʾāreṣ)。訳には出さない'
-OBJECT_MARKER_NOTE = '目的語の標識: 定まった目的語の前に置く。訳には出さない'
+# 冠詞として名詞に付けて訳に出さない語の、語ごとの表示の説明 (※ で始める。訳には出ない)
+ARTICLE_NOTE = ' ※定冠詞「その」: 次の字を重ねる (haš-šāmayim)。'
+ARTICLE_NOTE_GUTTURAL = ' ※定冠詞「その」: 喉音・ר は重ねられないので母音を長く (hā-ʾāreṣ)。'
+OBJECT_MARKER_NOTE = ' ※目的語の標識: 定まった目的語の前に置く。'
 
 
 def _cngs(gender, number, cases=NOMINAL_CASES):

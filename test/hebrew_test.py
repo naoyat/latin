@@ -60,7 +60,7 @@ class MorphCodeTestCase(unittest.TestCase):
     def test_object_marker_is_not_translated(self):
         item = morphology.segment_item('To', '853', 'אֵת')
         self.assertEqual(item['pos'], 'article')  # 冠詞と同じく名詞に付け、訳には出さない
-        self.assertTrue(item['ja'].startswith('目的語の標識'))
+        self.assertTrue(item['ja'].startswith(' ※目的語の標識'))
 
 
 class BinyanTemplateTestCase(unittest.TestCase):
