@@ -32,6 +32,12 @@ class ScriptTestCase(unittest.TestCase):
         self.assertEqual(script.translit('וְ'), 'wə')
         self.assertEqual(script.translit('וּ'), 'û')
 
+    def test_qere_of_divine_name(self):
+        # 音読では神の名を母音記号のとおりアドナイ (ヒリクの形はエロヒム) と読み替える
+        self.assertEqual(script.qere('יְהוָה רֹעִי'), 'אֲדֹנָי רֹעִי')
+        self.assertEqual(script.qere('אֲדֹנָי יֱהֹוִה'), 'אֲדֹנָי אֱלֹהִים')
+        self.assertTrue(script.qere('וַיהוָה').endswith('אֲדֹנָי'))
+
     def test_isolate(self):
         self.assertEqual(script.isolate('אוֹר'), '⁧אוֹר⁩')
         self.assertEqual(script.isolate('abc'), 'abc')

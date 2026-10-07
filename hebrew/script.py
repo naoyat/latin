@@ -130,6 +130,36 @@ def translit(word):
     return ''.join(out)
 
 
+ADONAI = 'אֲדֹנָי'
+ELOHIM = 'אֱלֹהִים'
+
+
+def qere(text):
+    """音読のための読み替え (qere perpetuum): 神の名 יְהוָה は母音記号のとおり אֲדֹנָי「アドナイ」と読む。
+    ヒリクの付いた形 (יֱהֹוִה。אֲדֹנָי יְהוִה と並ぶとき) は אֱלֹהִים「エロヒム」と読む (アドナイが重ならないように)。
+    前に付いた接頭辞 (וַיהוָה, לַיהוָה) はそのまま残す"""
+    out = []
+    for word in text.split():
+        letters = consonants(word)
+        base = letters.lstrip('ובלכמה') if letters.endswith('יהוה') else letters
+        if base == 'יהוה':
+            nfd = unicodedata.normalize('NFD', pointed(word))
+            prefix_len = len(letters) - 4
+            # 接頭辞の字 (と記号) を取り出す
+            head, count = '', 0
+            for c in nfd:
+                if LETTERS.match(c):
+                    if count == prefix_len:
+                        break
+                    count += 1
+                head += c
+            reading = ELOHIM if HIRIQ in nfd[len(head):] else ADONAI
+            out.append(unicodedata.normalize('NFC', head) + reading)
+        else:
+            out.append(word)
+    return ' '.join(out)
+
+
 def isolate(text):
     """右から左に書く文字列を隔離記号で囲む (左から右の文と混ぜても崩れないように)"""
     return RLI + text + PDI if is_hebrew(text) else text

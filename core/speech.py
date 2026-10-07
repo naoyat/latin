@@ -186,7 +186,8 @@ def _plain_text(text):
         return script.strip_stress(text)  # 強勢記号は読まれない (強勢は音声の辞書に任せる)
     if language == 'he':
         from hebrew import script
-        return script.pointed(text)  # 朗唱記号は除く (母音記号は残す)
+        # 朗唱記号は除く (母音記号は残す)。神の名 יְהוָה は伝統どおり アドナイ (エロヒム) と読み替える
+        return script.qere(script.pointed(text))
     if language == 'grc' and backend == 'say':
         return _monotonic(text)  # 現代ギリシア語の音声は多調符 (気息記号・曲アクセント) を読めない
     return text
