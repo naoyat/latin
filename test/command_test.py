@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# REPL のコマンド (.conjug / .decl) のテスト
+# REPL のコマンド (.conjug / .decl) と、入口 (dragoman.py) のテスト
 #
 import os
 import re
@@ -41,16 +41,38 @@ class ConjugTestCase(unittest.TestCase):
 
 
 
-class ReadCommandTestCase(unittest.TestCase):
+class DragomanCommandTestCase(unittest.TestCase):
     def test_lang_option(self):
-        result = subprocess.run([sys.executable, 'read.py', '--lang=la', '-w'], cwd=ROOT,
+        for script in ('dragoman.py', 'read.py'):  # read.py は旧名
+            result = subprocess.run([sys.executable, script, '--lang=la', '-w'], cwd=ROOT,
+                                    input='Rōma magna est.\n', capture_output=True, text=True)
+            self.assertIn('→', ANSI_ESCAPE.sub('', result.stdout))
+
+    def test_detected_language(self):
+        # --lang が無ければ文字から推定する (ラテン文字はラテン語)
+        result = subprocess.run([sys.executable, 'dragoman.py', '-w'], cwd=ROOT,
                                 input='Rōma magna est.\n', capture_output=True, text=True)
         self.assertIn('→', ANSI_ESCAPE.sub('', result.stdout))
 
     def test_unknown_lang(self):
-        result = subprocess.run([sys.executable, 'read.py', '--lang=xx'], cwd=ROOT, input='', capture_output=True,
-                                text=True)
+        result = subprocess.run([sys.executable, 'dragoman.py', '--lang=xx'], cwd=ROOT, input='',
+                                capture_output=True, text=True)
         self.assertNotEqual(result.returncode, 0)
+
+    def test_detect(self):
+        sys.path.insert(0, ROOT)
+        import dragoman
+        cases = {'Gallia est omnis dīvīsa.': 'la', 'ἐν ἀρχῇ ἦν ὁ λόγος.': 'grc', 'Мальчик читает книгу.': 'ru',
+                 'בְּרֵאשִׁית בָּרָא אֱלֹהִים': 'he', 'ذهب الولد إلى المدرسة.': 'ar', 'من به مدرسه می‌روم.': 'fa',
+                 'लड़के ने किताब पढ़ी।': 'hi', 'रामो वनं गच्छति ।': 'sa'}
+        for text, lang in cases.items():
+            self.assertEqual(dragoman.detect(text), lang, text)
+
+    def test_language_help(self):
+        result = subprocess.run([sys.executable, 'dragoman.py', '--lang=he', '--help'], cwd=ROOT,
+                                capture_output=True, text=True)
+        self.assertIn('--divine-name', result.stdout)
+        self.assertIn('--no-word-detail', result.stdout)
 
 
 if __name__ == '__main__':

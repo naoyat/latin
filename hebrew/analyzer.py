@@ -389,4 +389,6 @@ def analyze_sentence(surfaces):
 
 def analyze_text(text):
     for surfaces in sentences(text):
-        yield analyze_sentence(surfaces)
+        analysis = analyze_sentence(surfaces)
+        analysis.tokens = surfaces  # 切れ目に分ける前の語 (見出しの行に使う)
+        yield analysis
