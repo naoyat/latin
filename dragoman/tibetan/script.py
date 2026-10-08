@@ -164,13 +164,14 @@ def word_translit(word, known=None):
     return translit(word.strip('་།༑ '), known)
 
 
-IAST = [('tsh', 'ch'), ('ts', 'c'), ('dz', 'j'), ('kSh', 'kṣ'), ('Sh', 'ṣ'), ('sh', 'ś'), ('ny', 'ñ'), ('Th', 'ṭh'),
-        ('Dh', 'ḍh'), ('T', 'ṭ'), ('D', 'ḍ'), ('N', 'ṇ'), ('A', 'ā'), ('I', 'ī'), ('U', 'ū'), ('-i', 'ṛ'), ('-I', 'ṝ'),
+# ṛ ṝ ḷ ḹ はチベット文字では ra / la + 逆向きの i (ྀ ཱྀ) で書く (ཧྲྀ = hr-i → hṛ)。組のまま先に置き換える
+IAST = [('r-i', 'ṛ'), ('r-I', 'ṝ'), ('l-i', 'ḷ'), ('l-I', 'ḹ'), ('tsh', 'ch'), ('ts', 'c'), ('dz', 'j'), ('kSh', 'kṣ'), ('Sh', 'ṣ'), ('sh', 'ś'), ('ny', 'ñ'), ('Th', 'ṭh'),
+        ('Dh', 'ḍh'), ('T', 'ṭ'), ('D', 'ḍ'), ('N', 'ṇ'), ('A', 'ā'), ('I', 'ī'), ('U', 'ū'), ('-i', 'i'), ('-I', 'ī'),
         ('~M', 'ṃ'), ('M', 'ṃ'), ('H', 'ḥ'), ('w', 'v'), ("'", '')]
 
 
 def iast(wylie):
-    """チベット文字で書いたサンスクリットのワイリー式 → IAST (bha ga ba tI → bhagabatī、ts → c、w → v)。
+    """チベット文字で書いたサンスクリットのワイリー式 → IAST (bha ga ba tI → bhagabatī、hr-i da ya → hṛdaya、ts → c、w → v)。
     音節はつなげる (チベットでは va を ba と書くことが多いので b はそのまま)"""
     out = wylie.replace(' ', '')
     for a, b in IAST:

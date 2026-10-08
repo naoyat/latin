@@ -27,6 +27,11 @@ class WylieTestCase(unittest.TestCase):
         self.assertEqual(script.translit('ཨོཾ་མ་ཎི་པདྨེ་ཧཱུྃ'), 'oM ma Ni padme hU~M')
         self.assertEqual(script.translit('བཅོམ་ལྡན་འདས། །'), "bcom ldan 'das/ /")
 
+    def test_sanskrit_iast(self):
+        self.assertEqual(script.translit('ཧྲྀ་ད་ཡ'), 'hr-i da ya')                 # ワイリー式は字のとおり
+        self.assertEqual(script.iast(script.translit('ཧྲྀ་ད་ཡ')), 'hṛdaya')         # ra + ྀ = ṛ
+        self.assertEqual(script.iast(script.translit('པྲཛྙཱ་པཱ་ར་མི་ཏཱ')), 'prajñāpāramitā')
+
     def test_ambiguous_syllable(self):
         self.assertEqual(script.syllable_candidates('དགས'), ['dags', 'dgas'])
         self.assertEqual(script.translit('དགས', known={'dgas'}), 'dgas')  # 辞書にある方
