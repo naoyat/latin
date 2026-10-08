@@ -101,9 +101,21 @@ class TibetanTestCase(unittest.TestCase):
         a = next(analyzer.analyze_text('ཚེ་དང་ལྡན་པ་ཤཱ་རིའི་བུས་བྱང་ཆུབ་སེམས་དཔའ་སེམས་དཔའ་ཆེན་པོ་འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག་ལ་འདི་སྐད་ཅེས་སྨྲས་སོ།'))
         self.assertEqual(a.japanese, '具寿舎利子が菩薩摩訶薩聖観自在にこのように言った。')  # 術語、称号 + 名前
         self.assertTrue(any('śāriputra' in n for n in a.notes))
-        self.assertEqual(next(analyzer.analyze_text('གཟུགས་སྟོང་པའོ།')).japanese, '色空である。')
+        self.assertEqual(next(analyzer.analyze_text('གཟུགས་སྟོང་པའོ།')).japanese, '色は空である。')
         self.assertEqual(next(analyzer.analyze_text('ག་ཏེ་ག་ཏེ་པཱ་ར་ག་ཏེ།')).japanese, '〔gategatepāragate〕。')  # 真言は音写
         self.assertEqual(script.translit('པཱ་ར་སཾག་ཏེ'), 'pA ra saMga te')
+
+    def test_heart_sutra_sentences(self):
+        from dragoman.tibetan import analyzer
+        ja = lambda t: ' '.join(a.japanese for a in analyzer.analyze_text(t))
+        self.assertEqual(ja('གཟུགས་ལས་སྟོང་པ་ཉིད་གཞན་མ་ཡིན།'), '色から空性は別ではない。')        # gzhan ma yin
+        self.assertEqual(ja('དེ་བཞིན་དུ་ཚོར་བ་དང་། འདུ་ཤེས་དང་། འདུ་བྱེད་དང་། རྣམ་པར་ཤེས་པ་རྣམས་སྟོང་པའོ། །'),
+                         'そのように受と想と行と識たちは空である。')                              # 区切りをまたぐ列挙
+        self.assertEqual(ja('ཡིད་ཀྱི་རྣམ་པར་ཤེས་པའི་ཁམས་ཀྱི་བར་དུ་ཡང་མེད་དོ། །'), '意識界までもない。')   # kyi bar du
+        self.assertIn('得がないために', ja('བྱང་ཆུབ་སེམས་དཔའ་རྣམས་ཐོབ་པ་མེད་པའི་ཕྱིར།'))           # pa'i phyir
+        self.assertEqual(ja('དྲི་མ་དང་བྲལ་བ་མེད་པ། །'), '垢と離れることがない。')               # V-pa med
+        self.assertIn('行じようと欲する', ja('ཤེས་རབ་ཀྱི་ཕ་རོལ་ཏུ་ཕྱིན་པ་ཟབ་མོ་སྤྱོད་པ་སྤྱད་པར་འདོད་པ་དེས་ཇི་ལྟར་བསླབ་པར་བྱ།'))
+        self.assertTrue(ja('ཤཱ་རིའི་བུ་དེ་ལྟ་བས་ན་སྟོང་པ་ཉིད་ལ་གཟུགས་མེད།').startswith('舎利子よ、'))  # 呼びかけ
 
     def test_segment_fixes(self):
         words = [t.wylie for t in segment.tokenize('བུ་མོ་དེ་རྟ་ལས་ལྷུང་ངོ་།')]

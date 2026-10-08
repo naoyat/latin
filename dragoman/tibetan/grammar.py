@@ -75,7 +75,11 @@ GLOSSES = {
     'byon': 'いらっしゃる', 'bzhugs': 'いらっしゃる', 'byin': '与える', 'sbyin': '与える', 'za': '食べる',
     'zos': '食べる', 'btung': '飲む', "'thung": '飲む', 'bris': '書く', "'bri": '書く', 'shing': '木',
     'zas': '食べ物', 'khyim': '家', 'rta': '馬', 'bu': '息子', 'bu mo': '娘', 'slob ma': '弟子',
-    'gser': '金', 'ldan': '具える', 'stong pa': '空', 'stong': '空', 'len': '取る', 'blangs': '取る', 'bde ba': '幸せ', 'gyur': 'なる',
+    'gser': '金', 'ldan': '具える', 'stong pa': '空', 'stong': '空', "'das": '越える', 'bcas': '伴う', 'brdzun': '偽る',
+    'skrag': '恐れる', 'rdzogs': '終わる', 'snying po': '心', 'bsgyur': '翻訳する', "'gyur ba": '翻訳', 'zhus': '校閲する',
+    'bris': '書く', 'bgyis': '行う', 'zhi': '鎮まる', 'bzhengs': '立ち上がる', 'snang ba': '顕現', 'nyid': 'そのもの', "'gags": '滅する', 'bral': '離れる', 'bri': '減る', 'skyes': '生じる',
+    'gang': '満ちる', 'zad': '尽きる', 'brten': '依る', 'gnas': '住する', 'bslab': '学ぶ', 'slob': '学ぶ', "'dod": '欲する',
+    'spyod pa': '行', 'spyad': '行ずる', 'bden pa': '真実', 'mthu': '力', 'zab mo': '甚深な', 'len': '取る', 'blangs': '取る', 'bde ba': '幸せ', 'gyur': 'なる',
     "'gyur": 'なる', 'ri bo': '山', 'mi': '人', 'yul': '国', 'ri': '山', 'chu': '水', 'nyi ma': '太陽', 'zla ba': '月',
     'ston': '説く', 'lhung': '落ちる', 'ltung': '落ちる', 'shi': '死ぬ', "'chi": '死ぬ', 'skyes': '生まれる', 'skye': '生まれる',
 }
@@ -166,25 +170,49 @@ TERMS = {
     "mya ngan las 'das pa": ('涅槃', 'nirvāṇa'), "mya nang las 'das pa": ('涅槃', 'nirvāṇa'),
     "snyoms par zhugs": ('入定する', 'samāpanna'), "snyoms par bzhugs": ('入定する', 'samāpanna'),
     "mngon par rdzogs par sangs rgyas": ('現等覚する', 'abhisaṃbuddha'), "rjes su yi rang": ('随喜する', 'anumodana'),
-    "mngon par bstod": ('称賛する', 'abhinandana'), "legs so": ('善哉', 'sādhu'), 'de bzhin': ('そのとおり', 'tathā'), 'dus gsum': ('三世', 'tryadhvan'),
+    "mngon par bstod": ('称賛する', 'abhinandana'), 'yi rangs': ('歓喜する', ''), 'yi rang': ('歓喜する', ''),
+    "mthar phyin": ('究竟に至る', 'niṣṭhā'), 'de bzhin du': ('そのように', ''), 'de de bzhin': ('それはそのとおり', ''),
+    'rnam par': ('', ''), 'rjes su': ('', ''), 'yang dag par': ('正しく', ''), 'shin tu': ('すっかり', ''),
+    'bar du': ('まで', ''), 'phyir': ('ために', ''), 'ched du': ('ために', ''), 'zhes bya ba': ('という', ''),
+    'rab tu': ('完全に', ''), 'gtan la phab': ('確定する', ''), 'rtsig ngos': ('壁面', ''), 'zhu dag': ('校正', ''),
+    'bi ma la mi tra': ('ヴィマラミトラ', 'vimalamitra'), 'rin chen sde': ('リンチェンデ', ''),
+    'lo tsA ba': ('翻訳官', ''), 'lotstsha ba': ('翻訳官', ''), 'lo tsa ba': ('翻訳官', ''),
+    "rgya gar gyi mkhan po": ('インドの親教師', 'upādhyāya'), 'zhu chen': ('校閲', ''),
+    "dpal bsam yas lhun gyis grub pa'i gtsug lag": ('吉祥サムイェー寺', ''), 'bsam yas': ('サムイェー', ''),
+    'rnam par lta': ('観察する', 'vyavalokana'), 'rnam par blta': ('観察する', 'vyavalokana'),
+    'rjes su blta': ('随観する', 'samanupaśyanā'), 'rjes su lta': ('随観する', 'samanupaśyanā'), "legs so": ('善哉', 'sādhu'), 'de bzhin': ('そのとおり', 'tathā'), 'dus gsum': ('三世', 'tryadhvan'),
     "bla na med pa yang dag par rdzogs pa'i byang chub": ('阿耨多羅三藐三菩提', 'anuttarā samyaksaṃbodhi'),
     "rig pa chen po'i sngags": ('大明呪', 'mahāvidyāmantra'), "bla na med pa'i sngags": ('無上呪', 'anuttaramantra'),
     "mi mnyam pa dang mnyam pa'i sngags": ('無等等呪', 'asamasamamantra'), 'sngags': ('真言', 'mantra'),
     'theg pa chen po': ('大乗', 'mahāyāna'), "de bzhin gshegs pa": ('如来', 'tathāgata'),
-    "rgya gar skad du": ('インドの言葉で', ''), "bod skad du": ('チベットの言葉で', ''),
+    "rgya gar skad du": ('インドの言葉で', ''), 'gang la la': ('誰でも', ''), "bod skad du": ('チベットの言葉で', ''),
     "de'i tshe": ('その時', ''), 'de lta bas na': ('それゆえ', ''), "gang la la": ('誰でも', ''),
     "lha ma yin": ('阿修羅', 'asura'), "dri za": ('乾闥婆', 'gandharva'), "'jig rten": ('世間', 'loka'),
     "'khor": ('眷属', 'parṣad'), 'bam po gcig': ('一巻', ''),
 }
 # 動詞として訳す術語 (時制は最後の音節の語幹から)
-TERM_VERBS = {"snyoms par zhugs", "snyoms par bzhugs", "mngon par rdzogs par sangs rgyas", "rjes su yi rang",
+TERM_VERBS = {'gtan la phab', 'rnam par lta', 'rnam par blta', 'rjes su blta', 'rjes su lta', 'yi rangs', 'yi rang', 'mthar phyin', "snyoms par zhugs", "snyoms par bzhugs", "mngon par rdzogs par sangs rgyas", "rjes su yi rang",
               "mngon par bstod"}
 # 人を表す術語 (能格なら動作主「が」、並べた称号と名前は1つの名詞句に: 具寿舎利子)
-PERSON_TERMS = {"bcom ldan 'das ma", "byang chub sems dpa' sems dpa' chen po", "byang chub sems dpa'",
+PERSON_TERMS = {'bi ma la mi tra', 'rin chen sde', 'lo tsA ba', 'lotstsha ba', "rgya gar gyi mkhan po", "bcom ldan 'das ma", "byang chub sems dpa' sems dpa' chen po", "byang chub sems dpa'",
                 "'phags pa spyan ras gzigs dbang phyug", "spyan ras gzigs dbang phyug", "spyan ras gzigs",
                 "sh'a ri'i bu", "shA ri'i bu", "sha ra dwa ti'i bu", "shA ra dwa ti'i bu", "tshe dang ldan pa",
                 "rigs kyi bu", "rigs kyi bu mo", "de bzhin gshegs pa", "lha ma yin", "dri za"}
 # よく知られた真言 (ワイリー式から空白を除いた形の頭)。句がこれで始まれば音写として扱う
 MANTRAS = ('tadyathA', 'gategate', 'pAragate', 'pArasaMgate', 'bodhiswAhA', 'bodhiswwAhA', 'bodhisvAhA', 'oMmaNipadme',
            'oMAHhU', 'oMswasti', 'namomaNjuzrI', 'oMaHraHpatsana')
-TERM_ADVERBS = {"rgya gar skad du", "bod skad du", "de'i tshe", 'de lta bas na'}
+# 「〜であると見る」の動詞 (X-r + lta → Xであると観察する)
+SEE_VERBS = {'lta', 'blta', 'rnam par lta', 'rnam par blta', 'rjes su blta', 'rjes su lta', 'shes', 'bzung', "'dzin"}
+# 文頭で何も付かなければ呼びかけ (shA ri'i bu → 舎利子よ)
+VOCATIVES = {"shA ri'i bu", "sh'a ri'i bu", 'rigs kyi bu', 'rigs kyi bu mo', 'kye'}
+# 前の名詞と「の」でつなぐ名詞 (shes rab kyi pha rol tu phyin pa zab mo spyod pa → 甚深な般若波羅蜜多の行)
+GENITIVE_HEADS = {'spyod pa'}
+# 文をここで切らない語 (区切り記号の前でも続く: tshor ba dang། 'du shes dang། …)
+CONTINUING = {'dang', 'te', 'ste', 'de', 'cing', 'zhing', 'shing'}
+# V-par byed (〜にする) の他動詞 (zhi bar byed → 鎮める)
+CAUSATIVES = {'鎮まる': '鎮める', '静まる': '静める', '満ちる': '満たす', '起こる': '起こす', '生じる': '生じさせる',
+              '尽きる': '尽くす', '滅する': '滅ぼす'}
+QUESTION_WORDS = {'ji ltar', 'ci', 'su', 'ci ste', "ci'i phyir", 'gang du', 'nam', 'ji tsam'}
+# 属格の後ろに来る後置詞 (X kyi bar du → Xまで、med pa'i phyir → 無いために)
+POSTPOSITIONS = {'bar du', 'phyir', 'ched du', 'zhes bya ba'}
+TERM_ADVERBS = {'rab tu', 'gang la la', 'de bzhin du', 'rnam par', 'rjes su', 'yang dag par', 'shin tu', "rgya gar skad du", "bod skad du", "de'i tshe", 'de lta bas na'}

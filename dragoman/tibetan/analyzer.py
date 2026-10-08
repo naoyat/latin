@@ -48,6 +48,7 @@ class Phrase:
     particles: list = field(default_factory=list)
     case_ja: str = None      # 決めた助詞 (名詞句)
     existential_la: bool = False  # 存在の文の la (所有者「〜には」)
+    as_complement: bool = False   # 見る動詞の補語 (stong par rnam par lta → 空であると観察する)
     first_person: bool = False   # 節の主語が一人称 (未来は意志「〜しよう」)
     lead: str = ''               # 前の動名詞から (V-par gyur →「〜ように」+ なる)
     replace: str = None          # 前の動名詞と合わせた訳 (V-bar bya → 〜しよう)
@@ -137,6 +138,9 @@ def classify(tokens):
         if t.upos == 'PUNCT':
             words.append(Word(t, 'punct'))
             continue
+        if t.upos == 'TERM' and wylie in grammar.POSTPOSITIONS and prev is not None:
+            words.append(Word(t, 'part', ja=grammar.TERMS[wylie][0], lemma=wylie, function='後置詞'))
+            continue
         if t.upos == 'TERM':
             ja, skt = grammar.TERMS[wylie]
             if wylie in grammar.TERM_VERBS:
@@ -183,6 +187,10 @@ def classify(tokens):
         after_verb = prev is not None and prev.kind in ('verb', 'cop', 'exist')
         if wylie == 'de' and after_verb and not prev.nominal:
             lemma = 'te'
+        if wylie == 'de' and prev is not None and prev.kind == 'noun' and \
+                (i + 1 >= len(tokens) or tokens[i + 1].upos == 'PUNCT'):
+            words.append(Word(t, 'part', lemma='te', function='接続'))  # 名詞 + de (stong pa nyid de → 空性であって)
+            continue
         sentence_end = nxt is None or tokens[i + 1].upos == 'PUNCT'
         if wylie in grammar.NEGATIONS and nxt is not None and (_is_verb(nxt.wylie) or nxt.upos == 'VERB' or
                                                                  _is_verb(re.sub(r' (pa|ba)$', '', nxt.wylie)) or
@@ -214,6 +222,12 @@ def classify(tokens):
             prev.nominal = True  # 動詞 + pa (動名詞)
             prev.token.text += '་' + t.text
             continue
+        if wylie == 'nyid' and prev is not None and prev.kind in ('noun', 'pron', 'verb'):
+            words.append(Word(t, 'emph', ja='そのもの'))  # X nyid → Xそのもの (spyod pa nyid → 行そのもの)
+            continue
+        if wylie == 'gzhan' and nxt is not None and nxt.wylie in ('ma', 'yin', 'min', 'red'):
+            words.append(Word(t, 'noun', ja='別'))  # X gzhan ma yin → X は別ではない
+            continue
         if t.upos == 'DET' or wylie in grammar.DETERMINERS and prev is not None and prev.kind in ('noun', 'adj', 'num'):
             words.append(Word(t, 'det', ja=grammar.DETERMINERS.get(wylie) or dictionary.gloss(wylie)[1]))
             continue
@@ -229,8 +243,10 @@ def classify(tokens):
             continue
         tags = dictionary.tags(wylie)
         verb_only = tags and all(x.startswith('v.') for x in tags)
+        nounish = wylie in grammar.GLOSSES and not _is_verb(wylie) or any(x.startswith('n.') for x in tags)
         verb_context = nxt is not None and (grammar.normalize(nxt.wylie) in ('go', 'te', 'cing', 'gam', 'lo') or
-                                            nxt.wylie in grammar.COPULAS or nxt.wylie in grammar.EXISTENTIALS) or \
+                                            (nxt.wylie in grammar.COPULAS or nxt.wylie in grammar.EXISTENTIALS) and
+                                            not nounish) or \
             prev is not None and prev.kind == 'neg'
         if t.upos == 'VERB' or verb_only or (t.upos in ('NO_POS', 'NOUN') and _is_verb(wylie) and verb_context):
             if root != wylie and _is_verb(root):
@@ -258,7 +274,7 @@ def classify(tokens):
 # ----------------------------------------------------------------------
 # 句
 
-NP_KINDS = {'noun', 'pron', 'adj', 'num', 'det', 'plural'}
+NP_KINDS = {'noun', 'pron', 'adj', 'num', 'det', 'plural', 'emph'}
 
 
 def group(words):
@@ -269,7 +285,7 @@ def group(words):
             phrases.append(Phrase('punct', [w]))
         elif w.kind in NP_KINDS:
             if last is not None and last.kind == 'np' and not last.particles and \
-                    (w.kind in ('adj', 'num', 'det', 'plural') or
+                    (w.kind in ('adj', 'num', 'det', 'plural', 'emph') or
                      w.wylie in grammar.PERSON_TERMS and last.words[-1].wylie in grammar.PERSON_TERMS):
                 last.words.append(w)  # 後ろの修飾語、称号 + 名前 (tshe dang ldan pa shA ri'i bu → 具寿舎利子)
             else:
@@ -317,7 +333,29 @@ def is_animate(word):
 def assign_cases(phrases, notes):
     clause = []
     first_person = False
-    for p in phrases:
+    first = next((p for p in phrases if p.kind != 'punct'), None)
+    if first is not None and first.kind == 'np' and not first.particles and len(first.words) == 1 and \
+            first.words[0].wylie in grammar.VOCATIVES and phrases.index(first) + 1 < len(phrases) and \
+            phrases[phrases.index(first) + 1].kind != 'vp':
+        first.case_ja = 'よ、'  # 呼びかけ (shA ri'i bu de lta bas na … → 舎利子よ、それゆえ …)
+        first.vocative = True
+    for k, p in enumerate(phrases):
+        if getattr(p, 'vocative', False):
+            continue
+        if p.kind == 'np' and any(x.lemma == 'go' for x in p.particles):
+            # 名詞 + 文末の 'o は述語 (gzugs stong pa'o → 色は空である): 前の何も付かない名詞を「は」に
+            before = [n for n in clause if n.words and not n.particles]
+            if before:
+                before[-1].case_ja = 'は'
+            clause = []
+            continue
+        if p.kind == 'np' and clause and clause[-1].particles and clause[-1].particles[-1].lemma == 'zhes bya ba':
+            clause[-1].genitive_link = True  # 『X』という Y
+            clause[-1].case_ja = ''
+        if p.kind == 'np' and p.words and p.words[0].wylie in grammar.GENITIVE_HEADS and clause and \
+                clause[-1].words and not clause[-1].particles:
+            clause[-1].case_ja = 'の'  # 甚深な般若波羅蜜多の行
+            clause[-1].genitive_link = True
         if p.kind == 'punct':
             first_person = False
         if p.kind == 'np':
@@ -339,10 +377,12 @@ def assign_cases(phrases, notes):
                 n.case_ja = 'で'
                 head.note = '具格 (道具・手段) →「で」'
         copular = verb is not None and verb.kind == 'cop'
-        if verb is not None and verb.lemma == 'ldan':
-            for n in nps:
-                if any(x.lemma == 'dang' for x in n.particles):
-                    n.case_ja = 'を'  # X dang ldan → X を具える
+        see = verb is not None and (verb.wylie in grammar.SEE_VERBS or verb.lemma in grammar.SEE_VERBS)
+        for n in nps:
+            if see and [x.wylie for x in n.particles] == ['r']:
+                n.as_complement = True  # X-r lta → Xであると観察する
+        if verb is not None and verb.lemma == 'ldan' and nps and any(x.lemma == 'dang' for x in nps[-1].particles):
+            nps[-1].case_ja = 'を'  # X dang ldan → X を具える (直前の名詞だけ)
         first_person = first_person or any(_head(n) is not None and _head(n).wylie in grammar.FIRST_PERSON
                                            for n in nps)
         p.first_person = first_person
@@ -350,6 +390,7 @@ def assign_cases(phrases, notes):
             for n in nps:
                 if any(x.lemma == 'la' for x in n.particles) and is_animate(_head(n)):
                     n.existential_la = True
+        bare = [n for n in bare if not getattr(n, 'genitive_link', False)]
         for k, n in enumerate(bare):
             if any(x.lemma == 'gi' for x in n.particles):
                 continue
@@ -376,6 +417,11 @@ def np_japanese(np):
     adjs = [_adj(w) for w in np.words if w.kind == 'adj']
     nouns = [_noun(w) for w in np.words if w.kind in ('noun', 'pron')]
     plural = 'たち' if any(w.kind == 'plural' for w in np.words) and nouns else ''
+    plural += 'そのもの' if any(w.kind == 'emph' for w in np.words) and nouns else ''
+    if not nouns and dets and not nums and not adjs:
+        person = any(x.lemma == 'gis' for x in np.particles)
+        nouns, dets = [{'この': 'これ', 'その': 'その者' if person else 'それ', 'それらの': 'それら',
+                        'これらの': 'これら'}.get(dets[-1], dets[-1])], dets[:-1]  # 指示詞だけ (V-pa de → 〜するそれ)
     if not nouns and nums:
         nouns, nums = nums, []
     elif not nouns and adjs:
@@ -386,10 +432,25 @@ def np_japanese(np):
     else:
         nums_text = ''.join(n + counter if len(n) == 1 else n + 'の' for n in nums)
     text = ''.join(dets) + nums_text + ''.join(adjs) + ''.join(nouns) + plural
+    previous = None
     for part in np.particles:
+        if part.lemma == 'gi' and previous == 'zhes bya ba':
+            previous = part.lemma
+            continue  # X zhes bya ba'i Y → Xという Y
+        previous = part.lemma
+        if part.lemma in grammar.POSTPOSITIONS:
+            if text.endswith('の') and part.ja in ('まで', 'という'):
+                text = text[:-1]  # X kyi bar du → Xまで
+            text += part.ja
+            continue
         text += _np_particle(np, part)
-    if np.case_ja and not [x for x in np.particles if x.lemma in grammar.CASES]:
+    if np.case_ja and not [x for x in np.particles if x.lemma in grammar.CASES or
+                           x.lemma in ('gam', 'kyang', 'ni', 'te', 'cing')]:
+        if np.particles and np.particles[-1].lemma == 'zhes bya ba':
+            text += '言葉'  # legs so zhes bya ba byin → 善哉という言葉を与え
         text += np.case_ja
+    if np.as_complement and text.endswith('に'):
+        text = text[:-1] + 'であると'
     if np.existential_la and text.endswith('に'):
         text += 'は'  # 所有 (ང་ལ་དངུལ་མེད → 私にはお金がない)
     return text
@@ -420,6 +481,8 @@ def _np_particle(np, part):
         return ''
     if lemma == 'go':
         return 'である'  # 名詞 + 文末の 'o (stong pa nyid do → 空性である)
+    if lemma in ('te', 'cing'):
+        return 'であって'
     if lemma == 'na' and _first(_head(np).ja if _head(np) else '') in grammar.TIME_NOUNS:
         return 'に'  # 時の「に」(dus gcig na → ある時に)
     info = grammar.PARTICLES.get(lemma)
@@ -445,12 +508,20 @@ def vp_japanese(vp, nxt):
             return Modern.masu_stem(verb) + 'ますように' + _vp_tail(parts, final=True)  # 祈願 (gyur cig)
         if tense == 'imp' or 'cig' in parts:
             return Modern.masu_stem(verb) + 'なさい' + _vp_tail(parts, final=True)
+        if main.nominal and aux and aux[0].kind == 'exist':
+            # V-pa med → 〜することが無い (bral ba med pa → 離れることがない)
+            exist = aux[0].ja
+            if parts[:1] in (['nas'], ['las']):
+                return verb + 'ことが' + exist + 'ことから' + _vp_tail(parts[1:])
+            if exist == 'ない' and parts and parts[0] in ('te', 'cing', 'la'):
+                exist = 'なく'
+            return verb + 'ことが' + exist + _vp_tail([p for p in parts if p not in ('te', 'cing', 'la')])
         if main.nominal:
-            if 'past' in getattr(main, 'tenses', ()) and neg is None:
+            if 'past' in getattr(main, 'tenses', ()) and neg is None and 'gi' in parts:
                 tense = main.tense = 'past'  # 連体の動名詞は過去を先に (thos pa'i dus → 聞いた時)
             form = Modern.past_form(verb) if tense == 'past' else verb
             if negated:
-                form = Modern.neg_stem(verb) + ('なかった' if tense == 'past' else 'ない')
+                form = Modern.neg_stem(verb) + 'ない'  # ma skyes pa → 生じない
             return _nominal(form, vp, nxt)
         purpose = [x for x in vp.particles if x.lemma == 'la' and x.wylie in ('du', 'tu', 'r')]
         if purpose and not negated and nxt is not None and nxt.kind == 'vp' and \
@@ -478,7 +549,22 @@ def vp_japanese(vp, nxt):
     ja = main.ja
     if negated:
         ja = {'である': 'ではない', 'ある': 'ない', 'いらっしゃる': 'いらっしゃらない'}.get(ja, ja)
+    if any(p in ('te', 'cing', 'la') for p in parts):
+        # 接続: ない → なく、ある → あって、である → であって
+        ja = {'ない': 'なく', 'ではない': 'ではなく', 'ある': 'あって', 'である': 'であって',
+              'いらっしゃる': 'いらっしゃって'}.get(ja, ja)
+        return ja + _vp_tail([p for p in parts if p not in ('te', 'cing', 'la')])
+    if 'gi' in parts:
+        return ja + ''.join(grammar.TERMS[p][0] for p in parts if p in grammar.POSTPOSITIONS)
+    if parts[:1] in (['nas'], ['las']):
+        return ja + 'ことから' + _vp_tail(parts[1:])  # med pa nas → 無いことから
     return ja + _vp_tail(parts)
+
+
+def _volitional(verb):
+    if verb.endswith('ずる'):
+        return verb[:-2] + 'じよう'  # 行ずる → 行じよう
+    return Modern.volitional(verb)
 
 
 def _aux(form, aux, negated):
@@ -491,8 +577,14 @@ def _aux(form, aux, negated):
 def _nominal(form, vp, nxt):
     """動名詞 (+ pa) の後ろ: 属格なら連体形で名詞に掛ける、格助詞なら「〜こと + 助詞」"""
     parts = [p.lemma for p in vp.particles]
+    post = ''.join(grammar.TERMS[p][0] for p in parts if p in grammar.POSTPOSITIONS)
     if 'gi' in parts:
-        return form
+        rest = parts[parts.index('gi') + 1:]
+        tail = ''.join((grammar.PARTICLES[p][1] or '') for p in rest if p in grammar.PARTICLES and p != 'gi')
+        return form + post + tail  # 連体 (thos pa'i dus → 聞いた時、med pa'i phyir → 無いために)
+    if parts[:1] == ['dang']:
+        main = next(w for w in vp.words if w.kind == 'verb')
+        return (_first(main.ja) or 'する') + 'と'  # V-pa dang → 〜すると (smras pa dang → 言うと)
     if [x.wylie for x in vp.particles] in (['r'], ['du'], ['tu']) and nxt is not None and nxt.kind == 'vp':
         aux = next((w for w in nxt.words if w.kind == 'verb'), None)
         main = next(w for w in vp.words if w.kind == 'verb')
@@ -500,12 +592,26 @@ def _nominal(form, vp, nxt):
         if aux is not None and aux.lemma in ('gyur', "'gyur"):
             nxt.lead = verb + 'ように'   # V-par gyur → 〜するようになる
             return ''
+        if aux is not None and aux.lemma == "'dod" or aux is not None and aux.wylie in ("'dod", "'dod pa"):
+            nxt.lead = _volitional(verb) + 'と'   # V-par 'dod → 〜しようと欲する
+            return ''
+        if aux is not None and aux.lemma == 'byed' and aux.wylie not in ('bya', 'bgyi'):
+            nxt.replace = grammar.CAUSATIVES.get(verb, verb)  # V-par byed → V する (zhi bar byed → 鎮める)
+            return ''
         if aux is not None and aux.wylie in ('bya', 'bgyi'):
             nxt.replace = Modern.volitional(verb) if nxt.first_person else verb + 'べきだ'  # V-bar bya → 〜しよう
             return ''
     if not parts:
         if nxt is not None and nxt.kind == 'vp' and nxt.words[0].kind == 'cop':
             return form + 'の'
+        if nxt is not None and nxt.kind == 'vp' and any(w.kind == 'exist' for w in nxt.words):
+            return form + 'ことが'  # V-pa med → 〜することが無い (skrag pa med → 恐れることが無い)
+        if nxt is not None and nxt.kind == 'np' and nxt.words and nxt.words[0].kind == 'det':
+            return form  # V-pa de → 〜するそれ (関係節)
+        if nxt is not None and nxt.kind == 'np' and nxt.words and _first(nxt.words[0].ja) in grammar.TIME_NOUNS:
+            main = next(w for w in vp.words if w.kind == 'verb')
+            verb = _first(main.ja) or 'する'
+            return Modern.past_form(verb) if 'past' in getattr(main, 'tenses', ()) else verb  # thos pa dus → 聞いた時
         if nxt is None or nxt.kind == 'punct':
             return form  # 文末の動名詞は言い切り (bka' stsal pa → おっしゃった)
         return form + 'こと'
@@ -556,15 +662,27 @@ def japanese(phrases):
         elif p.kind == 'vp':
             p.ja = vp_japanese(p, nxt)
             if p.replace is not None:
-                p.ja = p.replace + _vp_tail([x.lemma for x in p.particles])
+                parts = [x.lemma for x in p.particles]
+                tail = '' if 'gi' in parts else _vp_tail(parts)  # 属格なら連体 (… zhi bar byed pa'i sngags → 鎮める呪)
+                p.ja = (p.replace + tail).replace('だて', 'で')
             p.ja = p.lead + p.ja
         elif p.kind == 'adv':
             p.ja = p.words[0].ja
         else:
             p.ja = '、' if p.words[0].wylie.strip() in ('|', ';') else '。'
+            before = phrases[i - 1] if i > 0 else None
+            last = before.particles[-1].lemma if before is not None and before.particles else ''
+            if last == 'dang' and i + 1 < len(phrases):
+                p.ja = ''      # A dang། B dang། … (列挙)
+            elif last in ('te', 'cing', 'la', 'nas') and i + 1 < len(phrases):
+                p.ja = '、'    # 接続の後の区切り
             if out.endswith(('。', '、')):
                 p.ja = ''
         out += p.ja
+    words = [w for p in phrases for w in p.words]
+    correlative = any(w.wylie in ('de bzhin', 'de bzhin du', 'de ltar') for w in words)  # ji ltar … de bzhin du
+    if not correlative and any(w.wylie in grammar.QUESTION_WORDS for w in words) and out.rstrip('。、').endswith(('だ', 'る', 'う', 'た', 'い')):
+        out = re.sub('だ$', '', out.rstrip('。')) + 'か'  # 疑問詞の文 (ji ltar bslab par bya → どのように学ぶべきか)
     if out and not out.endswith('。'):
         out += '。'
     return out
@@ -617,12 +735,22 @@ def _pieces_wylie(text):
 # ----------------------------------------------------------------------
 
 def sentences(text):
-    """文に分ける: シャド (།) の連なりまでを1文 (། ། も前の文に含める)"""
+    """文に分ける: シャド (།) の連なりまでを1文 (། ། も前の文に含める)。接続の助詞 (dang, te, cing …) の後の
+    シャドでは切らない (tshor ba dang། 'du shes dang། … stong pa'o།)"""
     for line in text.splitlines():
+        buf = ''
         for m in re.finditer(r'[^།༎༏༐༑༔]+[།༎༏༐༑༔\s]*', line):
-            s = m.group(0).strip()
-            if script.is_tibetan(s):
-                yield s
+            piece = m.group(0)
+            buf += piece
+            last = re.split('[་ ]+', re.sub('[་།༎༏༐༑༔\\s]+$', '', piece).strip())[-1:]
+            if last and script.translit(last[0]) in grammar.CONTINUING and '༎' not in piece and \
+                    piece.count('།') < 2:
+                continue
+            if script.is_tibetan(buf):
+                yield buf.strip()
+            buf = ''
+        if buf.strip() and script.is_tibetan(buf):
+            yield buf.strip()
 
 
 def analyze_sentence(text):

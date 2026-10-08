@@ -135,7 +135,8 @@ def _merge_compounds(tokens):
         t = tokens[i]
         for n in (3, 2):
             group = tokens[i:i + n]
-            if len(group) < n or any(x.upos in ('PUNCT', 'PART', 'ADP') or x.affix for x in group):
+            if len(group) < n or any(x.upos in ('PUNCT', 'PART', 'ADP') or x.affix or
+                                     x.wylie in ('med', 'min', 'yod', 'yin', 'red', 'ma', 'mi') for x in group):
                 continue
             wylie = ' '.join(x.wylie for x in group)
             if wylie in grammar.GLOSSES or any(tag.startswith('n.') for tag in dictionary.tags(wylie)):
@@ -174,14 +175,16 @@ def _merge_terms(tokens):
                                                           group[0].wylie not in grammar.TERMS):
                 continue
             wylie = _join_wylie(group)
-            if wylie in grammar.TERMS and (n > 1 or group[0].upos not in ('PART', 'ADP')):
+            starts = i == 0 or tokens[i - 1].upos == 'PUNCT'  # 文頭の語は助詞ではない (lam med → 道が無い)
+            if wylie in grammar.TERMS and (n > 1 or group[0].upos not in ('PART', 'ADP') or starts):
                 out.append(Token(_join_text(group), wylie, 'TERM', wylie))
                 i += n
                 break
-            if n > 1 and wylie.endswith('s') and wylie[:-1] in grammar.TERMS and group[-1].text.endswith('ས'):
-                # 術語 + 能格の -s が1語になったもの (shA ri'i bus → shA ri'i bu + s)
+            if wylie[-1:] in ('s', 'r') and wylie[:-1] in grammar.TERMS and group[-1].text.endswith(('ས', 'ར')) \
+                    and (n > 1 or ' ' in wylie):
+                # 術語 + 語に付いた -s (能格) / -r (la don) が1語になったもの (shA ri'i bus、dri zar)
                 out.append(Token(_join_text(group)[:-1], wylie[:-1], 'TERM', wylie[:-1]))
-                out.append(Token('ས', 's', 'PART', 'gis', True))
+                out.append(Token(group[-1].text[-1], wylie[-1], 'PART', 'gis' if wylie[-1] == 's' else 'la', True))
                 i += n
                 break
         else:
@@ -256,11 +259,18 @@ def _merge_sanskrit(tokens):
     return out
 
 
+def i_next_is_copula(tokens, t):
+    i = tokens.index(t)
+    return i + 1 < len(tokens) and tokens[i + 1].wylie in ('yin', 'red', 'yod', 'lags')
+
+
 def _fix(tokens):
     for i, t in enumerate(tokens[:-1]):
         # དཔ + འི → dpa + 'i (botok が切った語末の འ を補って転写する。そのままだと dap)
         nxt = tokens[i + 1]
-        if nxt.affix and nxt.text.startswith('འ') and not t.text.endswith('འ') and t.upos != 'PUNCT':
+        if nxt.affix and (nxt.text.startswith('འ') or nxt.wylie in ('s', 'r')) and not t.text.endswith('འ') and \
+                t.upos != 'PUNCT':
+            # 語に付く助詞 (-s, -r, -'i) は母音で終わる音節に付くので、前の音節は a で終わる (མཐ + ར → mtha + r)
             fixed = _wylie(t.text + 'འ')
             if fixed.endswith("'"):
                 t.wylie = t.lemma = fixed[:-1]
@@ -268,12 +278,24 @@ def _fix(tokens):
     for t in tokens:
         # སྣ་མེད → སྣ + མེད (名詞と存在動詞・繋辞を botok が1語にしたもの)
         m = re.match(r"^(.+) (med|min|yod|yin|med pa|min pa)$", t.wylie)
-        if m and not t.affix and t.upos != 'PUNCT' and not dictionary.tags(t.wylie) and \
-                (dictionary.is_word(m.group(1)) or m.group(1) in grammar.TERMS):
+        if m and not t.affix and t.upos != 'PUNCT' and \
+                (m.group(1) in grammar.TERMS or not dictionary.tags(t.wylie) and dictionary.is_word(m.group(1))):
             n = len(m.group(2).split())
             parts = t.text.split(TSHEG)
             split.append(Token(TSHEG.join(parts[:-n]), m.group(1), 'NOUN', m.group(1)))
             split.append(Token(TSHEG.join(parts[-n:]), m.group(2), 'VERB', m.group(2)))
+            continue
+        # གཞན་མ + ཡིན → གཞན + མ (否定) (後ろが繋辞・存在動詞なら、語末の ma は否定)
+        if i_next_is_copula(tokens, t) and t.wylie.endswith(' ma') and not t.affix and \
+                not dictionary.is_word(t.wylie) and t.wylie not in grammar.GLOSSES:
+            parts = t.text.split(TSHEG)
+            split.append(Token(TSHEG.join(parts[:-1]), t.wylie[:-3], 'NOUN', t.wylie[:-3]))
+            split.append(Token(parts[-1], 'ma', 'PART', 'ma'))
+            continue
+        # དེ་དེ → དེ + དེ (同じ指示詞の繰り返し: de de bzhin no「それはそのとおりである」)
+        if t.wylie in ('de de', "'di 'di"):
+            for part in t.text.split(TSHEG):
+                split.append(Token(part, t.wylie.split()[0], 'DET', t.wylie.split()[0]))
             continue
         split.append(t)
     tokens = _merge_sanskrit(_sanskrit_chunks(_merge_terms(_merge_compounds(split))))
