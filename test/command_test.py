@@ -69,6 +69,10 @@ class DragomanCommandTestCase(unittest.TestCase):
         result = subprocess.run([sys.executable, 'dragoman.py', '-w', '-e', 'Rōma magna est.', '-e', 'Mārcus currit.'],
                                 cwd=ROOT, capture_output=True, text=True)
         self.assertEqual(ANSI_ESCAPE.sub('', result.stdout).count('→'), 2)
+        # auto は文字から推定する (ロシア語)
+        result = subprocess.run([sys.executable, 'dragoman.py', 'auto', '-w', '-e', 'Мальчик читает книгу.'],
+                                cwd=ROOT, capture_output=True, text=True)
+        self.assertIn('本', ANSI_ESCAPE.sub('', result.stdout))
 
     def test_language_list(self):
         result = subprocess.run([sys.executable, 'dragoman.py', '--languages'], cwd=ROOT, capture_output=True,

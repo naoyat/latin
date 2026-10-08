@@ -13,7 +13,7 @@
 #   ./dragoman.py he --help                            言語ごとのオプション
 #   ./dragoman.py --languages                          対応している言語の一覧
 #
-#   LANG          最初の引数が言語の符号なら言語の指定 (--lang=LANG でも)。省略すると文字から推定する
+#   LANG          最初の引数が言語の符号なら言語の指定 (--lang=LANG でも)。省略するか auto なら文字から推定する
 #                 (ラテン文字 → la、ギリシア文字 → grc、キリル文字 → ru、ヘブライ文字 → he、
 #                 ウルドゥー語の字 (ٹ ڈ ڑ ں ے ھ) のあるアラビア文字 → ur、ペルシア語の字 (پ چ ژ گ ک ی) の多いもの → fa、
 #                 ほかのアラビア文字 → ar、デーヴァナーガリーはヒンディー語らしい語 (है, का, की, में …) があれば hi、無ければ sa)
@@ -69,7 +69,8 @@ def command_for(lang):
 
 def language_list():
     """対応している言語の一覧 (符号・名前・説明の文書)"""
-    return '\n'.join('  %-4s %s  (docs/%s.md)' % (code, NAMES[code], LANGUAGES[code]) for code in LANGUAGES)
+    return '\n'.join(['  %-4s %s  (docs/%s.md)' % (code, NAMES[code], LANGUAGES[code]) for code in LANGUAGES] +
+                     ['  auto 文字から推定する'])
 
 
 def parse_args(argv):
@@ -109,6 +110,8 @@ def main(argv=None):
         print('対応している言語:\n' + language_list())
         return
     lang, args, texts = parse_args(argv)
+    if lang == 'auto':
+        lang = None  # 文字から推定する
     if lang is not None and lang not in LANGUAGES:
         sys.exit('知らない言語: %s\n対応している言語:\n%s' % (lang, language_list()))
     if lang is None and ('-h' in args or '--help' in args):
