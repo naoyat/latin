@@ -91,6 +91,7 @@ python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sql
 | `-r`, `--romanize` | 語ごとの辞書引きの結果に転写を添える |
 | `--no-explain` | 初学者向けの解説（動詞の型・語根・連語形など）を出さない |
 | `--english-glosses` | 英語の訳語を日本語に置き換えない |
+| `--sentence-per-line` | 改行も文の区切りにする（歌詞・詩など、行末に句点の無い行。行末がカンマなら次の行に続ける） |
 
 言語ごとの例文とその訳は `python3 tools/samples.py --lang=xx` で、解析の精度は `python3 tools/ud_eval.py --lang=xx` で
 見られます（評価用のツリーバンクは言語ごとの文書を参照）。

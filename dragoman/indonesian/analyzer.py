@@ -67,11 +67,8 @@ def tokens(text):
     return TOKEN.findall(text)
 
 
-LINE_BREAKS = False  # 改行も文の区切りにする (--sentence-per-line。歌詞・詩の行。行末がカンマなら次の行に続ける)
-
-
 def sentences(text):
-    """文に分ける: 句点・疑問符。LINE_BREAKS なら改行でも"""
+    """文に分ける: 句点・疑問符 (改行でも区切るのは共通のオプション --sentence-per-line)"""
     current = []
     for line in text.splitlines():
         for token in tokens(line):
@@ -79,9 +76,6 @@ def sentences(text):
             if PUNCTUATION.get(token) in ('period', 'question'):
                 yield current
                 current = []
-        if LINE_BREAKS and current and current[-1] not in (',', ';', ':'):
-            yield current
-            current = []
     if current:
         yield current
 

@@ -15,6 +15,7 @@
 #   -r, --romanize         語ごとの辞書引きの結果に、語の転写を添える
 #   --no-explain           初学者向けの解説 (動詞の型・語根など) を出さない
 #   --english-glosses      英語の訳語 (Wiktionary などの語義) を日本語に置き換えない
+#   --sentence-per-line    改行も文の区切りにする (歌詞・詩など、行末に句点の無い行。行末がカンマなら次の行に続ける)
 #   -h, --help             説明を表示する
 #
 import getopt
@@ -25,7 +26,7 @@ from dragoman.core import ansi_color, descendants, etymology, render
 
 COMMON_SHORT = 'wDEst:rh'
 COMMON_LONG = ['no-word-detail', 'descendants', 'etymology', 'speech', 'tts=', 'romanize', 'no-explain',
-               'english-glosses', 'help']
+               'english-glosses', 'sentence-per-line', 'help']
 
 
 @dataclass
@@ -38,6 +39,7 @@ class Options:
     voice: str = None
     romanize: bool = False
     explain: bool = True
+    sentence_per_line: bool = False
     extra: dict = field(default_factory=dict)  # 言語固有のオプションの値
 
 
@@ -94,7 +96,7 @@ def word_notes(command, options):
 
 
 def parse(command, argv):
-    opts, args = getopt.getopt(argv, COMMON_SHORT + command.short_options,
+    opts, args = getopt.gnu_getopt(argv, COMMON_SHORT + command.short_options,
                                COMMON_LONG + list(command.long_options))
     options = Options()
     for option, arg in opts:
@@ -118,6 +120,8 @@ def parse(command, argv):
             options.romanize = True
         elif option == '--no-explain':
             options.explain = False
+        elif option == '--sentence-per-line':
+            options.sentence_per_line = True
         elif option == '--english-glosses':
             from dragoman.core import en_ja
             en_ja.ENABLED = False
@@ -125,6 +129,24 @@ def parse(command, argv):
             print(help_text(command))
             return None, None
     return options, args
+
+
+def split_lines(text):
+    """1行1文: 行ごとに分ける。行末がカンマ・セミコロン・コロン (、，) なら次の行に続ける"""
+    chunks, current = [], []
+    for line in text.splitlines():
+        if not line.strip():
+            if current:
+                chunks.append(' '.join(current))
+                current = []
+            continue
+        current.append(line.strip())
+        if not line.rstrip().endswith((',', ';', ':', '、', '，', '،', '؛')):
+            chunks.append(' '.join(current))
+            current = []
+    if current:
+        chunks.append(' '.join(current))
+    return chunks
 
 
 def read_texts(args):
@@ -152,7 +174,10 @@ def run(command, argv=None, texts=None):
             command.speech_setup(options, speech)
         if speech.init_synth(options.tts, options.voice) is None:
             speech = None
-    for text in (texts if texts is not None else read_texts(args)):
+    texts = texts if texts is not None else read_texts(args)
+    if options.sentence_per_line:
+        texts = [chunk for text in texts for chunk in split_lines(text)]
+    for text in texts:
         for analysis in command.analyzer.analyze_text(text):
             line = command.header(analysis, options) if command.header else ' '.join(analysis.surfaces)
             render.render_sentence_header(line)

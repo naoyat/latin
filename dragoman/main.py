@@ -153,6 +153,16 @@ def main(argv=None):
         # 推定した言語を標準エラー出力に (解析結果の出力は汚さない)
         print('推定した言語: %s (%s)%s' % (lang, NAMES[lang], '' if detected else '。文字から推定できないのでラテン語に'),
               file=sys.stderr)
+    if lang == 'la' and '--sentence-per-line' in args:
+        # ラテン語の入口 (latin/main.py) はファイルを自分で読むので、行の区切りに句点を補った一時ファイルにして渡す
+        from dragoman.core import cli
+        args = [a for a in args if a != '--sentence-per-line']
+        if texts is None:
+            files = [a for a in args if not a.startswith('-') and os.path.exists(a)]
+            texts = cli.read_texts(files)
+            args = [a for a in args if a not in files]
+        texts = [chunk if chunk.rstrip().endswith(('.', '!', '?', ';', ':')) else chunk + '.'
+                 for text in texts for chunk in cli.split_lines(text)]
     if lang == 'la':
         from dragoman.latin import main as latin_main
         if texts is not None:  # 文はラテン語のコマンドに一時ファイルで渡す
