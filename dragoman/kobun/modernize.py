@@ -11,12 +11,39 @@
 #
 from dataclasses import dataclass, field
 
+from dragoman.core import animacy
 from dragoman.core import verb_flags as V
 from dragoman.core.japanese import JaVerb
 from . import grammar
 
 CONTENT = {'名詞', '代名詞', '動詞', '形容詞', '形状詞', '副詞', '連体詞', '接続詞', '感動詞'}
-AUX_VERBS = {'行く', '来る', '居る'}   # 連用形 + これらは「〜ていく・〜てくる・〜ている」(なりゆく → なっていく)
+AUX_VERBS = {'行く', '来る', '居る'}
+# 人を表す古文の名詞 (「あり」→「いる」、主語の手がかり)
+HUMANS = {'翁', '嫗', '帝', '御門', '宮', '君', '女御', '更衣', '大臣', '法師', '僧', '尼', '殿', '主', '人', '男', '女',
+          '子', '親', '妻', '夫', '童', '翁丸', '姫', '后', '中宮', '上', '大納言', '中納言', '少将', '中将'}
+
+
+def is_human(token):
+    word = token.lemma if token.lemma not in ('*', '') else token.surface
+    return word in HUMANS or token.surface in HUMANS or word in animacy.JAPANESE_WORDS or \
+        word.endswith(animacy.JAPANESE_SUFFIXES)
+
+
+def subject_of(bunsetsu, i):
+    """i 番目の述語の主語らしい体言 (前の、助詞の無いか は・が・の・も の付いた体言)。「〜といふもの」は「〜」"""
+    for j in range(i - 1, -1, -1):
+        b = bunsetsu[j]
+        if b.kind == 'punct':
+            return None
+        if b.kind != 'nominal':
+            continue
+        particles = [t.lemma for t in b.tokens if t.pos == '助詞']
+        if particles and not set(particles) <= {'は', 'が', 'の', 'も'}:
+            return None
+        if b.head.lemma in ('物', '者') and j >= 2 and bunsetsu[j - 1].head.lemma == '言う':
+            return bunsetsu[j - 2].head  # 竹取の翁といふもの → 翁
+        return b.head
+    return None   # 連用形 + これらは「〜ていく・〜てくる・〜ている」(なりゆく → なっていく)
 KANJI = range(0x4e00, 0xa000)
 
 
@@ -206,14 +233,17 @@ class Modern:
         return self.text()
 
 
-def _predicate(b, nxt, after_quote):
+def _predicate(b, nxt, after_quote, subject=None):
     """用言の文節 → (現代語, 残りの助詞)"""
     tokens = b.tokens
     head = tokens[0]
     # 体言 + 動詞的接尾辞 (紫だつ → 紫がかる)
     suffix = next((t for t in tokens if t.pos == '接尾辞' and t.pos2 == '動詞的'), None)
     if head.pos == '動詞':
-        m = Modern(vocabulary(head) or _modern_word(head), 'verb')
+        word = vocabulary(head) or _modern_word(head)
+        if head.lemma == '有る' and subject is not None and is_human(subject):
+            word = 'いる'  # 人が主語の「あり」(翁といふものありけり → 老人がいた)
+        m = Modern(word, 'verb')
     elif head.pos == '形容詞':
         word = vocabulary(head) or _modern_word(head)
         m = Modern(word, 'adj' if word.endswith('い') else 'fixed')
@@ -288,6 +318,8 @@ def _predicate(b, nxt, after_quote):
     how = 'plain'
     if particles and particles[0].lemma == 'て':
         how = 'te'
+    elif particles and particles[0].lemma == 'つつ' and m.kind == 'verb':
+        return m.prefix + m.masu_stem(m.last), particles  # 取りつつ → 取りながら
     elif not particles and last_cform == '連用形' and nxt is not None and nxt.kind == 'verb' and \
             nxt.head.lemma in AUX_VERBS:
         how = 'te'  # なりゆく → なっていく
@@ -348,7 +380,7 @@ def modernize(tokens):
         after_quote = any(t.lemma in ('と', 'とて') for t in (bunsetsu[i + 1].tokens if i + 1 < len(bunsetsu) else [])) \
             or any(t.lemma in ('と', 'とて') for t in b.tokens)
         if b.kind in ('verb', 'adj') and b.head.pos in ('動詞', '形容詞') or b.kind == 'verb':
-            result = _predicate(b, nxt, after_quote)
+            result = _predicate(b, nxt, after_quote, subject_of(bunsetsu, i))
             if result is not None:
                 text, particles = result
                 last_form = ([t for t in b.tokens if t.pos in ('助動詞', '動詞', '形容詞')] or [b.head])[-1].form
@@ -389,6 +421,16 @@ def modernize(tokens):
                 out += _particle(t, b, nxt, head.form)
         b.modern = out
     notes += kakari_musubi(bunsetsu)
+    for i, b in enumerate(bunsetsu[:-1]):
+        nxt = bunsetsu[i + 1]
+        if b.kind == 'nominal' and b.head.pos in ('名詞', '代名詞') and b.head.pos3 != '副詞可能' and \
+                all(t.pos in ('名詞', '代名詞', '接頭辞', '接尾辞') for t in b.tokens) and nxt.kind in ('verb', 'adj') \
+                and not b.modern.endswith(('が', 'は', 'も')) and vocabulary(b.head) is None:
+            b.modern += 'が'  # 助詞の無い主語 (ものありけり → ものがいた)
+        if nxt.head.lemma == '為る' and nxt.head.surface == 'し' and len(nxt.tokens) > 1 and \
+                nxt.tokens[1].lemma == 'て' and b.modern.endswith('なく'):
+            b.modern = b.modern[:-2] + 'ないで'  # 〜ずして → 〜ないで
+            nxt.modern = ''
     text = ''
     for b in bunsetsu:
         if b.modern.startswith('ない') and text.endswith('で'):

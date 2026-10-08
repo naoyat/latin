@@ -21,6 +21,7 @@ class Token:
     surface: str
     pos: str          # 品詞 (名詞, 動詞, 形容詞, 形状詞, 助動詞, 助詞 …)
     pos2: str         # 品詞の細分類 (係助詞, 格助詞, 非自立可能 …)
+    pos3: str         # さらに細かい分類 (副詞可能 …)
     ctype: str        # 活用の種類 (文語四段-ハ行, 文語助動詞-ケリ …)
     cform: str        # 活用形 (連体形-一般 …)
     lemma: str        # 語彙素 (現代の形: 言う, 有る, 白い。助動詞は けり, たり-完了 など)
@@ -58,6 +59,6 @@ def parse(text):
         f = next(__import__('csv').reader([feature]))
         f += ['*'] * (24 - len(f))
         kana = f[22] if f[22] not in ('*', '') else f[9]
-        out.append(Token(surface=surface, pos=f[0], pos2=f[1], ctype=f[4], cform=f[5], lemma=f[7],
+        out.append(Token(surface=surface, pos=f[0], pos2=f[1], pos3=f[2], ctype=f[4], cform=f[5], lemma=f[7],
                          reading=f[6], base_orth=f[10], kana=hiragana(kana) if kana != '*' else surface))
     return out

@@ -26,12 +26,17 @@ class KobunTestCase(unittest.TestCase):
         self.assertEqual((iu.lemma, iu.form, iu.kana), ('言う', '連体形', 'いう'))  # 語彙素は現代の形、現代仮名遣いの読み
 
     def test_auxiliary_chains(self):
-        self.assertTrue(self.modern('今は昔、竹取の翁といふものありけり。').modern.endswith('というものあった。'))
+        self.assertTrue(self.modern('今は昔、竹取の翁といふものありけり。').modern.endswith('というものがいた。'))
         self.assertIn('紫がかっている雲が細くたなびいている', self.modern(
             'すこしあかりて、紫だちたる雲の細くたなびきたる。').modern)       # 存続の「たり」、主格の「の」
         self.assertTrue(self.modern('花の色はうつりにけりな').modern.startswith('花の色はうつってしまったな'))
         self.assertEqual(self.modern('人に笑はれけり。').modern, '人に笑われた。')
         self.assertEqual(self.modern('子を学ばしめけり。').modern, '子を学ばせた。')
+
+    def test_natural_modern_forms(self):
+        self.assertEqual(self.modern('昔、男ありけり。').modern, '昔、男がいた。')          # 助詞の無い主語、人の「あり」
+        self.assertIn('絶えないで', self.modern('ゆく河の流れは絶えずして、しかももとの水にあらず。').modern)
+        self.assertIn('竹を取りながら', self.modern('野山にまじりて竹を取りつつ、よろづのことに使ひけり。').modern)
 
     def test_nari(self):
         a = self.modern('男もすなる日記といふものを、女もしてみむとてするなり。')
