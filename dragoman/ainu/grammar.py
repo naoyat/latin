@@ -118,5 +118,7 @@ LEXICON = {
     'mina': ('笑う', 'vi'), 'emina': ('笑う', 'vt'), 'onkami': ('拝む', 'vi'), 'isoytak': ('話をする', 'vi'),
     'yupinekur': ('兄', 'noun'), 'cisanasanke': ('私が出す', 'vt'), 'hawe as': ('声がする', 'vi'),
     'hawas': ('声がする', 'vi'), 'ikici': ('する', 'vi'), 'okaype': ('いた物', 'noun'), 'kata': ('の上に', 'adv'),
-    'orun': ('の中に', 'adv'), 'tewano': ('今から', 'adv'), 'eyaykopuntek': ('喜ぶ', 'vi'), 'kamuyyaieyukar': ('神が自ら歌った謡', 'noun'),
+    'orun': ('の中に', 'adv'), 'tewano': ('今から', 'adv'), 'eyaykopuntek': ('喜ぶ', 'vi'),
+    'tanto': ('今日', 'adv'), 'numke': ('選ぶ', 'vt'), 'irankarapte': ('こんにちは', 'adv'),
+    'iyairaykere': ('ありがとう', 'adv'), 'iyayraykere': ('ありがとう', 'adv'), 'kamuyyaieyukar': ('神が自ら歌った謡', 'noun'),
 }
