@@ -10,6 +10,7 @@
 #   4. 体言は現代仮名遣いに (やうやう → ようよう)。重要古語は現代語訳 (grammar.VOCABULARY) に
 #
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 from dragoman.core import animacy
 from dragoman.core import verb_flags as V
@@ -30,7 +31,8 @@ EMOTION_VERBS = {'思う', '偲ぶ', '驚く', '嘆く', '泣く', '知る', '�
 HONORED = {'帝', '御門', '宮', '君', '中宮', '后', '院', '上', '大臣', '殿', '女御', '大納言', '中納言'}
 # 複合動詞 (前の動詞の語彙素, 後ろの動詞の語彙素) → 現代語 (思ひ出づ → 思い出す)
 COMPOUND_VERBS = {('思う', '出でる'): '思い出す', ('見る', '出でる'): '見つける', ('言う', '出でる'): '言い出す',
-                  ('泣く', '出でる'): '泣き出す', ('思う', '立つ'): '思い立つ', ('立つ', '出でる'): '立ち出る'}
+                  ('泣く', '出でる'): '泣き出す', ('思う', '立つ'): '思い立つ', ('立つ', '出でる'): '立ち出る',
+                  ('行く', '泥む'): '行き悩む'}
 FIRST_PERSON = {'我', '我れ', '吾', 'われ', '己', 'おのれ', '自分', '私'}
 
 
@@ -123,6 +125,33 @@ def vocabulary(token):
         if key in grammar.VOCABULARY:
             return grammar.VOCABULARY[key]
     return None
+
+
+def obsolete(token):
+    """廃れた語の現代語訳 (明かる → 明るくなる)。印を付ける"""
+    for key in (token.lemma, token.base_orth):
+        if key in grammar.OBSOLETE:
+            token.obsolete = 'table'
+            return grammar.OBSOLETE[key]
+    return None
+
+
+@lru_cache(maxsize=None)
+def modern_known(word, pos):
+    """現代語の辞書で 1 語・同じ品詞・文語の活用でない語か (あかる は形容詞「明るい」に読まれるので無い語)"""
+    from dragoman.core.japanese import mecab_parse
+    parsed = mecab_parse(word)
+    if parsed is None:
+        return True  # 現代語の MeCab が無ければ調べない
+    return len(parsed) == 1 and parsed[0][1][0] == pos and not parsed[0][1][4].startswith('文語')
+
+
+def _plain_word(token):
+    """表に無い自立語を形だけ現代語にする。現代語に無ければ印を付ける"""
+    word = _modern_word(token)
+    if word and not modern_known(word, token.pos):
+        token.obsolete = 'unknown'
+    return word
 
 
 # ----------------------------------------------------------------------
@@ -307,12 +336,12 @@ def _predicate(b, nxt, after_quote, subject=None, ctx=None):
             word = 'いらっしゃる'
         m = Modern(word, 'masu' if word == 'ます' else 'verb')
     elif head.pos == '動詞':
-        word = compound or vocabulary(head) or _modern_word(head)
+        word = compound or vocabulary(head) or obsolete(head) or _plain_word(head)
         if head.lemma == '有る' and subject is not None and is_human(subject):
             word = 'いる'  # 人が主語の「あり」(翁といふものありけり → 老人がいた)
         m = Modern(word, 'verb')
     elif head.pos == '形容詞':
-        word = vocabulary(head) or _modern_word(head)
+        word = vocabulary(head) or obsolete(head) or _plain_word(head)
         m = Modern(word, 'adj' if word.endswith('い') else 'fixed')
     elif suffix is not None:
         m = Modern(head.surface + 'がかる', 'verb')
@@ -511,6 +540,8 @@ def modernize(tokens):
             result = _predicate(b, nxt, after_quote, subject_of(bunsetsu, i), (bunsetsu, i))
             if result is not None:
                 text, particles = result
+                if b.head.obsolete == 'unknown':
+                    text = '〔%s〕' % text  # 現代語に無い語を形だけ直したもの
                 last_form = ([t for t in b.tokens if t.pos in ('助動詞', '動詞', '形容詞')] or [b.head])[-1].form
                 b.modern = text + ''.join(_particle(p, b, nxt, last_form) for p in particles)
                 continue
@@ -550,6 +581,7 @@ def modernize(tokens):
         b.modern = out
     notes += kakari_musubi(bunsetsu)
     notes += honorific_notes(bunsetsu)
+    notes += obsolete_notes(bunsetsu)
     for i, b in enumerate(bunsetsu[:-1]):
         nxt = bunsetsu[i + 1]
         if b.kind == 'nominal' and b.head.pos in ('名詞', '代名詞') and b.head.pos3 != '副詞可能' and \
@@ -583,6 +615,18 @@ def kakari_musubi(bunsetsu):
             ok = pred.form == form
             notes.append('係り結び: 係助詞「%s」(%s) → 結びの「%s」は%s%s' % (
                 t.surface, meaning, pred.surface, form, '' if ok else ' (ここでは %s: 結びの流れ・消滅か)' % pred.form))
+    return notes
+
+
+def obsolete_notes(bunsetsu):
+    """現代語に無い語の注"""
+    notes = []
+    for b in bunsetsu:
+        t = b.head
+        if t.obsolete == 'table':
+            notes.append('現代語に無い語: 「%s」(%s) →「%s」' % (t.surface, t.base_orth, obsolete(t)))
+        elif t.obsolete == 'unknown':
+            notes.append('現代語に無い語: 「%s」(%s)。表に無いので形だけ現代語にした (〔 〕の中)' % (t.surface, t.base_orth))
     return notes
 
 

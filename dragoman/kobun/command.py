@@ -27,7 +27,13 @@ def explain(token):
         return '%s語 (%s)' % (honor[0], grammar.HONORIFIC_NOTES[honor[0]])
     from .modernize import vocabulary
     word = vocabulary(token)
-    return '重要古語「%s」' % word if word else ''
+    if word:
+        return '重要古語「%s」' % word
+    if token.obsolete == 'table':
+        return '現代語に無い語「%s」' % grammar.OBSOLETE.get(token.lemma, grammar.OBSOLETE.get(token.base_orth, ''))
+    if token.obsolete == 'unknown':
+        return '現代語に無い語 (表に無い)'
+    return ''
 
 
 def render(analysis, options):

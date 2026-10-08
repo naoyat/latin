@@ -29,6 +29,7 @@ class Token:
     base_orth: str    # 書字形の基本形 (古文の綴り: いふ, 白し)
     kana: str         # この形の現代仮名遣いの読み (ひらがな)
     chosen: str = ''  # 文脈で選んだ助動詞の意味 (受身・意志 …)
+    obsolete: str = ''  # 現代語に無い語: 'table' (廃語の表で訳した) / 'unknown' (表に無く、形だけ現代語にした)
 
     @property
     def form(self):

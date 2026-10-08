@@ -9,7 +9,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from dragoman.kobun import mecab  # noqa: E402
+from dragoman.kobun import mecab, modernize  # noqa: E402
 
 HAVE_DATA = mecab.available()
 
@@ -73,6 +73,15 @@ class KobunTestCase(unittest.TestCase):
         a = self.modern('秋来ぬと目にはさやかに見えねども風の音にぞおどろかれぬる')
         self.assertIn('見えないけれども', a.modern)      # 已然形 + ども
         self.assertTrue(any('係助詞「ぞ」' in n and '連体形' in n for n in a.notes))
+
+    def test_obsolete_words(self):
+        a = self.modern('やうやう白くなりゆく山ぎは、すこしあかりて、紫だちたる雲のほそくたなびきたる。')
+        self.assertIn('すこし明るくなって', a.modern)    # 廃語の表: 明かる → 明るくなる
+        self.assertTrue(any('現代語に無い語' in n and 'あかる' in n for n in a.notes))
+        self.assertIn('行き悩んで去る', self.modern('行きなづみて往ぬ。').modern)
+        self.assertFalse(modernize.modern_known('あかる', '動詞'))  # 現代語では形容詞「明るい」に読まれる
+        self.assertTrue(modernize.modern_known('行く', '動詞'))
+        self.assertIn('〔', self.modern('花ぞむつれたる。').modern)  # 表に無い語は形だけ直して印を付ける
 
 
 if __name__ == '__main__':
