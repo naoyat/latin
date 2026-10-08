@@ -1,0 +1,101 @@
+# 古典チベット語（作りかけ）
+
+古典チベット語（仏典・史書・伝記の文語）を語に分け、格助詞（能格・属格・la don …）・動詞の語幹の時制・否定を示して、
+日本語に訳します。語順はほぼ日本語と同じ（動詞が文末、格助詞は後ろ）なので、古文と同じく共通の解析器（格の枠）は
+通さず、語順をそのまま日本語にします（名詞の後ろに来る形容詞・数詞・指示詞だけ前へ）。
+
+```
+./dragoman.py bo samples/tibetan.txt          # -w で語ごとの分解を省く
+./dragoman.py bo -e "རྒྱལ་པོས་བློན་པོ་ལ་གསེར་བྱིན་ནོ།"
+python3 tools/samples.py --lang=bo            # サンプルの訳 (-d で語ごとの分解)
+```
+
+```
+ཁོས་སྟ་རེས་ཤིང་བཅད་དོ།  (khos sta res shing bcad do/)
+  ཁོ  kho     代名詞  彼  能格 (動作主) →「が」
+  ས  s       助詞  能格・具格 (gis の形)
+  སྟ་རེ  sta re  名詞  斧  具格 (道具・手段) →「で」
+  ས  s       助詞  能格・具格 (gis の形)
+  ཤིང  shing   名詞  木  絶対格 (目的語) →「を」
+  བཅད  bcad    動詞  切る  過去形 (見出し gcod)
+  དོ  do      助詞  文末 (go の形)
+  →  彼が斧で木を切った。
+
+འདི་སྐད་བདག་གིས་ཐོས་པའི་དུས་གཅིག་ན།  ('di skad bdag gis thos pa'i dus gcig na/)
+  →  このように私が聞いたある時に。
+```
+
+## 準備
+
+データはリポジトリに入れず、`~/.local/share/dragoman-data/bo/` に置きます。
+
+```
+pip install botok                                   # 語の区切り (OpenPecha、Apache-2.0。無くても辞書の最長一致で動く)
+mkdir -p ~/.local/share/dragoman-data/bo/{hill,kaikki,dict} && cd ~/.local/share/dragoman-data/bo
+curl -L -o hill/Lexicons.zip "https://zenodo.org/records/574876/files/Lexicons.zip?download=1"   # 品詞辞書 (CC BY 4.0)
+curl -L -o hill/Texts.zip "https://zenodo.org/records/574878/files/Texts.zip?download=1"         # 評価用コーパス (CC BY 4.0)
+(cd hill && unzip -o Lexicons.zip -d lex && unzip -o Texts.zip -d texts)
+curl -L -o kaikki/kaikki.org-dictionary-Tibetan.jsonl https://kaikki.org/dictionary/Tibetan/kaikki.org-dictionary-Tibetan.jsonl
+# 任意: 蔵英・梵蔵の辞書 (著作権はそれぞれの著者。手元だけで使う)
+for f in 01-Hopkins2015 02-RangjungYeshe 15-Hopkins-Skt2015 21-Mahavyutpatti-Skt; do
+  curl -L -o dict/$f https://raw.githubusercontent.com/christiansteinert/tibetan-dictionary/master/_input/dictionaries/public/$f
+done
+cd - && python3 tools/build_tibetan_dic.py         # → ~/.local/share/dragoman-data/bo/tibetan.sqlite
+```
+
+botok の辞書パック（約12MB）は初回に `~/.local/share/dragoman-data/bo/botok/` へ自動でダウンロードされます。
+
+## しくみ
+
+* 転写はワイリー式（EWTS）。音節ごとに基字（母音の付く字。重ね字なら全体）を決めて、母音記号が無ければ a を補う
+  （བསྒྲུབས → bsgrubs、དགའ → dga'、གཡོ → g.yo、པའི → pa'i、པདྨ → padma）。基字の分からない音節（དགས: dags / dgas）は
+  辞書にある方を選ぶ。Wiktionary の転写と 99% 一致。
+* 語の区切りは botok。語に付いた格助詞（རྒྱལ་པོས → rgyal po + s）も切り離す。botok の誤りのうち規則で直せるもの:
+  奪格の las を語の一部と取り違えたもの（རྟ་ལ + ས → rta + las）、動詞の過去の語幹の -s を助詞として切ったもの
+  （smra + s → smras）、代名詞に付いた能格（khos → kho + s）、文末の 'o の付いたまま（bsgo'o）、命令の cig の付いたまま
+  （gyur cig）。
+* 格助詞は異形をまとめる（kyis / gyis / yis / -s → gis、kyi / gyi / yi / 'i → gi、du / tu / su / ru / -r → la）。
+  * 能格・具格 gis: 人（代名詞・人を表す語）なら動作主「が」、物なら道具「で」（khos sta res → 彼が斧で）。
+  * 何も付かない名詞（絶対格）: 同じ節に能格の名詞があるか、動詞が他動詞なら目的語「を」、ほかは主語「が」。
+    他動詞かどうかは日本語の訳語の自他（JMdict。古文と共通の `ja-transitivity.tsv`）で見る。
+  * 繋辞 yin の文は最初の名詞を「は」（kho slob ma yin → 彼は弟子である）。存在動詞 yod / med の文の、人の la は
+    所有者「〜には」（nga la dngul med → 私にはお金がない）。X dang ldan →「X を具える」。
+  * 属格 gi →「の」、la →「に」、na →「で」（時の名詞なら「に」）、nas / las →「から」、dang →「と」、ni →「は」、
+    kyang →「も」、zhes →「と」、bas →「より」。
+* 動詞は語幹（現在・過去・未来・命令）から時制を決める。語幹の対応は Wiktionary の活用表と Rangjung Yeshe の
+  「pf. of {sgrub pa}」などから（bsgrubs → sgrub の過去）、時制は Hill & Garrett の品詞の印（v.past, v.fut.v.pres …）を先に使う。
+  * 否定 mi（現在・未来）→「〜ない」、ma（過去・命令）→「〜なかった・〜するな」。
+  * 接続の te / cing / la →「〜て」、nas →「〜てから」、na →「〜なら」、kyang →「〜ても」。
+  * 動名詞（+ pa / ba）+ 属格は連体形で名詞に掛ける（thos pa'i dus → 聞いた時）。ほかの格助詞なら「〜こと + 助詞」、
+    文末なら言い切り（bka' stsal pa → おっしゃった）。V-par gyur →「〜ようになる」、V-bar bya →「〜しよう」（一人称）。
+  * 目的: V + du + 行く →「〜しに行く」（chu len du song → 水を取りに行った）。祈願 gyur cig →「〜なりますように」。
+  * 名詞 + 動詞の慣用的な組み合わせ（phyag 'tshal → 礼拝する、bka' stsal → おっしゃる）。
+* 訳語は Wiktionary → Hopkins → Rangjung Yeshe の英語を、ほかの言語と共通の英語 → 日本語の表（`core/en_ja.py`）で
+  日本語にする。よく使う語（特に仏典の語: chos → 法、sangs rgyas → 仏陀、sems can → 衆生）は `tibetan/grammar.py` の表で決める。
+* 複数音節の名詞・動詞は、Mahāvyutpatti（翻訳名義大集）と Hopkins の表からサンスクリットの原語を注に出す
+  （sangs rgyas → buddhaḥ、bcom ldan 'das → bhagavān）。
+
+## 評価
+
+Hill & Garrett の手で品詞を付けたコーパス（『賢愚経』、プトンの仏教史、ミラレパ伝・マルパ伝。約28万語）で測ります。
+古典チベット語の Universal Dependencies はまだ無いので、主語・目的語の再現率ではなく、語の区切り・品詞・格助詞・時制。
+
+```
+python3 tools/bo_eval.py [--source=mdzangsblun,buston,mila,marpa] [--limit=N]
+```
+
+| 語の区切り (F1) | 品詞 (区切りの合った語) | 格助詞 | 時制 (時制が1つの動詞) |
+|---|---|---|---|
+| 83.6% | 95.4% | 88.4% | 92.2% |
+
+* 語の区切りの食い違いの多くは流儀の違い: 正解のコーパスは決まった言い回し（'di skad、shin tu、de nas、gal te）を
+  分け、語に付いた -r も切る（phyir → phyi + r、mngon par → mngon pa + r）。botok はこれらを1語にする（訳にはその方がよい）。
+* Hill & Garrett の品詞辞書はこのコーパスから作られているので、品詞と時制の数字はやや良く出る。
+* 能格と具格は正解の印が同じ（case.agn）なので、「が」と「で」の選び分けは測れていない。
+
+## まだ
+
+* 能格と具格の選び分けの改善（人でない動作主、主語の省略された文の道具）。
+* 敬語の動詞（gsung, mdzad, gshegs …）を日本語の敬語に、動詞の語幹の表の拡充、複合動詞の表の拡充。
+* 長い文の節の切れ目（接続の助詞で切った節ごとの主語の引き継ぎ）。
+* 対訳での確認（SansTib の梵蔵対訳、ACTib の大きなコーパス）。

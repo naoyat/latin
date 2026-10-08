@@ -18,9 +18,10 @@
 #   python3 tools/samples.py --lang=fa       # ペルシア語 (samples/persian.txt)
 #   python3 tools/samples.py --lang=hi       # ヒンディー語 (samples/hindi.txt)
 #   python3 tools/samples.py --lang=ur       # ウルドゥー語 (samples/urdu.txt)
+#   python3 tools/samples.py --lang=bo       # 古典チベット語 (samples/tibetan.txt)。日本語訳を表示
 #   python3 tools/samples.py --lang=kobun    # 古文 (samples/kobun.txt)。現代語訳を表示
 #
-#   --lang=la|grc|sa|ru|he|ar|fa|hi|ur|kobun 言語 (既定は la。ラテン語)
+#   --lang=la|grc|sa|ru|he|ar|fa|hi|ur|bo|kobun 言語 (既定は la。ラテン語)
 #   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
 #   -r, --romanize      ラテン文字以外の文に転写を添える (-d なら語ごとにも)
 #   -l, --list          節の見出しの一覧を表示する
@@ -45,7 +46,8 @@ LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.tx
               'sa': os.path.join(ROOT, 'samples', 'sanskrit.txt'), 'ru': os.path.join(ROOT, 'samples', 'russian.txt'),
               'he': os.path.join(ROOT, 'samples', 'hebrew.txt'), 'ar': os.path.join(ROOT, 'samples', 'arabic.txt'),
               'fa': os.path.join(ROOT, 'samples', 'persian.txt'), 'hi': os.path.join(ROOT, 'samples', 'hindi.txt'),
-              'ur': os.path.join(ROOT, 'samples', 'urdu.txt'), 'kobun': os.path.join(ROOT, 'samples', 'kobun.txt')}
+              'ur': os.path.join(ROOT, 'samples', 'urdu.txt'), 'bo': os.path.join(ROOT, 'samples', 'tibetan.txt'),
+              'kobun': os.path.join(ROOT, 'samples', 'kobun.txt')}
 
 
 def analyzer_for(lang):
@@ -77,6 +79,9 @@ def analyzer_for(lang):
     if lang == 'kobun':
         from dragoman.kobun import analyzer as kobun_analyzer
         return kobun_analyzer.analyze_text
+    if lang == 'bo':
+        from dragoman.tibetan import analyzer as tibetan_analyzer
+        return tibetan_analyzer.analyze_text
     return analyzer.analyze_text
 AUTO_MACRON = '[auto-macron]'
 ANSI = re.compile(r'\x1b\[[0-9;]*m')
@@ -158,6 +163,9 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
             elif lang == 'hi':
                 from dragoman.hindi import script as hindi_script
                 print('  (%s)' % hindi_script.translit(text))
+            elif lang == 'bo':
+                from dragoman.tibetan import script as tibetan_script, dictionary as tibetan_dictionary
+                print('  (%s)' % tibetan_script.translit(text, tibetan_dictionary.known()))
             elif lang == 'he':
                 from dragoman.hebrew import script as hebrew_script
                 print('  (%s)' % ' '.join(hebrew_script.translit(w) for w in hebrew_script.pointed(text).split()
@@ -173,6 +181,14 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
                         print('  → ', analysis.modern)
                     else:
                         kobun_command.render(analysis, Options(show_word_detail=(mode == 'detail')))
+                    continue
+                if lang == 'bo':
+                    from dragoman.core.cli import Options
+                    from dragoman.tibetan import command as tibetan_command
+                    if mode == 'brief':
+                        print('  → ', analysis.japanese)
+                    else:
+                        tibetan_command.render(analysis, Options(show_word_detail=(mode == 'detail')))
                     continue
                 if lang == 'ar':
                     # 母音記号を補った形 (選んだ読みと格の語尾) と転写
