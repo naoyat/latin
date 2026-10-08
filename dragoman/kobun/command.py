@@ -22,6 +22,9 @@ def explain(token):
     if token.pos == '助詞' and token.pos2 == '係助詞' and token.lemma in grammar.KAKARI:
         form, meaning = grammar.KAKARI[token.lemma]
         return '係り結び (%s。結びは%s)' % (meaning, form)
+    honor = grammar.honorific(token)
+    if honor is not None:
+        return '%s語 (%s)' % (honor[0], grammar.HONORIFIC_NOTES[honor[0]])
     from .modernize import vocabulary
     word = vocabulary(token)
     return '重要古語「%s」' % word if word else ''

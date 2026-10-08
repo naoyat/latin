@@ -51,6 +51,17 @@ class KobunTestCase(unittest.TestCase):
         self.assertEqual(chosen('この人こそ行かめ。')[1], ['適当・勧誘'])                   # こそ〜め
         self.assertEqual(chosen('花散りぬべし。'), ('花がきっと散るはずだ。', ['強意', '当然・推量']))
 
+    def test_honorifics(self):
+        a = self.modern('帝、御覧じて、いとあはれとおぼしけり。')
+        self.assertTrue(a.modern.startswith('帝、ご覧になって'))
+        self.assertTrue(a.modern.endswith('お思いになった。'))
+        a = self.modern('宮に見せたてまつりたまふ。')
+        self.assertEqual(a.modern, '宮に見せ申し上げなさる。')
+        self.assertTrue(any(n.startswith('二方面への敬語') for n in a.notes))
+        self.assertTrue(any(n.startswith('主語: 書かれていないが') for n in a.notes))
+        self.assertEqual(self.modern('帝の言はせたまふ。').modern, '帝が言いなさる。')      # 最高敬語 (せたまふ)
+        self.assertEqual(self.modern('心ざしのほど、思ひ知りはべりぬ。').modern, '心ざしのほど、思い知りました。')  # 丁寧の補助動詞
+
     def test_nari(self):
         a = self.modern('男もすなる日記といふものを、女もしてみむとてするなり。')
         self.assertIn('するという日記', a.modern)       # 伝聞の「なり」(体言の前)

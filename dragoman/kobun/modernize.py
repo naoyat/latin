@@ -200,6 +200,9 @@ class Modern:
         self.last, self.kind = last, 'verb'
 
     def negative(self):
+        if self.kind == 'masu':
+            self.last, self.kind = 'ません', 'fixed'
+            return
         if self.kind == 'verb':
             self.prefix += self.neg_stem(self.last)
         elif self.kind == 'adj':
@@ -214,6 +217,9 @@ class Modern:
             self.last = 'いる'
 
     def past(self):
+        if self.kind == 'masu':
+            self.last, self.kind = 'ました', 'fixed'
+            return
         if self.kind == 'verb':
             self.last = Modern.past_form(self.last)
         elif self.kind == 'adj':
@@ -241,6 +247,8 @@ class Modern:
     def final(self, how):
         """後ろに続くものに合わせた形: 'te' (〜て)、'adverbial' (連用中止・連用形)、'plain'"""
         if how == 'te':
+            if self.kind == 'masu':
+                return self.prefix + 'まして'
             if self.kind == 'verb':
                 return self.prefix + self.te(self.last)
             if self.kind == 'adj':
@@ -252,6 +260,10 @@ class Modern:
             if self.kind == 'verb':
                 return self.prefix + self.te(self.last)
         return self.text()
+
+
+def m_is_set(local):
+    return 'm' in local
 
 
 def _agent_before(bunsetsu, i):
@@ -282,7 +294,19 @@ def _predicate(b, nxt, after_quote, subject=None, ctx=None):
             (prev.head.lemma, head.lemma) in COMPOUND_VERBS:
         compound = COMPOUND_VERBS[(prev.head.lemma, head.lemma)]
         prev.modern = ''  # 前の動詞は複合動詞に含める
-    if head.pos == '動詞':
+    honor = grammar.honorific(head)
+    auxiliary_verb = prev is not None and prev.kind == 'verb' and head.pos2 == '非自立可能' and \
+        not [t for t in prev.tokens if t.pos == '助詞'] and prev.tokens[-1].form in ('連用形', '未然形')
+    if head.lemma == '為る' and prev is not None and prev.head.surface == '御覧':
+        compound = 'ご覧になる'  # 御覧ず
+        prev.modern = ''
+    if head.pos == '動詞' and honor is not None and not compound:
+        word = (honor[2] if auxiliary_verb and honor[2] else honor[1]) or _modern_word(head)
+        head.chosen = honor[0] + '語' + ('の補助動詞' if auxiliary_verb else '')
+        if word == 'ていらっしゃる':
+            word = 'いらっしゃる'
+        m = Modern(word, 'masu' if word == 'ます' else 'verb')
+    elif head.pos == '動詞':
         word = compound or vocabulary(head) or _modern_word(head)
         if head.lemma == '有る' and subject is not None and is_human(subject):
             word = 'いる'  # 人が主語の「あり」(翁といふものありけり → 老人がいた)
@@ -302,6 +326,7 @@ def _predicate(b, nxt, after_quote, subject=None, ctx=None):
     first_person = subject is not None and (subject.lemma in FIRST_PERSON or subject.surface in FIRST_PERSON)
     attributive = b_is_attributive(b, nxt)
     emphatic = False
+    honor_masu = False
     for k, kind in enumerate(kinds):
         later = kinds[k + 1:]
         aux = auxes[k]
@@ -327,6 +352,10 @@ def _predicate(b, nxt, after_quote, subject=None, ctx=None):
                 continue
             else:
                 aux.chosen = '受身'
+        if kind == 'causative' and not later and nxt is not None and nxt.head.lemma == '給う-尊敬':
+            aux.chosen = '尊敬 (せたまふ・させたまふ: 最高敬語)'
+            honor_masu = True
+            continue  # 使役でなく尊敬: 後ろの「たまふ」と合わせて「〜なさる」(言はせたまふ → 言いなさる)
         if kind in ('passive', 'causative'):
             if m.kind == 'verb':
                 stem = m.neg_stem(m.last)
@@ -344,7 +373,7 @@ def _predicate(b, nxt, after_quote, subject=None, ctx=None):
                 m.past()
         elif kind == 'perfect':
             if 'past' in later:
-                m.perfect_then()
+                m.perfect_then() if m.kind != 'masu' else None
             elif not later:
                 m.past()
         elif kind == 'past':
@@ -404,6 +433,8 @@ def _predicate(b, nxt, after_quote, subject=None, ctx=None):
                 m.last, m.kind = 'たい', 'adj'
     if emphatic:
         m.prefix = 'きっと' + m.prefix
+    if honor_masu and m.kind == 'verb':
+        return m.prefix + m.masu_stem(m.last), particles
     # 後ろに続くもの
     last_cform = (auxes[-1] if auxes else head).form
     how = 'plain'
@@ -417,6 +448,12 @@ def _predicate(b, nxt, after_quote, subject=None, ctx=None):
     elif not particles and last_cform == '連用形' and nxt is not None and nxt.kind in ('verb', 'adj') and \
             m.kind == 'adj':
         how = 'adverbial'  # 白くなる
+    elif not particles and nxt is not None and nxt.kind == 'verb' and grammar.honorific(nxt.head) and \
+            grammar.honorific(nxt.head)[2] == 'ていらっしゃる' and nxt.head.pos2 == '非自立可能':
+        how = 'te'  # 〜ておはす → 〜ていらっしゃる
+    elif not particles and last_cform in ('連用形', '未然形') and nxt is not None and nxt.kind == 'verb' and \
+            grammar.honorific(nxt.head) and grammar.honorific(nxt.head)[2] == 'ます' and m.kind == 'verb':
+        return m.prefix + m.masu_stem(m.last), particles  # 知りはべり → 知ります
     elif not particles and last_cform == '連用形' and nxt is not None and nxt.kind == 'verb' and \
             not auxes and head.pos == '動詞':
         return Modern.masu_stem(m.last) if m.kind == 'verb' else m.text(), particles  # 複合動詞 (見送る)
@@ -512,11 +549,12 @@ def modernize(tokens):
                 out += _particle(t, b, nxt, head.form)
         b.modern = out
     notes += kakari_musubi(bunsetsu)
+    notes += honorific_notes(bunsetsu)
     for i, b in enumerate(bunsetsu[:-1]):
         nxt = bunsetsu[i + 1]
         if b.kind == 'nominal' and b.head.pos in ('名詞', '代名詞') and b.head.pos3 != '副詞可能' and \
                 all(t.pos in ('名詞', '代名詞', '接頭辞', '接尾辞') for t in b.tokens) and nxt.kind in ('verb', 'adj') \
-                and not b.modern.endswith(('が', 'は', 'も')) and vocabulary(b.head) is None:
+                and not b.modern.endswith(('が', 'は', 'も')) and vocabulary(b.head) is None and b.modern:
             b.modern += 'が'  # 助詞の無い主語 (ものありけり → ものがいた)
         if nxt.head.lemma == '為る' and nxt.head.surface == 'し' and len(nxt.tokens) > 1 and \
                 nxt.tokens[1].lemma == 'て' and b.modern.endswith('なく'):
@@ -545,4 +583,28 @@ def kakari_musubi(bunsetsu):
             ok = pred.form == form
             notes.append('係り結び: 係助詞「%s」(%s) → 結びの「%s」は%s%s' % (
                 t.surface, meaning, pred.surface, form, '' if ok else ' (ここでは %s: 結びの流れ・消滅か)' % pred.form))
+    return notes
+
+
+def honorific_notes(bunsetsu):
+    """敬語の注: 種類と、誰への敬意か。尊敬語があって主語が書かれていなければ、主語の手がかりを"""
+    notes = []
+    tokens = [t for b in bunsetsu for t in b.tokens]
+    for i, t in enumerate(tokens):
+        honor = grammar.honorific(t)
+        if honor is None:
+            continue
+        kind = honor[0]
+        notes.append('敬語: 「%s」は%s語 (%s)' % (t.surface, kind, grammar.HONORIFIC_NOTES[kind]))
+        prev = tokens[i - 1] if i else None
+        if prev is not None and kind == '尊敬' and grammar.honorific(prev) and grammar.honorific(prev)[0] == '謙譲':
+            notes.append('二方面への敬語: 謙譲語「%s」+ 尊敬語「%s」で、動作を受ける人とする人の両方を敬う' % (prev.surface, t.surface))
+        if prev is not None and kind == '尊敬' and prev.pos == '助動詞' and prev.base_orth in ('す', 'さす', 'しむ'):
+            notes.append('最高敬語: 「%s%s」(尊敬の助動詞 + たまふ) は帝・中宮など最も身分の高い人の動作' % (prev.surface, t.surface))
+    for i, b in enumerate(bunsetsu):
+        if b.kind == 'verb' and any(grammar.honorific(t) and grammar.honorific(t)[0] == '尊敬' for t in b.tokens) \
+                and subject_of(bunsetsu, i) is None and not any(
+                    grammar.honorific(t) and grammar.honorific(t)[0] == '尊敬' for x in bunsetsu[:i] for t in x.tokens):
+            notes.append('主語: 書かれていないが、尊敬語があるので身分の高い人 (場面の貴人) の動作')
+            break
     return notes
