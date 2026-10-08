@@ -52,7 +52,7 @@ def _orthography_index():
 
 
 def lookup_hand(word):
-    """手作りの辞書 (words/*.def から生成) を引く。
+    """手作りの辞書 (latin/words/*.def から生成) を引く。
     表記どおりで無ければ、i/j を同一視 → u/v も同一視 (入力に v が無ければ) の順で探す
     (手作りの辞書は juvenis, Jovis のように j で書いている)"""
     items = LatinDic.dic.get(word, None)

@@ -79,7 +79,7 @@ class MacronizeTestCase(HandDictionaryOnly, unittest.TestCase):
         self.assertEqual(macronize_text(text, context), 'Rēx māgnus')
 
     def test_frequency_excludes_file(self):
-        path = os.path.join(ROOT, 'texts', 'fabulae_faciles', 'perseus.txt')
+        path = os.path.join(ROOT, 'latin', 'texts', 'fabulae_faciles', 'perseus.txt')
         frequency = Frequency([path])
         self.assertGreater(frequency.count('Polydectēs'), 0)
         self.assertEqual(frequency.count('Polydectēs', exclude={path}), 0)
@@ -100,7 +100,7 @@ class AccuracyTestCase(unittest.TestCase):
         import sys
         sys.path.insert(0, os.path.join(ROOT, 'tools'))
         import macron_eval
-        files = sorted(glob.glob(os.path.join(ROOT, 'texts', 'fabulae_faciles', '*.txt')))
+        files = sorted(glob.glob(os.path.join(ROOT, 'latin', 'texts', 'fabulae_faciles', '*.txt')))
         with contextlib.redirect_stdout(io.StringIO()):
             stats = macron_eval.evaluate(files, 0, Frequency())
         self.assertGreaterEqual(stats['words_ok'] / stats['words'], 0.95)

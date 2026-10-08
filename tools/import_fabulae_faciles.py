@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Ritchie's Fabulae Faciles (Project Gutenberg #8997) を texts/fabulae_faciles/ に取り込む
+# Ritchie's Fabulae Faciles (Project Gutenberg #8997) を latin/texts/fabulae_faciles/ に取り込む
 #
 #   curl -L -o ~/.local/share/dragoman-data/fabulae-faciles-pg8997.txt \
 #        https://www.gutenberg.org/cache/epub/8997/pg8997.txt
@@ -19,7 +19,7 @@ from dragoman.core import paths
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = paths.DATA_DIR
 SOURCE = os.path.join(DATA_DIR, 'fabulae-faciles-pg8997.txt')
-OUT_DIR = os.path.join(ROOT, 'texts', 'fabulae_faciles')
+OUT_DIR = os.path.join(ROOT, 'latin', 'texts', 'fabulae_faciles')
 
 STORIES = [('PERSEUS', 'perseus'), ('HERCULES', 'hercules'),
            ('THE ARGONAUTS', 'argonautae'), ('ULYSSES', 'ulixes')]

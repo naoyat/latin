@@ -4,7 +4,7 @@
 # マクロン推定の評価
 #   マクロン付きのテキストからマクロンを外して推定させ、元のテキストと比べる
 #
-#   python3 tools/macron_eval.py                    # texts/fabulae_faciles/*.txt で評価
+#   python3 tools/macron_eval.py                    # latin/texts/fabulae_faciles/*.txt で評価
 #   python3 tools/macron_eval.py -e 20 FILE...      # 間違いの例を 20 件ずつ表示
 #   python3 tools/macron_eval.py -p DIR FILE...     # 他のツールの出力 (DIR/<同名のファイル>) を採点する
 #   python3 tools/macron_eval.py --hidden=mark      # 隠れた長音の流儀を指定して推定する
@@ -12,7 +12,7 @@
 # 隠れた長音 (māgnus/magnus など。latin/hidden_quantity.py) は流儀が分かれるので、
 # それを無視した正解率 (「隠れた長音を無視」) を主な指標とする
 #
-# 既定の評価データは目録 (texts/catalog.json) で評価に使えるとされたテキスト
+# 既定の評価データは目録 (latin/texts/catalog.json) で評価に使えるとされたテキスト
 # (手作りの辞書を作るのに使ったテキストは、精度が高く出すぎるので除く)。
 # 頻度などの知識は、評価するテキストと同じ系統 (family) のテキストを除いて使う
 #
@@ -151,10 +151,10 @@ def main():
             print('Usage: python %s [-e N] [-p DIR] [--hidden=keep|strip|mark] [--no-wiktionary] [--no-frequency] [FILE...]'
                   % sys.argv[0])
             sys.exit()
-    # 既定の評価データは目録 (texts/catalog.json) で評価に使えるとされたテキスト
+    # 既定の評価データは目録 (latin/texts/catalog.json) で評価に使えるとされたテキスト
     files = args or catalog.default().evaluation_files()
     latindic.load()
-    # 頻度は texts/ 以下の全テキストから (評価するファイル自体は除く)
+    # 頻度は latin/texts/ 以下の全テキストから (評価するファイル自体は除く)
     evaluate(files, show_errors, Frequency() if use_frequency and not predicted_dir else None, predicted_dir, hidden)
 
 

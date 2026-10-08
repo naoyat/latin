@@ -188,7 +188,7 @@ python3 tools/speak.py -b mbrola -a stress -w out.wav "..."   # 強弱アクセ�
 
 ### 辞書
 
-手作りの辞書（`words/*.def`。日本語の訳語付き）を優先し、そこに無い語は Wiktionary 由来の補助辞書で引きます。
+手作りの辞書（`latin/words/*.def`。日本語の訳語付き）を優先し、そこに無い語は Wiktionary 由来の補助辞書で引きます。
 
 ```
 mkdir -p ~/.local/share/dragoman-data && cd ~/.local/share/dragoman-data
@@ -228,12 +228,12 @@ cd - && python3 tools/build_morpheus_dic.py
 
 | テキスト | 出典 | ライセンス |
 |---|---|---|
-| `texts/fabulae_faciles/` | Ritchie, *Fabulae Faciles* (1903), Project Gutenberg #8997 | パブリックドメイン |
-| `texts/dooge/` | D'Ooge, *Latin for Beginners* (1909) の読み物, Project Gutenberg #18251 | パブリックドメイン |
-| `texts/GLORIA.txt` | 典礼文 Gloria in excelsis | パブリックドメイン |
-| `texts/RIMINI.txt` | リミニの碑文（後世の作とされる） | パブリックドメイン |
+| `latin/texts/fabulae_faciles/` | Ritchie, *Fabulae Faciles* (1903), Project Gutenberg #8997 | パブリックドメイン |
+| `latin/texts/dooge/` | D'Ooge, *Latin for Beginners* (1909) の読み物, Project Gutenberg #18251 | パブリックドメイン |
+| `latin/texts/GLORIA.txt` | 典礼文 Gloria in excelsis | パブリックドメイン |
+| `latin/texts/RIMINI.txt` | リミニの碑文（後世の作とされる） | パブリックドメイン |
 
-`texts/catalog.json` に、テキストごとの使い方を記録しています。
+`latin/texts/catalog.json` に、テキストごとの使い方を記録しています。
 
 * `macrons`: マクロンが信頼できるか（`full` / `partial` / `none`）
 * `hidden`: 隠れた長音の流儀（`mark` / `nomark` / `mixed`）
@@ -244,9 +244,9 @@ cd - && python3 tools/build_morpheus_dic.py
 マクロン推定の頻度は `macrons: full` のテキストから、隠れた長音の `mark` の知識は `hidden: mark` の
 テキストから集めます。評価は目録で評価に使えるとされたテキストで行い、評価するテキストと同じ `family` の
 テキストは知識から除きます。**目録に無いテキストは「読む対象のみ」**（知識にも評価にも使わない）なので、
-マクロンの無いテキストを読みたいときは `texts/` に置くだけで構いません。
+マクロンの無いテキストを読みたいときは `latin/texts/` に置くだけで構いません。
 
-**権利関係が不明なテキストはリポジトリに入れません。** `$DRAGOMAN_DATA/private-texts/` に、同じ書式の目録
+**権利関係が不明なテキストはリポジトリに入れません。** `$DRAGOMAN_DATA/private-latin/texts/` に、同じ書式の目録
 `catalog.json` と一緒に置くと、知識・評価・テストに使われます（golden テストの正解ファイルは `golden/` に置く）。
 
 ### 解析の精度

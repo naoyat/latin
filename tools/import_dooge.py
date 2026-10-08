@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# D'Ooge, Latin for Beginners (Project Gutenberg #18251) の読み物を texts/dooge/ に取り込む
+# D'Ooge, Latin for Beginners (Project Gutenberg #18251) の読み物を latin/texts/dooge/ に取り込む
 #
 #   curl -L -o ~/.local/share/dragoman-data/dooge-pg18251.txt \
 #        https://www.gutenberg.org/cache/epub/18251/pg18251.txt
@@ -20,7 +20,7 @@ from dragoman.core import paths
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = paths.DATA_DIR
 SOURCE = os.path.join(DATA_DIR, 'dooge-pg18251.txt')
-OUT_DIR = os.path.join(ROOT, 'texts', 'dooge')
+OUT_DIR = os.path.join(ROOT, 'latin', 'texts', 'dooge')
 
 STORIES = [('THE LABORS OF HERCULES', 'hercules'),
            ('P. CORNELIUS LENTULUS: THE STORY OF A ROMAN BOY', 'lentulus')]

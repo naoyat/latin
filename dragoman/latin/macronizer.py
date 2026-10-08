@@ -175,7 +175,7 @@ import math
 import os
 import collections
 
-TEXTS_DIR = os.path.join(paths.REPO_ROOT, 'texts')
+TEXTS_DIR = os.path.join(paths.LATIN_DIR, 'texts')
 PAST_TENSES = {'perfect', 'imperfect', 'past-perfect'}
 
 
@@ -188,7 +188,7 @@ class Frequency:
 
     def __init__(self, paths=None):
         if paths is None:
-            # 目録 (texts/catalog.json) でマクロンが信頼できるとされたテキストだけを使う
+            # 目録 (latin/texts/catalog.json) でマクロンが信頼できるとされたテキストだけを使う
             paths = catalog.default().knowledge_files()
         self.by_file = {}
         for path in paths:
@@ -260,7 +260,7 @@ class Context:
     past_ratio: float = 0.5     # 文書中の (曖昧でない) 動詞のうち過去時制の割合
     tags: list = None           # 語ごとの品詞タグ (RFTagger)
     hidden: str = 'keep'        # 隠れた長音の流儀: keep (辞書のまま) / strip (付けない) / mark (分かる範囲で付ける)
-    hidden_quantities: object = None  # mark で使う知識 (省略時は texts/ と手作りの辞書から)
+    hidden_quantities: object = None  # mark で使う知識 (省略時は latin/texts/ と手作りの辞書から)
 
 TAG_WEIGHT = 1.5
 

@@ -1,6 +1,6 @@
 {
   "_comment": [
-    "texts/ 以下のテキストの使い方の目録。ここに無いテキストは「読む対象のみ」(解析・翻訳・音読には使うが、マクロン推定の知識や評価には使わない)",
+    "latin/texts/ 以下のテキストの使い方の目録。ここに無いテキストは「読む対象のみ」(解析・翻訳・音読には使うが、マクロン推定の知識や評価には使わない)",
     "権利関係が不明なテキストはリポジトリに入れず、$DRAGOMAN_DATA/private-texts/ に同じ書式の目録と一緒に置く",
     "license: public-domain / unknown (パブリックドメインとは扱わない) など",
     "macrons: full (マクロンが信頼できる) / partial / none",
@@ -19,14 +19,14 @@
       "macrons": "full",
       "hidden": "mixed",
       "used_for_dictionary": true,
-      "source": "典礼文 Gloria in excelsis。texts/src から生成",
+      "source": "典礼文 Gloria in excelsis。latin/texts/src から生成",
       "license": "public-domain"
     },
     "RIMINI.txt": {
       "macrons": "full",
       "hidden": "mixed",
       "used_for_dictionary": false,
-      "source": "リミニの碑文 (後世の作とされる)。texts/src から生成",
+      "source": "リミニの碑文 (後世の作とされる)。latin/texts/src から生成",
       "license": "public-domain",
       "notes": "ローマ数字 (MDLV) と、その読み下しの注記行 (// で始まる) を含む"
     },

@@ -8,8 +8,9 @@
 #
 import os
 
-# リポジトリの最上位 (手作りの辞書 words/、テキスト texts/、例文 samples/ の置き場所)
+# リポジトリの最上位 (例文 samples/ の置き場所) と、ラテン語の手作りの辞書・テキストの置き場所 (latin/words/, latin/texts/)
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+LATIN_DIR = os.path.join(REPO_ROOT, 'latin')
 HOME_DATA = os.path.expanduser('~/.local/share/dragoman-data')
 OLD_HOME_DATA = os.path.expanduser('~/.local/share/latin-data')
 

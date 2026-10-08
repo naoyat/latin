@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# テキストの目録 (texts/catalog.json)
+# テキストの目録 (latin/texts/catalog.json)
 #
 # テキストごとに「どう使ってよいか」を記録する:
 #   - マクロン推定の知識 (頻度・隠れた長音) に使えるか
@@ -15,8 +15,7 @@ import os
 import json
 from dragoman.core import paths
 
-ROOT = paths.REPO_ROOT
-TEXTS_DIR = os.path.join(ROOT, 'texts')
+TEXTS_DIR = os.path.join(paths.LATIN_DIR, 'texts')
 CATALOG_PATH = os.environ.get('LATIN_CATALOG', os.path.join(TEXTS_DIR, 'catalog.json'))
 DATA_DIR = paths.DATA_DIR
 PRIVATE_TEXTS_DIR = os.path.join(DATA_DIR, 'private-texts')

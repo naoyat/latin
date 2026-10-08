@@ -161,8 +161,10 @@ dragoman/                パッケージ
   hindi/                   ヒンディー語 (Wiktionary の変化表による語形の辞書、schwa の脱落を含む転写、動詞の並び、後置詞と能格)
   urdu/                    ウルドゥー語 (ウルドゥー文字の語をヒンディー語の語形に引き当てる綴りの骨組み。解析は hindi/)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
-words/                   手作りの辞書
-texts/                   テキストと目録
+latin/                   ラテン語のデータ
+  words/                 手作りの辞書 (*.def)
+  texts/                 テキストと目録 (catalog.json)。src/ は大文字で長母音を書いた原稿 (make で .txt に)
+  scripts/               原稿の変換 (trans.sed: 大文字 → 長母音)
 samples/                 解析・翻訳のサンプル (tools/samples.py で表示)
 test/                    テスト
 ```

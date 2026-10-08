@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# texts/ 以下の全テキストを、解析から表示まで例外なく通せることを確かめる
+# latin/texts/ 以下の全テキストを、解析から表示まで例外なく通せることを確かめる
 # (手作りの辞書だけの場合と、Wiktionary の補助辞書を使う場合)
 #
 import io
@@ -16,7 +16,7 @@ from dragoman.latin.catalog import PRIVATE_TEXTS_DIR
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # リポジトリのテキストと、リポジトリに入れないテキスト (あれば)
-TEXTS = (sorted(glob.glob(os.path.join(ROOT, 'texts', '**', '*.txt'), recursive=True)) +
+TEXTS = (sorted(glob.glob(os.path.join(ROOT, 'latin', 'texts', '**', '*.txt'), recursive=True)) +
          sorted(glob.glob(os.path.join(PRIVATE_TEXTS_DIR, '*.txt'))))
 
 

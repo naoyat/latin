@@ -36,7 +36,7 @@ def cases():
     """(テストの名前, テキスト, 正解ファイル) の列"""
     for name in PUBLIC_TEXTS:
         stem = os.path.splitext(name)[0].replace('/', '__')
-        yield stem, os.path.join(ROOT, 'texts', name), os.path.join(GOLDEN_DIR, stem + '.out')
+        yield stem, os.path.join(ROOT, 'latin', 'texts', name), os.path.join(GOLDEN_DIR, stem + '.out')
     for path in sorted(glob.glob(os.path.join(PRIVATE_TEXTS_DIR, '*.txt'))):
         stem = os.path.splitext(os.path.basename(path))[0]
         yield 'private__' + stem, path, os.path.join(PRIVATE_TEXTS_DIR, 'golden', stem + '.out')
