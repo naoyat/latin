@@ -13,7 +13,8 @@
 #   ./dragoman.py he --help                            言語ごとのオプション
 #   ./dragoman.py --languages                          対応している言語の一覧
 #
-#   LANG          最初の引数が言語の符号なら言語の指定 (--lang=LANG でも)。省略するか auto なら文字から推定する
+#   LANG          最初の引数が言語の符号なら言語の指定 (--lang=LANG でも)。省略するか auto なら文字から推定し、
+#                 推定した言語を標準エラー出力に出す
 #                 (ラテン文字 → la、ギリシア文字 → grc、キリル文字 → ru、ヘブライ文字 → he、
 #                 ウルドゥー語の字 (ٹ ڈ ڑ ں ے ھ) のあるアラビア文字 → ur、ペルシア語の字 (پ چ ژ گ ک ی) の多いもの → fa、
 #                 ほかのアラビア文字 → ar、デーヴァナーガリーはヒンディー語らしい語 (है, का, की, में …) があれば hi、無ければ sa)
@@ -126,7 +127,11 @@ def main(argv=None):
             files = [a for a in args if not a.startswith('-') and os.path.exists(a)]
             texts = cli.read_texts(files)
             args = [a for a in args if a not in files]
-        lang = detect('\n'.join(texts)) or 'la'
+        detected = detect('\n'.join(texts))
+        lang = detected or 'la'
+        # 推定した言語を標準エラー出力に (解析結果の出力は汚さない)
+        print('推定した言語: %s (%s)%s' % (lang, NAMES[lang], '' if detected else '。文字から推定できないのでラテン語に'),
+              file=sys.stderr)
     if lang == 'la':
         from dragoman.latin import main as latin_main
         if texts is not None:  # 文はラテン語のコマンドに一時ファイルで渡す
