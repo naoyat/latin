@@ -23,7 +23,18 @@ def explain(word):
                               morphology.ASPECT_NAMES.get(item.attrib('aspect'), '')))
     if getattr(word, 'focus', False):
         out.append('焦点 (ang) →「は」')
+    if item.attrib('relative'):
+        out.append('関係節: %s (連体節にして名詞に掛ける)' % item.attrib('relative'))
     return out
+
+
+def original(analysis):
+    """元の文 (標識・関係節の語を含む)"""
+    words = getattr(analysis, 'original', None) or analysis.surfaces
+    text = ''
+    for w in words:
+        text += w if w in analyzer.PUNCTUATION and w not in '(“"' else (' ' if text else '') + w
+    return text
 
 
 def available():
@@ -31,5 +42,5 @@ def available():
 
 
 COMMAND = Command(lang='tl', name='タガログ語', analyzer=analyzer, dictionary=dictionary, available=available,
-                  usage=USAGE, header=lambda a, o: ' '.join(a.surfaces), explain=explain,
+                  usage=USAGE, header=lambda a, o: original(a), speech_text=lambda a, o: original(a), explain=explain,
                   descendant_langs=('en', 'ja'), speech_lang='tl')

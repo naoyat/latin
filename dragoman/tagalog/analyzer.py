@@ -338,8 +338,9 @@ def mark_relatives(words):
             j += 1
         hitem = _item(head)
         hja = (hitem.ja or '').split(',')[0]
-        head.items = [type(hitem)(dict(hitem.item, ja=''.join(parts) + verb + hja, gloss_lang='ja',
-                                       relative=word.surface))]
+        span = ' '.join(' '.join([m.surface for m in w.modifiers if isinstance(m, Word) and m.items and
+                                  m.items[0].pos == 'article'] + [w.surface]) for w in words[i:j] if w.items)
+        head.items = [type(hitem)(dict(hitem.item, ja=''.join(parts) + verb + hja, gloss_lang='ja', relative=span))]
         i = j
     return out
 
@@ -462,7 +463,9 @@ def analyze_sentence(surfaces):
     words = lookup_all(surfaces)
     word_details = [word.detail() for word in words]
     with language.using(TAGALOG):
-        return common.analyze_words([w.surface for w in words], words, word_details, [])
+        analysis = common.analyze_words([w.surface for w in words], words, word_details, [])
+    analysis.original = list(surfaces)  # 見出しの行・音読は元の文 (標識・関係節の語はまとめた後の語の列に無い)
+    return analysis
 
 
 def analyze_text(text):

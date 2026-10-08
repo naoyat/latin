@@ -14,5 +14,6 @@ USAGE = '''
 '''
 
 COMMAND = Command(lang='ms', name='マレー語', analyzer=analyzer, dictionary=dictionary,
-                  available=indonesian_command.available, usage=USAGE, header=lambda a, o: ' '.join(a.surfaces),
+                  available=indonesian_command.available, usage=USAGE, header=lambda a, o: indonesian_command.original(a),
+                  speech_text=lambda a, o: indonesian_command.original(a),
                   explain=indonesian_command.explain, descendant_langs=('en', 'ja', 'id'), speech_lang='ms')

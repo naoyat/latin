@@ -584,7 +584,9 @@ def analyze_sentence(surfaces):
     words = lookup_all(surfaces)
     word_details = [word.detail() for word in words]
     with language.using(INDONESIAN):
-        return common.analyze_words([w.surface for w in words], words, word_details, [])
+        analysis = common.analyze_words([w.surface for w in words], words, word_details, [])
+    analysis.original = list(surfaces)  # 見出しの行・音読は元の文 (関係節・所有でまとめた語を含む)
+    return analysis
 
 
 def set_lang(lang):

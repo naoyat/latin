@@ -21,9 +21,20 @@ def explain(word):
     derivation = item.attrib('derivation')
     if derivation:
         out.append('接辞: %s' % derivation)
+    if item.attrib('relative'):
+        out.append('関係節: %s (連体節にして名詞に掛ける)' % item.attrib('relative'))
     if item.pos == 'verb' and item.attrib('voice') == 'passive':
         out.append('受動 (di-): 前の名詞が受け手、oleh が動作主')
     return out
+
+
+def original(analysis):
+    """元の文 (関係節・所有でまとめた語を含む)"""
+    words = getattr(analysis, 'original', None) or analysis.surfaces
+    text = ''
+    for w in words:
+        text += w if w in analyzer.PUNCTUATION and w not in '(“"' else (' ' if text else '') + w
+    return text
 
 
 def available():
@@ -31,5 +42,5 @@ def available():
 
 
 COMMAND = Command(lang='id', name='インドネシア語', analyzer=analyzer, dictionary=dictionary, available=available,
-                  usage=USAGE, header=lambda a, o: ' '.join(a.surfaces), explain=explain,
+                  usage=USAGE, header=lambda a, o: original(a), speech_text=lambda a, o: original(a), explain=explain,
                   descendant_langs=('en', 'ja', 'ms'), speech_lang='id')
