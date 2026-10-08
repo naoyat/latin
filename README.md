@@ -34,7 +34,8 @@ $ echo "लड़के ने किताब पढ़ी।" | python3 dragom
 | ペルシア語 | `fa` | 自前の規則 + Wiktionary | PerDT: 主語 55%・目的語 43% | espeak-ng | [docs/persian.md](docs/persian.md) |
 | ヒンディー語 | `hi` | Wiktionary の変化表 | HDTB: 主語 53%・目的語 30% | say (Lekha) | [docs/hindi.md](docs/hindi.md) |
 
-ラテン語以外は作りかけです。訳語はまだ英語（Wiktionary の語義）が多く混じります。
+ラテン語以外は作りかけです。日本語の訳語の無い語は、英語の語義（Wiktionary・CAMeL Tools）を英語 → 日本語の表で
+置き換えます（下の「訳語」）。それでも訳せない語は英語のまま出ます。
 
 ## セットアップ
 
@@ -47,6 +48,13 @@ pip install -r requirements.txt
 これだけでラテン語（手作りの辞書、約1,500語）が読めます。ほかの言語と追加の辞書・コーパスは、言語ごとの文書の
 手順でデータを用意します。データは `~/.local/share/dragoman-data/`（環境変数 `DRAGOMAN_DATA` で変更可。旧名の
 `LATIN_DATA` と `~/.local/share/latin-data` も読む）に置き、リポジトリには入れません。
+
+英語 → 日本語の訳語の表は、日本語版 Wiktionary の抽出（[kaikki.org の ja-extract](https://kaikki.org/dictionary/rawdata.html)、
+`ja-extract.jsonl.gz` をデータの置き場所に）から作ります:
+
+```
+python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sqlite (約3.6万語)
+```
 
 ## 使い方
 
@@ -68,9 +76,19 @@ python3 latin.py                                              # ラテン語の�
 | `-s`, `--speech` | 音読する（`-t BACKEND` で方式: mbrola / espeak / piper / say） |
 | `-r`, `--romanize` | 語ごとの辞書引きの結果に転写を添える |
 | `--no-explain` | 初学者向けの解説（動詞の型・語根・連語形など）を出さない |
+| `--english-glosses` | 英語の訳語を日本語に置き換えない |
 
 言語ごとの例文とその訳は `python3 tools/samples.py --lang=xx` で、解析の精度は `python3 tools/ud_eval.py --lang=xx` で
 見られます（評価用のツリーバンクは言語ごとの文書を参照）。
+
+## 訳語
+
+訳語は、各言語の辞書の日本語の訳語（日本語版 Wiktionary、その訳語の表を逆に引いたもの、手で決めた基本語）を使い、
+無ければ英語の語義を英語 → 日本語の表（`core/en_ja.py`）で置き換えます。英語の語義は品詞ごとに引き、訳せた最初の語義の
+一番の訳語を使います（go,travel → 行く。動詞は日本語の活用に通すため辞書形のものだけ）。元の英語は項目の `ja_en` に残します。
+UD の各言語の先頭 300 文で、名詞・動詞・形容詞の訳語に英語が残る割合は、ロシア語 49% → 9%、アラビア語 70% → 13%、
+ヒンディー語 68% → 26%、古典ギリシア語 84% → 27% になりました。残りは説明的な語義（comparative degree of …）と、
+表に無い語（minister など）です。
 
 ## ラテン文字への転写
 

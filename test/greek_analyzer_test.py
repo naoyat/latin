@@ -40,7 +40,7 @@ class GreekAnalyzerTestCase(unittest.TestCase):
         # 並列した形容詞 (ἀγαθὸς καὶ σοφός) の述語的位置の判定で落ちていた
         pred = analyze('ὁ ἀνὴρ ἀγαθὸς καὶ σοφός ἐστιν.').clauses[0].predicate
         self.assertTrue(pred.is_sum)
-        self.assertIn('である', pred.translate()[0])
+        self.assertTrue(pred.translate()[0].endswith('良くて賢い'))  # 並列した補語の形容詞 (good, wise → 日本語の訳語)
 
     def test_coordinated_adjectives_between_article_and_noun(self):
         pred = analyze('οἱ ἀγαθοὶ καὶ σοφοὶ ἄνδρες λέγουσιν.').clauses[0].predicate
@@ -58,7 +58,7 @@ class GreekAnalyzerTestCase(unittest.TestCase):
 
     def test_negation(self):
         tr = analyze('ὁ ἄνθρωπος οὐ βλέπει τὸν ἵππον.').clauses[0].predicate.translate()[0]
-        self.assertIn('否定', tr)
+        self.assertTrue(tr.endswith('見ない'), tr)
 
 
     def test_genitive_absolute(self):
@@ -92,11 +92,11 @@ class GreekAnalyzerTestCase(unittest.TestCase):
     def test_comparative_genitive(self):
         tr = self.translation('ὁ υἱὸς μείζων ἐστὶ τοῦ πατρός.')
         self.assertIn('父,父親,父なる神より', tr)
-        self.assertTrue(tr.startswith('son'), tr)  # 述語的位置の μείζων は補語 (息子は父より大きい)
+        self.assertTrue(tr.startswith('息子は'), tr)  # 述語的位置の μείζων は補語 (息子は父より大きい)
 
     def test_predicative_position(self):
         pred = analyze('ὁ ἀνὴρ ἀγαθός ἐστιν.').clauses[0].predicate
-        self.assertTrue(pred.translate()[0].endswith('である'))
+        self.assertTrue(pred.translate()[0].endswith(' / 良い'), pred.translate()[0])  # 補語の形容詞
         self.assertEqual(analyze('ὁ ἀγαθὸς ἀνὴρ λέγει.').words[1].attached_to.surface, 'ἀνήρ')  # 限定的位置
 
 

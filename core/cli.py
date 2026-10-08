@@ -14,6 +14,7 @@
 #   -t, --tts=BACKEND      音読の方式 (mbrola / espeak / piper / say)
 #   -r, --romanize         語ごとの辞書引きの結果に、語の転写を添える
 #   --no-explain           初学者向けの解説 (動詞の型・語根など) を出さない
+#   --english-glosses      英語の訳語 (Wiktionary などの語義) を日本語に置き換えない
 #   -h, --help             説明を表示する
 #
 import getopt
@@ -23,7 +24,8 @@ from dataclasses import dataclass, field
 from core import ansi_color, descendants, etymology, render
 
 COMMON_SHORT = 'wDEst:rh'
-COMMON_LONG = ['no-word-detail', 'descendants', 'etymology', 'speech', 'tts=', 'romanize', 'no-explain', 'help']
+COMMON_LONG = ['no-word-detail', 'descendants', 'etymology', 'speech', 'tts=', 'romanize', 'no-explain',
+               'english-glosses', 'help']
 
 
 @dataclass
@@ -115,6 +117,9 @@ def parse(command, argv):
             options.romanize = True
         elif option == '--no-explain':
             options.explain = False
+        elif option == '--english-glosses':
+            from core import en_ja
+            en_ja.ENABLED = False
         elif option in ('-h', '--help'):
             print(help_text(command))
             return None, None

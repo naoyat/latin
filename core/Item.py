@@ -3,11 +3,20 @@
 import core.util as util # render
 import core.ansi_color as ansi_color
 
+from core import en_ja
+
+
 class Item:
     def __init__(self, item):
         self.item = item
         self.surface = item['surface']
         self.pos = item['pos']
+        if item.get('gloss_lang') == 'en' and item.get('ja'):
+            # 英語の訳語 (Wiktionary・CAMeL Tools の語義) は、英語 → 日本語の表で日本語に置き換える。元の英語は ja_en に
+            ja = en_ja.translate(item['ja'], item['pos'])
+            if ja:
+                item['ja_en'] = item['ja']
+                item.update(ja=ja, gloss_lang='ja')
         self.ja = item['ja']
 
         self._ = item.get('_', None)
