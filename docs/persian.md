@@ -9,7 +9,7 @@ mkdir -p ~/.local/share/dragoman-data/fa && cd ~/.local/share/dragoman-data/fa
 curl -L -o kaikki-Persian.jsonl.gz "https://kaikki.org/dictionary/Persian/kaikki.org-dictionary-Persian.jsonl.gz"
 cd - && python3 tools/build_persian_dic.py      # → ~/.local/share/dragoman-data/fa/wiktionary.sqlite (約1.7万語)
 python3 tools/samples.py --lang=fa              # サンプルの訳
-python3 persian.py samples/persian.txt          # 解析の詳細 (-w, -D, -E, -s 音読, -r 転写)
+python3 dragoman.py --lang=fa samples/persian.txt          # 解析の詳細 (-w, -D, -E, -s 音読, -r 転写)
 ```
 
 ```

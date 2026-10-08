@@ -5,7 +5,7 @@
 #
 import unittest
 
-from greek import elision, dictionary, phonology
+from dragoman.greek import elision, dictionary, phonology
 
 
 class FunctionWordTestCase(unittest.TestCase):
@@ -45,20 +45,20 @@ class DictionaryTestCase(unittest.TestCase):
         self.assertEqual(elision.restore('ἔθηκ’', 'ἐμοί'), 'ἔθηκα')
 
     def test_epic_and_ionic_forms(self):
-        from greek import dialect
+        from dragoman.greek import dialect
         self.assertEqual(dialect.attic('ἀγορήν'), 'αγοραν')    # イオニア方言の η
         self.assertEqual(dialect.attic('κονίῃσι'), 'κονιαισ')  # 叙事詩の複数与格
         self.assertEqual(dialect.attic('μέσσον'), 'μεσον')     # 重子音の揺れ
         self.assertEqual(dialect.attic('νηυσίν'), 'ναυσιν')
 
     def test_unaugmented_past(self):
-        from greek import dialect
+        from dragoman.greek import dialect
         self.assertEqual(dialect.attic('βῆ'), 'εβη')          # βῆ → ἔβη
         self.assertEqual(dialect.attic('ἄγε'), 'ηγε')         # 母音の延長
         self.assertEqual(dialect.attic('καταβῆ'), 'κατεβη')   # 複合動詞は前置詞の後に
 
     def test_epic_stems(self):
-        from greek import dialect
+        from dragoman.greek import dialect
         self.assertEqual(dialect.attic('πτολέμοιο'), 'πολεμοιο')
         self.assertEqual(dialect.attic('τεύχεα'), 'τευχη')
         self.assertEqual(elision.variant('κεῖνος'), 'ἐκεῖνος')  # 一般的な ει → ε (κενός) より先に表で

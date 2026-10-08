@@ -55,19 +55,19 @@ import collections
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core import paths
-from latin import latindic, analyzer, macronizer
-from greek import analyzer as greek_analyzer
-from sanskrit import analyzer as sanskrit_analyzer
-from russian import analyzer as russian_analyzer
-from arabic import analyzer as arabic_analyzer
-from persian import analyzer as persian_analyzer
-from hindi import analyzer as hindi_analyzer
-from urdu import analyzer as urdu_analyzer
-from core.Word import Word
-from core.AndOr import AndOr
-from core.PrepClause import PrepClause
-from core.Predicate import Predicate
+from dragoman.core import paths
+from dragoman.latin import latindic, analyzer, macronizer
+from dragoman.greek import analyzer as greek_analyzer
+from dragoman.sanskrit import analyzer as sanskrit_analyzer
+from dragoman.russian import analyzer as russian_analyzer
+from dragoman.arabic import analyzer as arabic_analyzer
+from dragoman.persian import analyzer as persian_analyzer
+from dragoman.hindi import analyzer as hindi_analyzer
+from dragoman.urdu import analyzer as urdu_analyzer
+from dragoman.core.Word import Word
+from dragoman.core.AndOr import AndOr
+from dragoman.core.PrepClause import PrepClause
+from dragoman.core.Predicate import Predicate
 
 DATA_DIR = paths.DATA_DIR
 DEFAULT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ud', 'la_proiel-ud-*.conllu')))

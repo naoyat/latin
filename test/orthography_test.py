@@ -3,7 +3,7 @@
 
 import unittest
 
-from latin import orthography, latindic, wiktionary, macronizer
+from dragoman.latin import orthography, latindic, wiktionary, macronizer
 
 
 class OrthographyTestCase(unittest.TestCase):

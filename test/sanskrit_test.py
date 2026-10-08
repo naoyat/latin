@@ -7,7 +7,7 @@
 import unittest
 
 try:
-    from sanskrit import script, morphology, dictionary, analyzer, compound
+    from dragoman.sanskrit import script, morphology, dictionary, analyzer, compound
     HAVE_VIDYUT = True
 except ImportError:
     HAVE_VIDYUT = False

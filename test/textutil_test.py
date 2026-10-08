@@ -3,7 +3,7 @@
 
 import unittest
 
-from latin.textutil import word_stream_from_text, sentence_stream
+from dragoman.latin.textutil import word_stream_from_text, sentence_stream
 
 
 def sentences(text):

@@ -24,8 +24,8 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from persian import dictionary, script
-from core.wiktionary_import import (english_glosses, japanese_gloss, descendants_summary, etymology_summary,
+from dragoman.persian import dictionary, script
+from dragoman.core.wiktionary_import import (english_glosses, japanese_gloss, descendants_summary, etymology_summary,
                                    japanese_translation_pairs)
 
 POS = {'noun': 'noun', 'name': 'name', 'adj': 'adj', 'num': 'num', 'pron': 'pronoun', 'det': 'det',

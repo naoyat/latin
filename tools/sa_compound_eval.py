@@ -13,8 +13,8 @@ import getopt
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core import paths
-from sanskrit import compound, script
+from dragoman.core import paths
+from dragoman.sanskrit import compound, script
 
 DATA_DIR = paths.DATA_DIR
 DEFAULT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'sa', 'ud', 'sa_ufal-ud-*.conllu')))

@@ -63,8 +63,8 @@ pip install -r requirements.txt
 ## 使い方
 
 ```
-python3 latin.py [オプション] [ファイル...]    # ファイルを解析
-python3 latin.py [オプション]                  # 対話モード (REPL)
+python3 dragoman.py --lang=la [オプション] [ファイル...]   # ファイルを解析
+python3 dragoman.py --lang=la [オプション]                 # 対話モード (REPL)
 python3 dragoman.py --lang=la|grc|sa|ru|he [オプション] [ファイル...]   # 言語を選んで (各言語のコマンドを呼ぶ)
 ```
 
@@ -91,7 +91,7 @@ python3 dragoman.py --lang=la|grc|sa|ru|he [オプション] [ファイル...]  
 | `.lookup 語` (`.l`) | 辞書の項目をそのまま表示する |
 
 ```
-$ python3 latin.py -m
+$ python3 dragoman.py --lang=la -m
 > .decl rEx
 rēx (noun, m), 王,指導者
   sg:
@@ -157,7 +157,7 @@ D'Ooge の行は、知識を元の教材テキストと Fabulae Faciles から�
 ## 音読
 
 ```
-python3 latin.py -s FILE                   # 解析しながら音読
+python3 dragoman.py --lang=la -s FILE                   # 解析しながら音読
 python3 tools/speak.py "Arma virumque canō, Trōiae quī prīmus ab ōrīs"
 python3 tools/speak.py -b mbrola -a stress -w out.wav "..."   # 強弱アクセントで WAV に書き出す
 ```

@@ -30,8 +30,8 @@ import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from hebrew import dictionary, script
-from core.wiktionary_import import japanese_gloss, descendants_summary, etymology_summary
+from dragoman.hebrew import dictionary, script
+from dragoman.core.wiktionary_import import japanese_gloss, descendants_summary, etymology_summary
 
 OSIS = '{http://www.bibletechnologies.net/2003/OSIS/namespace}'
 LEMMA_PREFIXES = set('cdlbmkis')  # 接頭辞の見出し: 接続詞 ו、冠詞 ה、前置詞 ל ב מ כ、疑問の ה、関係詞 ש

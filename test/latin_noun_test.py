@@ -3,9 +3,11 @@
 
 import unittest
 
-from latin.latin_noun import *
-import latin.latindic
-import core.util
+from dragoman.latin.latin_noun import *
+import dragoman.latin.latindic
+from dragoman import latin
+import dragoman.core.util
+from dragoman import core
 import sys
 
 class StringTestCase(unittest.TestCase):

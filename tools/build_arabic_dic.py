@@ -24,8 +24,8 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from arabic import dictionary, script
-from core.wiktionary_import import (english_glosses, japanese_gloss, descendants_summary, etymology_summary,
+from dragoman.arabic import dictionary, script
+from dragoman.core.wiktionary_import import (english_glosses, japanese_gloss, descendants_summary, etymology_summary,
                                    japanese_translation_pairs)
 
 POS = {'noun': 'noun', 'name': 'name', 'adj': 'adj', 'num': 'num', 'pron': 'pronoun', 'det': 'pronoun',
@@ -52,7 +52,7 @@ def load_japanese_glosses(path):
 
 def translation_gloss(pairs, vocalized):
     """訳語の表の日本語のうち、母音記号が見出し語と合うもの (母音記号の無いものはどれとも合う)"""
-    from arabic.morphology import lex_key
+    from dragoman.arabic.morphology import lex_key
     found = [ja for word, ja in pairs if not script.has_diacritics(word) or lex_key(word) == lex_key(vocalized)]
     return ','.join(found[:4]) or None
 

@@ -6,10 +6,10 @@
 #
 import unittest
 
-from russian import script
+from dragoman.russian import script
 
 try:
-    from russian import morphology, analyzer, dictionary
+    from dragoman.russian import morphology, analyzer, dictionary
     HAVE_PYMORPHY = morphology.available()
 except ImportError:
     HAVE_PYMORPHY = False

@@ -43,7 +43,7 @@ $ echo "लड़के ने किताब पढ़ी।" | python3 dragom
 Python 3.11 以降。日本語の動詞の活用に MeCab（辞書は UniDic）を使います。
 
 ```
-pip install -r requirements.txt
+pip install -r requirements.txt     # または pip install -e .  (dragoman コマンドができる。任意の依存は .[russian] など)
 ```
 
 これだけでラテン語（手作りの辞書、約1,500語）が読めます。ほかの言語と追加の辞書・コーパスは、言語ごとの文書の
@@ -62,9 +62,9 @@ python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sql
 ## 使い方
 
 ```
-python3 dragoman.py [--lang=LANG] [オプション] [ファイル...]   # ファイル (無ければ標準入力) を解析
+python3 dragoman.py [--lang=LANG] [オプション] [ファイル...]   # ファイル (無ければ標準入力) を解析 (python3 -m dragoman でも)
 python3 dragoman.py --lang=he --help                          # 言語ごとのオプション
-python3 latin.py                                              # ラテン語の対話モード (変化表・マクロンの推定)
+python3 dragoman.py --lang=la                                 # ラテン語の対話モード (変化表・マクロンの推定)
 ```
 
 `--lang` を省略すると文字から言語を推定します（ラテン文字 → ラテン語、ギリシア文字 → 古典ギリシア語、キリル文字 → ロシア語、
@@ -121,42 +121,41 @@ python3 -m unittest discover -s test -p '*_test.py'
 ## 構成
 
 ```
-dragoman.py              入口 (--lang=la|grc|sa|ru|he|ar|fa|hi|ur。省略すると文字から言語を推定)
-latin.py                 ラテン語のコマンド (対話モード・変化表・マクロンの推定を含む)
-greek.py sanskrit.py russian.py hebrew.py arabic.py persian.py hindi.py urdu.py
-                         言語ごとの入口 (dragoman.py --lang=xx と同じ)。read.py は旧名
-core/                    言語に依存しない共通部分
-  cli.py                 コマンドの骨組み (共通のオプション・見出しの行・音読・表示。言語ごとの違いは <言語>/command.py)
-  paths.py               データの置き場所
-  analyzer.py            解析の骨組み (並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
-  language.py            言語ごとの設定 (接続詞・繋辞・否定・格の助詞・独立奪格の格、辞書を引く関数など)
-  render.py              解析結果の表示
-  Word.py Item.py AndOr.py PrepClause.py Predicate.py   解析の要素と訳
-  Absolute.py Participle.py Infinitive.py               独立奪格・分詞句・不定詞句
-  japanese.py verb_flags.py                             日本語の動詞の活用
-  wiktionary_import.py keys.py                          Wiktionary (kaikki.org) の項目の取り込み、照合用のキー
-  descendants.py etymology.py languages.py              子孫語・語源の表示 (言語名の日本語表記)
-  speech.py                                             音声合成 (MBROLA / espeak-ng / Piper / say)
-latin/                   ラテン語
-  analyzer.py profile.py 辞書引き・品詞タガーによる前処理と、ラテン語の設定
-  latindic.py words.py   辞書 (手作りの辞書の読み込みと検索)
-  latin_noun.py latin_adj.py latin_verb_reg.py ...      変化形の生成
-  wiktionary.py morpheus.py ldt.py rftagger.py          補助辞書と品詞タガー
-  orthography.py katakana.py                            綴りの流儀の吸収、固有名詞のカタカナ表記
-  macronizer.py hidden_quantity.py catalog.py           マクロンの推定、テキストの目録
-  latin_phonology.py latin_prosody.py                   発音と韻律
-greek/                   古典ギリシア語 (表記の正規化、Wiktionary の取り込み、辞書、冠詞の処理、格の読み替え、
-                         発音と韻律)
-sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、複合語、Wiktionary の訳語、
-                         発音と韻律)
-russian/                 ロシア語 (pymorphy3 による語形の解析、前置詞の格、繋辞の補い、Wiktionary の訳語と強勢)
-hebrew/                  聖書ヘブライ語 (OSHB の語形の解析、接頭辞・人称接尾辞の切り分け、格の代わりの手がかり、転写)
-arabic/                  アラビア語 (CAMeL Tools による語形の解析と読みの選択、接語の切り分け、連語・inna・名詞文、
-                         格の語尾を補った形と転写)
-persian/                 ペルシア語 (規則による語形の解析: 動詞の語幹・接頭辞・人称語尾、複数・接語。エザーフェの推定、
-                         را、複数語の動詞)
-hindi/                   ヒンディー語 (Wiktionary の変化表による語形の辞書、schwa の脱落を含む転写、動詞の並び、後置詞と能格)
-urdu/                    ウルドゥー語 (ウルドゥー文字の語をヒンディー語の語形に引き当てる綴りの骨組み。解析は hindi/)
+dragoman.py              入口 (python3 -m dragoman と同じ。--lang=la|grc|sa|ru|he|ar|fa|hi|ur。省略すると文字から言語を推定)
+dragoman/                パッケージ
+  main.py                入口の本体 (言語の推定と振り分け)
+  core/                  言語に依存しない共通部分
+    cli.py                 コマンドの骨組み (共通のオプション・見出しの行・音読・表示。言語ごとの違いは <言語>/command.py)
+    paths.py               データの置き場所
+    analyzer.py            解析の骨組み (並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
+    language.py            言語ごとの設定 (接続詞・繋辞・否定・格の助詞・独立奪格の格、辞書を引く関数など)
+    render.py              解析結果の表示
+    Word.py Item.py AndOr.py PrepClause.py Predicate.py   解析の要素と訳
+    Absolute.py Participle.py Infinitive.py               独立奪格・分詞句・不定詞句
+    japanese.py verb_flags.py                             日本語の動詞の活用
+    wiktionary_import.py keys.py                          Wiktionary (kaikki.org) の項目の取り込み、照合用のキー
+    descendants.py etymology.py languages.py              子孫語・語源の表示 (言語名の日本語表記)
+    speech.py                                             音声合成 (MBROLA / espeak-ng / Piper / say)
+  latin/                   ラテン語
+    analyzer.py profile.py 辞書引き・品詞タガーによる前処理と、ラテン語の設定
+    latindic.py words.py   辞書 (手作りの辞書の読み込みと検索)
+    latin_noun.py latin_adj.py latin_verb_reg.py ...      変化形の生成
+    wiktionary.py morpheus.py ldt.py rftagger.py          補助辞書と品詞タガー
+    orthography.py katakana.py                            綴りの流儀の吸収、固有名詞のカタカナ表記
+    macronizer.py hidden_quantity.py catalog.py           マクロンの推定、テキストの目録
+    latin_phonology.py latin_prosody.py                   発音と韻律
+  greek/                   古典ギリシア語 (表記の正規化、Wiktionary の取り込み、辞書、冠詞の処理、格の読み替え、
+                           発音と韻律)
+  sanskrit/                サンスクリット (文字の変換、Vidyut による語形の解析と連声を戻す辞書引き、複合語、Wiktionary の訳語、
+                           発音と韻律)
+  russian/                 ロシア語 (pymorphy3 による語形の解析、前置詞の格、繋辞の補い、Wiktionary の訳語と強勢)
+  hebrew/                  聖書ヘブライ語 (OSHB の語形の解析、接頭辞・人称接尾辞の切り分け、格の代わりの手がかり、転写)
+  arabic/                  アラビア語 (CAMeL Tools による語形の解析と読みの選択、接語の切り分け、連語・inna・名詞文、
+                           格の語尾を補った形と転写)
+  persian/                 ペルシア語 (規則による語形の解析: 動詞の語幹・接頭辞・人称語尾、複数・接語。エザーフェの推定、
+                           را、複数語の動詞)
+  hindi/                   ヒンディー語 (Wiktionary の変化表による語形の辞書、schwa の脱落を含む転写、動詞の並び、後置詞と能格)
+  urdu/                    ウルドゥー語 (ウルドゥー文字の語をヒンディー語の語形に引き当てる綴りの骨組み。解析は hindi/)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録

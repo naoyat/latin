@@ -24,10 +24,10 @@ import collections
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from latin import latindic, analyzer
-from latin.macronizer import macronize_words, strip_macrons, has_macron, transfer_macrons, Context, Frequency
-from latin import hidden_quantity
-from latin import catalog
+from dragoman.latin import latindic, analyzer
+from dragoman.latin.macronizer import macronize_words, strip_macrons, has_macron, transfer_macrons, Context, Frequency
+from dragoman.latin import hidden_quantity
+from dragoman.latin import catalog
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VOWELS = set('aeiouyAEIOUYāēīōūȳĀĒĪŌŪȲ')

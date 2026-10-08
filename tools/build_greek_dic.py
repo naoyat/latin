@@ -22,9 +22,9 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from greek import dictionary, orthography
-from greek.wiktionary_import import DESCENDANT_LANGS, INHERITING
-from greek.wiktionary_import import convert_entry, japanese_gloss, ja_key, descendants_summary, \
+from dragoman.greek import dictionary, orthography
+from dragoman.greek.wiktionary_import import DESCENDANT_LANGS, INHERITING
+from dragoman.greek.wiktionary_import import convert_entry, japanese_gloss, ja_key, descendants_summary, \
     etymology_summary, lemma_key
 
 

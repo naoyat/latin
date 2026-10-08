@@ -22,9 +22,9 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core import paths
-from hindi import dictionary as hindi_dictionary, morphology as hindi_morphology, script as hindi_script
-from urdu import dictionary, script
+from dragoman.core import paths
+from dragoman.hindi import dictionary as hindi_dictionary, morphology as hindi_morphology, script as hindi_script
+from dragoman.urdu import dictionary, script
 
 SKIP_TAGS = {'romanization', 'table-tags', 'inflection-template', 'class', 'Hindi', 'canonical'}
 

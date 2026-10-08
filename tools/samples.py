@@ -36,8 +36,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from core import render, ansi_color
-from latin import latindic, analyzer, macronizer
+from dragoman.core import render, ansi_color
+from dragoman.latin import latindic, analyzer, macronizer
 
 DEFAULT_FILE = os.path.join(ROOT, 'samples', 'samples.txt')
 LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.txt'),
@@ -50,28 +50,28 @@ LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.tx
 def analyzer_for(lang):
     """言語ごとの analyze_text"""
     if lang == 'grc':
-        from greek import analyzer as greek_analyzer
+        from dragoman.greek import analyzer as greek_analyzer
         return greek_analyzer.analyze_text
     if lang == 'sa':
-        from sanskrit import analyzer as sanskrit_analyzer
+        from dragoman.sanskrit import analyzer as sanskrit_analyzer
         return sanskrit_analyzer.analyze_text
     if lang == 'ru':
-        from russian import analyzer as russian_analyzer
+        from dragoman.russian import analyzer as russian_analyzer
         return russian_analyzer.analyze_text
     if lang == 'he':
-        from hebrew import analyzer as hebrew_analyzer
+        from dragoman.hebrew import analyzer as hebrew_analyzer
         return hebrew_analyzer.analyze_text
     if lang == 'ar':
-        from arabic import analyzer as arabic_analyzer
+        from dragoman.arabic import analyzer as arabic_analyzer
         return arabic_analyzer.analyze_text
     if lang == 'fa':
-        from persian import analyzer as persian_analyzer
+        from dragoman.persian import analyzer as persian_analyzer
         return persian_analyzer.analyze_text
     if lang == 'hi':
-        from hindi import analyzer as hindi_analyzer
+        from dragoman.hindi import analyzer as hindi_analyzer
         return hindi_analyzer.analyze_text
     if lang == 'ur':
-        from urdu import analyzer as urdu_analyzer
+        from dragoman.urdu import analyzer as urdu_analyzer
         return urdu_analyzer.analyze_text
     return analyzer.analyze_text
 AUTO_MACRON = '[auto-macron]'
@@ -108,26 +108,26 @@ def brief(analysis):
 def romanizer(lang):
     """言語ごとの (文の転写, 語の転写)。ラテン文字の言語は None"""
     if lang == 'grc':
-        from greek import romanize as greek_romanize
+        from dragoman.greek import romanize as greek_romanize
         return greek_romanize.romanize, greek_romanize.romanize_word
     if lang == 'ru':
         import re
-        from russian import morphology as russian_morphology, script as russian_script
+        from dragoman.russian import morphology as russian_morphology, script as russian_script
         word = lambda w: russian_script.translit(russian_morphology.stressed(w))
         cyrillic = re.compile('[а-яёА-ЯЁ\u0301-]+')
         return (lambda text: cyrillic.sub(lambda m: word(m.group(0)), text)), word
     if lang == 'he':
-        from hebrew import script as hebrew_script
+        from dragoman.hebrew import script as hebrew_script
         return (lambda text: ' '.join(hebrew_script.translit(w) for w in hebrew_script.pointed(text).split()
                                       if hebrew_script.is_hebrew(w))), hebrew_script.translit
     if lang == 'ar':
-        from arabic import script as arabic_script
+        from dragoman.arabic import script as arabic_script
         return None, arabic_script.translit  # 文の転写は解析の後で (選んだ読み・格の語尾から)
     if lang == 'fa':
-        from persian import script as persian_script
+        from dragoman.persian import script as persian_script
         return None, persian_script.rough_translit  # 文の転写は解析の後で (辞書の転写とエザーフェから)
     if lang == 'hi':
-        from hindi import script as hindi_script
+        from dragoman.hindi import script as hindi_script
         return hindi_script.translit, hindi_script.translit
     return None, None
 
@@ -149,13 +149,13 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
                 print()
                 print(text)
             if lang == 'sa':
-                from sanskrit import script
+                from dragoman.sanskrit import script
                 print('  (%s)' % script.iast(script.to_slp1(text)))  # デーヴァナーガリーの文は IAST も
             elif lang == 'hi':
-                from hindi import script as hindi_script
+                from dragoman.hindi import script as hindi_script
                 print('  (%s)' % hindi_script.translit(text))
             elif lang == 'he':
-                from hebrew import script as hebrew_script
+                from dragoman.hebrew import script as hebrew_script
                 print('  (%s)' % ' '.join(hebrew_script.translit(w) for w in hebrew_script.pointed(text).split()
                                           if hebrew_script.is_hebrew(w)))
             elif romanize_text:
@@ -163,13 +163,13 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
             for analysis in analyze_text(text):
                 if lang == 'ar':
                     # 母音記号を補った形 (選んだ読みと格の語尾) と転写
-                    from arabic import analyzer as arabic_analyzer, script as arabic_script
+                    from dragoman.arabic import analyzer as arabic_analyzer, script as arabic_script
                     vocalized, latin = arabic_analyzer.sentence_text(analysis.forms)
                     print('  %s  (%s)' % (arabic_script.isolate(vocalized), latin))
                 elif lang == 'ur':
                     print('  (%s)' % analysis.forms_text[1])  # 選んだヒンディー語の語形からの転写
                 elif lang == 'fa':
-                    from persian import analyzer as persian_analyzer
+                    from dragoman.persian import analyzer as persian_analyzer
                     print('  (%s)' % persian_analyzer.sentence_text(analysis.forms)[1])  # エザーフェを補った転写
                 if mode == 'brief':
                     brief(analysis)

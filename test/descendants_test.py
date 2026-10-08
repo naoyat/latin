@@ -5,8 +5,8 @@
 #
 import unittest
 
-from core import descendants
-from latin import wiktionary
+from dragoman.core import descendants
+from dragoman.latin import wiktionary
 
 FAKE = {
     'acutus': [{'lang': 'fr', 'word': 'aigu', 'kind': 'inherited', 'via': [['fro', 'agu'], ['frm', 'aigu']]},

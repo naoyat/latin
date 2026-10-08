@@ -3,9 +3,9 @@
 
 import unittest
 
-from latin.latin_verb_reg import *
-import core.util
-
+from dragoman.latin.latin_verb_reg import *
+import dragoman.core.util
+from dragoman import core
 def decode_utf8(s):
     if isinstance(s, str):
         return s

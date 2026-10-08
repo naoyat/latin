@@ -3,11 +3,13 @@ mecab-python3
 unidic-lite
 
 # 以下は任意
-# サンスクリット (sanskrit.py。辞書引き・連声の分解・文字の変換)
+# サンスクリット (--lang=sa。辞書引き・連声の分解・文字の変換)
 #vidyut
-# ロシア語 (russian.py。語形の解析)
+# ロシア語 (--lang=ru。語形の解析)
 #pymorphy3
 #pymorphy3-dicts-ru
+# アラビア語 (--lang=ar。語形の解析と曖昧性解消。データは camel_data で)
+#camel-tools
 # 音読 (piper バックエンド)
 #piper-tts
 # 合成音声の評価 (tools/tts_eval.py)。Apple Silicon なら mlx-whisper の方が速い

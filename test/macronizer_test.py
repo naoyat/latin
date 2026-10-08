@@ -7,8 +7,8 @@ import glob
 import contextlib
 import unittest
 
-from latin import latindic, macronizer, wiktionary
-from latin.macronizer import (transfer_macrons, strip_macrons, has_macron, macronize_text,
+from dragoman.latin import latindic, macronizer, wiktionary
+from dragoman.latin.macronizer import (transfer_macrons, strip_macrons, has_macron, macronize_text,
                               macronize_words, Context, Frequency, _anceps_variants)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

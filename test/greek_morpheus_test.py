@@ -5,7 +5,7 @@
 #
 import unittest
 
-from greek import morpheus, dictionary
+from dragoman.greek import morpheus, dictionary
 
 
 class BetacodeTestCase(unittest.TestCase):

@@ -12,7 +12,7 @@ unzip vidyut-data-0.4.0.zip -d vidyut-data
 curl -L -o kaikki-Sanskrit.jsonl.gz "https://kaikki.org/dictionary/Sanskrit/kaikki.org-dictionary-Sanskrit.jsonl.gz"
 cd - && python3 tools/build_sanskrit_dic.py     # → ~/.local/share/dragoman-data/sa/wiktionary.sqlite
 python3 tools/samples.py --lang=sa             # サンプルの訳 (-t 構造、-d 語ごとの辞書引き)
-python3 sanskrit.py samples/sanskrit.txt        # 解析の詳細 (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
+python3 dragoman.py --lang=sa samples/sanskrit.txt        # 解析の詳細 (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
 ```
 
 ```
@@ -66,7 +66,7 @@ python3 sanskrit.py samples/sanskrit.txt        # 解析の詳細 (-w で語ご�
 mkdir -p ~/.local/share/mbrola/voices/in1 && cd ~/.local/share/mbrola/voices/in1
 curl -L -O https://github.com/numediart/MBROLA-voices/raw/master/data/in1/in1    # in2 (女声) も同様に
 cd - && python3 tools/speak.py --lang=sa -d "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः ।"   # -d で IPA と .pho
-python3 sanskrit.py -s samples/sanskrit.txt                                    # 解析しながら読む (-v in2 で女声)
+python3 dragoman.py --lang=sa -s samples/sanskrit.txt                                    # 解析しながら読む (-v in2 で女声)
 ```
 
 * MBROLA のヒンディー語音声 in1 / in2 で読みます（そり舌音・有声有気音がある。短い i u・音節の ṛ は無いので、

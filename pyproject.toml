@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dragoman"
+version = "0.1.0"
+description = "古典語・現代語の文を辞書引き・構文解析して、日本語の逐語訳を付ける"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "naoya_t"}]
+requires-python = ">=3.11"
+dependencies = ["mecab-python3", "unidic-lite"]
+
+[project.optional-dependencies]
+sanskrit = ["vidyut"]
+russian = ["pymorphy3", "pymorphy3-dicts-ru"]
+arabic = ["camel-tools"]
+piper = ["piper-tts"]
+
+[project.scripts]
+dragoman = "dragoman.main:main"
+
+[tool.setuptools.packages.find]
+include = ["dragoman*"]

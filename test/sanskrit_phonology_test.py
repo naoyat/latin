@@ -6,7 +6,7 @@
 import unittest
 
 try:
-    from sanskrit import phonology, prosody
+    from dragoman.sanskrit import phonology, prosody
     HAVE_VIDYUT = True
 except ImportError:
     HAVE_VIDYUT = False

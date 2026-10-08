@@ -6,7 +6,7 @@ import json
 import tempfile
 import unittest
 
-from latin import catalog, macronizer
+from dragoman.latin import catalog, macronizer
 
 
 class CatalogTestCase(unittest.TestCase):

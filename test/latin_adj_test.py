@@ -3,8 +3,9 @@
 
 import unittest
 
-from latin.latin_adj import *
-import latin.latindic
+from dragoman.latin.latin_adj import *
+import dragoman.latin.latindic
+from dragoman import latin
 # import latin.util
 # import strutil
 

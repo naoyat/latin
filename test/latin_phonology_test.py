@@ -3,7 +3,7 @@
 
 import unittest
 
-from latin.latin_phonology import analyze_word, phonemize_word, to_target_ipa
+from dragoman.latin.latin_phonology import analyze_word, phonemize_word, to_target_ipa
 
 
 def syllables(word):

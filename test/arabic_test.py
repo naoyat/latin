@@ -6,10 +6,10 @@
 #
 import unittest
 
-from arabic import script
+from dragoman.arabic import script
 
 try:
-    from arabic import dictionary, morphology
+    from dragoman.arabic import dictionary, morphology
     HAVE_DATA = dictionary.available() and morphology.available()
 except ImportError:
     HAVE_DATA = False
@@ -66,12 +66,12 @@ class MorphologyTestCase(unittest.TestCase):
 @unittest.skipUnless(HAVE_DATA, 'no Arabic data (CAMeL Tools / tools/build_arabic_dic.py)')
 class AnalyzerTestCase(unittest.TestCase):
     def translate(self, text):
-        from arabic import analyzer
-        from core import render
+        from dragoman.arabic import analyzer
+        from dragoman.core import render
         return [[render.translate(c.predicate) for c in a.clauses] for a in analyzer.analyze_text(text)][0]
 
     def forms(self, text):
-        from arabic import analyzer
+        from dragoman.arabic import analyzer
         return analyzer.sentence_text(next(analyzer.analyze_text(text)).forms)
 
     def test_verbal_sentence(self):

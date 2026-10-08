@@ -7,7 +7,7 @@ import os
 import sys
 import unittest
 
-from latin import ldt, morpheus, rftagger
+from dragoman.latin import ldt, morpheus, rftagger
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tools'))
 from build_morpheus_dic import to_macrons

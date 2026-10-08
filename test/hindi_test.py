@@ -6,7 +6,7 @@
 #
 import unittest
 
-from hindi import script, dictionary
+from dragoman.hindi import script, dictionary
 
 HAVE_DATA = dictionary.available()
 
@@ -37,8 +37,8 @@ class ScriptTestCase(unittest.TestCase):
 @unittest.skipUnless(HAVE_DATA, 'no Hindi data (tools/build_hindi_dic.py)')
 class AnalyzerTestCase(unittest.TestCase):
     def translate(self, text):
-        from hindi import analyzer
-        from core import render
+        from dragoman.hindi import analyzer
+        from dragoman.core import render
         return [render.translate(c.predicate) for a in analyzer.analyze_text(text) for c in a.clauses]
 
     def test_habitual_present(self):

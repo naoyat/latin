@@ -6,7 +6,7 @@
 #
 import unittest
 
-from urdu import script, dictionary
+from dragoman.urdu import script, dictionary
 
 HAVE_DATA = dictionary.available()
 
@@ -26,8 +26,8 @@ class ScriptTestCase(unittest.TestCase):
 @unittest.skipUnless(HAVE_DATA, 'no Urdu data (tools/build_hindi_dic.py, tools/build_urdu_dic.py)')
 class AnalyzerTestCase(unittest.TestCase):
     def run_text(self, text):
-        from urdu import analyzer
-        from core import render
+        from dragoman.urdu import analyzer
+        from dragoman.core import render
         a = next(analyzer.analyze_text(text))
         return [render.translate(c.predicate) for c in a.clauses], a.forms_text
 

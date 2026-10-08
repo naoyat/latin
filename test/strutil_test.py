@@ -3,7 +3,7 @@
 
 import unittest
 
-from core.strutil import *
+from dragoman.core.strutil import *
 
 class StringTestCase(unittest.TestCase):
     def test_ends_with(self):

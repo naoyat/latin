@@ -26,8 +26,8 @@ import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core import en_ja, paths
-from core.wiktionary_import import japanese_gloss
+from dragoman.core import en_ja, paths
+from dragoman.core.wiktionary_import import japanese_gloss
 
 POS = {'noun': 'noun', 'verb': 'verb', 'adj': 'adj', 'adv': 'adv', 'name': 'name', 'phrase': 'phrase'}
 

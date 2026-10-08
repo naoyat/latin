@@ -11,7 +11,7 @@ mkdir -p ~/.local/share/dragoman-data/he/oshb ~/.local/share/dragoman-data/he/le
 # (態ごとの語義には BrownDriverBriggs.xml も) を置く
 python3 tools/build_hebrew_dic.py        # → ~/.local/share/dragoman-data/he/hebrew.sqlite (語形 約5.8万、見出し語 約9,300)
 python3 tools/samples.py --lang=he       # サンプルの訳
-python3 hebrew.py samples/hebrew.txt     # 解析の詳細 (-w, -D, -E, -s 音読)
+python3 dragoman.py --lang=he samples/hebrew.txt     # 解析の詳細 (-w, -D, -E, -s 音読)
 ```
 
 ```
@@ -33,7 +33,7 @@ python3 hebrew.py samples/hebrew.txt     # 解析の詳細 (-w, -D, -E, -s 音�
   時制の型（wayyiqtol: 物語の流れ「そして〜した」…）。名詞・形容詞・分詞の連語形（smikhut）は、組んでいる後ろの名詞か
   人称接尾辞を添える（pənê「face」: 後ろの māyim「waters」と組んで「watersのface」）。絶対形と連語形が同じ綴りの名詞
   （rûaḥ）は、すぐ後ろに名詞があれば連語形と読む（rûaḥ ʾĕlōhîm「神の霊」）。
-* 態の型の表: `python3 hebrew.py --binyan כתב`（`ktb` や語形でも）で、qal〜hithpael の完了・未完了・命令・分詞・不定詞を
+* 態の型の表: `python3 dragoman.py --lang=he --binyan כתב`（`ktb` や語形でも）で、qal〜hithpael の完了・未完了・命令・分詞・不定詞を
   並べます。聖書（OSHB）に現れた形は回数を添え、無い形は作ります:
   * 弱い語根・喉音を含む語根は、同じ分類（1字目の נ、2字目の ו・י、3字目の ה・א、喉音、ר、重複語根）の別の語根で
     聖書に現れた形から類推し（上位9語根の多数決。同じ分類が無ければ、形への影響の小さい性質から分類をゆるめる）、
@@ -52,7 +52,7 @@ python3 hebrew.py samples/hebrew.txt     # 解析の詳細 (-w, -D, -E, -s 音�
 ## 聖書アラム語
 
 ヘブライ語聖書のアラム語の部分（ダニエル書 2:4後半〜7章、エズラ記 4:8〜6:18・7:12〜26、エレミヤ書 10:11。約5,000語）も、
-OSHB の解析で同じように読めます（`hebrew.py` に入れるだけ。語ごとに言語を判定し、ダニエル書 2:4 のように文の途中で
+OSHB の解析で同じように読めます（`dragoman.py --lang=he` に入れるだけ。語ごとに言語を判定し、ダニエル書 2:4 のように文の途中で
 変わってもよい）。
 
 * 態の型はアラム語の名前で（peal, peil, pael, haphel / aphel, shaphel, hithpeel, hithpaal…）、解説と BDB の態ごとの語義も

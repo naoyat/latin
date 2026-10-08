@@ -14,7 +14,7 @@ ANSI_ESCAPE = re.compile(r'\x1b\[[0-9;]*m')
 
 
 def repl(*lines):
-    result = subprocess.run([sys.executable, 'latin.py'], cwd=ROOT,
+    result = subprocess.run([sys.executable, 'dragoman.py', '--lang=la'], cwd=ROOT,
                             input='\n'.join(lines) + '\n',
                             capture_output=True, text=True)
     return ANSI_ESCAPE.sub('', result.stdout)
@@ -43,8 +43,8 @@ class ConjugTestCase(unittest.TestCase):
 
 class DragomanCommandTestCase(unittest.TestCase):
     def test_lang_option(self):
-        for script in ('dragoman.py', 'read.py'):  # read.py は旧名
-            result = subprocess.run([sys.executable, script, '--lang=la', '-w'], cwd=ROOT,
+        for command in (['dragoman.py'], ['-m', 'dragoman']):
+            result = subprocess.run([sys.executable] + command + ['--lang=la', '-w'], cwd=ROOT,
                                     input='Rōma magna est.\n', capture_output=True, text=True)
             self.assertIn('→', ANSI_ESCAPE.sub('', result.stdout))
 
@@ -61,12 +61,12 @@ class DragomanCommandTestCase(unittest.TestCase):
 
     def test_detect(self):
         sys.path.insert(0, ROOT)
-        import dragoman
+        from dragoman.main import detect
         cases = {'Gallia est omnis dīvīsa.': 'la', 'ἐν ἀρχῇ ἦν ὁ λόγος.': 'grc', 'Мальчик читает книгу.': 'ru',
                  'בְּרֵאשִׁית בָּרָא אֱלֹהִים': 'he', 'ذهب الولد إلى المدرسة.': 'ar', 'من به مدرسه می‌روم.': 'fa',
                  'लड़के ने किताब पढ़ी।': 'hi', 'रामो वनं गच्छति ।': 'sa', 'لڑکے نے کتاب پڑھی۔': 'ur'}
         for text, lang in cases.items():
-            self.assertEqual(dragoman.detect(text), lang, text)
+            self.assertEqual(detect(text), lang, text)
 
     def test_language_help(self):
         result = subprocess.run([sys.executable, 'dragoman.py', '--lang=he', '--help'], cwd=ROOT,

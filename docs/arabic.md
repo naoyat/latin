@@ -12,7 +12,7 @@ CAMELTOOLS_DATA=$PWD/camel camel_data -i morphology-db-msa-r13 disambig-mle-cali
 curl -L -o kaikki-Arabic.jsonl.gz "https://kaikki.org/dictionary/Arabic/kaikki.org-dictionary-Arabic.jsonl.gz"
 cd - && python3 tools/build_arabic_dic.py       # → ~/.local/share/dragoman-data/ar/wiktionary.sqlite (約2.7万語)
 python3 tools/samples.py --lang=ar              # サンプルの訳
-python3 arabic.py samples/arabic.txt            # 解析の詳細 (-w, -D, -E, -s 音読, -r 転写)
+python3 dragoman.py --lang=ar samples/arabic.txt            # 解析の詳細 (-w, -D, -E, -s 音読, -r 転写)
 ```
 
 ```

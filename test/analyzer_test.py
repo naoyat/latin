@@ -9,12 +9,12 @@
 #
 import unittest
 
-from latin import latindic, analyzer, wiktionary
-from core.Absolute import AblativeAbsolute
-from core.Participle import ParticiplePhrase
-from core.Infinitive import InfinitiveClause
-from core.AndOr import AndOr
-from core.PrepClause import PrepClause
+from dragoman.latin import latindic, analyzer, wiktionary
+from dragoman.core.Absolute import AblativeAbsolute
+from dragoman.core.Participle import ParticiplePhrase
+from dragoman.core.Infinitive import InfinitiveClause
+from dragoman.core.AndOr import AndOr
+from dragoman.core.PrepClause import PrepClause
 
 
 _saved = None
@@ -135,7 +135,7 @@ class CoordinationBracketTestCase(unittest.TestCase):
     """並列した語の訳語に候補が複数あれば括る ({主,主人}と奴隷。「主人と奴隷」の項に見えないように)"""
 
     def test_bracket(self):
-        from core.AndOr import _bracket
+        from dragoman.core.AndOr import _bracket
         self.assertEqual(_bracket('主,主人'), '{主,主人}')
         self.assertEqual(_bracket('奴隷'), '奴隷')
         self.assertEqual(_bracket('{美しい,きれいな}花'), '{美しい,きれいな}花')  # 括弧の中の読点だけなら括らない

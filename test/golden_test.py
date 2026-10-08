@@ -25,7 +25,7 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GOLDEN_DIR = os.path.join(ROOT, 'test', 'golden')
 sys.path.insert(0, ROOT)
-from latin.catalog import PRIVATE_TEXTS_DIR  # noqa: E402
+from dragoman.latin.catalog import PRIVATE_TEXTS_DIR  # noqa: E402
 
 ANSI_ESCAPE = re.compile(r'\x1b\[[0-9;]*m')
 
@@ -43,7 +43,7 @@ def cases():
 
 
 def analyse(text_file):
-    result = subprocess.run([sys.executable, 'latin.py', text_file],
+    result = subprocess.run([sys.executable, 'dragoman.py', '--lang=la', text_file],
                             cwd=ROOT, capture_output=True, text=True,
                             env=dict(os.environ, PYTHONHASHSEED='0', LATIN_WIKTIONARY='0', LATIN_TAGGER='0'))
     if result.returncode != 0:

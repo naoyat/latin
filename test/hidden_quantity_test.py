@@ -3,7 +3,7 @@
 
 import unittest
 
-from latin import hidden_quantity as hq
+from dragoman.latin import hidden_quantity as hq
 
 
 class PositionsTestCase(unittest.TestCase):

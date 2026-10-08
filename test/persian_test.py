@@ -6,7 +6,7 @@
 #
 import unittest
 
-from persian import script, dictionary
+from dragoman.persian import script, dictionary
 
 HAVE_DATA = dictionary.available()
 
@@ -24,7 +24,7 @@ class ScriptTestCase(unittest.TestCase):
 @unittest.skipUnless(HAVE_DATA, 'no Persian data (tools/build_persian_dic.py)')
 class MorphologyTestCase(unittest.TestCase):
     def best(self, word):
-        from persian import morphology
+        from dragoman.persian import morphology
         return morphology.analyses(word)[0]
 
     def test_verbs(self):
@@ -54,15 +54,15 @@ class MorphologyTestCase(unittest.TestCase):
         self.assertEqual(self.best('نامه‌ای').main['roman'], "nâme'i")  # 不定の -i (ZWNJ の前が本体)
 
     def test_relational_adjective(self):
-        from persian import morphology
+        from dragoman.persian import morphology
         self.assertEqual(morphology.relational_adjective('جهانی').main['pos'], 'adj')
 
 
 @unittest.skipUnless(HAVE_DATA, 'no Persian data (tools/build_persian_dic.py)')
 class AnalyzerTestCase(unittest.TestCase):
     def run_text(self, text):
-        from persian import analyzer
-        from core import render
+        from dragoman.persian import analyzer
+        from dragoman.core import render
         a = next(analyzer.analyze_text(text))
         return [render.translate(c.predicate) for c in a.clauses], analyzer.sentence_text(a.forms)[1]
 

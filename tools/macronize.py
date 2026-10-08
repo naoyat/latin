@@ -16,7 +16,7 @@ import getopt
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from latin import latindic, macronizer
+from dragoman.latin import latindic, macronizer
 
 
 def verbose_text(text, hidden='keep'):

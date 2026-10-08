@@ -22,9 +22,9 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from latin import wiktionary
-from latin import orthography
-from core.wiktionary_import import convert_entry, japanese_gloss, ja_key, flatten, descendants_summary, \
+from dragoman.latin import wiktionary
+from dragoman.latin import orthography
+from dragoman.core.wiktionary_import import convert_entry, japanese_gloss, ja_key, flatten, descendants_summary, \
     etymology_summary, lemma_key
 
 
@@ -50,8 +50,8 @@ def load_japanese_glosses(path):
 
 def make_participle_gloss(ja_glosses):
     """動詞の日本語訳語から分詞の訳語を作る (手作り辞書の latin_verb_reg と同じ方法)"""
-    from core import verb_flags as Verb
-    from core.japanese import JaVerb, is_mecab_available
+    from dragoman.core import verb_flags as Verb
+    from dragoman.core.japanese import JaVerb, is_mecab_available
     if not is_mecab_available:
         return None
     flags = {'present': Verb.PARTICIPLE_PRESENT, 'past': Verb.PARTICIPLE_PERFECT,

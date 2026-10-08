@@ -15,7 +15,7 @@ import os
 import re
 import sys
 import unicodedata
-from core import paths
+from dragoman.core import paths
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = paths.DATA_DIR

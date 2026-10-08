@@ -5,9 +5,9 @@
 #
 import unittest
 
-from core import japanese
-from core.japanese import JaVerb, copula_predicate, copula_conjunctive
-from core import verb_flags as Verb
+from dragoman.core import japanese
+from dragoman.core.japanese import JaVerb, copula_predicate, copula_conjunctive
+from dragoman.core import verb_flags as Verb
 
 
 class CopulaTestCase(unittest.TestCase):

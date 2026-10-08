@@ -9,7 +9,7 @@ mkdir -p ~/.local/share/dragoman-data/grc && cd ~/.local/share/dragoman-data/grc
 curl -L -o kaikki-AncientGreek.jsonl.gz "https://kaikki.org/dictionary/Ancient%20Greek/kaikki.org-dictionary-AncientGreek.jsonl.gz"
 cd - && python3 tools/build_greek_dic.py      # → ~/.local/share/dragoman-data/grc/wiktionary.sqlite（約2.2万語・106万形）
 python3 tools/samples.py --lang=grc           # サンプルの訳 (-t 構造、-d 語ごとの辞書引き)
-python3 greek.py samples/greek.txt           # 解析の詳細 (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
+python3 dragoman.py --lang=grc samples/greek.txt           # 解析の詳細 (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
 ```
 
 ```
@@ -68,7 +68,7 @@ CFLAGS='-std=gnu89 -Wno-return-type -Wno-implicit-function-declaration -Wno-int-
 ```
 python3 tools/speak.py --lang=grc "μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος"     # 復元アッティカ発音・高低アクセント
 python3 tools/speak.py --lang=grc --pron=koine -d "ἐν ἀρχῇ ἦν ὁ λόγος"    # コイネー (-d で IPA と .pho)
-python3 greek.py -s samples/greek.txt                                     # 解析しながら読む
+python3 dragoman.py --lang=grc -s samples/greek.txt                                     # 解析しながら読む
 ```
 
 * MBROLA のラテン語音声 la1 で読みます（有気音 [pʰ tʰ kʰ]・[y]・長母音があるので、ほぼそのまま使える。

@@ -9,7 +9,7 @@ mkdir -p ~/.local/share/dragoman-data/ru && cd ~/.local/share/dragoman-data/ru
 curl -L -o kaikki-Russian.jsonl.gz "https://kaikki.org/dictionary/Russian/kaikki.org-dictionary-Russian.jsonl.gz"
 cd - && python3 tools/build_russian_dic.py      # → ~/.local/share/dragoman-data/ru/wiktionary.sqlite (約5.8万語、強勢付きの変化形 約140万)
 python3 tools/samples.py --lang=ru              # サンプルの訳
-python3 russian.py samples/russian.txt          # 解析の詳細 (-w, -D 子孫語, -E 語源, -s 音読)
+python3 dragoman.py --lang=ru samples/russian.txt          # 解析の詳細 (-w, -D 子孫語, -E 語源, -s 音読)
 ```
 
 ```

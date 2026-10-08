@@ -24,8 +24,8 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from sanskrit import dictionary, script
-from core.wiktionary_import import english_glosses, japanese_gloss, descendants_summary, etymology_summary
+from dragoman.sanskrit import dictionary, script
+from dragoman.core.wiktionary_import import english_glosses, japanese_gloss, descendants_summary, etymology_summary
 
 POS = {'noun': 'noun', 'name': 'name', 'adj': 'adj', 'num': 'adj', 'pron': 'pronoun', 'det': 'pronoun',
        'verb': 'verb', 'root': 'root', 'adv': 'adv', 'conj': 'conj', 'particle': 'particle', 'postp': 'adv',

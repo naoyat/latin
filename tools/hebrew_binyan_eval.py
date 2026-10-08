@@ -17,7 +17,7 @@ import unicodedata
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from hebrew import binyan, dictionary
+from dragoman.hebrew import binyan, dictionary
 
 
 def normalized(form):

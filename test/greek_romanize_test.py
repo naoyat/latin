@@ -5,7 +5,7 @@
 #
 import unittest
 
-from greek.romanize import romanize, romanize_word
+from dragoman.greek.romanize import romanize, romanize_word
 
 
 class RomanizeTestCase(unittest.TestCase):

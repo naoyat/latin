@@ -12,7 +12,7 @@ import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'tools'))
 
 import samples
-from latin import latindic, analyzer
+from dragoman.latin import latindic, analyzer
 
 
 class SamplesTestCase(unittest.TestCase):
@@ -33,30 +33,30 @@ class SamplesTestCase(unittest.TestCase):
             self.assertTrue(sentences, title)
 
     def test_other_languages(self):
-        from greek import dictionary as greek_dictionary
+        from dragoman.greek import dictionary as greek_dictionary
         langs = [('grc', greek_dictionary.available())]
         try:
-            from sanskrit import dictionary as sanskrit_dictionary, morphology
+            from dragoman.sanskrit import dictionary as sanskrit_dictionary, morphology
             langs.append(('sa', sanskrit_dictionary.available() and morphology.available()))
         except ImportError:
             pass
         try:
-            from russian import dictionary as russian_dictionary, morphology as russian_morphology
+            from dragoman.russian import dictionary as russian_dictionary, morphology as russian_morphology
             langs.append(('ru', russian_dictionary.available() and russian_morphology.available()))
         except ImportError:
             pass
-        from hebrew import dictionary as hebrew_dictionary
+        from dragoman.hebrew import dictionary as hebrew_dictionary
         langs.append(('he', hebrew_dictionary.available()))
         try:
-            from arabic import dictionary as arabic_dictionary, morphology as arabic_morphology
+            from dragoman.arabic import dictionary as arabic_dictionary, morphology as arabic_morphology
             langs.append(('ar', arabic_dictionary.available() and arabic_morphology.available()))
         except ImportError:
             pass
-        from persian import dictionary as persian_dictionary
+        from dragoman.persian import dictionary as persian_dictionary
         langs.append(('fa', persian_dictionary.available()))
-        from hindi import dictionary as hindi_dictionary
+        from dragoman.hindi import dictionary as hindi_dictionary
         langs.append(('hi', hindi_dictionary.available()))
-        from urdu import dictionary as urdu_dictionary
+        from dragoman.urdu import dictionary as urdu_dictionary
         langs.append(('ur', urdu_dictionary.available()))
         for lang, available in langs:
             sections = samples.read_sections(samples.LANG_FILES[lang])

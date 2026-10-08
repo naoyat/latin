@@ -5,7 +5,7 @@
 #
 import unittest
 
-from greek import analyzer, dictionary
+from dragoman.greek import analyzer, dictionary
 
 
 def analyze(text):

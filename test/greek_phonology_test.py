@@ -5,7 +5,7 @@
 #
 import unittest
 
-from greek import phonology, prosody, dictionary, length
+from dragoman.greek import phonology, prosody, dictionary, length
 
 
 def ipa(text, pron='attic'):

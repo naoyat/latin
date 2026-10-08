@@ -5,8 +5,8 @@
 #
 import unittest
 
-from core import etymology
-from latin import wiktionary
+from dragoman.core import etymology
+from dragoman.latin import wiktionary
 
 FAKE = {
     'pater': [{'ancestors': [['inh', 'itc-pro', '*patēr', ''], ['inh', 'ine-pro', '*ph₂tḗr', ''],

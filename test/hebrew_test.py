@@ -6,7 +6,7 @@
 #
 import unittest
 
-from hebrew import script, morphology, dictionary
+from dragoman.hebrew import script, morphology, dictionary
 
 HAVE_DATA = dictionary.available()
 
@@ -75,7 +75,7 @@ class BinyanTemplateTestCase(unittest.TestCase):
     """強い語根の型から態の型の形を作る (辞書を引かない)"""
 
     def generate(self, root, stem, column):
-        from hebrew import binyan
+        from dragoman.hebrew import binyan
         return binyan.generate(root, stem, column)
 
     def assertEqual(self, first, second, msg=None):
@@ -95,7 +95,7 @@ class BinyanTemplateTestCase(unittest.TestCase):
         self.assertEqual(self.generate('שמר', 'hithpael', 'qatal'), 'הִשְׁתַּמֵּר')  # hit-šammēr → hištammēr
 
     def test_root_input(self):
-        from hebrew import binyan
+        from dragoman.hebrew import binyan
         self.assertEqual(binyan.parse_root('ktb'), 'כתב')
         self.assertEqual(binyan.parse_root('כתב'), 'כתב')
 
@@ -106,7 +106,7 @@ class BinyanAnalogyTestCase(unittest.TestCase):
 
     def made(self, root, stem, column):
         import unicodedata
-        from hebrew import binyan
+        from dragoman.hebrew import binyan
         guess = binyan.analogize(root, stem, column)
         return unicodedata.normalize('NFC', guess[0]) if guess else None
 
@@ -118,13 +118,13 @@ class BinyanAnalogyTestCase(unittest.TestCase):
         self.assertEqual(self.made('עמד', 'niphal', 'yiqtol'), nfc('יֵעָמֵד'))  # 喉音は重ねず前の母音を長く
 
     def test_bdb_stem_senses(self):
-        from hebrew import binyan
+        from dragoman.hebrew import binyan
         self.assertIn('be written', dictionary.lexicon('3789')['stems']['niphal'])
         self.assertIn('raise up', dictionary.lexicon('6965b')['stems']['polel'])  # Po‛l → polel
         self.assertTrue(any('語義 (BDB): be written' in line for line in binyan.table('כתב')))
 
     def test_hollow_root_uses_polel(self):
-        from hebrew import binyan
+        from dragoman.hebrew import binyan
         self.assertEqual(binyan._stem_code('קום', 'piel'), 'o')
 
 
@@ -133,7 +133,7 @@ class ExplainTestCase(unittest.TestCase):
     """初学者向けの解説: 動詞の語根・態の型・時制の型"""
 
     def notes(self, text, ix):
-        from hebrew import analyzer, explain
+        from dragoman.hebrew import analyzer, explain
         return explain.notes(analyzer.lookup_all(analyzer.tokens(text))[ix])
 
     def test_verb(self):
@@ -145,7 +145,7 @@ class ExplainTestCase(unittest.TestCase):
         self.assertTrue(any('wayyiqtol' in line for line in lines), lines)
 
     def test_construct_state(self):
-        from hebrew import analyzer, explain
+        from dragoman.hebrew import analyzer, explain
         words = analyzer.lookup_all(analyzer.tokens('וְר֣וּחַ אֱלֹהִ֔ים מְרַחֶ֖פֶת'))
         # רוּחַ は絶対形と連語形が同じ綴り: 後ろに名詞があるので連語形「神の霊」
         self.assertEqual(words[1].items[0].attrib('state'), 'construct')
@@ -161,7 +161,7 @@ class ExplainTestCase(unittest.TestCase):
 @unittest.skipUnless(HAVE_DATA, 'ヘブライ語の辞書 (tools/build_hebrew_dic.py) が無い')
 class AnalyzerTestCase(unittest.TestCase):
     def analyze(self, text):
-        from hebrew import analyzer
+        from dragoman.hebrew import analyzer
         return list(analyzer.analyze_text(text))
 
     def test_genesis_1_1(self):
@@ -179,7 +179,7 @@ class AnalyzerTestCase(unittest.TestCase):
         self.assertEqual(trs[2], 'そして / ひかりが / あった')
 
     def test_biblical_aramaic(self):
-        from hebrew import analyzer
+        from dragoman.hebrew import analyzer
         a = self.analyze('מַלְכָּא֙ לְעָלְמִ֣ין חֱיִ֔י אֱמַ֥ר חֶלְמָ֛א לְעַבְדָ֖ךְ וּפִשְׁרָ֥א נְחַוֵּֽא׃')[0]
         trs = [c.predicate.translate()[0] for c in a.clauses]
         self.assertTrue(trs[0].startswith('王よ'), trs)       # 命令形の前の限定状態の名詞は呼びかけ

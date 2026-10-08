@@ -9,7 +9,7 @@ mkdir -p ~/.local/share/dragoman-data/hi && cd ~/.local/share/dragoman-data/hi
 curl -L -o kaikki-Hindi.jsonl.gz "https://kaikki.org/dictionary/Hindi/kaikki.org-dictionary-Hindi.jsonl.gz"
 cd - && python3 tools/build_hindi_dic.py        # → ~/.local/share/dragoman-data/hi/wiktionary.sqlite (約2.4万語、約20万形)
 python3 tools/samples.py --lang=hi              # サンプルの訳
-python3 hindi.py samples/hindi.txt              # 解析の詳細 (-w, -D, -E, -s 音読, -r 転写)
+python3 dragoman.py --lang=hi samples/hindi.txt              # 解析の詳細 (-w, -D, -E, -s 音読, -r 転写)
 ```
 
 ```

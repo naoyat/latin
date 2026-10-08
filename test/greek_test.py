@@ -6,9 +6,9 @@
 #
 import unittest
 
-from greek import orthography, dictionary
-from greek.wiktionary_import import convert_entry
-from greek.participles import declension
+from dragoman.greek import orthography, dictionary
+from dragoman.greek.wiktionary_import import convert_entry
+from dragoman.greek.participles import declension
 
 
 def form(text, *tags):

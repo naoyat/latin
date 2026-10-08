@@ -5,7 +5,7 @@
 #
 import unittest
 
-from core import speech
+from dragoman.core import speech
 
 
 class PlainTextTestCase(unittest.TestCase):

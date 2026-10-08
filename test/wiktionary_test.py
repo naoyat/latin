@@ -7,9 +7,9 @@
 #
 import unittest
 
-from latin import wiktionary, latindic, analyzer
-from core.wiktionary_import import descendants_summary, etymology_summary
-from core.wiktionary_import import convert_entry, make_item, japanese_gloss, english_glosses
+from dragoman.latin import wiktionary, latindic, analyzer
+from dragoman.core.wiktionary_import import descendants_summary, etymology_summary
+from dragoman.core.wiktionary_import import convert_entry, make_item, japanese_gloss, english_glosses
 
 
 def form(text, *tags):

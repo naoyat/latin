@@ -5,8 +5,8 @@
 #
 import unittest
 
-from latin.katakana import katakana
-from latin.wiktionary import _proper_noun_gloss
+from dragoman.latin.katakana import katakana
+from dragoman.latin.wiktionary import _proper_noun_gloss
 
 
 class KatakanaTestCase(unittest.TestCase):

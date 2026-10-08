@@ -10,9 +10,9 @@ import glob
 import contextlib
 import unittest
 
-from core import render
-from latin import latindic, analyzer, wiktionary, rftagger
-from latin.catalog import PRIVATE_TEXTS_DIR
+from dragoman.core import render
+from dragoman.latin import latindic, analyzer, wiktionary, rftagger
+from dragoman.latin.catalog import PRIVATE_TEXTS_DIR
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # リポジトリのテキストと、リポジトリに入れないテキスト (あれば)
