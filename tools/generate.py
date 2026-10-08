@@ -49,7 +49,10 @@ def run(text):
             print('  英語:     ' + english.sentence(clauses))
         for lang, label, module in OTHERS:
             if lang in TARGETS:
-                print('  %s ' % label + module.sentence(clauses))
+                try:
+                    print('  %s ' % label + module.sentence(clauses))
+                except Exception as e:   # 1つの言語で作れなくても、ほかの言語は出す
+                    print('  %s (作れない: %s: %s)' % (label, type(e).__name__, e))
         if 'la' not in TARGETS:
             print()
             continue

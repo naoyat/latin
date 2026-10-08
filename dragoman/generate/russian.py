@@ -93,7 +93,11 @@ def _inflect(lemma, pos, grammemes):
 
 def noun_lemma(lex):
     if lex.pos == 'pronoun':
-        return PRONOUNS.get(lex.lemma) or PRONOUNS.get(english._flat(lex.lemma)), 'm'
+        pronoun = PRONOUNS.get(lex.lemma) or PRONOUNS.get(english._flat(lex.lemma))
+        if pronoun:
+            return pronoun, 'm'
+        target = transfer.best(lex, 'ru', 'adj') or transfer.best(lex, 'ru', 'pronoun')   # ūnus, tōtus …
+        return (target.lemma, '') if target else ('[%s]' % english.word(lex), '')
     if lex.proper:
         lemma = NAMES.get(english._flat(lex.lemma)) or name(lex.lemma)
         return lemma, ''
