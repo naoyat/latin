@@ -47,7 +47,7 @@ BACKENDS = {
 SAY_VOICES = {'ru': 'Milena', 'sa': 'Lekha', 'grc': 'Melina', 'he': 'Carmit', 'ar': 'Majed', 'hi': 'Lekha', 'ja': 'Kyoko'}
 # 方式を指定しないときに試す順 (言語ごと。無ければ DEFAULT_BACKEND → FALLBACK_BACKEND)
 LANGUAGE_BACKENDS = {'ru': ('say', 'espeak'), 'he': ('say', 'espeak'), 'ar': ('say', 'espeak'), 'fa': ('espeak',),
-                     'hi': ('say', 'espeak'), 'ur': ('espeak',), 'ja': ('say',)}
+                     'hi': ('say', 'espeak'), 'ur': ('espeak',), 'ja': ('say',), 'bo': ('espeak',)}
 DEFAULT_BACKEND = 'mbrola'
 FALLBACK_BACKEND = 'espeak'
 ESPEAK_SPEED = 140  # words per minute (espeak-ng の既定は175)
@@ -58,7 +58,8 @@ proc = None
 language = 'la'          # 'la' / 'grc' / 'sa'
 divine_name = 'adonai'   # ヘブライ語の神の名の読み方 (adonai / hashem / literal。hebrew.script.qere)
 pronunciation = 'attic'  # ギリシア語の発音の流儀 (attic / koine / erasmian)
-ESPEAK_VOICES = {'la': 'la', 'grc': 'grc', 'sa': 'hi', 'ru': 'ru', 'he': 'he', 'ar': 'ar', 'fa': 'fa', 'hi': 'hi', 'ur': 'ur'}
+ESPEAK_VOICES = {'la': 'la', 'grc': 'grc', 'sa': 'hi', 'ru': 'ru', 'he': 'he', 'ar': 'ar', 'fa': 'fa', 'hi': 'hi', 'ur': 'ur',
+                 'bo': 'cmn'}  # チベット語は普通話の音声に音素 ([[...]]。tibetan/phonology.py) で渡す
 # サンスクリットを読む MBROLA のヒンディー語音声 (in1 男声 / in2 女声)
 SANSKRIT_VOICE = os.path.join(MBROLA_HOME, 'voices', 'in1', 'in1')
 # 現代ギリシア語式 (--pron=modern) で読む MBROLA の現代ギリシア語音声 (gr1 / gr2)
@@ -190,6 +191,9 @@ def _plain_text(text):
         from dragoman.hebrew import script
         # 朗唱記号は除く (母音記号は残す)。神の名 יְהוָה は伝統どおり アドナイ (エロヒム) と読み替える
         return script.qere(script.pointed(text), divine_name)
+    if language == 'bo' and not text.startswith('[['):
+        from dragoman.tibetan import phonology
+        return phonology.espeak_phonemes(text, pron=pronunciation if pronunciation in ('lhasa', 'chant') else 'lhasa')
     if language == 'grc' and backend == 'say':
         return _monotonic(text)  # 現代ギリシア語の音声は多調符 (気息記号・曲アクセント) を読めない
     return text

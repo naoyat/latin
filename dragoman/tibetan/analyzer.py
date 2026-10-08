@@ -66,6 +66,15 @@ class TibetanAnalysis:
     def wylie(self):
         return script.translit(self.text, dictionary.known())
 
+    def word_texts(self):
+        """語の綴り (発音の、語の中の音節のつながりに使う)"""
+        return [p for w in self.words for p in (getattr(w, 'pieces', None) or [w.text])]
+
+    def pronunciation(self, pron='lhasa'):
+        from . import phonology
+        return phonology.ipa(self.text, pron, words=[p for w in self.words if w.kind != 'punct'
+                                                    for p in (getattr(w, 'pieces', None) or [w.text])])
+
 
 # ----------------------------------------------------------------------
 # 語の種類
@@ -125,6 +134,17 @@ def classify(tokens):
                 words.append(Word(t, 'part', lemma='go', function='文末'))  # -l の後ろの lo は文末の 'o ('tshal lo)
                 continue
         bare_verb = re.sub(r' (pa|ba)$', '', wylie)
+        if len(words) >= 2 and words[-1].kind == 'part' and words[-1].lemma == 'la' and words[-2].kind == 'noun' and \
+                grammar.PHRASE_VERBS.get((words[-2].wylie, bare_verb)):
+            pieces = [words[-2].text, words[-1].text, t.text]
+            verb = _verb_word(t, bare_verb, nominal=bare_verb != wylie)
+            verb.ja = grammar.PHRASE_VERBS[(words[-2].wylie, bare_verb)]
+            verb.token.text = '་'.join([words[-2].text, words[-1].text, t.text])
+            verb.token.wylie = ' '.join([words[-2].wylie, words[-1].wylie, wylie])
+            verb.note = '決まった言い方'
+            verb.pieces = pieces  # 発音は語ごとに
+            words[-2:] = [verb]
+            continue
         if prev is not None and prev.kind == 'noun' and grammar.COMPOUND_VERBS.get((prev.wylie, bare_verb)):
             verb = _verb_word(t, bare_verb, nominal=bare_verb != wylie)
             verb.ja = grammar.COMPOUND_VERBS[(prev.wylie, bare_verb)]

@@ -5,13 +5,34 @@
 #
 from dragoman.core import ansi_color
 from dragoman.core.cli import Command
-from . import analyzer, dictionary, grammar, script, segment
+from . import analyzer, dictionary, grammar, phonology, script, segment
 
 USAGE = '''
   ./dragoman.py bo -e "རྒྱལ་པོས་བློན་པོ་ལ་གསེར་བྱིན་ནོ།"
   古典チベット語を語に分け (botok)、格助詞 (能格 gis・属格 gi・la don …)・動詞の語幹の時制・否定を示して、
-  日本語に訳す。見出しはチベット文字とワイリー式。辞書は tools/build_tibetan_dic.py で作る (docs/tibetan.md)
+  日本語に訳す。見出しはチベット文字とワイリー式、その下にラサ方言の発音 (IPA と声調)。
+  音読 (-s) は espeak-ng の普通話の音声に音素で渡す。辞書は tools/build_tibetan_dic.py で作る (docs/tibetan.md)
 '''
+OPTION_HELP = '''
+  --pron=PRON            発音: lhasa (ラサ方言。既定) / chant (読誦式: 語末の母音を変えず -l -n を読む)
+'''
+
+
+def pron(options):
+    return options.extra.get('pron', 'lhasa')
+
+
+def handle_option(option, arg, options):
+    if option == '--pron':
+        if arg not in ('lhasa', 'chant'):
+            raise SystemExit('--pron は lhasa か chant')
+        options.extra['pron'] = arg
+        return True
+    return False
+
+
+def speech_text(analysis, options):
+    return phonology.espeak_phonemes(analysis.text, pron(options), words=analysis.word_texts())
 
 KINDS = {'noun': '名詞', 'pron': '代名詞', 'adj': '形容詞', 'num': '数詞', 'det': '指示詞', 'plural': '複数',
          'verb': '動詞', 'cop': '繋辞', 'exist': '存在動詞', 'neg': '否定', 'part': '助詞', 'adv': '副詞'}
@@ -39,6 +60,7 @@ def describe(w):
 
 
 def render(analysis, options):
+    print('  [%s]' % analysis.pronunciation(pron(options)))
     if options.show_word_detail:
         print()
         width = max([len(w.wylie) for w in analysis.words if w.kind != 'punct'] + [4])
@@ -62,4 +84,6 @@ def available():
 
 
 COMMAND = Command(lang='bo', name='古典チベット語', analyzer=analyzer, dictionary=dictionary, available=available,
-                  usage=USAGE, header=header, romanize=script.translit, render=render)
+                  usage=USAGE, header=header, romanize=script.translit, render=render, speech_lang='bo',
+                  speech_text=speech_text, speech_pron=pron, long_options=('pron=',), option_help=OPTION_HELP,
+                  handle_option=handle_option)

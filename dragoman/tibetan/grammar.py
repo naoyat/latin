@@ -66,7 +66,7 @@ NUMERALS = {'gcig': '一', 'gnyis': '二', 'gsum': '三', 'bzhi': '四', 'lnga':
 GLOSSES = {
     'dus': '時', 'chos': '法', 'sangs rgyas': '仏陀', 'bstan': '説く', 'gcod': '切る', 'bcad': '切る',
     'lha sa': 'ラサ', 'dngul': 'お金', 'yi ge': '手紙', 'bla ma': 'ラマ', 'byang chub sems dpa\'': '菩薩',
-    'bcom ldan \'das': '世尊', 'dge slong': '比丘', 'sems can': '衆生', 'sems': '心', 'stong pa nyid': '空性',
+    'bcom ldan \'das': '世尊', "dge 'dun": '僧伽', 'dge slong': '比丘', 'sems can': '衆生', 'sems': '心', 'stong pa nyid': '空性',
     'shes rab': '智慧', 'snying rje': '慈悲', 'dkon mchog': '三宝', 'mdo': '経', 'rgyal po': '王', 'lha': '神',
     'thos': '聞く', 'gsungs': 'おっしゃる', 'gsung': 'おっしゃる', 'smras': '言う', 'smra': '言う', 'zer': '言う',
     'mthong': '見る', 'bltas': '見る', 'lta': '見る', "'gro": '行く', 'song': '行く', 'phyin': '行く',
@@ -86,6 +86,9 @@ COMPOUND_VERBS = {('phyag', "'tshal"): '礼拝する', ("bka'", 'stsal'): 'お�
                   ('zhal', 'gyis'): 'お召し上がりになる', ('thugs', 'rje'): '慈しむ', ('gsol ba', "'debs"): '祈る',
                   ('gsol ba', 'btab'): '祈る', ('mchod pa', 'byed'): '供養する', ('mchod pa', 'byas'): '供養する',
                   ('dad pa', 'skyes'): '信じる', ('mgo', 'bo'): ''}
+# 名詞 + la don + 動詞の決まった言い方 (skyabs su mchi → 帰依する)
+PHRASE_VERBS = {('skyabs', 'mchi'): '帰依する', ('skyabs', "'gro"): '帰依する', ('skyabs', 'song'): '帰依した',
+                ('rab tu', 'byung'): '出家する', ('sems', 'skyed'): '発心する', ('sems', 'bskyed'): '発心する'}
 MOTION_VERBS = {"'gro", 'song', 'phyin', "'ong", 'byon', 'yong', 'gshegs'}
 FIRST_PERSON = {'nga', 'bdag', 'kho bo', 'nged', 'bdag cag'}
 ADVERBS = {"'di skad": 'このように', "'di ltar": 'このように', 'de nas': 'それから', 'yang': 'また', 'shin tu': 'とても',

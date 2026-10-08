@@ -34,7 +34,7 @@ $ echo "लड़के ने किताब पढ़ी।" | python3 dragom
 | ペルシア語 | `fa` | 自前の規則 + Wiktionary | PerDT: 主語 55%・目的語 43% | espeak-ng | [docs/persian.md](docs/persian.md) |
 | ヒンディー語 | `hi` | Wiktionary の変化表 | HDTB: 主語 53%・目的語 30% | say (Lekha) | [docs/hindi.md](docs/hindi.md) |
 | ウルドゥー語 | `ur` | ヒンディー語の語形に引き当てる | UDTB: 主語 39%・目的語 32% | espeak-ng | [docs/urdu.md](docs/urdu.md) |
-| 古典チベット語 | `bo` | botok で語に分ける、Hill & Garrett の品詞辞書・Wiktionary・蔵英辞書。語順のまま日本語に | Hill & Garrett のコーパス: 語の区切り 84%・格助詞 88% | — | [docs/tibetan.md](docs/tibetan.md) |
+| 古典チベット語 | `bo` | botok で語に分ける、Hill & Garrett の品詞辞書・Wiktionary・蔵英辞書。語順のまま日本語に | Hill & Garrett のコーパス: 語の区切り 84%・格助詞 88% | espeak-ng (ラサ方言の音素・声調) | [docs/tibetan.md](docs/tibetan.md) |
 | 古文（平安の和文） | `kobun` | MeCab + 中古和文UniDic。品詞分解して現代語に組み立て直す | — | say (Kyoko) | [docs/kobun.md](docs/kobun.md) |
 
 ラテン語以外は作りかけです。日本語の訳語の無い語は、英語の語義（Wiktionary・CAMeL Tools）を英語 → 日本語の表で

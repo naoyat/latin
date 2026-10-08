@@ -9,7 +9,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from dragoman.tibetan import dictionary, script, segment  # noqa: E402
+from dragoman.tibetan import dictionary, phonology, script, segment  # noqa: E402
 
 HAVE_DATA = dictionary.available()
 
@@ -30,6 +30,33 @@ class WylieTestCase(unittest.TestCase):
     def test_ambiguous_syllable(self):
         self.assertEqual(script.syllable_candidates('དགས'), ['dags', 'dgas'])
         self.assertEqual(script.translit('དགས', known={'dgas'}), 'dgas')  # 辞書にある方
+
+
+class LhasaTestCase(unittest.TestCase):
+    def ipa(self, word, pron='lhasa'):
+        return phonology.ipa(word, pron, words=[word])
+
+    def test_initials(self):
+        self.assertEqual(self.ipa('ལྷ་ས'), 'l̥a˥.sa˥')                     # 無声の l、高い調子
+        self.assertEqual(self.ipa('བླ་མ'), 'la˥.ma˩˧')                     # bl → l (高)、m (低)
+        self.assertEqual(self.ipa('དབང'), 'waŋ˩˧')                         # db → w
+        self.assertEqual(self.ipa('ཁྲག'), 'ʈʰaʔ˥˩')                        # khr → ʈʰ、-g → ʔ
+        self.assertEqual(self.ipa('བསྒྲུབས'), 'ʈup˩˧')                     # 前置字・上に乗る字は読まない、有声は無気に
+        self.assertEqual(self.ipa('གཡུ'), 'ju˥')                           # 前置字のある鳴音は高い調子
+
+    def test_rhymes(self):
+        self.assertEqual(self.ipa('བོད'), 'pʰø˩˧')                         # -d で o → ø
+        self.assertEqual(self.ipa('ཕྱག་འཚལ'), 'cʰaʔ˥˩.tsʰɛː˥')            # -l で a → ɛ、長く
+        self.assertEqual(self.ipa('ཕྱག་འཚལ', 'chant'), 'cʰaʔ˥˩.tsʰal˥')   # 読誦式
+        self.assertEqual(self.ipa('བཀྲ་ཤིས་བདེ་ལེགས'), 'ʈa˥.ɕi˥˩.te˩˧.leʔ˩˧')  # -gs は母音を変えない
+        self.assertEqual(self.ipa('ཨོཾ'), 'om˥')
+
+    def test_nasal_sandhi(self):
+        self.assertEqual(self.ipa('དགེ་འདུན'), 'ken˩˧.tyn˩˧')               # 2音節目の ' は前の音節の鼻音に
+        self.assertEqual(self.ipa('བཀའ་འགྱུར'), 'kaŋ˥.cur˩˧')
+
+    def test_espeak(self):
+        self.assertEqual(phonology.espeak_phonemes('ལྷ་ས།'), "[[l#'A55 s'A55 _:]]")
 
 
 @unittest.skipUnless(HAVE_DATA and segment.available(), 'no Tibetan dictionary or botok')

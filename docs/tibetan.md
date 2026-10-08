@@ -75,6 +75,30 @@ botok の辞書パック（約12MB）は初回に `~/.local/share/dragoman-data/
 * 複数音節の名詞・動詞は、Mahāvyutpatti（翻訳名義大集）と Hopkins の表からサンスクリットの原語を注に出す
   （sangs rgyas → buddhaḥ、bcom ldan 'das → bhagavān）。
 
+## 発音と音読
+
+見出しの下に、ラサ方言を土台にした発音を IPA と声調で出します（`tibetan/phonology.py`）。音読（`-s`）は espeak-ng の
+普通話の音声（`-v cmn`。有気・無気、そり舌・歯茎硬口蓋の破擦音、声調がある）に音素で渡します。
+
+```
+./dragoman.py bo -s -e "བླ་མ་ལ་ཕྱག་འཚལ་ལོ།"                 # [la˥.ma˩˧ la˩˧ cʰaʔ˥˩.tsʰɛː˥ lo˩˧]
+./dragoman.py bo --pron=chant -e "བླ་མ་ལ་ཕྱག་འཚལ་ལོ།"        # 読誦式 [… cʰaʔ˥˩.tsʰal˥ …]
+```
+
+* 語頭の子音: 前置字・上に乗る字は読まない（bsgrubs → ʈup）。下に付く字で変わる（ky / py → c、khy / phy → cʰ、
+  kr / tr / pr → ʈ、khr → ʈʰ、bl / kl / sl / rl → l、zl → t、sr → s、hr → ʂ）。lh → l̥（無声の l。lha sa → l̥a˥.sa˥）、
+  db → w（dbang → waŋ）、dby → j。有声の基字 g j d b dz は無声になり、前置字・上に乗る字が無ければ有気（ga → kʰa）、
+  あれば無気（dga → ka）。2音節目以降は無気。
+* 声調: 無声の基字・ཨ、前置字か上に乗る字のある鳴音（rna, sna, g.yu）、lh は高い調子（˥）、有声の基字・前置字の
+  無い鳴音・འ は低い調子（˩˧）。高い調子は -g / -b / -d / -s の音節で下がる（˥˩）。
+* 語末: -g → ʔ、-ng → ŋ、-b → p、-m → m、-r → r、-n → n、-d / -s は読まない、-l は読まずに母音を伸ばす。
+  -d / -s / -l / -n と語末の 'i の前で a → ɛ、o → ø、u → y（bod → pʰø、'tshal → tsʰɛː、pa'i → pɛː）。
+  2つ目の後置字の -s（legs, sangs）の前では変わらない。ཾ → m、ྃ → ŋ（oM → om、hUM → huŋ）。
+* 語の中の2音節目以降の前置字 ' / m は、前の音節の鼻音になる（dge 'dun → ken.tyn、bka' 'gyur → kaŋ.cur）。
+* `--pron=chant`（読誦式）: 語末の母音を変えず、-l / -n を読む（'tshal → tsʰal、「チャク ツァル ロ」）。
+* まだ: espeak-ng の音声に ø が無いので e で代用、声調は普通話の調子（55, 51, 35）で近似。語の中の声調の変化
+  （2音節目の調子）、語中の有声化（mchod rten → tɕʰø.tɛn の t の有声化）、サンスクリットの音節は綴りのまま。
+
 ## 評価
 
 Hill & Garrett の手で品詞を付けたコーパス（『賢愚経』、プトンの仏教史、ミラレパ伝・マルパ伝。約28万語）で測ります。
@@ -97,5 +121,6 @@ python3 tools/bo_eval.py [--source=mdzangsblun,buston,mila,marpa] [--limit=N]
 
 * 能格と具格の選び分けの改善（人でない動作主、主語の省略された文の道具）。
 * 敬語の動詞（gsung, mdzad, gshegs …）を日本語の敬語に、動詞の語幹の表の拡充、複合動詞の表の拡充。
+* 音読: チベット語の録音で学習した音声（Meta の MMS-TTS など。ライセンスと方言を確かめてから）。
 * 長い文の節の切れ目（接続の助詞で切った節ごとの主語の引き継ぎ）。
 * 対訳での確認（SansTib の梵蔵対訳、ACTib の大きなコーパス）。
