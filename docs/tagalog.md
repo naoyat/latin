@@ -68,6 +68,7 @@ UD のタガログ語は対象焦点を受動として注釈する（ang = nsubj
 ## 音読
 
 macOS の say にも espeak-ng にもタガログ語の音声が無いので、綴りと発音の近いインドネシア語の音声（espeak-ng `id`）で読みます。
+綴りと発音のずれる ng（nang [naŋ] と読む）と mga（manga [maŋa]）は、音声に渡す前に置き換えます。
 Meta の MMS-TTS にはタガログ語のモデル（facebook/mms-tts-tgl）があります。
 
 ## まだ

@@ -104,11 +104,21 @@ def handle_option(option, arg, options):
     return False
 
 
+# 綴りと発音のずれる語 (正書法の決まり): ng は nang [naŋ]、mga は manga [maŋa] と読む
+SPOKEN = {'ng': 'nang', 'mga': 'manga'}
+
+
+def speech_text(analysis, options):
+    """音読に渡す文: 元の文の ng → nang、mga → manga (音声は綴りどおりに読むので)"""
+    import re
+    return re.sub(r"\b(ng|mga)\b", lambda m: SPOKEN[m.group(1).lower()], original(analysis), flags=re.I)
+
+
 def available():
     return None if dictionary.available() else 'no Tagalog data (python3 tools/build_tagalog_dic.py)'
 
 
 COMMAND = Command(lang='tl', name='タガログ語', analyzer=analyzer, dictionary=dictionary, available=available,
-                  usage=USAGE, header=lambda a, o: original(a), speech_text=lambda a, o: original(a), explain=explain, render=render,
+                  usage=USAGE, header=lambda a, o: original(a), speech_text=speech_text, explain=explain, render=render,
                   descendant_langs=('en', 'ja'), speech_lang='tl',
                   long_options=('sentence-per-line',), option_help=OPTION_HELP, handle_option=handle_option)
