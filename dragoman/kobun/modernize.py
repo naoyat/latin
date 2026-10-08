@@ -32,8 +32,28 @@ HONORED = {'帝', '御門', '宮', '君', '中宮', '后', '院', '上', '大臣
 # 複合動詞 (前の動詞の語彙素, 後ろの動詞の語彙素) → 現代語 (思ひ出づ → 思い出す)
 COMPOUND_VERBS = {('思う', '出でる'): '思い出す', ('見る', '出でる'): '見つける', ('言う', '出でる'): '言い出す',
                   ('泣く', '出でる'): '泣き出す', ('思う', '立つ'): '思い立つ', ('立つ', '出でる'): '立ち出る',
-                  ('行く', '泥む'): '行き悩む'}
+                  ('行く', '泥む'): '行き悩む', ('憧れる', '出でる'): 'さまよい出る'}
 FIRST_PERSON = {'我', '我れ', '吾', 'われ', '己', 'おのれ', '自分', '私'}
+
+
+@lru_cache(maxsize=None)
+def _transitivity():
+    """現代語の動詞の自他 (tools/build_ja_transitivity.py が JMdict から作る表)。無ければ空"""
+    from dragoman.core import paths
+    table = {}
+    try:
+        with open(paths.data('ja-transitivity.tsv')) as f:
+            for line in f:
+                word, kinds = line.rstrip('\n').split('\t')
+                table[word] = set(kinds.split(','))
+    except OSError:
+        pass
+    return table
+
+
+def transitive_only(verb):
+    """他動詞としてしか使わない動詞か (読む: はい、言う・開く: 自動詞にもなるので いいえ)"""
+    return _transitivity().get(verb) == {'vt'}
 
 
 def is_human(token):
@@ -466,6 +486,17 @@ def _predicate(b, nxt, after_quote, subject=None, ctx=None):
         return m.prefix + m.masu_stem(m.last), particles
     # 後ろに続くもの
     last_cform = (auxes[-1] if auxes else head).form
+    if particles and particles[0].lemma == 'で' and particles[0].pos2 == '接続助詞':
+        m.negative()
+        return m.text() + 'で', particles[1:]  # 打消の接続「で」(心にもあらで → 心にもないで)
+    if m.kind == 'fixed' and head.pos == '形容詞' and not auxes and m.last.endswith('な'):
+        # 形容動詞の形の訳 (あやし → 不思議な): 連用形は「に」(て が続けば「で」)、文末の終止形は「だ」
+        if particles and particles[0].lemma == 'て':
+            return m.prefix + m.last[:-1] + 'で', particles
+        if last_cform == '連用形':
+            return m.prefix + m.last[:-1] + 'に', particles
+        if last_cform == '終止形' and not particles:
+            return m.prefix + m.last[:-1] + 'だ', particles
     how = 'plain'
     if particles and particles[0].lemma == 'て':
         how = 'te'
@@ -548,7 +579,8 @@ def modernize(tokens):
         # 体言・形容動詞・副詞など
         head = b.head
         word = vocabulary(head)
-        if word is not None and b.kind == 'nadj':
+        copula = any(t.pos == '助動詞' and grammar.auxiliary(t)[1] == 'copula' for t in b.tokens)
+        if word is not None and (b.kind == 'nadj' or word.endswith('い') and copula):
             # 形容動詞を表の語に: 形容詞 (むなしい) は活用させ、それ以外 (はっきり) は連用形を「と」に
             form = next((t.form for t in b.tokens if t.pos == '助動詞'), '')
             if word.endswith('い'):
@@ -584,10 +616,20 @@ def modernize(tokens):
     notes += obsolete_notes(bunsetsu)
     for i, b in enumerate(bunsetsu[:-1]):
         nxt = bunsetsu[i + 1]
+        after = bunsetsu[i + 2] if i + 2 < len(bunsetsu) else None
+        if b.kind == 'nominal' and b.head.pos in ('名詞', '代名詞') and is_human(b.head) and \
+                all(t.pos in ('名詞', '代名詞', '接頭辞', '接尾辞') for t in b.tokens) and b.modern and \
+                nxt.kind == 'nominal' and nxt.tokens[-1].lemma in ('を', 'に') and after is not None and after.kind == 'verb':
+            b.modern += 'が'  # 人 + 目的語 + 動詞 (翁竹を取る → 老人が竹を取る)
+            continue
         if b.kind == 'nominal' and b.head.pos in ('名詞', '代名詞') and b.head.pos3 != '副詞可能' and \
                 all(t.pos in ('名詞', '代名詞', '接頭辞', '接尾辞') for t in b.tokens) and nxt.kind in ('verb', 'adj') \
                 and not b.modern.endswith(('が', 'は', 'も')) and vocabulary(b.head) is None and b.modern:
-            b.modern += 'が'  # 助詞の無い主語 (ものありけり → ものがいた)
+            if transitive_only(nxt.head.lemma) and not is_human(b.head) and \
+                    not any(grammar.auxiliary(t)[1] == 'passive' for t in nxt.tokens if t.pos == '助動詞'):
+                b.modern += 'を'  # 他動詞の前の、人でない体言は目的語 (歌よむ → 歌を詠む)
+            else:
+                b.modern += 'が'  # 助詞の無い主語 (ものありけり → ものがいた)
         if nxt.head.lemma == '為る' and nxt.head.surface == 'し' and len(nxt.tokens) > 1 and \
                 nxt.tokens[1].lemma == 'て' and b.modern.endswith('なく'):
             b.modern = b.modern[:-2] + 'ないで'  # 〜ずして → 〜ないで

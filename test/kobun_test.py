@@ -83,6 +83,19 @@ class KobunTestCase(unittest.TestCase):
         self.assertTrue(modernize.modern_known('行く', '動詞'))
         self.assertIn('〔', self.modern('花ぞむつれたる。').modern)  # 表に無い語は形だけ直して印を付ける
 
+    def test_fixes(self):
+        self.assertIn('心にもないで', self.modern('心にもあらでうき世に長らへば').modern)  # 打消の接続「で」
+        self.assertIn('不思議にこそ', self.modern('あやしうこそものぐるほしけれ。').modern)  # 形容動詞の形の訳の連用形
+        self.assertEqual('とても不思議だ。', self.modern('いとあやし。').modern)
+        self.assertIn('しみじみと趣深い。', self.modern('飛びいそぐさへあはれなり。').modern)  # 名詞 + なり の形容詞訳
+        self.assertEqual('さまよい出る。', self.modern('あくがれ出づ。').modern)
+        self.assertEqual('老人が竹を取る。', self.modern('翁竹を取る。').modern)  # 人 + 目的語 + 動詞
+
+    @unittest.skipUnless(modernize._transitivity(), 'no ja-transitivity.tsv (tools/build_ja_transitivity.py)')
+    def test_object_without_particle(self):
+        self.assertIn('歌をよむ', self.modern('花を見て歌よむ。').modern)  # 他動詞の前の、人でない体言は目的語
+        self.assertIn('雨が降って', self.modern('雨降りて道ぬかるむ。').modern)
+
 
 if __name__ == '__main__':
     unittest.main()
