@@ -67,13 +67,24 @@ class TibetanAnalysis:
         return script.translit(self.text, dictionary.known())
 
     def word_texts(self):
-        """語の綴り (発音の、語の中の音節のつながりに使う)"""
-        return [p for w in self.words for p in (getattr(w, 'pieces', None) or [w.text])]
+        """発音の単位: (綴り, 前の語に付く助詞か)。語に付いた助詞 (-s, -r, -'i) は前の語の最後の音節に含める
+        (thos pa'i → tʰø.pɛː、rgyal pos → cɛː.pø)"""
+        out = []
+        for w in self.words:
+            if w.kind == 'punct':
+                out.append((w.text, False))
+                continue
+            if w.token.affix and w.wylie != "'o" and out and not re.fullmatch('[།༎༏༐༑༔ ]+', out[-1][0]):
+                out[-1] = (out[-1][0] + w.text, out[-1][1])
+                continue
+            for k, piece in enumerate(getattr(w, 'pieces', None) or [w.text]):
+                out.append((piece, w.kind in ('part', 'plural') or (w.kind == 'cop' and False)))
+        return out
 
     def pronunciation(self, pron='lhasa'):
         from . import phonology
-        return phonology.ipa(self.text, pron, words=[p for w in self.words if w.kind != 'punct'
-                                                    for p in (getattr(w, 'pieces', None) or [w.text])])
+        return phonology.ipa(self.text, pron, words=[u for u in self.word_texts()
+                                                    if not re.fullmatch('[།༎༏༐༑༔ ]+', u[0])])
 
 
 # ----------------------------------------------------------------------
@@ -540,14 +551,41 @@ def japanese(phrases):
     return out
 
 
-def sanskrit_notes(words):
+def sanskrit_notes(words, wylie_text=''):
+    """サンスクリットの原語の注: 仏典の定型句 (漢訳つき) と、語ごとの原語 (Mahāvyutpatti・Hopkins)"""
     notes = []
+    text = ' ' + re.sub(r'[/|;]', ' ', wylie_text) + ' '
+    text = re.sub(' +', ' ', text)
+    used = []
+    for pattern, skt, kanyaku in grammar.FORMULAS:
+        if ' %s' % pattern in text and not any(pattern in u for u in used):
+            used.append(pattern)
+            notes.append('梵語の定型句: %s → %s (%s)' % (pattern, skt, kanyaku))
+    seen = set()
     for w in words:
-        if w.kind in ('noun', 'verb', 'adj') and ' ' in w.wylie:
-            skt = dictionary.sanskrit(w.wylie)
-            if skt:
-                notes.append('梵語: %s → %s' % (w.wylie, skt))
+        if w.kind not in ('noun', 'verb', 'adj') or w.wylie in seen:
+            continue
+        seen.add(w.wylie)
+        if any((' ' + w.wylie + ' ') in (' ' + u + ' ') for u in used):
+            continue  # 定型句に含まれる語
+        keys = [w.wylie] + ([w.lemma] if w.kind == 'verb' and w.lemma and w.lemma != w.wylie else [])
+        if getattr(w, 'pieces', None):
+            keys += [_pieces_wylie(p) for p in w.pieces]
+        found = []
+        for key in keys:
+            if key in grammar.SANSKRIT:
+                found = [grammar.SANSKRIT[key]]
+                break
+            found = list(dictionary.sanskrit_all(key))
+            if found:
+                break
+        if found and found[0] != 'na':
+            notes.append('梵語: %s → %s' % (w.wylie, ', '.join(found)))
     return notes
+
+
+def _pieces_wylie(text):
+    return script.word_translit(text, dictionary.known())
 
 
 # ----------------------------------------------------------------------
@@ -568,7 +606,7 @@ def analyze_sentence(text):
     notes = []
     assign_cases(phrases, notes)
     ja = japanese(phrases)
-    notes += sanskrit_notes(words)
+    notes += sanskrit_notes(words, script.translit(text, dictionary.known()))
     return TibetanAnalysis(text, words, phrases, ja, notes)
 
 

@@ -126,7 +126,30 @@ def _tokenize_dictionary(text):
     return out
 
 
+def _merge_compounds(tokens):
+    """botok が分けた複合語をつなぐ (byang chub + sems dpa' → byang chub sems dpa')。つないだ形が Hill & Garrett の
+    名詞か、訳語を決めてある語のとき (3語まで)"""
+    out = []
+    i = 0
+    while i < len(tokens):
+        t = tokens[i]
+        for n in (3, 2):
+            group = tokens[i:i + n]
+            if len(group) < n or any(x.upos in ('PUNCT', 'PART', 'ADP') or x.affix for x in group):
+                continue
+            wylie = ' '.join(x.wylie for x in group)
+            if wylie in grammar.GLOSSES or any(tag.startswith('n.') for tag in dictionary.tags(wylie)):
+                out.append(Token(TSHEG.join(x.text for x in group), wylie, 'NOUN', wylie))
+                i += n
+                break
+        else:
+            out.append(t)
+            i += 1
+    return out
+
+
 def _fix(tokens):
+    tokens = _merge_compounds(tokens)
     out = []
     for i, t in enumerate(tokens):
         if t is None:

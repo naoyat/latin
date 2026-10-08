@@ -125,6 +125,24 @@ def stems(wylie):
 
 
 @functools.lru_cache(maxsize=100000)
+def sanskrit_all(wylie, limit=2):
+    """サンスクリットの原語 (Mahāvyutpatti、Hopkins の順に、違うものを limit 個まで)"""
+    db = _connect()
+    if db is None:
+        return ()
+    for w in _variants(wylie):
+        rows = db.execute("SELECT skt FROM sanskrit WHERE wylie = ? ORDER BY source = 'hopkins', rowid", (w,)).fetchall()
+        out = []
+        for (skt,) in rows:
+            key = skt.rstrip('ḥmṃ').replace('-', '')
+            if all(o.rstrip('ḥmṃ').replace('-', '') != key for o in out):
+                out.append(skt)
+        if out:
+            return tuple(out[:limit])
+    return ()
+
+
+@functools.lru_cache(maxsize=100000)
 def sanskrit(wylie):
     """サンスクリットの原語 (Mahāvyutpatti、なければ Hopkins)"""
     db = _connect()

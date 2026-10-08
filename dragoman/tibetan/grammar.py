@@ -66,7 +66,7 @@ NUMERALS = {'gcig': '一', 'gnyis': '二', 'gsum': '三', 'bzhi': '四', 'lnga':
 GLOSSES = {
     'dus': '時', 'chos': '法', 'sangs rgyas': '仏陀', 'bstan': '説く', 'gcod': '切る', 'bcad': '切る',
     'lha sa': 'ラサ', 'dngul': 'お金', 'yi ge': '手紙', 'bla ma': 'ラマ', 'byang chub sems dpa\'': '菩薩',
-    'bcom ldan \'das': '世尊', "dge 'dun": '僧伽', 'dge slong': '比丘', 'sems can': '衆生', 'sems': '心', 'stong pa nyid': '空性',
+    'bcom ldan \'das': '世尊', "sems dpa'": '勇者', 'byang chub': '菩提', "dge 'dun": '僧伽', 'dge slong': '比丘', 'sems can': '衆生', 'sems': '心', 'stong pa nyid': '空性',
     'shes rab': '智慧', 'snying rje': '慈悲', 'dkon mchog': '三宝', 'mdo': '経', 'rgyal po': '王', 'lha': '神',
     'thos': '聞く', 'gsungs': 'おっしゃる', 'gsung': 'おっしゃる', 'smras': '言う', 'smra': '言う', 'zer': '言う',
     'mthong': '見る', 'bltas': '見る', 'lta': '見る', "'gro": '行く', 'song': '行く', 'phyin': '行く',
@@ -89,6 +89,25 @@ COMPOUND_VERBS = {('phyag', "'tshal"): '礼拝する', ("bka'", 'stsal'): 'お�
 # 名詞 + la don + 動詞の決まった言い方 (skyabs su mchi → 帰依する)
 PHRASE_VERBS = {('skyabs', 'mchi'): '帰依する', ('skyabs', "'gro"): '帰依する', ('skyabs', 'song'): '帰依した',
                 ('rab tu', 'byung'): '出家する', ('sems', 'skyed'): '発心する', ('sems', 'bskyed'): '発心する'}
+# 仏典の定型句 (ワイリー式の文の一部 → サンスクリット、漢訳)。長いものから照らし、重なる短いものは出さない
+FORMULAS = [
+    ("sangs rgyas dang byang chub sems dpa' thams cad la phyag 'tshal lo", 'namaḥ sarvabuddhabodhisattvebhyaḥ',
+     '一切の仏・菩薩に帰命する (翻訳の冒頭の帰敬)'),
+    ("'di skad bdag gis thos pa", 'evaṃ mayā śrutam', '如是我聞'),
+    ('dus gcig na', 'ekasmin samaye', '一時'),
+    ('sangs rgyas la skyabs su mchi', 'buddhaṃ śaraṇaṃ gacchāmi', '帰依仏'),
+    ('chos la skyabs su mchi', 'dharmaṃ śaraṇaṃ gacchāmi', '帰依法'),
+    ("dge 'dun la skyabs su mchi", 'saṃghaṃ śaraṇaṃ gacchāmi', '帰依僧'),
+    ('skyabs su mchi', 'śaraṇaṃ gacchāmi', '帰依する'),
+    ("skyabs su 'gro", 'śaraṇaṃ gacchati / śaraṇa-gamana', '帰依する'),
+    ("bla ma la phyag 'tshal lo", 'namo guru', '師に帰命する (帰敬)'),
+    ("bcom ldan 'das", 'bhagavat', '世尊'),
+    ("byang chub sems dpa' sems dpa' chen po", 'bodhisattva mahāsattva', '菩薩摩訶薩'),
+    ('de bzhin gshegs pa', 'tathāgata', '如来'),
+    ("sems can thams cad", 'sarvasattva', '一切衆生'),
+]
+# 辞書の原語を直すもの (語の働きで外れるもの)
+SANSKRIT = {'mi': 'manuṣya', 'bla ma': 'guru', 'phyag': 'hasta (尊敬)', 'bdag': 'aham / ātman'}
 MOTION_VERBS = {"'gro", 'song', 'phyin', "'ong", 'byon', 'yong', 'gshegs'}
 FIRST_PERSON = {'nga', 'bdag', 'kho bo', 'nged', 'bdag cag'}
 ADVERBS = {"'di skad": 'このように', "'di ltar": 'このように', 'de nas': 'それから', 'yang': 'また', 'shin tu': 'とても',

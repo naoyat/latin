@@ -81,6 +81,21 @@ class TibetanTestCase(unittest.TestCase):
         self.assertEqual(self.ja('བུ་མོ་ཆུ་ལེན་དུ་སོང་ངོ༌།'), '娘が水を取りに行った。')
         self.assertEqual(self.ja('སེམས་ཅན་ཐམས་ཅད་བདེ་བ་དང་ལྡན་པར་གྱུར་ཅིག །'), 'すべての衆生が幸せを具えるようになりますように。')
 
+    def test_sanskrit_notes(self):
+        from dragoman.tibetan import analyzer
+        notes = next(analyzer.analyze_text('འདི་སྐད་བདག་གིས་ཐོས་པའི་དུས་གཅིག་ན།')).notes
+        self.assertTrue(any('evaṃ mayā śrutam' in n and '如是我聞' in n for n in notes))
+        notes = next(analyzer.analyze_text('སངས་རྒྱས་ལ་སྐྱབས་སུ་མཆིའོ།')).notes
+        self.assertTrue(any('buddhaṃ śaraṇaṃ gacchāmi' in n for n in notes))
+        notes = next(analyzer.analyze_text('རྒྱལ་པོས་བློན་པོ་ལ་གསེར་བྱིན་ནོ།')).notes
+        self.assertTrue(any(n.startswith('梵語: rgyal po → rājā') for n in notes))
+
+    def test_affix_pronunciation(self):
+        from dragoman.tibetan import analyzer
+        a = next(analyzer.analyze_text('རྒྱལ་པོས་བློན་པོ་ལ་གསེར་བྱིན་ནོ།'))
+        self.assertTrue(a.pronunciation().startswith('cɛː˩˧.pø˥˩'))   # -s の付いた po → pø
+        self.assertIn('菩薩', next(analyzer.analyze_text('བྱང་ཆུབ་སེམས་དཔའ་ཐམས་ཅད་ལ་ཕྱག་འཚལ་ལོ།')).japanese)
+
     def test_segment_fixes(self):
         words = [t.wylie for t in segment.tokenize('བུ་མོ་དེ་རྟ་ལས་ལྷུང་ངོ་།')]
         self.assertIn('las', words)                                       # རྟ་ལ + ས → རྟ + ལས

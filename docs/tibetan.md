@@ -72,8 +72,12 @@ botok の辞書パック（約12MB）は初回に `~/.local/share/dragoman-data/
   * 名詞 + 動詞の慣用的な組み合わせ（phyag 'tshal → 礼拝する、bka' stsal → おっしゃる）。
 * 訳語は Wiktionary → Hopkins → Rangjung Yeshe の英語を、ほかの言語と共通の英語 → 日本語の表（`core/en_ja.py`）で
   日本語にする。よく使う語（特に仏典の語: chos → 法、sangs rgyas → 仏陀、sems can → 衆生）は `tibetan/grammar.py` の表で決める。
-* 複数音節の名詞・動詞は、Mahāvyutpatti（翻訳名義大集）と Hopkins の表からサンスクリットの原語を注に出す
-  （sangs rgyas → buddhaḥ、bcom ldan 'das → bhagavān）。
+* サンスクリットの原語を注に出す:
+  * 仏典の定型句は、原文と漢訳の名前で（'di skad bdag gis thos pa → evaṃ mayā śrutam（如是我聞）、dus gcig na →
+    ekasmin samaye（一時）、sangs rgyas la skyabs su mchi → buddhaṃ śaraṇaṃ gacchāmi（帰依仏）、帰敬の句など。
+    `tibetan/grammar.py` の FORMULAS）。
+  * 語ごとの原語は Mahāvyutpatti（翻訳名義大集）と Hopkins の表から2つまで（rgyal po → rājā, nṛpa、chos → dharma）。
+    動詞は見出し（現在の語幹）でも引く。外れるもの（bla ma → uttaraḥ ではなく guru）は表で直す。
 
 ## 発音と音読
 
@@ -110,11 +114,12 @@ python3 tools/bo_eval.py [--source=mdzangsblun,buston,mila,marpa] [--limit=N]
 
 | 語の区切り (F1) | 品詞 (区切りの合った語) | 格助詞 | 時制 (時制が1つの動詞) |
 |---|---|---|---|
-| 83.6% | 95.4% | 88.4% | 92.2% |
+| 87.2% | 95.4% | 88.4% | 92.2% |
 
 * 語の区切りの食い違いの多くは流儀の違い: 正解のコーパスは決まった言い回し（'di skad、shin tu、de nas、gal te）を
   分け、語に付いた -r も切る（phyir → phyi + r、mngon par → mngon pa + r）。botok はこれらを1語にする（訳にはその方がよい）。
-* Hill & Garrett の品詞辞書はこのコーパスから作られているので、品詞と時制の数字はやや良く出る。
+* Hill & Garrett の品詞辞書はこのコーパスから作られているので、品詞と時制、botok の分けた複合語をつなぐ処理
+  （byang chub + sems dpa' → byang chub sems dpa'。品詞辞書の名詞を使う）の数字はやや良く出る。
 * 能格と具格は正解の印が同じ（case.agn）なので、「が」と「で」の選び分けは測れていない。
 
 ## まだ

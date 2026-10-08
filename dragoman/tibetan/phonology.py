@@ -177,11 +177,12 @@ def syllable_ipa(syllable, word_initial=True, pron='lhasa'):
     return {'initial': sound, 'vowel': vowel, 'long': long, 'coda': coda, 'tone': tone, 'parsed': p}
 
 
-def word_syllables(word, pron='lhasa'):
-    """語 (ツェクで区切った音節) → 音節ごとの読み。2音節目以降の前置字 ' / m は前の音節の鼻音に"""
+def word_syllables(word, pron='lhasa', enclitic=False):
+    """語 (ツェクで区切った音節) → 音節ごとの読み。2音節目以降の前置字 ' / m は前の音節の鼻音に。
+    enclitic (前の語に付く助詞: gis, dang, la …) は語頭でも無気で読む"""
     out = []
     for k, syl in enumerate(s for s in re.split('[་ ]+', word) if s):
-        r = syllable_ipa(syl, word_initial=(k == 0), pron=pron)
+        r = syllable_ipa(syl, word_initial=(k == 0 and not enclitic), pron=pron)
         if r is None:
             r = {'initial': '', 'vowel': script.translit(syl), 'long': False, 'coda': '', 'tone': '55', 'parsed': None}
         if k > 0 and r['parsed'] and r['parsed']['prefix'] in ("'", 'm') and out and not out[-1]['coda']:
@@ -200,7 +201,8 @@ def ipa(text, pron='lhasa', words=None):
     units = words if words is not None else [s for s in re.split('[་ །༎༏༐༑༔]+', text) if s]
     out = []
     for w in units:
-        syls = word_syllables(w, pron)
+        w, enclitic = w if isinstance(w, tuple) else (w, False)
+        syls = word_syllables(w, pron, enclitic)
         out.append('.'.join(s['initial'] + s['vowel'] + ('ː' if s['long'] else '') + s['coda'] +
                             _tone_letter(s['tone']) for s in syls))
     return ' '.join(out)
@@ -211,12 +213,13 @@ def espeak_phonemes(text, pron='lhasa', words=None):
     units = words if words is not None else [s for s in re.split('[་ ]+|(?=[།༎༏༐༑༔])', text) if s]
     out = []
     for w in units:
+        w, enclitic = w if isinstance(w, tuple) else (w, False)
         if re.fullmatch('[།༎༏༐༑༔ ]+', w):
             if out and out[-1] == '_:':
                 continue
             out.append('_:')  # 区切りで間を置く
             continue
-        for s in word_syllables(re.sub('[།༎༏༐༑༔]', '', w), pron):
+        for s in word_syllables(re.sub('[།༎༏༐༑༔]', '', w), pron, enclitic):
             vowel = ''.join(ESPEAK_VOWELS.get(c, c) for c in s['vowel'])
             coda = {'ʔ': '?', 'ŋ': 'N', 'p': 'p', 'm': 'm', 'r': 'r', 'n': 'n', 'l': 'l', '': ''}.get(s['coda'], '')
             out.append(ESPEAK.get(s['initial'], s['initial']) + "'" + vowel + (':' if s['long'] else '') +
