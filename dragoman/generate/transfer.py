@@ -103,6 +103,10 @@ PREFERRED = {
            ('play', 'verb'): ('играть', ''), ('labor', 'verb'): ('трудиться', ''), ('work', 'verb'): ('работать', ''),
            ('order', 'verb'): ('велеть', ''), ('command', 'verb'): ('велеть', ''), ('read', 'verb'): ('читать', ''),
            ('crowd', 'noun'): ('народ', 'm'), ('die', 'verb'): ('умирать', ''),
+           ('receive', 'verb'): ('получать', ''), ('greatly', 'adv'): ('очень', ''), ('suddenly', 'adv'): ('вдруг', ''),
+           ('willingly', 'adv'): ('охотно', ''), ('gladly', 'adv'): ('охотно', ''), ('uselessly', 'adv'): ('напрасно', ''),
+           ('in vain', 'adv'): ('напрасно', ''), ('heavily', 'adv'): ('тяжело', ''), ('by chance', 'adv'): ('случайно', ''),
+           ('kindly', 'adv'): ('ласково', ''), ('everywhere', 'adv'): ('везде', ''),
            ('golden', 'adj'): ('золотой', ''), ('happy', 'adj'): ('счастливый', ''), ('glad', 'adj'): ('радостный', '')},
     'sa': {('girl', 'noun'): ('bAlikA', 'f'), ('boy', 'noun'): ('bAlaka', 'm'), ('king', 'noun'): ('nfpa', 'm'),
            ('book', 'noun'): ('pustaka', 'n'), ('farmer', 'noun'): ('kfzaka', 'm'), ('slave', 'noun'): ('dAsa', 'm'),
@@ -128,8 +132,34 @@ PREFERRED = {
            ('know', 'verb'): ('jYA', '9'), ('command', 'verb'): ('AdiS', '6'), ('order', 'verb'): ('AdiS', '6'),
            ('move', 'verb'): ('cal', '1'), ('fight', 'verb'): ('yuD', '4'), ('die', 'verb'): ('mf', '6'),
            ('weep', 'verb'): ('rud', '2'), ('laugh', 'verb'): ('has', '1'), ('sleep', 'verb'): ('svap', '2'),
-           ('play', 'verb'): ('krIq', '1'), ('read', 'verb'): ('paW', '1'), ('come', 'verb'): ('Agam', '1')},
+           ('play', 'verb'): ('krIq', '1'), ('read', 'verb'): ('paW', '1'), ('come', 'verb'): ('Agam', '1'),
+           ('receive', 'verb'): ('grah', '9'), ('greatly', 'adv'): ('atIva', ''), ('suddenly', 'adv'): ('sahasA', ''),
+           ('willingly', 'adv'): ('sAnandam', ''), ('gladly', 'adv'): ('sAnandam', ''), ('uselessly', 'adv'): ('vfTA', ''),
+           ('in vain', 'adv'): ('vfTA', ''), ('heavily', 'adv'): ('BfSam', ''), ('by chance', 'adv'): ('daivAt', ''),
+           ('kindly', 'adv'): ('snehena', ''), ('everywhere', 'adv'): ('sarvatra', '')},
 }
+
+
+PARTICLES = ('to', 'as', 'at', 'on', 'for', 'with', 'into', 'upon', 'in', 'from', 'of', 'out', 'up', 'away',
+             'off', 'down', 'by')
+
+
+def _variants(sources):
+    """英語の訳語と、その簡単な形 (順位は少し下げる): drive or move to → drive, move;
+    address as → address; look at → look; put together → put"""
+    out = []
+    for i, en in enumerate(sources):
+        out.append((i, en))
+        for part in en.split(' or '):
+            words = part.split()
+            while len(words) > 1 and words[-1] in PARTICLES:
+                words = words[:-1]
+            simple = ' '.join(words)
+            if simple and simple != en:
+                out.append((i + 0.5, simple))
+            if len(words) > 1 and part != en:
+                out.append((i + 0.7, words[0]))
+    return out
 
 
 def candidates(lex, lang, pos=None):
@@ -145,7 +175,7 @@ def candidates(lex, lang, pos=None):
             return [(-100, Target(lemma, pos, (en,), gender, gana))]
     wanted = [j.strip() for j in (lex.ja or '').split(',') if j.strip()]
     scored = {}
-    for i, en in enumerate(sources[:6]):
+    for i, en in _variants(sources[:6]):
         for j, target in _index(lang).get(en.lower(), []):
             if target.pos != pos or j > 5:
                 continue

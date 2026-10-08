@@ -101,6 +101,7 @@ def noun_lemma(lex):
     if lex.proper:
         lemma = NAMES.get(english._flat(lex.lemma)) or name(lex.lemma)
         return lemma, ''
+    lex = english.substantive(lex) or lex   # 名詞として辞書にある形 (tālāria)
     target = transfer.best(lex, 'ru')
     return (target.lemma, target.gender) if target else ('[%s]' % english.word(lex), '')
 
@@ -177,6 +178,8 @@ def _animate(lemma):
 
 def adjective(lex, case, number, gender, animate):
     lemma = PRONOUNS.get(lex.lemma)   # 代名詞的な形容詞 (suus → свой, hic → этот)
+    if lex.lemma == 'is':
+        lemma = 'тот'   # 名詞に係る is (eum locum「その場所」)
     if lemma is None:
         target = transfer.best(lex, 'ru', 'adj')
         lemma = target.lemma if target else None
@@ -215,7 +218,7 @@ def noun_phrase(np, case):
         if head.desc == '指示代名詞':
             word = adjective(head, case, np.number, GENDERS.get(np.gender, 'masc'), False) \
                 if np.modifiers else _inflect('это', 'NPRO', {CASES[case]})
-    elif head.pos in ('adj', 'participle'):
+    elif head.pos in ('adj', 'participle') and not english.substantive(head):
         word = adjective(head, case, np.number, GENDERS.get(np.gender, 'masc'), False)
     elif head.proper:
         word = _inflect(lemma, 'NOUN', {CASES[case], number}) if _parse(lemma, 'NOUN') else lemma
@@ -296,6 +299,13 @@ def verb_form(clause, gender, person, number):
         if tense == 'present':
             form = _inflect(lemma, 'INFN', {'pres', _person(person), num})
             return [form + ('сь' if form[-1:] in 'аеёиоуыэюя' else 'ся')]   # хвалится
+        if tense == 'imperfect' or _short_participle(lemma, gender, number) == lemma:
+            # 未完了過去の受動、短語尾受動分詞の無い動詞: 不完了体の過去 + -ся (назывался)
+            impf = verb_lemma(clause.verb, 'impf')
+            form = _inflect(impf, 'INFN', past)
+            if form.endswith(('ся', 'сь')):
+                return [form]
+            return [form + ('сь' if form[-1:] in 'аеёиоуыэюя' else 'ся')]
         short = _short_participle(lemma, gender, number)
         be = _inflect('быть', 'INFN', past if tense != 'future' else {'futr', _person(person), num})
         return [be, short]
@@ -356,7 +366,7 @@ def participial(p, subject=None):
     args = []
     for role, np in p.args:
         if role == 'adverb':
-            args.append('[%s]' % english.word(np.head))
+            args.append(adverb(np.head))
         elif role == 'prep':
             args.append(prepositional(np, p.voice == 'passive'))
         elif role == 'means' and p.voice == 'passive':
@@ -466,11 +476,21 @@ def realize(clause, capitalize=True):
             out.append(prepositional(np, clause.voice == 'passive'))
         else:
             out.append(noun_phrase(np, ROLE_CASES.get(role, 'Ins')))
-    out += ['[%s]' % english.word(adv) for adv in clause.adverbs]
+    out += [adverb(adv) for adv in clause.adverbs]
     text = ' '.join(w.strip() for w in out if w.strip()).replace(' ,', ',').replace(',,', ',')
     if capitalize:
         text = text[:1].upper() + text[1:]
     return text
+
+
+def adverb(lex):
+    """副詞: 文をつなぐ語の表 (tum → тогда) → 置き換えの表 (magnopere → очень)"""
+    from . import connectives
+    entry = connectives.lookup(lex.surface or lex.lemma) or connectives.lookup(lex.lemma)
+    if entry:
+        return entry[2]
+    target = transfer.best(lex, 'ru', 'adv')
+    return target.lemma if target else '[%s]' % english.word(lex)
 
 
 def _agreeing(np, subject):
@@ -487,4 +507,6 @@ def _agreeing(np, subject):
 def sentence(clauses):
     if not clauses:
         return ''
-    return ', '.join(realize(c, capitalize=(i == 0)) for i, c in enumerate(clauses)).rstrip(',') + '.'
+    from . import connectives
+    text = connectives.join(clauses, [realize(c, capitalize=False).rstrip(',') for c in clauses], 'ru')
+    return text[:1].upper() + text[1:] + '.'

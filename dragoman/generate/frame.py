@@ -19,6 +19,7 @@ from dragoman.core.Infinitive import InfinitiveClause
 from dragoman.core.Predicate import is_negation
 from dragoman.core.Participle import ParticiplePhrase, participle_kind, participle_item
 from dragoman.core.Absolute import AblativeAbsolute
+from . import connectives as conn
 
 # 格 → 役割 (前置詞の無い格)
 ROLES = {'Nom': 'subject', 'Acc': 'object', 'Dat': 'recipient', 'Abl': 'means', 'Gen': 'possessor',
@@ -40,6 +41,7 @@ class Lex:
     desc: str = ''         # 代名詞の種類 (人称代名詞・指示代名詞 …)
     verb: str = ''         # 分詞のもとの動詞 (直説法現在1人称単数)
     verb_ja: str = ''      # 分詞のもとの動詞の日本語の訳語 (訳語を選ぶのに使う)
+    surface: str = ''      # 文中の形 (変化しない語 (副詞) は元の言語に戻すときこの形で)
 
 
 @dataclass
@@ -76,6 +78,9 @@ class Clause:
     infinitives: list = field(default_factory=list)  # 不定詞句 (Clause。mood='infinitive')
     infinitive_kind: str = ''   # 不定詞句なら、支配する動詞の種類 (saying / perception / command / complement)
     adjuncts: list = field(default_factory=list)   # 独立奪格・述語的な分詞句 (Participial)
+    connectives: list = field(default_factory=list)  # 文をつなぐ語 (et, autem, igitur, tum …。connectives.py の見出し)
+    subordinator: str = ''   # 従属節の接続詞 (ubi, postquam, dum …)。あれば従属節
+    after_main: bool = False   # 従属節が主節の後ろにある (ubi「〜するところの」と読む)
     surface: str = ''
 
     def role(self, name):
@@ -119,7 +124,8 @@ def lex_of(word, item=None):
                degree=item.attrib('rank') or '', en=item.attrib('ja_en') or '', desc=item.attrib('desc') or '',
                verb=item.attrib('pres1sg') or '' if item.pos == 'participle' else '',
                verb_ja=next((ja for ja in (hook(item.attrib('pres1sg')) for hook in VERB_GLOSS_HOOKS) if ja), '')
-               if item.pos == 'participle' and item.attrib('pres1sg') else '')
+               if item.pos == 'participle' and item.attrib('pres1sg') else '',
+               surface=word.surface if word is not None else item.surface)
 
 
 def np_of(node, case=None):
@@ -182,6 +188,13 @@ def clause_of(predicate, lang=None):
                     number=verb_item.attrib('number') or 'sg', copula=predicate.is_sum, surface=predicate.surface)
     if predicate.conjunction is not None and is_negation(predicate.conjunction, predicate.language):
         clause.negated = True
+    elif predicate.conjunction is not None and conn.is_connective(predicate.conjunction.surface):
+        if conn.lookup(predicate.conjunction.surface)[0] == 'adv' and predicate.conjunction.items:
+            clause.adverbs.append(lex_of(predicate.conjunction))   # tum, tandem, statim …
+        else:
+            _add_connective(clause, predicate.conjunction.surface)
+    elif isinstance(predicate.conjunction, Word) and predicate.conjunction.items:
+        clause.adverbs.append(lex_of(predicate.conjunction))   # 文頭の副詞 (解析では conjunction に入る: māgnopere)
     nominatives = []
     for case, objs in predicate.case_slot.items():
         for obj in objs:
@@ -212,12 +225,26 @@ def clause_of(predicate, lang=None):
     for adv in predicate.modifiers:
         if is_negation(adv, predicate.language):
             clause.negated = True
+        elif isinstance(adv, Word) and conn.lookup(adv.surface) and conn.lookup(adv.surface)[0] != 'adv':
+            _add_connective(clause, adv.surface)
         elif isinstance(adv, Word) and adv.items:
             clause.adverbs.append(lex_of(adv))
     for sub in predicate.subordinates:
         if isinstance(sub, (ParticiplePhrase, AblativeAbsolute)):
             clause.adjuncts.append(participial_of(sub))
     return clause
+
+
+def _add_connective(clause, surface):
+    key = conn.key(surface)
+    if conn.CONNECTIVES[key][0] == 'sub':
+        if clause.subordinator == 'simul' and key in ('atque', 'ac'):
+            return   # simul atque「〜するとすぐに」
+        clause.subordinator = key
+    elif key in ('atque', 'ac') and clause.subordinator == 'simul':
+        return
+    elif key not in clause.connectives:
+        clause.connectives.append(key)
 
 
 def participial_of(phrase):
@@ -254,7 +281,15 @@ def participial_of(phrase):
 def frames(analysis):
     """SentenceAnalysis → Clause の列"""
     _sentence_words[:] = analysis.words
-    return [clause_of(c.predicate) for c in analysis.clauses]
+    clauses = []
+    for c in analysis.clauses:
+        clause = clause_of(c.predicate)
+        for word in c.not_solved:   # 述語に結びつかなかった接続詞 (et postquam … の postquam)
+            if isinstance(word, Word) and conn.is_connective(word.surface):
+                _add_connective(clause, word.surface)
+        clause.after_main = bool(clauses) and clause.subordinator in conn.AFTER_MAIN and not clause.connectives
+        clauses.append(clause)
+    return clauses
 
 
 def describe(clause, indent='  '):
@@ -267,6 +302,10 @@ def describe(clause, indent='  '):
                                           clause.person, clause.number, labels.get(clause.mood, clause.mood),
                                           labels.get(clause.voice, clause.voice), ' 否定' if clause.negated else '')
     lines = [head]
+    if clause.subordinator or clause.connectives:
+        lines.append('%s  つなぎ: %s' % (indent, ' '.join(
+            ([clause.subordinator + (' (後置: 〜するところの)' if clause.after_main else ' (従属節)')]
+             if clause.subordinator else []) + clause.connectives)))
     for role, np in clause.args:
         name = ROLE_JA.get(role, role)
         if np.prep is not None:

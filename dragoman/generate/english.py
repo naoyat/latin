@@ -17,6 +17,7 @@ import re
 import unicodedata
 
 from dragoman.core import paths, en_ja
+from .frame import Lex
 
 # 不規則動詞: 原形 → (過去形, 過去分詞)
 IRREGULAR = {
@@ -78,30 +79,79 @@ def _flat(text):
 
 @functools.lru_cache(maxsize=1)
 def _table():
-    """(見出し語, 品詞) → [英語]。マクロンを外した形でも引けるように"""
+    """(見出し語, 品詞) → [[英語]] (同綴の語ごと)。マクロンを外した形でも引けるように"""
     table, flat = {}, {}
     path = paths.data('la-en.tsv')
     if os.path.exists(path):
         with open(path, encoding='utf-8') as f:
-            for lemma, pos, en in csv.reader(f, delimiter='\t', quoting=csv.QUOTE_NONE):
-                glosses = [g for g in en.split(',') if g and not g.startswith('[')]
+            for row in csv.reader(f, delimiter='\t', quoting=csv.QUOTE_NONE):
+                lemma, pos, en = row[:3]
+                glosses = Glosses(g for g in en.split(',') if g and not g.startswith('['))
+                glosses.parts = row[3].split() if len(row) > 3 else []
                 if glosses:
-                    table[(lemma, pos)] = glosses
-                    flat.setdefault((_flat(lemma).lower(), pos), glosses)
+                    table.setdefault((lemma, pos), []).append(glosses)
+                    flat.setdefault((_flat(lemma).lower(), pos), table[(lemma, pos)])   # 同じリスト (後の同綴の語も入る)
     return table, flat
+
+
+def _entries(lemma, pos):
+    table, flat = _table()
+    return table.get((lemma, pos)) or flat.get((_flat(lemma).lower(), pos)) or []
+
+
+class Glosses(list):
+    """英語の訳語のリスト。parts に動詞の基本形 (volāre volāvī volātum)"""
+    parts = ()
+
+
+def _homograph(entries, ja, pos, surface=''):
+    """同綴の語のうち、解析の日本語の訳語に合う英語の訳語を持つもの (volō「飛ぶ」→ fly の項目)。
+    日本語で決まらなければ、文中の形が基本形の語幹と長く一致するもの (appellābātur → appellāre の項目)"""
+    if len(entries) <= 1:
+        return entries[0] if entries else []
+    wanted = [j.strip() for j in (ja or '').split(',') if j.strip()]
+    for j in wanted:
+        for glosses in entries:
+            if any(j == x or j in x for en in glosses for x in en_ja.lookup(en, pos)):
+                return glosses
+    if surface:
+        return max(entries, key=lambda glosses: _stem_match(glosses.parts, surface))
+    return entries[0]
+
+
+def _stem_match(parts, surface):
+    """基本形の語幹 (volāre → volā、volāvī → volāv、volātum → volāt) と文中の形の一致の長さ"""
+    surface = surface.lower()
+    stems = []
+    for part in parts:
+        for ending in ('āre', 'ēre', 'ere', 'īre', 'ī', 'um', 'us', 'se'):
+            if part.endswith(ending):
+                stems.append(part[:-len(ending)] + ('ā' if ending == 'āre' else 'ē' if ending == 'ēre' else
+                                                    'ī' if ending == 'īre' else ''))
+                break
+    return max((len(stem) for stem in stems if stem and surface.startswith(stem)), default=0)
+
+
+def substantive(lex):
+    """名詞的に使った形容詞が、その形で名詞として辞書にあれば名詞の Lex (tālāria ← tālāris)"""
+    if lex.pos != 'adj' or not lex.surface:
+        return None
+    noun = Lex(lex.surface.lower(), 'noun', lex.ja, surface=lex.surface)
+    return noun if _entries(noun.lemma, 'noun') else None
 
 
 def candidates(lex):
     """語 → 英語の訳語の候補 (解析の日本語の訳語に合うものを先頭に)。無ければ []"""
-    table, flat = _table()
     pos = {'participle': 'verb'}.get(lex.pos, lex.pos)
-    found = table.get((lex.lemma, pos)) or flat.get((_flat(lex.lemma).lower(), pos))
-    if found is None and pos in ('pronoun', 'adj'):
-        found = table.get((lex.lemma, 'pronoun' if pos == 'adj' else 'adj'))
-    synonyms = [m.group(1) for m in (SYNONYM.match(en) for en in found or []) if m]
-    found = [en for en in found or [] if not DESCRIPTION.search(en)]
+    entries = _entries(lex.lemma, pos)
+    if not entries and pos in ('pronoun', 'adj'):
+        entries = _entries(lex.lemma, 'pronoun' if pos == 'adj' else 'adj')
+    found = list(_homograph(entries, lex.ja, pos, lex.surface))
+    synonyms = [m.group(1) for m in (SYNONYM.match(en) for en in found) if m]
+    found = [DEGREE.sub('', en) for en in found]   # Superlative degree of magnus: greatest → greatest
+    found = [en for en in found if not DESCRIPTION.search(en)]
     for other in synonyms:   # cantō: synonym of canō → canō の訳語 (sing) も候補に
-        found += table.get((other, pos)) or flat.get((_flat(other).lower(), pos)) or []
+        found += _homograph(_entries(other, pos), lex.ja, pos, lex.surface)
     found = list(dict.fromkeys(en for en in found if not DESCRIPTION.search(en)))
     if not found:
         return []
@@ -116,9 +166,11 @@ def gloss(lex):
     return found[0] if found else None
 
 
+DEGREE = re.compile(r'^.*\b(?:comparative|superlative) degree of \S+: ', re.I)
 SYNONYM = re.compile(r'^(?:synonym|alternative form|alternative spelling) of (\S+)$')
 # 訳語でない説明 (synonym of canō, alternative form of epistola, masculine praenomen)
-DESCRIPTION = re.compile(r'\b(synonym|alternative form|alternative spelling|form) of\b|praenomen|cognomen|nomen\b')
+DESCRIPTION = re.compile(r'\b(synonym|alternative form|alternative spelling|form) of\b|praenomen|cognomen|nomen\b|'
+                         r'^of or pertaining to\b|degree of\b', re.I)
 
 
 @functools.lru_cache(maxsize=20000)
@@ -141,9 +193,12 @@ def word(lex):
         if lex.proper:
             return lex.lemma
         return '[%s]' % lex.ja.split(',')[0]
-    if lex.degree == '+':
+    if ' or ' in en and lex.pos in ('verb', 'participle'):
+        en = en.split(' or ')[0]   # drive or move to → drive
+    already = en.startswith(('more ', 'most ')) or en.endswith(('er', 'est')) and lex.lemma[-2:] != en[-2:]
+    if lex.degree == '+' and not already:
         return comparative(en)
-    if lex.degree == '++':
+    if lex.degree == '++' and not (en.startswith('most ') or en.endswith('est')):
         return superlative(en)
     return en
 
@@ -325,13 +380,18 @@ def noun_phrase(np, objective=False, passive=False):
         else:
             en = word(head)
             noun = plural(en) if np.number == 'pl' and head.pos == 'noun' and gloss(head) else en
-            if head.pos in ('adj', 'participle', 'pronoun') and not np.modifiers:
+            noun_lex = substantive(head)
+            if noun_lex is not None:
+                noun = gloss(noun_lex)   # 名詞として辞書にある形 (tālāria「翼のあるサンダル」← tālāris)
+            elif head.pos in ('adj', 'participle', 'pronoun') and not np.modifiers:
                 noun = en + (' ones' if np.number == 'pl' else ' one')  # 形容詞の名詞的用法 (bonī「良い人たち」)
             determiner = 'the'
             adjectives = []
             for m in np.modifiers:
                 if getattr(m, 'pos', '') == 'pronoun' and getattr(m, 'desc', '') == '指示代名詞':
                     determiner = pronoun(m, np.number, np.gender)   # this girl / that boy
+                    if m.lemma == 'is':
+                        determiner = 'those' if np.number == 'pl' else 'that'   # eum locum「その場所」
                 elif getattr(m, 'lemma', '') in POSSESSIVES:
                     determiner = POSSESSIVES[m.lemma]
                 else:
@@ -359,6 +419,12 @@ def _subject_features(np, clause):
     if np.head.pos == 'pronoun':
         return clause.person, clause.number
     return 3, np.number
+
+
+def adverb(lex):
+    from . import connectives
+    entry = connectives.lookup(lex.surface or lex.lemma) or connectives.lookup(lex.lemma)
+    return entry[1] if entry else word(lex)
 
 
 def participial(p):
@@ -489,7 +555,7 @@ def realize(clause, capitalize=True):
             out.append('of ' + noun_phrase(np, objective=True))
         else:
             out.append(ROLE_PREPS.get(role, '') + ' ' + noun_phrase(np, objective=True))
-    out += [word(adv) for adv in clause.adverbs]
+    out += [adverb(adv) for adv in clause.adverbs]
     text = ' '.join(w.strip() for w in out if w.strip()).replace(' ,', ',').replace(',,', ',')
     if capitalize:
         text = text[:1].upper() + text[1:]
@@ -500,4 +566,6 @@ def sentence(clauses):
     """節の列 → 英語の文 (節は ; でつなぐ)"""
     if not clauses:
         return ''
-    return '; '.join(realize(c, capitalize=(i == 0)) for i, c in enumerate(clauses)) + '.'
+    from . import connectives
+    text = connectives.join(clauses, [realize(c, capitalize=False) for c in clauses], 'en')
+    return text[:1].upper() + text[1:] + '.'

@@ -106,12 +106,15 @@ ATMANEPADA = ('te', 'se', 'e', 'ta', 'TAH', 'tAm', 'ntAm', 'sva', 'Dvam', 'mahi'
 
 def subanta(stem, linga, case, number):
     """名詞・形容詞・代名詞の語形 (SLP1)。作れなければ語幹に * を付けて"""
-    if not isinstance(stem, str):
-        prat = stem
-    elif linga == 'f' and stem.endswith(('A', 'I')):
-        prat = Pratipadika.nyap(stem)   # 女性の -ā・-ī 語幹 (bAlikA, nadI)。basic のままだと男性の変化になる
-    else:
-        prat = Pratipadika.basic(stem)
+    try:
+        if not isinstance(stem, str):
+            prat = stem
+        elif linga == 'f' and stem.endswith(('A', 'I')):
+            prat = Pratipadika.nyap(stem)   # 女性の -ā・-ī 語幹 (bAlikA, nadI)。basic のままだと男性の変化になる
+        else:
+            prat = Pratipadika.basic(stem)
+    except ValueError:   # SLP1 でない語幹 (辞書の見出しの記号など)
+        return '*' + str(stem)
     form = _derive(Pada.Subanta(pratipadika=prat, linga=getattr(Linga, LINGAS.get(linga, 'Pum')),
                                 vibhakti=getattr(Vibhakti, VIBHAKTIS[case]),
                                 vacana=Vacana.Bahu if number == 'pl' else Vacana.Eka))
@@ -137,6 +140,7 @@ def noun_stem(lex, gender=''):
             return stem, gender or 'm'
     if lex.proper:
         return name(lex.lemma)
+    lex = english.substantive(lex) or lex   # 名詞として辞書にある形 (tālāria)
     target = transfer.best(lex, 'sa', 'noun' if lex.pos not in ('adj', 'participle') else 'adj')
     if target is None:
         return None, gender
@@ -146,7 +150,10 @@ def noun_stem(lex, gender=''):
 def name(latin):
     """ラテン語の固有名詞 → サンスクリットの語幹 (Mārcus → mArka (男性)、Iūlia → yUliyA (女性))"""
     import unicodedata
-    word = unicodedata.normalize('NFC', latin.lower())
+    # 長音の記号 (マクロン) だけ残し、短音の記号 (Ătlās の ˘)・合字の記号 (Perse͡us) などは除く
+    word = ''.join(c for c in unicodedata.normalize('NFD', latin.lower())
+                   if not unicodedata.combining(c) or c == '\u0304')
+    word = unicodedata.normalize('NFC', ''.join(c for c in word if c.isalpha() or c == '\u0304'))
     long = {'ā': 'A', 'ē': 'e', 'ī': 'I', 'ō': 'o', 'ū': 'U', 'ȳ': 'I'}
     for ending, stem_ending, gender in (('us', 'a', 'm'), ('um', 'a', 'n'), ('a', 'A', 'f'), ('ā', 'A', 'f'),
                                          ('ō', 'a', 'm'), ('o', 'a', 'm')):
@@ -216,11 +223,12 @@ def noun_phrase(np, case):
     stem, gender = noun_stem(head, np.gender)
     if head.pos == 'pronoun' and head.desc == '指示代名詞' and np.modifiers:
         stem = None
-    if stem is None and head.pos in ('adj', 'participle'):
+    if stem is None and head.pos in ('adj', 'participle') and not english.substantive(head):
         word = adjective(head, np.gender or 'm', case, np.number)
         gender = np.gender or 'm'
     elif stem is None:
-        word = '[%s]' % english.word(head)
+        noun = english.substantive(head)
+        word = '[%s]' % (english.gloss(noun) if noun is not None else english.word(head))
     else:
         number = np.number
         if stem in ('asmad', 'yuzmad'):
@@ -280,11 +288,21 @@ def participle_word(p, linga, case, number):
     return '[%s]' % english.word(p.verb)
 
 
+def adverb(lex):
+    """副詞 (変化しない): 文をつなぐ語の表 (tum → tadA) → 置き換えの表 (subitō → sahasA)"""
+    from . import connectives
+    entry = connectives.lookup(lex.surface or lex.lemma) or connectives.lookup(lex.lemma)
+    if entry and isinstance(entry[3], str):
+        return entry[3]
+    target = transfer.best(lex, 'sa', 'adv')
+    return target.lemma if target else '[%s]' % english.word(lex)
+
+
 def _args(p):
     out = []
     for role, np in p.args:
         if role == 'adverb':
-            out.append('[%s]' % english.word(np.head))
+            out.append(adverb(np.head))
         elif role == 'prep':
             out.append(prepositional(np, p.voice == 'passive'))
         elif role == 'means' and p.voice == 'passive':
@@ -422,7 +440,7 @@ def realize(clause, capitalize=True):
             out.append(' '.join(adjective(m.head, gender, 'Nom', number) for m in np.members) + ' ca')
         else:
             out.append(noun_phrase(np, 'Nom'))
-    out += ['[%s]' % english.word(adv) for adv in clause.adverbs]
+    out += [adverb(adv) for adv in clause.adverbs]
     if clause.negated:
         out.append('na')
     verb = verb_word(clause, person, number)
@@ -438,7 +456,8 @@ def sentence(clauses):
     if not clauses:
         return ''
     import re
-    slp1 = ' '.join(realize(c) for c in clauses)
+    from . import connectives
+    slp1 = connectives.join(clauses, [realize(c) for c in clauses], 'sa')
     slp1 = re.sub(r'\[[^\]]*\]', lambda m: m.group(0).replace(' ', '_'), slp1)   # [wait for] を1語に
     words = [w.replace('_', ' ') for w in slp1.split(' ')]
     iast = ' '.join(w if w.startswith(('[', '*')) else script.iast(w) for w in words)

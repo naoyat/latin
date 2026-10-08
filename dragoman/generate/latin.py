@@ -88,10 +88,16 @@ def _wiktionary_forms(lemma, pos):
     return out
 
 
-def _forms(lemma, pos):
-    """手作りの辞書の語形を先に、Wiktionary 由来の語形を後に"""
+def _forms(lemma, pos, ja=None):
+    """手作りの辞書の語形を先に、Wiktionary 由来の語形を後に。ja があれば、訳語の同じ項目の語形だけ
+    (同綴の語: volō「飛ぶ」volat と volō「望む」vult、appellō「呼ぶ」appellātus と「着ける」appulsus)"""
     hand = [(s, it) for s, it in _hand_index().get(lemma, []) if it.get('pos') == pos]
-    return hand + _wiktionary_forms(lemma, pos)
+    forms = hand + _wiktionary_forms(lemma, pos)
+    if ja:
+        same = [(s, it) for s, it in forms if it.get('ja') == ja]
+        if same:
+            return same
+    return forms
 
 
 def decline(lex, case, number, gender='', prefer=None):
@@ -99,17 +105,18 @@ def decline(lex, case, number, gender='', prefer=None):
     同じ働きの形が複数あれば、手作りの辞書の形 → prefer (語形を受けて真偽を返す関数) に合う形 → Wiktionary にもある形"""
     pos = lex.pos
     candidates = []
-    for order, (surface, item) in enumerate(_forms(lex.lemma, pos)):
+    for order, (surface, item) in enumerate(_forms(lex.lemma, pos, lex.ja)):
         if (item.get('rank') or '') != lex.degree:
             continue   # 比較級・最上級は、元の語と同じ度合いの形だけ
         for tag in item.get('_') or []:
             c, n, g = (list(tag) + [None, None, None])[:3]
             if c == case and n == number:
                 candidates.append((0 if not gender or g in (gender, 'c') else 1,
-                                   0 if prefer is None or prefer(surface) else 1, order, surface))
+                                   0 if prefer is None or prefer(surface) else 1, _greek(surface, case), order,
+                                   surface.replace('\u0361', '')))
     if not candidates:
         return '*' + lex.lemma
-    return min(candidates)[3]
+    return min(candidates)[-1]
 
 
 def _attested(surfaces):
@@ -121,16 +128,35 @@ def _attested(surfaces):
     return surfaces[0]
 
 
-def conjugate(lex, person, number, tense, mood, voice):
-    found = [surface for surface, item in _forms(lex.lemma, 'verb')
+# ギリシア語式の語尾 (Perseus の対格 Persea、属格 Perseos)。ラテン語式の形があればそちらを
+GREEK_ENDINGS = {'Acc': ('a', 'n', 'ēn', 'ān'), 'Gen': ('os', 'ūs', 'ēs'), 'Nom': ('ēs', 'ē', 'os', 'ōn')}
+
+
+def _greek(surface, case):
+    return int('\u0361' in surface or surface.endswith(GREEK_ENDINGS.get(case, ())) and case != 'Nom')
+
+
+# 完了受動の分詞の語尾 (性・数): territus est / territa est
+PARTICIPLE_ENDINGS = {('sg', 'm'): 'us', ('sg', 'f'): 'a', ('sg', 'n'): 'um',
+                      ('pl', 'm'): 'ī', ('pl', 'f'): 'ae', ('pl', 'n'): 'a'}
+
+
+def conjugate(lex, person, number, tense, mood, voice, gender=''):
+    found = [surface for surface, item in _forms(lex.lemma, 'verb', lex.ja)
              if item.get('person') == person and item.get('number') == number and
              (item.get('tense') or 'present') == tense and (item.get('mood') or 'indicative') == mood and
              (item.get('voice') or 'active') == voice]
-    return _attested(list(dict.fromkeys(found))) if found else '*' + lex.lemma
+    found = list(dict.fromkeys(found))
+    if gender and any(' ' in f for f in found):
+        # 分詞と sum の2語の形 (完了受動、形式受動態動詞の完了) は、分詞を主語の性・数に合わせる
+        ending = PARTICIPLE_ENDINGS.get((number, gender))
+        agreeing = [f for f in found if ending and f.split(' ')[0].endswith(ending)]
+        found = agreeing or found
+    return _attested(found) if found else '*' + lex.lemma
 
 
 def infinitive(lex, tense, voice):
-    found = [surface for surface, item in _forms(lex.lemma, 'verb')
+    found = [surface for surface, item in _forms(lex.lemma, 'verb', lex.ja)
              if item.get('mood') == 'infinitive' and (item.get('tense') or 'present') == tense and
              (item.get('voice') or 'active') == voice]
     return _attested(list(dict.fromkeys(found))) if found else '*' + lex.lemma
@@ -213,13 +239,15 @@ def realize(clause, capitalize=True):
     for role, np in clause.args:
         if role not in ('subject', 'recipient', 'object', 'complement'):
             out.append(noun_phrase(np))
-    out += [adv.lemma for adv in clause.adverbs]
+    out += [(adv.surface or adv.lemma).lower() for adv in clause.adverbs]   # 副詞は変化しないので文中の形で
     if clause.negated:
         out.append('nōn')
     if clause.mood == 'infinitive':
         out.append(infinitive(clause.verb, clause.tense, clause.voice))
     else:
-        out.append(conjugate(clause.verb, clause.person, clause.number, clause.tense, clause.mood, clause.voice))
+        gender = subjects[0].gender if subjects and not subjects[0].members else ''
+        out.append(conjugate(clause.verb, clause.person, clause.number, clause.tense, clause.mood, clause.voice,
+                             gender))
     text = ' '.join(out)
     if capitalize:
         text = text[:1].upper() + text[1:]
@@ -229,4 +257,6 @@ def realize(clause, capitalize=True):
 def sentence(clauses):
     if not clauses:
         return ''
-    return ', '.join(realize(c, capitalize=(i == 0)) for i, c in enumerate(clauses)) + '.'
+    from . import connectives
+    text = connectives.join(clauses, [realize(c, capitalize=False) for c in clauses], 'la')
+    return text[:1].upper() + text[1:] + '.'

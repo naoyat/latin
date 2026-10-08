@@ -84,6 +84,29 @@ class LatinRegenerationTestCase(unittest.TestCase):
         self.assertEqual(self.again('Puellae pulchrae erant.'), 'Puellae pulchrae erant.')
 
 
+class ConnectiveTestCase(unittest.TestCase):
+    """文をつなぐ語・従属節の接続詞"""
+
+    def test_frame(self):
+        main, = clauses('Puella autem cantat.')
+        self.assertEqual(main.connectives, ['autem'])
+        sub, main = clauses('Ubi puella cantat, puer dormit.')
+        self.assertEqual((sub.subordinator, sub.after_main, main.subordinator), ('ubi', False, ''))
+        _, relative = clauses('Puer ad hortum venit ubi puella cantat.')
+        self.assertTrue(relative.after_main)   # 主節の後ろの ubi は「〜するところの」
+
+    def test_latin(self):
+        # 後置の語 (autem, igitur) は節の2語目に
+        for text in ('Puella autem cantat.', 'Agricola igitur nautam amat.', 'Ubi puella cantat, puer dormit.'):
+            self.assertEqual(latin.sentence(clauses(text)), text)
+
+    def test_sanskrit_correlative(self):
+        from dragoman.generate import connectives
+        sub, main = clauses('Ubi puella cantat, puer dormit.')
+        self.assertEqual(connectives.join([sub, main], ['A', 'B'], 'sa'), 'yadA A tadA B')   # yadā … tadā …
+        self.assertEqual(connectives.join([sub, main], ['A', 'B'], 'en'), 'when A, B')
+
+
 class EnglishMorphologyTestCase(unittest.TestCase):
     def test_verbs(self):
         self.assertEqual(english.third_singular('carry'), 'carries')
@@ -111,6 +134,19 @@ class EnglishTestCase(unittest.TestCase):
         self.assertEqual(self.english('Agricola nautam nōn amat.'), 'The farmer does not love the sailor.')
         self.assertEqual(self.english('Puer ā magistrō laudātur.'), 'The boy is praised by the teacher.')
         self.assertEqual(self.english('Puellae in silvā ambulābant.'), 'The girls were walking in the forest.')
+
+    def test_connectives(self):
+        self.assertEqual(self.english('Ubi puella cantat, puer dormit.'), 'When the girl sings, the boy sleeps.')
+        self.assertEqual(self.english('Puer ad hortum venit ubi puella cantat.'),
+                         'The boy comes to the garden, where the girl sings.')
+
+    def test_homographs(self):
+        # 同綴の語は解析の日本語の訳語で (volō「飛ぶ」/「望む」)、決まらなければ語形と基本形で (appellō)
+        self.assertEqual(english.gloss(Lex('volō', 'verb', '飛ぶ')), 'fly')
+        self.assertEqual(english.gloss(Lex('volō', 'verb', '願う,欲しい')), 'wish')
+        self.assertEqual(english.gloss(Lex('appellō', 'verb', '?', surface='appellābātur')), 'address as')
+        self.assertEqual(english.gloss(Lex('appellō', 'participle', '?', surface='appulsa')),
+                         'drive or move to')
 
     def test_gloss_follows_japanese(self):
         # Wiktionary の最初の訳語 (traverse) ではなく、解析の日本語「歩く」に合う walk
