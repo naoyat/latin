@@ -75,7 +75,9 @@ botok の辞書パック（約12MB）は初回に `~/.local/share/dragoman-data/
   眼・耳・鼻・舌・身・意、無明・老死、苦・集・滅・道 …。`tibetan/grammar.py` の TERMS）。称号と名前は1つの名詞句に
   （tshe dang ldan pa shA ri'i bus → 具寿舎利子が）。
 * チベット文字で書いたサンスクリット（経題・真言。長母音 ཱ、そり舌音、有声の有気音、ཾ などで見分ける）は訳さずに
-  IAST で出す（ག་ཏེ་ག་ཏེ་པཱ་ར་ག་ཏེ → 〔gategatepāragate〕）。
+  IAST で出す（ག་ཏེ་ག་ཏེ་པཱ་ར་ག་ཏེ → 〔gategatepāragate〕）。ra + ྀ は ṛ（ཧྲྀ → hṛ）。チベット文字の བ は
+  サンスクリットの b と v の両方に使うので、b を v にした候補をサンスクリットの辞書で解析し、複合語として細かく分けずに
+  済む方を選ぶ（bhagabatī → bhagavatī、bimalamitra → vimalamitra、bodhi はそのまま。`tibetan/sanskrit_restore.py`）。
 * 訳語は Wiktionary → Hopkins → Rangjung Yeshe の英語を、ほかの言語と共通の英語 → 日本語の表（`core/en_ja.py`）で
   日本語にする。よく使う語（特に仏典の語: chos → 法、sangs rgyas → 仏陀、sems can → 衆生）は `tibetan/grammar.py` の表で決める。
 * サンスクリットの原語を注に出す:

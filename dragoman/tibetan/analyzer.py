@@ -155,7 +155,8 @@ def classify(tokens):
             words.append(w)
             continue
         if t.upos == 'SKT':
-            words.append(Word(t, 'noun', ja='〔%s〕' % script.iast(wylie), note='サンスクリットの音写'))
+            from .sanskrit_restore import restore
+            words.append(Word(t, 'noun', ja='〔%s〕' % restore(script.iast(wylie)), note='サンスクリットの音写'))
             continue
         lemma = grammar.normalize(wylie) if (t.upos in ('PART', 'ADP') or t.affix) else wylie
         if wylie == 'lo' and prev is not None and prev.wylie.endswith('l') and prev.kind in ('verb', 'noun'):

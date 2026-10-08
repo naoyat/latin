@@ -122,6 +122,19 @@ class TibetanTestCase(unittest.TestCase):
         self.assertIn('行じようと欲する', ja('ཤེས་རབ་ཀྱི་ཕ་རོལ་ཏུ་ཕྱིན་པ་ཟབ་མོ་སྤྱོད་པ་སྤྱད་པར་འདོད་པ་དེས་ཇི་ལྟར་བསླབ་པར་བྱ།'))
         self.assertTrue(ja('ཤཱ་རིའི་བུ་དེ་ལྟ་བས་ན་སྟོང་པ་ཉིད་ལ་གཟུགས་མེད།').startswith('舎利子よ、'))  # 呼びかけ
 
+    def test_sanskrit_b_to_v(self):
+        from dragoman.tibetan import sanskrit_restore
+        try:
+            from dragoman.sanskrit import morphology
+            have = morphology.available()
+        except ImportError:
+            have = False
+        if not have:
+            self.skipTest('no Sanskrit data')
+        self.assertEqual(sanskrit_restore.restore('bhagabatīprajñāpāramitāhṛdaya'), 'bhagavatīprajñāpāramitāhṛdaya')
+        self.assertEqual(sanskrit_restore.restore('bodhisvāhā'), 'bodhisvāhā')       # bodhi の b はそのまま
+        self.assertEqual(sanskrit_restore.restore('bimalamitra'), 'vimalamitra')
+
     def test_segment_fixes(self):
         words = [t.wylie for t in segment.tokenize('བུ་མོ་དེ་རྟ་ལས་ལྷུང་ངོ་།')]
         self.assertIn('las', words)                                       # རྟ་ལ + ས → རྟ + ལས
