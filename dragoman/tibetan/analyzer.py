@@ -137,6 +137,22 @@ def classify(tokens):
         if t.upos == 'PUNCT':
             words.append(Word(t, 'punct'))
             continue
+        if t.upos == 'TERM':
+            ja, skt = grammar.TERMS[wylie]
+            if wylie in grammar.TERM_VERBS:
+                w = _verb_word(t, wylie.split()[-1])
+                w.ja, w.note = ja, '術語「%s」' % ja
+                w.term = True
+                words.append(w)
+                continue
+            kind = 'adv' if wylie in grammar.TERM_ADVERBS else 'noun'
+            w = Word(t, kind, ja=ja, note='術語「%s」' % ja if skt else '')
+            w.term = True
+            words.append(w)
+            continue
+        if t.upos == 'SKT':
+            words.append(Word(t, 'noun', ja='〔%s〕' % script.iast(wylie), note='サンスクリットの音写'))
+            continue
         lemma = grammar.normalize(wylie) if (t.upos in ('PART', 'ADP') or t.affix) else wylie
         if wylie == 'lo' and prev is not None and prev.wylie.endswith('l') and prev.kind in ('verb', 'noun'):
             if prev.kind == 'noun' and _is_verb(prev.wylie):
@@ -169,6 +185,7 @@ def classify(tokens):
             lemma = 'te'
         sentence_end = nxt is None or tokens[i + 1].upos == 'PUNCT'
         if wylie in grammar.NEGATIONS and nxt is not None and (_is_verb(nxt.wylie) or nxt.upos == 'VERB' or
+                                                                 _is_verb(re.sub(r' (pa|ba)$', '', nxt.wylie)) or
                                                                  nxt.wylie in grammar.COPULAS or
                                                                  nxt.wylie in grammar.EXISTENTIALS):
             words.append(Word(t, 'neg', function='否定'))
@@ -181,6 +198,7 @@ def classify(tokens):
             continue
         verbal_only = lemma in ('te', 'cing', 'go', 'gam', 'lo') and not t.affix
         if verbal_only and lemma in grammar.PARTICLES and prev is not None and prev.kind == 'noun' and \
+                not getattr(prev, 'term', False) and prev.token.upos != 'SKT' and \
                 _is_verb(prev.wylie) and (wylie != 'shing' or t.upos == 'PART'):
             # 接続・文末の助詞の前の語は動詞として読み直す (lhags zhing → lhags は動詞)
             words[-1] = prev = _verb_word(prev.token, prev.wylie)
@@ -251,8 +269,9 @@ def group(words):
             phrases.append(Phrase('punct', [w]))
         elif w.kind in NP_KINDS:
             if last is not None and last.kind == 'np' and not last.particles and \
-                    w.kind in ('adj', 'num', 'det', 'plural'):
-                last.words.append(w)  # 後ろの修飾語・複合名詞
+                    (w.kind in ('adj', 'num', 'det', 'plural') or
+                     w.wylie in grammar.PERSON_TERMS and last.words[-1].wylie in grammar.PERSON_TERMS):
+                last.words.append(w)  # 後ろの修飾語、称号 + 名前 (tshe dang ldan pa shA ri'i bu → 具寿舎利子)
             else:
                 phrases.append(Phrase('np', [w]))
         elif w.kind in ('verb', 'cop', 'exist', 'neg'):
@@ -283,7 +302,7 @@ def is_animate(word):
         return False
     if word.kind == 'pron':
         return word.ja not in ('何', 'これ', 'それ', 'どれ')
-    if word.wylie in grammar.HUMANS:
+    if word.wylie in grammar.HUMANS or word.wylie in grammar.PERSON_TERMS:
         return True
     en = (word.en or '').lower()
     ja = word.ja or ''
@@ -563,11 +582,18 @@ def sanskrit_notes(words, wylie_text=''):
             notes.append('梵語の定型句: %s → %s (%s)' % (pattern, skt, kanyaku))
     seen = set()
     for w in words:
-        if w.kind not in ('noun', 'verb', 'adj') or w.wylie in seen:
+        if w.kind not in ('noun', 'verb', 'adj', 'adv') or w.wylie in seen:
             continue
         seen.add(w.wylie)
         if any((' ' + w.wylie + ' ') in (' ' + u + ' ') for u in used):
             continue  # 定型句に含まれる語
+        if getattr(w, 'term', False):
+            ja, skt = grammar.TERMS[w.wylie]
+            if skt:
+                notes.append('梵語: %s → %s (%s)' % (w.wylie, skt, ja))
+            continue
+        if w.token.upos == 'SKT':
+            continue
         keys = [w.wylie] + ([w.lemma] if w.kind == 'verb' and w.lemma and w.lemma != w.wylie else [])
         if getattr(w, 'pieces', None):
             keys += [_pieces_wylie(p) for p in w.pieces]
@@ -611,5 +637,6 @@ def analyze_sentence(text):
 
 
 def analyze_text(text):
+    segment.reset()
     for s in sentences(text):
         yield analyze_sentence(s)

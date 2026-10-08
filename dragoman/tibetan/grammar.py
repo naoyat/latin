@@ -51,11 +51,13 @@ CASES = {'gis', 'gi', 'la', 'na', 'nas', 'las', 'dang'}
 
 # 否定 (mi: 現在・未来、ma: 過去・命令) と、存在・繋辞の動詞
 NEGATIONS = {'mi', 'ma'}
-COPULAS = {'yin': 'である', 'red': 'である', 'lags': 'でございます', 'min': 'ではない', 'ma yin': 'ではない'}
-EXISTENTIALS = {'yod': 'ある', "'dug": 'ある', 'med': 'ない', 'mchis': 'ある', 'bzhugs': 'いらっしゃる'}
+COPULAS = {'yin': 'である', 'red': 'である', 'lags': 'でございます', 'min': 'ではない', 'ma yin': 'ではない',
+           'yin pa': 'である', 'min pa': 'ではない'}
+EXISTENTIALS = {'yod': 'ある', "'dug": 'ある', 'med': 'ない', 'mchis': 'ある', 'bzhugs': 'いらっしゃる',
+                'yod pa': 'ある', 'med pa': 'ない'}
 
 # 指示詞・代名詞 (訳語を決めておく)
-DETERMINERS = {"'di": 'この', 'de': 'その', 'gzhan': 'ほかの', 'thams cad': 'すべての', 'kun': 'すべての'}
+DETERMINERS = {"'di": 'この', 'de': 'その', 'de dag': 'それらの', "'di dag": 'これらの', 'gzhan': 'ほかの', 'thams cad': 'すべての', 'kun': 'すべての'}
 PRONOUNS = {'nga': '私', 'bdag': '私', 'kho': '彼', 'khyed': 'あなた', 'khyod': 'お前', 'kho bo': '私',
             'nged': '私たち', 'kho mo': '彼女', 'su': '誰', 'ci': '何', 'gang': 'どれ', 'de': 'それ', "'di": 'これ',
             'rang': '自分', 'kho rang': '彼自身'}
@@ -73,7 +75,7 @@ GLOSSES = {
     'byon': 'いらっしゃる', 'bzhugs': 'いらっしゃる', 'byin': '与える', 'sbyin': '与える', 'za': '食べる',
     'zos': '食べる', 'btung': '飲む', "'thung": '飲む', 'bris': '書く', "'bri": '書く', 'shing': '木',
     'zas': '食べ物', 'khyim': '家', 'rta': '馬', 'bu': '息子', 'bu mo': '娘', 'slob ma': '弟子',
-    'gser': '金', 'ldan': '具える', 'len': '取る', 'blangs': '取る', 'bde ba': '幸せ', 'gyur': 'なる',
+    'gser': '金', 'ldan': '具える', 'stong pa': '空', 'stong': '空', 'len': '取る', 'blangs': '取る', 'bde ba': '幸せ', 'gyur': 'なる',
     "'gyur": 'なる', 'ri bo': '山', 'mi': '人', 'yul': '国', 'ri': '山', 'chu': '水', 'nyi ma': '太陽', 'zla ba': '月',
     'ston': '説く', 'lhung': '落ちる', 'ltung': '落ちる', 'shi': '死ぬ', "'chi": '死ぬ', 'skyes': '生まれる', 'skye': '生まれる',
 }
@@ -110,7 +112,7 @@ FORMULAS = [
 SANSKRIT = {'mi': 'manuṣya', 'bla ma': 'guru', 'phyag': 'hasta (尊敬)', 'bdag': 'aham / ātman'}
 MOTION_VERBS = {"'gro", 'song', 'phyin', "'ong", 'byon', 'yong', 'gshegs'}
 FIRST_PERSON = {'nga', 'bdag', 'kho bo', 'nged', 'bdag cag'}
-ADVERBS = {"'di skad": 'このように', "'di ltar": 'このように', 'de nas': 'それから', 'yang': 'また', 'shin tu': 'とても',
+ADVERBS = {"'di skad": 'このように', 'de skad': 'そのように', 'ji ltar': 'どのように', 'de ltar': 'そのように', "'di ltar": 'このように', 'de nas': 'それから', 'yang': 'また', 'shin tu': 'とても',
            'da': '今', 'sngon': '昔', 'slar': 'ふたたび'}
 
 # 時制
@@ -123,3 +125,66 @@ def normalize(wylie):
 
 def particle(wylie):
     return PARTICLES.get(normalize(wylie))
+
+
+# 仏教の術語 (助詞をまたぐ言い方も。ワイリー式、語に付いた助詞は前の語に続けて書く) → (漢訳語, サンスクリット)。
+# 1語の名詞として訳し、注に漢訳語と原語を出す
+TERMS = {
+    "shes rab kyi pha rol tu phyin pa": ('般若波羅蜜多', 'prajñāpāramitā'),
+    "shes rab kyi pha rol du phyin pa": ('般若波羅蜜多', 'prajñāpāramitā'),
+    "bcom ldan 'das ma": ('世尊母', 'bhagavatī'),
+    "byang chub sems dpa' sems dpa' chen po": ('菩薩摩訶薩', 'bodhisattva mahāsattva'),
+    "byang chub sems dpa'": ('菩薩', 'bodhisattva'),
+    "'phags pa spyan ras gzigs dbang phyug": ('聖観自在', 'āryāvalokiteśvara'),
+    "spyan ras gzigs dbang phyug": ('観自在', 'avalokiteśvara'),
+    "spyan ras gzigs": ('観音', 'avalokita'),
+    "sh'a ri'i bu": ('舎利子', 'śāriputra'), "shA ri'i bu": ('舎利子', 'śāriputra'),
+    "sha ra dwa ti'i bu": ('舎利子', 'śāradvatīputra'), "shA ra dwa ti'i bu": ('舎利子', 'śāradvatīputra'),
+    "tshe dang ldan pa": ('具寿', 'āyuṣmat'),
+    "rigs kyi bu mo": ('善女人', 'kuladuhitṛ'), "rigs kyi bu": ('善男子', 'kulaputra'),
+    "rgyal po'i khab": ('王舎城', 'rājagṛha'),
+    "bya rgod phung po'i ri": ('霊鷲山', 'gṛdhrakūṭa parvata'),
+    "dge slong gi dge 'dun": ('比丘衆', 'bhikṣusaṃgha'),
+    "byang chub sems dpa'i dge 'dun": ('菩薩衆', 'bodhisattvasaṃgha'),
+    "ting nge 'dzin": ('三昧', 'samādhi'),
+    "chos kyi rnam grangs": ('法門', 'dharmaparyāya'),
+    "phung po lnga po": ('五蘊', 'pañca skandhāḥ'), "phung po lnga": ('五蘊', 'pañca skandhāḥ'),
+    "rang bzhin gyis stong pa": ('自性空', 'svabhāvaśūnya'),
+    "stong pa nyid": ('空性', 'śūnyatā'), 'gzugs': ('色', 'rūpa'), 'tshor ba': ('受', 'vedanā'),
+    "'du shes": ('想', 'saṃjñā'), "'du byed": ('行', 'saṃskāra'), 'rnam par shes pa': ('識', 'vijñāna'),
+    'mtshan nyid': ('相', 'lakṣaṇa'), 'dri ma': ('垢', 'mala'),
+    'mig': ('眼', 'cakṣus'), 'rna ba': ('耳', 'śrotra'), 'sna': ('鼻', 'ghrāṇa'), 'lce': ('舌', 'jihvā'),
+    'lus': ('身', 'kāya'), 'yid': ('意', 'manas'), 'sgra': ('声', 'śabda'), 'dri': ('香', 'gandha'),
+    'ro': ('味', 'rasa'), 'reg bya': ('触', 'spraṣṭavya'),
+    "mig gi khams": ('眼界', 'cakṣurdhātu'), "yid kyi khams": ('意界', 'manodhātu'),
+    "yid kyi rnam par shes pa'i khams": ('意識界', 'manovijñānadhātu'),
+    'ma rig pa': ('無明', 'avidyā'), 'rga shi': ('老死', 'jarāmaraṇa'),
+    'sdug bsngal ba': ('苦', 'duḥkha'), 'sdug bsngal': ('苦', 'duḥkha'), "kun 'byung ba": ('集', 'samudaya'),
+    "'gog pa": ('滅', 'nirodha'), 'lam': ('道', 'mārga'), 'ye shes': ('智', 'jñāna'),
+    'thob pa': ('得', 'prāpti'), 'ma thob pa': ('無得', 'aprāpti'),
+    'sgrib pa': ('罣礙', 'āvaraṇa'), 'phyin ci log': ('顛倒', 'viparyāsa'),
+    "mya ngan las 'das pa": ('涅槃', 'nirvāṇa'), "mya nang las 'das pa": ('涅槃', 'nirvāṇa'),
+    "snyoms par zhugs": ('入定する', 'samāpanna'), "snyoms par bzhugs": ('入定する', 'samāpanna'),
+    "mngon par rdzogs par sangs rgyas": ('現等覚する', 'abhisaṃbuddha'), "rjes su yi rang": ('随喜する', 'anumodana'),
+    "mngon par bstod": ('称賛する', 'abhinandana'), "legs so": ('善哉', 'sādhu'), 'de bzhin': ('そのとおり', 'tathā'), 'dus gsum': ('三世', 'tryadhvan'),
+    "bla na med pa yang dag par rdzogs pa'i byang chub": ('阿耨多羅三藐三菩提', 'anuttarā samyaksaṃbodhi'),
+    "rig pa chen po'i sngags": ('大明呪', 'mahāvidyāmantra'), "bla na med pa'i sngags": ('無上呪', 'anuttaramantra'),
+    "mi mnyam pa dang mnyam pa'i sngags": ('無等等呪', 'asamasamamantra'), 'sngags': ('真言', 'mantra'),
+    'theg pa chen po': ('大乗', 'mahāyāna'), "de bzhin gshegs pa": ('如来', 'tathāgata'),
+    "rgya gar skad du": ('インドの言葉で', ''), "bod skad du": ('チベットの言葉で', ''),
+    "de'i tshe": ('その時', ''), 'de lta bas na': ('それゆえ', ''), "gang la la": ('誰でも', ''),
+    "lha ma yin": ('阿修羅', 'asura'), "dri za": ('乾闥婆', 'gandharva'), "'jig rten": ('世間', 'loka'),
+    "'khor": ('眷属', 'parṣad'), 'bam po gcig': ('一巻', ''),
+}
+# 動詞として訳す術語 (時制は最後の音節の語幹から)
+TERM_VERBS = {"snyoms par zhugs", "snyoms par bzhugs", "mngon par rdzogs par sangs rgyas", "rjes su yi rang",
+              "mngon par bstod"}
+# 人を表す術語 (能格なら動作主「が」、並べた称号と名前は1つの名詞句に: 具寿舎利子)
+PERSON_TERMS = {"bcom ldan 'das ma", "byang chub sems dpa' sems dpa' chen po", "byang chub sems dpa'",
+                "'phags pa spyan ras gzigs dbang phyug", "spyan ras gzigs dbang phyug", "spyan ras gzigs",
+                "sh'a ri'i bu", "shA ri'i bu", "sha ra dwa ti'i bu", "shA ra dwa ti'i bu", "tshe dang ldan pa",
+                "rigs kyi bu", "rigs kyi bu mo", "de bzhin gshegs pa", "lha ma yin", "dri za"}
+# よく知られた真言 (ワイリー式から空白を除いた形の頭)。句がこれで始まれば音写として扱う
+MANTRAS = ('tadyathA', 'gategate', 'pAragate', 'pArasaMgate', 'bodhiswAhA', 'bodhiswwAhA', 'bodhisvAhA', 'oMmaNipadme',
+           'oMAHhU', 'oMswasti', 'namomaNjuzrI', 'oMaHraHpatsana')
+TERM_ADVERBS = {"rgya gar skad du", "bod skad du", "de'i tshe", 'de lta bas na'}

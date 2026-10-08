@@ -70,6 +70,12 @@ botok の辞書パック（約12MB）は初回に `~/.local/share/dragoman-data/
     文末なら言い切り（bka' stsal pa → おっしゃった）。V-par gyur →「〜ようになる」、V-bar bya →「〜しよう」（一人称）。
   * 目的: V + du + 行く →「〜しに行く」（chu len du song → 水を取りに行った）。祈願 gyur cig →「〜なりますように」。
   * 名詞 + 動詞の慣用的な組み合わせ（phyag 'tshal → 礼拝する、bka' stsal → おっしゃる）。
+* 仏教の術語は、助詞をまたぐ言い方も1語として漢訳語で訳す（shes rab kyi pha rol tu phyin pa → 般若波羅蜜多、
+  rgyal po'i khab → 王舎城、bla na med pa yang dag par rdzogs pa'i byang chub → 阿耨多羅三藐三菩提、色・受・想・行・識、
+  眼・耳・鼻・舌・身・意、無明・老死、苦・集・滅・道 …。`tibetan/grammar.py` の TERMS）。称号と名前は1つの名詞句に
+  （tshe dang ldan pa shA ri'i bus → 具寿舎利子が）。
+* チベット文字で書いたサンスクリット（経題・真言。長母音 ཱ、そり舌音、有声の有気音、ཾ などで見分ける）は訳さずに
+  IAST で出す（ག་ཏེ་ག་ཏེ་པཱ་ར་ག་ཏེ → 〔gategatepāragate〕）。
 * 訳語は Wiktionary → Hopkins → Rangjung Yeshe の英語を、ほかの言語と共通の英語 → 日本語の表（`core/en_ja.py`）で
   日本語にする。よく使う語（特に仏典の語: chos → 法、sangs rgyas → 仏陀、sems can → 衆生）は `tibetan/grammar.py` の表で決める。
 * サンスクリットの原語を注に出す:
@@ -81,8 +87,18 @@ botok の辞書パック（約12MB）は初回に `~/.local/share/dragoman-data/
 
 ## 発音と音読
 
-見出しの下に、ラサ方言を土台にした発音を IPA と声調で出します（`tibetan/phonology.py`）。音読（`-s`）は espeak-ng の
-普通話の音声（`-v cmn`。有気・無気、そり舌・歯茎硬口蓋の破擦音、声調がある）に音素で渡します。
+見出しの下に、ラサ方言を土台にした発音を IPA と声調で出します（`tibetan/phonology.py`）。
+
+音読（`-s`）は、Meta の [MMS-TTS](https://huggingface.co/facebook/mms-tts-bod)（中央チベット語の録音で学習した VITS の
+モデル。CC BY-NC 4.0、約145MB。transformers と torch が要る）があればそれでチベット文字のまま読み、無ければ（`-t espeak`
+でも）espeak-ng の普通話の音声（`-v cmn`。有気・無気、そり舌・歯茎硬口蓋の破擦音、声調がある）に上の発音を音素で渡します。
+
+```
+mkdir -p ~/.local/share/dragoman-data/bo/mms-tts-bod && cd ~/.local/share/dragoman-data/bo/mms-tts-bod
+for f in config.json vocab.json tokenizer_config.json special_tokens_map.json model.safetensors; do
+  curl -L -O https://huggingface.co/facebook/mms-tts-bod/resolve/main/$f
+done
+```
 
 ```
 ./dragoman.py bo -s -e "བླ་མ་ལ་ཕྱག་འཚལ་ལོ།"                 # [la˥.ma˩˧ la˩˧ cʰaʔ˥˩.tsʰɛː˥ lo˩˧]
@@ -103,6 +119,21 @@ botok の辞書パック（約12MB）は初回に `~/.local/share/dragoman-data/
 * まだ: espeak-ng の音声に ø が無いので e で代用、声調は普通話の調子（55, 51, 35）で近似。語の中の声調の変化
   （2音節目の調子）、語中の有声化（mchod rten → tɕʰø.tɛn の t の有声化）、サンスクリットの音節は綴りのまま。
 
+## 般若心経
+
+`samples/heart-sutra.bo.txt` にデルゲ版カンギュルのチベット語訳（広本、全文。Wikisource から、パブリックドメイン）、
+`samples/heart-sutra.sa.txt` にサンスクリット本（小本と広本。サンスクリット版 Wikisource から）を置いています。
+
+```
+./dragoman.py bo -w samples/heart-sutra.bo.txt
+  →  具寿舎利子が菩薩摩訶薩聖観自在にこのように言った。
+  →  色空である。
+  →  阿耨多羅三藐三菩提に現等覚した。
+  →  〔gategatepāragate〕。
+```
+
+術語と定型句はかなり訳せますが、長い文（観自在の答え、奥書）はまだ崩れます。
+
 ## 評価
 
 Hill & Garrett の手で品詞を付けたコーパス（『賢愚経』、プトンの仏教史、ミラレパ伝・マルパ伝。約28万語）で測ります。
@@ -114,12 +145,14 @@ python3 tools/bo_eval.py [--source=mdzangsblun,buston,mila,marpa] [--limit=N]
 
 | 語の区切り (F1) | 品詞 (区切りの合った語) | 格助詞 | 時制 (時制が1つの動詞) |
 |---|---|---|---|
-| 87.2% | 95.4% | 88.4% | 92.2% |
+| 86.6% | 95.2% | 87.1% | 92.2% |
 
 * 語の区切りの食い違いの多くは流儀の違い: 正解のコーパスは決まった言い回し（'di skad、shin tu、de nas、gal te）を
   分け、語に付いた -r も切る（phyir → phyi + r、mngon par → mngon pa + r）。botok はこれらを1語にする（訳にはその方がよい）。
 * Hill & Garrett の品詞辞書はこのコーパスから作られているので、品詞と時制、botok の分けた複合語をつなぐ処理
   （byang chub + sems dpa' → byang chub sems dpa'。品詞辞書の名詞を使う）の数字はやや良く出る。
+* 仏教の術語を助詞ごと1語にする処理（shes rab kyi pha rol tu phyin pa）は、正解のコーパスの区切りとは合わないので、
+  語の区切りと格助詞の数字は少し下がる（訳にはこの方がよい）。
 * 能格と具格は正解の印が同じ（case.agn）なので、「が」と「で」の選び分けは測れていない。
 
 ## まだ

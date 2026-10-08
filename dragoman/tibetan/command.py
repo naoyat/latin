@@ -11,7 +11,8 @@ USAGE = '''
   ./dragoman.py bo -e "རྒྱལ་པོས་བློན་པོ་ལ་གསེར་བྱིན་ནོ།"
   古典チベット語を語に分け (botok)、格助詞 (能格 gis・属格 gi・la don …)・動詞の語幹の時制・否定を示して、
   日本語に訳す。見出しはチベット文字とワイリー式、その下にラサ方言の発音 (IPA と声調)。
-  音読 (-s) は espeak-ng の普通話の音声に音素で渡す。辞書は tools/build_tibetan_dic.py で作る (docs/tibetan.md)
+  音読 (-s) は MMS-TTS (中央チベット語の録音で学習したモデル。$DRAGOMAN_DATA/bo/mms-tts-bod) があればそれで、
+  無ければ (-t espeak でも) espeak-ng の普通話の音声に音素で渡す。辞書は tools/build_tibetan_dic.py で作る (docs/tibetan.md)
 '''
 OPTION_HELP = '''
   --pron=PRON            発音: lhasa (ラサ方言。既定) / chant (読誦式: 語末の母音を変えず -l -n を読む)
@@ -32,6 +33,10 @@ def handle_option(option, arg, options):
 
 
 def speech_text(analysis, options):
+    """音読に渡すもの: MMS-TTS にはチベット文字のまま、espeak-ng には音素 ([[...]])"""
+    from dragoman.core import speech
+    if speech.backend == 'mms':
+        return analysis.text
     return phonology.espeak_phonemes(analysis.text, pron(options), words=analysis.word_texts())
 
 KINDS = {'noun': '名詞', 'pron': '代名詞', 'adj': '形容詞', 'num': '数詞', 'det': '指示詞', 'plural': '複数',

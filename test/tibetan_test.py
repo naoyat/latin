@@ -96,6 +96,15 @@ class TibetanTestCase(unittest.TestCase):
         self.assertTrue(a.pronunciation().startswith('cɛː˩˧.pø˥˩'))   # -s の付いた po → pø
         self.assertIn('菩薩', next(analyzer.analyze_text('བྱང་ཆུབ་སེམས་དཔའ་ཐམས་ཅད་ལ་ཕྱག་འཚལ་ལོ།')).japanese)
 
+    def test_terms_and_mantra(self):
+        from dragoman.tibetan import analyzer
+        a = next(analyzer.analyze_text('ཚེ་དང་ལྡན་པ་ཤཱ་རིའི་བུས་བྱང་ཆུབ་སེམས་དཔའ་སེམས་དཔའ་ཆེན་པོ་འཕགས་པ་སྤྱན་རས་གཟིགས་དབང་ཕྱུག་ལ་འདི་སྐད་ཅེས་སྨྲས་སོ།'))
+        self.assertEqual(a.japanese, '具寿舎利子が菩薩摩訶薩聖観自在にこのように言った。')  # 術語、称号 + 名前
+        self.assertTrue(any('śāriputra' in n for n in a.notes))
+        self.assertEqual(next(analyzer.analyze_text('གཟུགས་སྟོང་པའོ།')).japanese, '色空である。')
+        self.assertEqual(next(analyzer.analyze_text('ག་ཏེ་ག་ཏེ་པཱ་ར་ག་ཏེ།')).japanese, '〔gategatepāragate〕。')  # 真言は音写
+        self.assertEqual(script.translit('པཱ་ར་སཾག་ཏེ'), 'pA ra saMga te')
+
     def test_segment_fixes(self):
         words = [t.wylie for t in segment.tokenize('བུ་མོ་དེ་རྟ་ལས་ལྷུང་ངོ་།')]
         self.assertIn('las', words)                                       # རྟ་ལ + ས → རྟ + ལས

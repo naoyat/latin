@@ -148,8 +148,135 @@ def _merge_compounds(tokens):
     return out
 
 
+def _join_wylie(tokens):
+    out = ''
+    for t in tokens:
+        out += t.wylie if t.affix else (' ' if out else '') + t.wylie
+    return out
+
+
+def _join_text(tokens):
+    out = ''
+    for t in tokens:
+        out += t.text if t.affix or not out else TSHEG + t.text
+    return out
+
+
+def _merge_terms(tokens):
+    """仏教の術語 (grammar.TERMS。助詞をまたぐもの: shes rab kyi pha rol tu phyin pa) を1語にする。長いものから"""
+    out = []
+    i = 0
+    longest = max(len(k.split()) for k in grammar.TERMS) + 3
+    while i < len(tokens):
+        for n in range(min(longest, len(tokens) - i), 0, -1):
+            group = tokens[i:i + n]
+            if any(t.upos == 'PUNCT' for t in group) or (n == 1 and ' ' not in group[0].wylie and
+                                                          group[0].wylie not in grammar.TERMS):
+                continue
+            wylie = _join_wylie(group)
+            if wylie in grammar.TERMS and (n > 1 or group[0].upos not in ('PART', 'ADP')):
+                out.append(Token(_join_text(group), wylie, 'TERM', wylie))
+                i += n
+                break
+            if n > 1 and wylie.endswith('s') and wylie[:-1] in grammar.TERMS and group[-1].text.endswith('ས'):
+                # 術語 + 能格の -s が1語になったもの (shA ri'i bus → shA ri'i bu + s)
+                out.append(Token(_join_text(group)[:-1], wylie[:-1], 'TERM', wylie[:-1]))
+                out.append(Token('ས', 's', 'PART', 'gis', True))
+                i += n
+                break
+        else:
+            out.append(tokens[i])
+            i += 1
+    return out
+
+
+# サンスクリットにしか使わない字: 長母音 ཱ、ྀ (ṛ)、そり舌音 (ཊ〜ཎ)、ཥ、ཀྵ、有声の有気音 (གྷ དྷ བྷ ཛྷ ཌྷ)、ཾ ྃ、ཛྙ (jñ)
+SANSKRIT_MARKS = re.compile('[\u0f71\u0f80\u0f81\u0f4a-\u0f4e\u0f65\u0f69\u0f9a-\u0f9e\u0fb5\u0fb9'
+                            '\u0f43\u0f52\u0f57\u0f5c\u0f93\u0fa2\u0fa7\u0fac\u0f7e\u0f83\u0f82]|ཛྙ|ྭྭ')
+
+
+def is_sanskrit(text):
+    """チベット文字で書いたサンスクリットらしい綴り (長母音・そり舌音・インドの重ね字)"""
+    return bool(SANSKRIT_MARKS.search(text))
+
+
+def _sanskrit_chunks(tokens):
+    """区切り記号までの句で、音節の多くがサンスクリットの字なら句全体を音写とする (真言: ga te ga te pA ra ga te)"""
+    global _previous_sanskrit
+    out, chunk = [], []
+    previous_sanskrit = _previous_sanskrit  # 前の文 (区切り記号までの句) が音写だったか
+    for t in tokens + [None]:
+        if t is None or t.upos == 'PUNCT':
+            words = [x for x in chunk if x.upos != 'TERM']
+            marked = sum(1 for x in words if is_sanskrit(x.text))
+            # 前の句が音写なら、サンスクリットの字が1つでもあれば続き (真言の ga te ga te pA ra ga te)
+            joined = ''.join(x.wylie for x in chunk).replace(' ', '')
+            known = joined.startswith(grammar.MANTRAS)
+            if chunk and len(words) == len(chunk) and (known or marked and (marked * 3 >= len(words) or previous_sanskrit)):
+                out.append(Token(TSHEG.join(x.text for x in chunk), ' '.join(x.wylie for x in chunk), 'SKT', ''))
+                previous_sanskrit = True
+            else:
+                out += chunk
+                previous_sanskrit = previous_sanskrit and not chunk
+            chunk = []
+            if t is not None:
+                out.append(t)
+        else:
+            chunk.append(t)
+    _previous_sanskrit = previous_sanskrit
+    return out
+
+
+_previous_sanskrit = False
+
+
+def reset():
+    """文章の頭で、前の文の状態 (真言の続き) を消す"""
+    global _previous_sanskrit
+    _previous_sanskrit = False
+
+
+def _merge_sanskrit(tokens):
+    """サンスクリットの音写の連なり (経題・真言) を1語にする。短い音節 (ga, ra, ta) は前後が音写なら含める"""
+    out = []
+    i = 0
+    while i < len(tokens):
+        if tokens[i].upos not in ('PUNCT', 'TERM') and is_sanskrit(tokens[i].text):
+            j = i
+            while j + 1 < len(tokens) and tokens[j + 1].upos not in ('PUNCT', 'TERM') and \
+                    (is_sanskrit(tokens[j + 1].text) or
+                     (j + 2 < len(tokens) and is_sanskrit(tokens[j + 2].text) and len(tokens[j + 1].text) <= 3)):
+                j += 1
+            group = tokens[i:j + 1]
+            out.append(Token(TSHEG.join(t.text for t in group), ' '.join(t.wylie for t in group), 'SKT', ''))
+            i = j + 1
+            continue
+        out.append(tokens[i])
+        i += 1
+    return out
+
+
 def _fix(tokens):
-    tokens = _merge_compounds(tokens)
+    for i, t in enumerate(tokens[:-1]):
+        # དཔ + འི → dpa + 'i (botok が切った語末の འ を補って転写する。そのままだと dap)
+        nxt = tokens[i + 1]
+        if nxt.affix and nxt.text.startswith('འ') and not t.text.endswith('འ') and t.upos != 'PUNCT':
+            fixed = _wylie(t.text + 'འ')
+            if fixed.endswith("'"):
+                t.wylie = t.lemma = fixed[:-1]
+    split = []
+    for t in tokens:
+        # སྣ་མེད → སྣ + མེད (名詞と存在動詞・繋辞を botok が1語にしたもの)
+        m = re.match(r"^(.+) (med|min|yod|yin|med pa|min pa)$", t.wylie)
+        if m and not t.affix and t.upos != 'PUNCT' and not dictionary.tags(t.wylie) and \
+                (dictionary.is_word(m.group(1)) or m.group(1) in grammar.TERMS):
+            n = len(m.group(2).split())
+            parts = t.text.split(TSHEG)
+            split.append(Token(TSHEG.join(parts[:-n]), m.group(1), 'NOUN', m.group(1)))
+            split.append(Token(TSHEG.join(parts[-n:]), m.group(2), 'VERB', m.group(2)))
+            continue
+        split.append(t)
+    tokens = _merge_sanskrit(_sanskrit_chunks(_merge_terms(_merge_compounds(split))))
     out = []
     for i, t in enumerate(tokens):
         if t is None:
@@ -166,7 +293,7 @@ def _fix(tokens):
             continue
         # སྨྲ + ས → སྨྲས (動詞の過去の語幹の -s を、格助詞として切ったもの)、ལ + ས → ལས
         if nxt is not None and nxt.affix and nxt.wylie == 's' and \
-                (t.wylie == 'la' or (dictionary.stems(t.wylie + 's') and
+                (t.wylie == 'la' or (t.upos == 'VERB' and dictionary.stems(t.wylie + 's') and
                                      any(x.startswith('v.') for x in dictionary.tags(t.wylie + 's')))):
             merged = t.wylie + 's'
             out.append(Token(t.text + nxt.text, merged, 'ADP' if merged == 'las' else 'VERB', merged))

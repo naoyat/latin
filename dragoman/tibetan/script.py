@@ -64,7 +64,10 @@ def _letters(syllable):
             else:
                 letters.append(['', VOWELS[c]])
         elif c in MARKS:
-            marks += MARKS[c]
+            if letters and i + 1 < len(syllable) and syllable[i + 1] in CONSONANTS:
+                letters[-1][1] += MARKS[c]  # 音節の途中の ཾ (སཾག → saMga): その字に付ける
+            else:
+                marks += MARKS[c]
         i += 1
     return letters, marks
 
@@ -103,8 +106,11 @@ def _join(letters, root):
         vowel = LONG.get(vowel, vowel)
         if k < root and not (k == root - 1 and text in PREFIXES) and not vowel:
             vowel = 'a'  # サンスクリットの字の連なり (པདྨེ padme): 前置字でない字には a
-        elif k > root and not vowel and text not in CONSONANTS.values():
-            vowel = 'a'  # 基字の後ろの重ね字 (ཤཱཀྱ shAkya)
+        elif k > root and not vowel and (text not in CONSONANTS.values() or
+                                         letters[k - 1][1][-1:] in ('M', 'H')):
+            vowel = 'a'  # 基字の後ろの重ね字 (ཤཱཀྱ shAkya)、ཾ の後ろの字 (སཾག saMga)
+        if vowel[:1] in ('M', 'H', '~'):
+            vowel = 'a' + vowel  # 母音記号の無い字に付いた ཾ ཿ
         if k == root:
             if k == 1 and letters[0][0] == 'g' and text == 'y':
                 out.append('.')  # གཡ (g + y) と གྱ (gy) を分ける
@@ -156,3 +162,17 @@ def translit(text, known=None):
 def word_translit(word, known=None):
     """語 (音節をツェクで区切ったもの) → ワイリー式 (語末のツェク・区切りは除く)"""
     return translit(word.strip('་།༑ '), known)
+
+
+IAST = [('tsh', 'ch'), ('ts', 'c'), ('dz', 'j'), ('kSh', 'kṣ'), ('Sh', 'ṣ'), ('sh', 'ś'), ('ny', 'ñ'), ('Th', 'ṭh'),
+        ('Dh', 'ḍh'), ('T', 'ṭ'), ('D', 'ḍ'), ('N', 'ṇ'), ('A', 'ā'), ('I', 'ī'), ('U', 'ū'), ('-i', 'ṛ'), ('-I', 'ṝ'),
+        ('~M', 'ṃ'), ('M', 'ṃ'), ('H', 'ḥ'), ('w', 'v'), ("'", '')]
+
+
+def iast(wylie):
+    """チベット文字で書いたサンスクリットのワイリー式 → IAST (bha ga ba tI → bhagabatī、ts → c、w → v)。
+    音節はつなげる (チベットでは va を ba と書くことが多いので b はそのまま)"""
+    out = wylie.replace(' ', '')
+    for a, b in IAST:
+        out = out.replace(a, b)
+    return out

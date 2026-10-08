@@ -10,6 +10,8 @@
 #   espeak : espeak-ng のラテン語音声 (-v la) にテキストをそのまま渡す
 #            （MBROLA が使えない場合の代替）
 #   piper  : 自前の音韻処理で作った IPA を、Piper のイタリア語/スペイン語モデルで合成する
+#   mms    : Meta の MMS-TTS (VITS。transformers) の言語ごとのモデルにテキストをそのまま渡す (古典チベット語:
+#            facebook/mms-tts-bod、中央チベット語の録音で学習。CC BY-NC 4.0。$DRAGOMAN_DATA/bo/mms-tts-bod)
 #   say    : macOS の音声合成にテキストをそのまま渡す (現代語向け。ロシア語は Milena、-b say でサンスクリットは
 #            ヒンディー語の Lekha、ギリシア語は現代ギリシア語の Melina)
 #
@@ -42,12 +44,17 @@ BACKENDS = {
                'voice': os.path.join(MBROLA_HOME, 'voices', 'la1', 'la1')},
     'piper':  {'command': None, 'voice': 'it_IT-paola-medium'},
     'say':    {'command': 'say', 'voice': None},
+    'mms':    {'command': None, 'voice': None},
 }
+# MMS-TTS の言語ごとのモデルの置き場所 (データの置き場所の下)
+MMS_MODELS = {'bo': ('bo', 'mms-tts-bod')}
+MMS_SPEAKING_RATE = 0.9   # 1より小さいとゆっくり
+MMS_SENTENCE_PAUSE = 0.4  # 秒 (区切り記号 ། ごと)
 # macOS の say の言語ごとの音声 (現代語の読み方になる)
 SAY_VOICES = {'ru': 'Milena', 'sa': 'Lekha', 'grc': 'Melina', 'he': 'Carmit', 'ar': 'Majed', 'hi': 'Lekha', 'ja': 'Kyoko'}
 # 方式を指定しないときに試す順 (言語ごと。無ければ DEFAULT_BACKEND → FALLBACK_BACKEND)
 LANGUAGE_BACKENDS = {'ru': ('say', 'espeak'), 'he': ('say', 'espeak'), 'ar': ('say', 'espeak'), 'fa': ('espeak',),
-                     'hi': ('say', 'espeak'), 'ur': ('espeak',), 'ja': ('say',), 'bo': ('espeak',)}
+                     'hi': ('say', 'espeak'), 'ur': ('espeak',), 'ja': ('say',), 'bo': ('mms', 'espeak')}
 DEFAULT_BACKEND = 'mbrola'
 FALLBACK_BACKEND = 'espeak'
 ESPEAK_SPEED = 140  # words per minute (espeak-ng の既定は175)
@@ -78,7 +85,14 @@ def missing_diphones():
     return MISSING_BY_VOICE[voice]
 
 
+def _mms_model_dir():
+    from dragoman.core import paths
+    return paths.data(*MMS_MODELS[language]) if language in MMS_MODELS else None
+
+
 def _default_voice(backend_name):
+    if backend_name == 'mms':
+        return _mms_model_dir()
     if backend_name == 'say':
         return SAY_VOICES.get(language)
     if backend_name == 'espeak':
@@ -154,6 +168,15 @@ def _init_synth(backend_name, voice_name=None):
     if backend_name == 'mbrola' and not os.path.exists(voice):
         print("MBROLA voice is not available: %s" % voice)
         return None
+    if backend_name == 'mms':
+        if not voice or not os.path.exists(os.path.join(voice, 'model.safetensors')):
+            print("MMS-TTS model is not available for this language (%s)" % (voice or language))
+            return None
+        try:
+            import transformers  # noqa: F401
+        except ImportError:
+            print("MMS-TTS needs transformers and torch (pip install transformers torch)")
+            return None
     if backend_name == 'piper':
         try:
             _load_piper_voice(voice)
@@ -307,6 +330,56 @@ def synthesize_piper(text, wav_file):
         wf.writeframes((audio * 32767).astype(np.int16).tobytes())
 
 
+def mms(text, pause=False, wav_file=None):
+    if backend != 'mms': return None
+    _synthesize_and_play(synthesize_mms, text, pause=pause, wav_file=wav_file)
+
+
+_mms_models = {}
+
+def _load_mms(model_dir):
+    if model_dir not in _mms_models:
+        import warnings
+        from transformers import VitsModel, AutoTokenizer, logging as hf_logging
+        hf_logging.set_verbosity_error()
+        hf_logging.disable_progress_bar()
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            tokenizer = AutoTokenizer.from_pretrained(model_dir)
+            model = VitsModel.from_pretrained(model_dir)
+        model.speaking_rate = MMS_SPEAKING_RATE
+        _mms_models[model_dir] = (tokenizer, model)
+    return _mms_models[model_dir]
+
+
+def synthesize_mms(text, wav_file):
+    """MMS-TTS で合成する (区切り記号 ། ごとに切って間を置く)"""
+    import wave
+    import numpy as np
+    import torch
+    tokenizer, model = _load_mms(voice)
+    rate = model.config.sampling_rate
+    silence = np.zeros(int(rate * MMS_SENTENCE_PAUSE), dtype=np.float32)
+    chunks = []
+    for piece in re.split('[།༎༏༐༑༔\n]+', text):
+        piece = piece.strip(' ་')
+        if not piece:
+            continue
+        inputs = tokenizer(piece, return_tensors='pt')
+        if inputs['input_ids'].shape[1] == 0:
+            continue
+        torch.manual_seed(0)  # 毎回同じ読みに
+        with torch.no_grad():
+            chunks += [model(**inputs).waveform[0].numpy(), silence]
+    audio = np.concatenate(chunks) if chunks else silence
+    audio = audio / max(1e-6, float(np.abs(audio).max())) * 0.9
+    with wave.open(wav_file, 'wb') as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        wf.writeframes((audio * 32767).astype(np.int16).tobytes())
+
+
 def _synthesize_and_play(synthesize, text, pause=False, wav_file=None):
     global proc
     if wav_file:
@@ -335,6 +408,8 @@ def say_latin(text_uc, debug_mode=False, pause=False, wav_file=None):
                 print(sanskrit_phonology.to_ipa(text_uc))
             print(make_pho(text_uc))
         mbrola(text_uc, pause=pause, wav_file=wav_file)
+    elif backend == 'mms':
+        mms(text_uc, pause=pause, wav_file=wav_file)
     elif backend == 'piper':
         if language in ('grc', 'sa'):
             print('piper does not support this language (use mbrola or espeak)')
