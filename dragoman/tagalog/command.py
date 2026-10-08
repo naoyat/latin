@@ -92,10 +92,23 @@ def render(analysis, options):
     core_render.render_analysis(analysis, show_word_detail=False)
 
 
+OPTION_HELP = '''
+  --lines                改行も文の区切りにする (歌詞・詩など、行末に句点の無い行。行末がカンマなら次の行に続ける)
+'''
+
+
+def handle_option(option, arg, options):
+    if option == '--lines':
+        analyzer.LINE_BREAKS = True
+        return True
+    return False
+
+
 def available():
     return None if dictionary.available() else 'no Tagalog data (python3 tools/build_tagalog_dic.py)'
 
 
 COMMAND = Command(lang='tl', name='タガログ語', analyzer=analyzer, dictionary=dictionary, available=available,
                   usage=USAGE, header=lambda a, o: original(a), speech_text=lambda a, o: original(a), explain=explain, render=render,
-                  descendant_langs=('en', 'ja'), speech_lang='tl')
+                  descendant_langs=('en', 'ja'), speech_lang='tl',
+                  long_options=('lines',), option_help=OPTION_HELP, handle_option=handle_option)
