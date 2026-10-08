@@ -220,6 +220,9 @@ class Predicate (LatinObject):
             nom_case_ja = 'が'
             if self.is_sum and not self.subordinate and (not is_existential or is_existential == 'personal'):
                 nom_case_ja = 'は'
+            nom_particle = next((p for p in (self._particle('Nom', o) for o in self.case_slot.get('Nom', [])) if p), None)
+            if nom_particle:
+                nom_case_ja = nom_particle  # 言語の設定で決まる主格の助詞 (タガログ語の焦点「は」)
             joined = '='.join(noms)
             if joined.endswith(nom_case_ja):
                 nom_case_ja = ''  # 訳語に助詞まで入っているもの (何が)
@@ -341,6 +344,11 @@ class Predicate (LatinObject):
 
 #        tr.append(self.first_item.ja )
 
+        if self.language.topic_first:
+            # 主題 (「は」の句) を先頭に (タガログ語の焦点: 魚は / 男が / 買った)
+            topics = [t for t in tr[:-1] if t.endswith('は') and not t.endswith('には')] + \
+                [t for t in tr[:-1] if t.endswith('には')]
+            tr = topics[:1] + [t for t in tr if t not in topics[:1]]
         return (' / '.join(tr), False)
 
 

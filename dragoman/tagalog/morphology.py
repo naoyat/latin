@@ -73,7 +73,12 @@ GLOSSES = {'bata': ('子供', 'noun'), 'lalaki': ('男', 'noun'), 'babae': ('女
            'mainit': ('暑い', 'adj'), 'malamig': ('寒い', 'adj'), 'bago': ('新しい', 'adj'), 'luma': ('古い', 'adj'),
            'matanda': ('年老いた', 'adj'), 'mataas': ('高い', 'adj'), 'masaya': ('楽しい', 'adj'),
            'pagkain': ('食べ物', 'noun'), 'trabaho': ('仕事', 'noun'), 'wika': ('言語', 'noun'),
-           'tao': ('人', 'noun'), 'mga': ('〜たち', 'plural')}
+           'tao': ('人', 'noun'), 'mga': ('〜たち', 'plural'), 'naturan': ('前述の', 'adj'), 'marami': ('多くの', 'adj'),
+           'iba': ('他の', 'adj'), 'bawat': ('それぞれの', 'adj'), 'lahat': ('すべて', 'noun'), 'isa': ('一つ', 'noun'),
+           'dalawa': ('二つ', 'noun'), 'tatlo': ('三つ', 'noun'), 'pamahalaan': ('政府', 'noun'), 'bansa': ('国', 'noun'),
+           'kahapon': ('昨日', 'adv'), 'ngayon': ('今', 'adv'), 'mamaya': ('後で', 'adv'), 'noon': ('その時', 'adv'),
+           'palagi': ('いつも', 'adv'), 'lagi': ('いつも', 'adv'), 'sobra': ('とても', 'adv'), 'talaga': ('本当に', 'adv'),
+           'lamang': ('〜だけ', 'adv'), 'muli': ('再び', 'adv'), 'agad': ('すぐに', 'adv')}
 # 動詞の訳語を決めておく見出し (態ごとの見出しの訳語が外れるもの)
 VERB_GLOSSES = {'bili': '買う', 'kain': '食べる', 'inom': '飲む', 'sulat': '書く', 'basa': '読む', 'bigay': '与える',
                 'kita': '見る', 'gising': '起きる', 'tulog': '眠る', 'punta': '行く', 'alis': '出発する', 'dating': '着く',
@@ -81,7 +86,16 @@ VERB_GLOSSES = {'bili': '買う', 'kain': '食べる', 'inom': '飲む', 'sulat'
                 'sabi': '言う', 'gawa': '作る', 'dala': '持って行く', 'kuha': '取る', 'bukas': '開ける',
                 'sara': '閉める', 'hanap': '探す', 'tulong': '助ける', 'lakad': '歩く', 'takbo': '走る',
                 'upo': '座る', 'tayo': '立つ', 'laro': '遊ぶ', 'sayaw': '踊る', 'kanta': '歌う', 'dinig': '聞く',
-                'rinig': '聞く', 'alam': '知る', 'gusto': '好む', 'mahal': '愛する', 'uwi': '帰る', 'balik': '戻る'}
+                'rinig': '聞く', 'alam': '知る', 'gusto': '好む', 'mahal': '愛する', 'uwi': '帰る', 'balik': '戻る',
+                'isip': '思う', 'ikot': '回る', 'hinto': '止まる', 'tanto': '悟る', 'sagot': '答える', 'iyak': '泣く',
+                'tawa': '笑う', 'ngiti': '微笑む', 'hintay': '待つ', 'alala': '思い出す', 'limot': '忘れる',
+                'damdam': '感じる', 'patak': '滴る', 'pangarap': '夢見る', 'ngarap': '夢見る', 'kilala': '知る',
+                'sama': '一緒に行く', 'tagpo': '出会う', 'kita': '見る', 'hanga': '感心する', 'asa': '期待する',
+                'tingin': '見る', 'titig': '見つめる', 'yakap': '抱きしめる', 'halik': 'キスする', 'awit': '歌う',
+                'sigaw': '叫ぶ', 'takot': '恐れる', 'saya': '楽しむ', 'lungkot': '悲しむ', 'ibig': '愛する'}
+# 対象焦点・場所焦点で訳語の変わる語根 (gumising「起きる」/ ginising「起こす」)
+TRANSITIVE_GLOSSES = {'gising': '起こす', 'tulog': '寝かせる', 'balik': '返す', 'uwi': '持ち帰る', 'labas': '出す',
+                      'pasok': '入れる', 'alis': '取り除く', 'upo': '座らせる', 'tayo': '立てる'}
 LINKER = 'linker'
 
 VOWELS = 'aeiou'
@@ -253,6 +267,8 @@ def _verb_item(surface, root, voice, aspect, lemma=None, en=None):
         ja, gloss_lang = (VERB_GLOSSES[root], 'ja') if root in VERB_GLOSSES else (en, 'en')
     if root in VERB_GLOSSES:
         ja, gloss_lang = VERB_GLOSSES[root], 'ja'
+    if root in TRANSITIVE_GLOSSES and voice in ('object', 'locative', 'conveyance'):
+        ja, gloss_lang = TRANSITIVE_GLOSSES[root], 'ja'
     if voice == 'stative':
         voice = 'object' if re.match(r'^(be |get |happen to |be able to )', ja or '') or root in ('kita', 'rinig', 'dinig', 'alam') \
             else 'actor'
@@ -336,6 +352,23 @@ def analyze(word):
                               _=_adj_cngs() if pos == 'adj' else _nominal_cngs()))
     if any(i.get('kind') == 'noun' for i in items):
         items = [i for i in items if not i.get('proper')]  # isda: 名詞「魚」があれば固有名詞「うお座」は除く
+    if not items and '-' in word:
+        # 部分的な重複 (iniisip-isip、pinangarap-ngarap、paikot-ikot): 後ろの繰り返しを除いて引き、「何度も」
+        first, second = word.rsplit('-', 1)
+        if len(second) >= 3 and (first.endswith(second) or first.endswith(second[1:]) or second in first):
+            base, linked = analyze(first)
+            if base and not base[0].get('unknown'):
+                return [dict(base[0], surface=word, base=base[0]['base'] + ' (重複: 繰り返し)', repeated=True)], linked
+    if not items:
+        # 動名詞 pag- / pagka- / pang- (pagpatak「(しずくが) 落ちること」、pag-ikot「回ること」)
+        m = re.match(r'^(pagka|pag|pang|pan|pam)-?(.{3,})$', word)
+        if m and (dictionary.lemmas(m.group(2)) or m.group(2) in VERB_GLOSSES):
+            root = m.group(2)
+            ja, lang = _verb_lemma_gloss(root, 'actor')
+            if lang == 'ja':
+                ja = ja + 'こと'
+            return [_item(word, pos='noun', base='%s (動名詞 %s-)' % (root, m.group(1)), ja=ja, gloss_lang=lang,
+                          gerund=True, _=_nominal_cngs())], False
     if not items:
         # 繋ぎ -ng / -g (magandang → maganda + ng、mabuting → mabuti + ng)
         for stem in ([word[:-2]] if word.endswith('ng') else []) + ([word[:-1]] if word.endswith('g') else []):
@@ -343,9 +376,40 @@ def analyze(word):
                 base, _ = analyze(stem)
                 if base and not base[0].get('unknown'):
                     return base, True
+        # ma- の形容詞の複数 (matataas ← mataas、magagaling ← magaling)
+        if word.startswith('ma') and _redup(word[2:]):
+            adj = 'ma' + _redup(word[2:])
+            base, _ = analyze(adj)
+            if base and base[0]['pos'] == 'adj':
+                return [dict(base[0], surface=word, base=adj + ' (複数)', _=_adj_cngs())], False
         for root, voice, aspect in candidates(word):
+            if voice == 'stative' and root not in VERB_GLOSSES and \
+                    not any(r['pos'] == 'verb' for r in dictionary.lemmas('ma' + root)) and \
+                    not any(r['pos'] in ('verb', 'noun') and r['en'] for r in dictionary.lemmas(root)):
+                continue  # ma- / na- の動詞は、その動詞か語根が辞書にあるときだけ (naturang を動詞にしない)
             if dictionary.lemmas(root) or root in VERB_GLOSSES:
                 items.append(_verb_item(word, root, voice, aspect))
+                break
+    if not items:
+        # 接辞 + ハイフン + 英語などの語根 (mag-operate、na-recover、i-post): 語根を英語の訳語として動詞に
+        m = re.match(r"^(nag|mag|nakapag|makapag|naka|maka|na|ma|i|ipina|ipinag|pinag|pina|in|um|nagpa|magpa)-(.+)$", word)
+        if m:
+            prefix = m.group(1)
+            voice = 'actor' if prefix in ('nag', 'mag', 'nakapag', 'makapag', 'naka', 'maka', 'um', 'nagpa', 'magpa') \
+                else 'conveyance' if prefix.startswith('i') else 'object'
+            aspect = 'completive' if prefix.startswith(('nag', 'naka', 'na', 'in', 'ipina', 'pinag', 'pina', 'um')) \
+                else 'infinitive'
+            items = [_verb_item(word, m.group(2), voice, aspect, en=m.group(2))]
+    if not items:
+        # 辞書に無いが、動詞の接辞の形をしている語 (lansagin、naipatupad) は動詞 (語根の訳語は分からない)
+        for root, voice, aspect in candidates(word):
+            if voice != 'stative' and len(root) >= 3 and re.match(r'^(nag|mag|naka|maka|nakapag|ipina|ipinag|pinag|'
+                                                                  r'ina|naipa|maipa|nai|mai|in|um|[^aeiou](um|in))', word):
+                items = [_item(word, pos='verb', pres1sg=root, lemma=root, root=root, ja=root, gloss_lang='en',
+                               base='%s (%s・%s)' % (root, VOICE_NAMES.get(voice, voice), ASPECT_NAMES.get(aspect, '?')),
+                               voice='active', focus=voice, aspect=aspect, mood='indicative',
+                               tense=ASPECT_TENSES.get(aspect, 'present'), person=None, number=None, main=True,
+                               unknown=True)]
                 break
     if not items:
         items = [_item(word, pos='noun', base=word, ja=word, gloss_lang='en', unknown=True, _=_nominal_cngs())]

@@ -1,0 +1,25 @@
+# タガログ語のサンプル (python3 tools/samples.py --lang=tl で表示する)
+#
+# 自作の文と、文法書でよく使われる型の文。「## 見出し」で節を分ける。焦点 (ang) の名詞は主題「は」にして先頭に置く。
+
+## 行為者焦点 (-um-, mag-): ang = 動作主
+Bumili ang lalaki ng isda.
+Kumakain ako ng kanin.
+Nagsusulat ng liham ang babae sa kaibigan niya.
+
+## 対象焦点 (-in): ang = 対象、ng = 動作主
+Binili ng lalaki ang isda.
+Hindi ko nakita ang aso.
+Ginising ng ingay ang bata.
+
+## 場所焦点 (-an): ang = 場所・受け手
+Binilhan ng lalaki ng isda ang tindahan.
+
+## 所有 (名詞 + ng 名詞句 / ng の代名詞)
+Binili ng lalaki ang libro ng bata.
+Kumain si Maria ng isda sa bahay ng kaibigan niya.
+
+## 動詞の無い文、ay の倒置、関係節 (名詞 + 繋ぎ + 動詞)
+Maganda ang bahay.
+Si Juan ay guro.
+Ang lalaking bumili ng isda ay guro.

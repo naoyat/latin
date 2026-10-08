@@ -36,6 +36,7 @@ $ echo "लड़के ने किताब पढ़ी।" | python3 dragom
 | ウルドゥー語 | `ur` | ヒンディー語の語形に引き当てる | UDTB: 主語 39%・目的語 32% | espeak-ng | [docs/urdu.md](docs/urdu.md) |
 | 古典チベット語 | `bo` | botok で語に分ける、Hill & Garrett の品詞辞書・Wiktionary・蔵英辞書。語順のまま日本語に | Hill & Garrett のコーパス: 語の区切り 87%・格助詞 87% | MMS-TTS / espeak-ng (ラサ方言の音素・声調) | [docs/tibetan.md](docs/tibetan.md) |
 | インドネシア語・マレー語 | `id` / `ms` | 接辞の解析 (meN- の鼻音の交替など) + Wiktionary | UD Indonesian: 主語 59%・目的語 65% | say (Damayanti / Amira) | [docs/indonesian.md](docs/indonesian.md) |
+| タガログ語 | `tl` | 焦点の接辞とアスペクトの解析 + Wiktionary。焦点の名詞を主題「は」に | UD Tagalog: 主語 52%・目的語 35% | espeak-ng (インドネシア語の音声で代用) | [docs/tagalog.md](docs/tagalog.md) |
 | 古文（平安の和文） | `kobun` | MeCab + 中古和文UniDic。品詞分解して現代語に組み立て直す | — | say (Kyoko) | [docs/kobun.md](docs/kobun.md) |
 
 ラテン語以外は作りかけです。日本語の訳語の無い語は、英語の語義（Wiktionary・CAMeL Tools）を英語 → 日本語の表で
@@ -77,7 +78,8 @@ python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sql
 言語を省略すると文字から推定します（ラテン文字 → ラテン語、ギリシア文字 → 古典ギリシア語、キリル文字 → ロシア語、
 ヘブライ文字 → ヘブライ語、アラビア文字はウルドゥー語の字（ٹ ڈ ڑ ں ے ھ）があればウルドゥー語、ペルシア語の字の多さで
 ペルシア語かアラビア語、デーヴァナーガリーはヒンディー語らしい語の有無でヒンディー語かサンスクリット、チベット文字 →
-古典チベット語、インドネシア語らしい語のあるラテン文字はインドネシア語かマレー語、かな交じりの日本語は古文）。
+古典チベット語、インドネシア語らしい語のあるラテン文字はインドネシア語かマレー語、タガログ語らしい語（ang, ng, mga, ay …）
+があればタガログ語、かな交じりの日本語は古文）。
 
 | 共通のオプション | |
 |---|---|
@@ -168,6 +170,7 @@ dragoman/                パッケージ
                            語順のままの日本語訳)
   indonesian/              インドネシア語 (接辞・接語・重複の解析、語順からの格の枠、受動、関係節、見えない繋辞)
   malay/                   マレー語 (解析は indonesian/。マレー語の辞書の項目を先に)
+  tagalog/                 タガログ語 (焦点の接辞・アスペクトの重複の解析、ang / ng / sa と焦点からの格、繋ぎ、関係節)
   kobun/                   古文 (中古和文UniDic による品詞分解、助動詞の連なりからの現代語への組み立て直し、係り結び)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 latin/                   ラテン語のデータ

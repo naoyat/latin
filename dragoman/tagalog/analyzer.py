@@ -63,6 +63,7 @@ TAGALOG = language.Language(
     pronoun_subject=True,
     genitive_follows_head=True,
     objects_follow_verb=True,
+    topic_first=True,
     possessor_cases=(),
 )
 
@@ -71,8 +72,29 @@ COPULA = {'pos': 'verb', 'pres1sg': 'ay', 'lemma': 'ay', 'base': '(繋辞なし)
           'copula': True, 'surface': '(ay)'}
 
 
+# 縮約形 (話し言葉・歌): 書かれた形 → 語の列
+CONTRACTIONS = {"sa'kin": ['sa', 'akin'], "sa'yo": ['sa', 'iyo'], "'pagkat": ['sapagkat'], "pagkat": ['sapagkat'],
+                'nung': ['noong'], "'di": ['hindi'], "'yan": ['iyan'], "'yun": ['iyon'], 'yung': ['iyong'],
+                "'yung": ['iyong'], "'to": ['ito'], 'eto': ['ito']}
+
+
 def tokens(text):
-    return TOKEN.findall(text)
+    """語の列。縮約形を戻す: X'y → X + ay (ngayo'y → ngayon ay)、X't → X + at (ligaya't → ligaya at)、sa'kin → sa akin"""
+    out = []
+    for token in TOKEN.findall(text):
+        low = token.lower()
+        if low in CONTRACTIONS:
+            out += CONTRACTIONS[low]
+            continue
+        m = re.match(r"^(.+[aeiou])'([yt])$", low)
+        if m:
+            host = m.group(1)
+            if not dictionary.lemmas(host) and dictionary.lemmas(host + 'n') or host + 'n' in morphology.PRONOUNS:
+                host += 'n'   # ngayo'y ← ngayon ay
+            out += [token[:len(m.group(1))] if host == m.group(1) else host, 'ay' if m.group(2) == 'y' else 'at']
+            continue
+        out.append(token)
+    return out
 
 
 def sentences(text):
@@ -201,14 +223,18 @@ def mark_phrases(words):
             phrase.append(words[j])
             j += 1
             if phrase and _pos(phrase[-1]) in ('noun', 'pronoun') and not getattr(phrase[-1], 'linker', False) and \
-                    not (j < len(words) and getattr(words[j], 'linked_to', None) is not None):
-                break
+                    not (j < len(words) and getattr(words[j], 'linked_to', None) is not None) and \
+                    not (j < len(words) and _pos(words[j]) == 'noun' and _pos(phrase[-1]) == 'noun'):
+                break  # 名詞が続けば同じ句 (ng farm visits、ang security guard)
         heads = [w for w in phrase if _pos(w) in ('noun', 'pronoun')] or [w for w in phrase if _pos(w) == 'adj']
         if not heads:
             i += 1
             continue
+        personal = word.surface.lower() in ('si', 'ni', 'kay', 'sina', 'nina', 'kina')
         for w in phrase:
             w.marker = kind
+            if personal and _pos(w) == 'noun':
+                _rebuild(w, ja=w.surface, gloss_lang='ja', proper=True)  # si Juan → Juan (人の名前)
             if item.attrib('plural') or any(_pos(p) == 'plural' for p in phrase):
                 for it in w.items:
                     if it._:
@@ -230,25 +256,40 @@ def mark_phrases(words):
     return out
 
 
+NG_SLOTS = {'actor': 1, 'object': 1, 'conveyance': 1, 'locative': 2, 'existential': 1}
+
+
 def mark_possessors(words):
-    """所有: 名詞の後ろの ng の代名詞 (bahay ko「私の家」)、ng / sa の名詞句の中の名詞の後ろの ng 名詞句
-    (sa bahay ng lalaki「男の家で」)、動詞の無い節の名詞の後ろの ng 名詞句 (Maganda ang bahay ng lalaki)。
-    動詞の節の ang 名詞句の後ろの ng 名詞句 (Bumili ang lalaki ng isda) は動詞の補語"""
-    has_verb = any(_pos(w) == 'verb' for w in words)
-    for i, word in enumerate(words):
-        if getattr(word, 'marker', None) != 'ng' or i == 0 or _pos(word) not in ('noun', 'pronoun'):
+    """所有: 名詞の後ろの ng の代名詞 (bahay ko「私の家」) と、名詞の後ろの ng 名詞句のうち、動詞が取る ng の補語の数
+    (行為者・対象焦点は1つ、場所焦点は2つ) を超えたもの (Binili ng lalaki ang libro ng bata「子供の本」)、sa 句の中の
+    名詞の後ろのもの (sa bahay ng lalaki)、動詞の無い節のもの (Maganda ang bahay ng lalaki)"""
+    clause = []
+    for word in words + [None]:
+        if word is None or word.items is None or _pos(word) == 'conj':
+            _mark_clause_possessors(clause)
+            clause = []
+        else:
+            clause.append(word)
+
+
+def _mark_clause_possessors(clause):
+    verb = next((_item(w) for w in clause if _pos(w) == 'verb'), None)
+    slots = NG_SLOTS.get(verb.attrib('focus'), 1) if verb is not None else 0
+    used = 0
+    for i, word in enumerate(clause):
+        if getattr(word, 'marker', None) != 'ng' or _pos(word) not in ('noun', 'pronoun'):
             continue
-        prev = words[i - 1]
-        if _pos(prev) == 'article':
-            continue
-        if _pos(prev) != 'noun' or getattr(prev, 'is_possessor', False):
-            continue
-        pronoun = _pos(word) == 'pronoun' and getattr(word, 'phrase_start', True)
-        nested = getattr(prev, 'marker', None) in ('ng', 'sa')
-        if pronoun or nested or not has_verb:
+        prev = clause[i - 1] if i > 0 else None
+        pronoun = _pos(word) == 'pronoun'
+        after_noun = prev is not None and _pos(prev) == 'noun' and (pronoun or not getattr(prev, 'is_possessor', False))
+        in_sa = after_noun and getattr(prev, 'marker', None) == 'sa'
+        if after_noun and (pronoun or in_sa or used >= slots):
             _rebuild(word, pos='noun', _=[('Gen', 'sg', morphology.GENDER)])
             word.is_possessor = True
             word.marker = 'gen'
+            continue
+        if not getattr(word, 'linked_to', None):
+            used += 1
 
 
 def mark_relatives(words):
@@ -360,18 +401,33 @@ def handle_ay(words):
 
 
 def supply_copula(words):
-    """動詞の無い節: 述語 (形容詞・名詞) + ang 名詞句 (Maganda ang bahay、Guro si Juan) なら、述語の後ろに繋辞を補う"""
-    if any(_pos(w) == 'verb' for w in words):
-        return words
-    content = [w for w in words if w.items is not None and _pos(w) not in ('enclitic', 'adv')]
-    if len(content) >= 2 and getattr(content[0], 'marker', None) is None and _pos(content[0]) in ('adj', 'noun') and \
-            any(getattr(w, 'marker', None) == 'ang' for w in content[1:]):
-        k = words.index(content[0]) + 1
-        copula = Word('(ay)', [dict(COPULA)])
-        copula.token_ix = content[0].token_ix
-        _restrict(content[0], ('Nom',))
-        return words[:k] + [copula] + words[k:]
-    return words
+    """動詞の無い節 (接続詞・句読点で区切る): 標識の無い述語 (形容詞・名詞) の後ろに ang 名詞句があれば、
+    述語の後ろに繋辞を補う (Maganda ang bahay「家は美しい」、Guro si Juan「Juan は先生である」)"""
+    out, clause = [], []
+    for word in words + [None]:
+        if word is None or word.items is None or _pos(word) == 'conj':
+            out += _supply_copula(clause) + ([word] if word is not None else [])
+            clause = []
+        else:
+            clause.append(word)
+    return out
+
+
+def _supply_copula(clause):
+    if not clause or any(_pos(w) == 'verb' for w in clause):
+        return clause
+    for k, w in enumerate(clause):
+        if getattr(w, 'marker', None) is None and _pos(w) in ('adj', 'noun') and not getattr(w, 'linked_to', None) and \
+                any(getattr(x, 'marker', None) == 'ang' for x in clause[k + 1:]):
+            copula = Word('(ay)', [dict(COPULA)])
+            copula.token_ix = w.token_ix
+            _restrict(w, ('Nom',))
+            j = k + 1
+            while j < len(clause) and getattr(clause[j], 'marker', None) is None and \
+                    _pos(clause[j]) in ('adj', 'noun', 'adv') and getattr(clause[j], 'linked_to', None):
+                j += 1
+            return clause[:j] + [copula] + clause[j:]
+    return clause
 
 
 def drop_enclitics(words):

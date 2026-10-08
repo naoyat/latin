@@ -19,7 +19,8 @@
 #                 ウルドゥー語の字 (ٹ ڈ ڑ ں ے ھ) のあるアラビア文字 → ur、ペルシア語の字 (پ چ ژ گ ک ی) の多いもの → fa、
 #                 ほかのアラビア文字 → ar、デーヴァナーガリーはヒンディー語らしい語 (है, का, की, में …) があれば hi、無ければ sa、
 #                 チベット文字 → bo、インドネシア語らしい語 (yang, dan, di, ini, itu …) が2つ以上あるラテン文字 → id
-#                 (マレー語らしい語 kerana, sahaja, bahawa … があれば ms)、かな交じりの日本語 → kobun)
+#                 (マレー語らしい語 kerana, sahaja, bahawa … があれば ms)、タガログ語らしい語 (ang, ng, mga, ay …) → tl、
+#                 かな交じりの日本語 → kobun)
 #   -e, --text=TEXT       引数の文を入力にする (何度でも。ファイル・標準入力の代わりに)
 #   -L, --languages       対応している言語の一覧を出す
 #
@@ -42,6 +43,8 @@ NAMES = {'la': 'ラテン語', 'grc': '古典ギリシア語', 'sa': 'サンス�
 CODE = re.compile('^[a-z]{2,5}$')
 INDONESIAN_WORDS = {'yang', 'dan', 'di', 'ini', 'itu', 'dengan', 'untuk', 'tidak', 'adalah', 'akan', 'dari', 'ke', 'pada',
                     'saya', 'mereka', 'ada', 'sudah', 'juga', 'dalam', 'oleh', 'bahwa', 'bahawa', 'kami', 'kita'}
+TAGALOG_WORDS = {'ang', 'ng', 'mga', 'ay', 'si', 'hindi', 'ako', 'ko', 'siya', 'niya', 'ito', 'kay', 'po', 'naman',
+                 'lang', 'pero', 'ikaw', 'mo', 'nila', 'sila', 'kami', 'tayo'}
 MALAY_WORDS = {'kerana', 'sahaja', 'bahawa', 'wang', 'jepun', 'inggeris', 'kerajaan', 'boleh', 'hendak', 'awak'}
 HINDI_WORDS = {'है', 'हैं', 'का', 'की', 'के', 'में', 'नहीं', 'को', 'से', 'ने', 'था', 'थी', 'और', 'पर', 'भी'}
 
@@ -68,6 +71,8 @@ def detect(text):
         return 'fa' if persian > len(re.findall('[كي]', text)) else 'ar'
     if best == 'la':
         words = set(re.findall('[a-z]+', text.lower()))
+        if len(words & TAGALOG_WORDS) >= 2 and len(words & TAGALOG_WORDS) >= len(words & INDONESIAN_WORDS):
+            return 'tl'  # ラテン文字のタガログ語 (ang, ng, mga, ay …)
         if len(words & INDONESIAN_WORDS) >= 2:
             return 'ms' if words & MALAY_WORDS else 'id'  # ラテン文字のインドネシア語・マレー語
     if best == 'deva':

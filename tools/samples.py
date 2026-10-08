@@ -20,9 +20,10 @@
 #   python3 tools/samples.py --lang=ur       # ウルドゥー語 (samples/urdu.txt)
 #   python3 tools/samples.py --lang=bo       # 古典チベット語 (samples/tibetan.txt)。日本語訳を表示
 #   python3 tools/samples.py --lang=id       # インドネシア語 (samples/indonesian.txt)
+#   python3 tools/samples.py --lang=tl       # タガログ語 (samples/tagalog.txt)
 #   python3 tools/samples.py --lang=kobun    # 古文 (samples/kobun.txt)。現代語訳を表示
 #
-#   --lang=la|grc|sa|ru|he|ar|fa|hi|ur|bo|id|kobun 言語 (既定は la。ラテン語)
+#   --lang=la|grc|sa|ru|he|ar|fa|hi|ur|bo|id|tl|kobun 言語 (既定は la。ラテン語)
 #   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
 #   -r, --romanize      ラテン文字以外の文に転写を添える (-d なら語ごとにも)
 #   -l, --list          節の見出しの一覧を表示する
@@ -48,7 +49,7 @@ LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.tx
               'he': os.path.join(ROOT, 'samples', 'hebrew.txt'), 'ar': os.path.join(ROOT, 'samples', 'arabic.txt'),
               'fa': os.path.join(ROOT, 'samples', 'persian.txt'), 'hi': os.path.join(ROOT, 'samples', 'hindi.txt'),
               'ur': os.path.join(ROOT, 'samples', 'urdu.txt'), 'bo': os.path.join(ROOT, 'samples', 'tibetan.txt'),
-              'id': os.path.join(ROOT, 'samples', 'indonesian.txt'),
+              'id': os.path.join(ROOT, 'samples', 'indonesian.txt'), 'tl': os.path.join(ROOT, 'samples', 'tagalog.txt'),
               'kobun': os.path.join(ROOT, 'samples', 'kobun.txt')}
 
 
@@ -84,6 +85,9 @@ def analyzer_for(lang):
     if lang == 'bo':
         from dragoman.tibetan import analyzer as tibetan_analyzer
         return tibetan_analyzer.analyze_text
+    if lang == 'tl':
+        from dragoman.tagalog import analyzer as tagalog_analyzer
+        return tagalog_analyzer.analyze_text
     if lang in ('id', 'ms'):
         from dragoman.indonesian import analyzer as indonesian_analyzer
         return lambda text: indonesian_analyzer.analyze_text(text, lang=lang)

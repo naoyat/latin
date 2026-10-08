@@ -38,6 +38,7 @@ class Language:
     genitive_follows_head: bool = False  # 属格は前の名詞にだけ掛かり、動詞を越えない (ロシア語の книга брата)
     genitive_precedes_head: bool = False  # 属格は後ろの名詞にだけ掛かる (ヒンディー語の लड़के की किताब「少年の本」)
     objects_follow_verb: bool = False  # 目的語が動詞の後ろに来る語順 (ロシア語)。2つの動詞の間の語を前の動詞に
+    topic_first: bool = False      # 主題 (「は」の句) を訳の先頭に置く (タガログ語の焦点)
     possessor_cases: tuple = ('Dat',)  # 繋辞の文で所有者を表す格 (mihi est liber「私には本がある」。サンスクリットは属格)
 
     def is_copula(self, pres1sg):
