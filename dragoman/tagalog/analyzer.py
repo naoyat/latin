@@ -97,7 +97,7 @@ def tokens(text):
     return out
 
 
-LINE_BREAKS = False  # 改行も文の区切りにする (--lines。歌詞・詩の行。行末がカンマなら次の行に続ける)
+LINE_BREAKS = False  # 改行も文の区切りにする (--sentence-per-line。歌詞・詩の行。行末がカンマなら次の行に続ける)
 
 
 def sentences(text):

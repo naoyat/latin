@@ -93,12 +93,12 @@ def render(analysis, options):
 
 
 OPTION_HELP = '''
-  --lines                改行も文の区切りにする (歌詞・詩など、行末に句点の無い行。行末がカンマなら次の行に続ける)
+  --sentence-per-line                改行も文の区切りにする (歌詞・詩など、行末に句点の無い行。行末がカンマなら次の行に続ける)
 '''
 
 
 def handle_option(option, arg, options):
-    if option == '--lines':
+    if option == '--sentence-per-line':
         analyzer.LINE_BREAKS = True
         return True
     return False
@@ -111,4 +111,4 @@ def available():
 COMMAND = Command(lang='tl', name='タガログ語', analyzer=analyzer, dictionary=dictionary, available=available,
                   usage=USAGE, header=lambda a, o: original(a), speech_text=lambda a, o: original(a), explain=explain, render=render,
                   descendant_langs=('en', 'ja'), speech_lang='tl',
-                  long_options=('lines',), option_help=OPTION_HELP, handle_option=handle_option)
+                  long_options=('sentence-per-line',), option_help=OPTION_HELP, handle_option=handle_option)
