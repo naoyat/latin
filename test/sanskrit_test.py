@@ -159,5 +159,32 @@ class AnalyzerTestCase(unittest.TestCase):
         self.assertEqual(len(a.clauses), 2)
 
 
+
+@unittest.skipUnless(HAVE_DATA, 'vidyut のデータかサンスクリットの辞書 (tools/build_sanskrit_dic.py) が無い')
+class BuddhistTestCase(unittest.TestCase):
+    def tearDown(self):
+        from dragoman.sanskrit import buddhist
+        buddhist.set_forced(None)
+        buddhist.set_active(False)
+
+    def glosses(self, text):
+        return [w.items[0].ja for w in analyzer.lookup_all(analyzer.tokens(text)) if w.items]
+
+    def test_auto_detection(self):
+        from dragoman.sanskrit import buddhist
+        buddhist.detect('इह शारिपुत्र रूपं शून्यता')                  # śāriputra があれば仏典の語彙
+        self.assertEqual([self.glosses(w)[0] for w in ('रूपं', 'वेदना', 'संज्ञा')], ['色', '受', '想'])
+        buddhist.detect('देवाः सुरां पिबन्ति ।')                       # 無ければ一般の訳語
+        self.assertNotEqual(self.glosses('देवाः')[0], '天')
+
+    def test_terms_and_verbs(self):
+        from dragoman.sanskrit import buddhist
+        buddhist.set_forced(True)
+        buddhist.detect('')
+        self.assertEqual(self.glosses('बोधिसत्त्वः प्रज्ञापारमितायां'), ['菩薩', '般若波羅蜜多'])
+        self.assertEqual(self.glosses('व्यवलोकयति'), ['観察する'])         # 接頭辞つきの語根
+        self.assertEqual(self.glosses('अमला'), ['不垢の'])                 # 形容詞の女性形
+
+
 if __name__ == '__main__':
     unittest.main()

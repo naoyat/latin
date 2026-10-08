@@ -6,7 +6,7 @@
 import sys
 
 from dragoman.core.cli import Command
-from . import analyzer, compound, dictionary, morphology, script
+from . import analyzer, buddhist, compound, dictionary, morphology, script
 
 USAGE = '''
   echo "रामो वनं गच्छति ।" | python3 dragoman.py --lang=sa
@@ -15,6 +15,8 @@ USAGE = '''
 OPTION_HELP = '''
   --compound-labels=STYLE  複合語の種類の名前: sa (tatpuruṣa など。既定) / ja (依主釈など) / en (determinative など)
   -v, --voice=VOICE        音読の MBROLA の音声 (in1 / in2)
+  --buddhist / --no-buddhist  仏典の語彙 (漢訳語: rūpa → 色、prajñā → 般若) を使う / 使わない
+                           (既定は文章に bodhisattva, śāriputra, prajñāpāramitā などがあれば使う)
 '''
 
 
@@ -28,6 +30,9 @@ def handle_option(option, arg, options):
         if arg not in compound.LABEL_STYLES:
             sys.exit('--compound-labels: %s のどれか' % '|'.join(compound.LABEL_STYLES))
         compound.set_label_style(arg)
+        return True
+    if option in ('--buddhist', '--no-buddhist'):
+        buddhist.set_forced(option == '--buddhist')
         return True
     if option in ('-v', '--voice'):
         options.speech, options.voice = True, arg
@@ -43,5 +48,5 @@ def available():
 
 COMMAND = Command(lang='sa', name='サンスクリット', analyzer=analyzer, dictionary=dictionary, available=available,
                   usage=USAGE, header=header, descendant_langs=('pi', 'hi', 'en', 'ja'), fallback_langs=('bn', 'mr'),
-                  short_options='v:', long_options=('compound-labels=', 'voice='), option_help=OPTION_HELP,
+                  short_options='v:', long_options=('compound-labels=', 'voice=', 'buddhist', 'no-buddhist'), option_help=OPTION_HELP,
                   handle_option=handle_option)

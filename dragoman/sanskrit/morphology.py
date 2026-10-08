@@ -50,6 +50,8 @@ INDECLINABLES = {
     'sadA': ('adv', 'いつも'), 'tatas': ('adv', 'それから'), 'yatas': ('conj', '〜だから'), 'evam': ('adv', 'このように'),
     'kim': ('adv', '〜か (疑問)'), 'kTam': ('adv', 'どのように'), 'katham': ('adv', 'どのように'), 'kva': ('adv', 'どこに'),
     'he': ('adv', 'おお'), 'Bos': ('adv', 'おお'), 'Bo': ('adv', 'おお'),
+    'tasmAt': ('adv', 'それゆえ'), 'pfTak': ('adv', '別に'), 'tadyaTA': ('adv', 'すなわち'), 'sArDam': ('adv', '〜とともに'),
+    'yAvat': ('adv', '〜まで'), 'Kalu': ('adv', '実に'), 'evameva': ('adv', 'まさにこのように'),
     'sma': ('adv', '(過去を表す)'), 'vE': ('adv', '実に'), 'u': ('adv', 'そして,また'), 'ha': ('adv', '実に'),
 }
 COMMON_KRT_RANK = 1
@@ -243,7 +245,9 @@ def analyze(slp1):
         if '_' in item:
             item['_'].sort(key=lambda cng: (cng[0] == 'Voc', cng[1] == 'du'))
     # 代名詞の読みを先に (saḥ「彼」と sas「アナペスト」)。bhavat「あなた」の処格 bhavati は動詞 bhavati「なる」の後
-    return sorted(merged.values(), key=lambda item: item['pos'] != 'pronoun' or item['base'] == 'bhavat')
+    from . import buddhist
+    return buddhist.patch_verbs(sorted(merged.values(),
+                                       key=lambda item: item['pos'] != 'pronoun' or item['base'] == 'bhavat'))
 
 
 # ----------------------------------------------------------------------

@@ -76,3 +76,17 @@ python3 dragoman.py --lang=sa -s samples/sanskrit.txt                           
   同じ位置の鼻音（vanaṃ gacchati → vanaŋ）にします。古典期の文には元の高低アクセントが書かれないので、
   現代のインドの読み方に近い「重い次末音節、無ければその前の重い音節」に軽い強勢（高さ）を置きます。
 * in1 には子音どうしのダイフォンがほとんど無いので、子音の間に短い無音を挟みます（音声の README の書き方 k a c _ r aa に従う）。
+
+## 仏典の語彙
+
+Wiktionary の訳語は一般の意味なので（śāri「チェスの駒」、śruta「筒抜け」）、仏典によく出る語は漢訳語を先に使います
+（`dragoman/sanskrit/buddhist.py`）。文章に bodhisattva・śāriputra・prajñāpāramitā・tathāgata などがあれば自動で使い
+（`--buddhist` / `--no-buddhist` で指定）、一般のテキスト（devāḥ → 神）には効きません。
+
+* 術語: 菩薩・世尊・如来・舎利子・観自在、般若波羅蜜多・空性・自性、五蘊（色・受・想・行・識）、眼・耳・鼻・舌・身・意、
+  界、無明・老死、苦・集・滅・道、智・得、罣礙・顛倒・涅槃、阿耨多羅三藐三菩提、大明呪・無上呪・無等等呪、菩提・薩婆訶 …
+  複合語の要素にも効く（prajñāpāramitāyām → 般若波羅蜜多、vedanāsaṃjñāsaṃskāravijñānāni → 受の想の行の識）。
+* 動詞は接頭辞つきの語根で（vyavalokayati → 観察する、viharati → 住する、abhinandan → 歓喜する）。
+* 般若心経（`samples/heart-sutra.sa.txt`）: evaṃ mayā śrutam → このように / 私 / 聞いた、na rūpaṃ na vedanā … → 色・受・想・行・識
+  が無い、など。連声で語がつながった箇所（tasmācchāriputra、pṛthakśūnyatā、cakṣuḥśrotra…）はまだ分け損なう。
+
