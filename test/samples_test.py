@@ -58,6 +58,8 @@ class SamplesTestCase(unittest.TestCase):
         langs.append(('hi', hindi_dictionary.available()))
         from dragoman.urdu import dictionary as urdu_dictionary
         langs.append(('ur', urdu_dictionary.available()))
+        from dragoman.kobun import mecab as kobun_mecab
+        langs.append(('kobun', kobun_mecab.available()))
         for lang, available in langs:
             sections = samples.read_sections(samples.LANG_FILES[lang])
             self.assertTrue(all(title and sentences for title, sentences in sections), lang)

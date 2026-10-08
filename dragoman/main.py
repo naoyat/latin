@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # dragoman: 文を辞書引き・構文解析して、日本語の逐語訳を付ける (ラテン語・古典ギリシア語・サンスクリット・ロシア語・
-# 聖書ヘブライ語 (聖書アラム語)・アラビア語・ペルシア語・ヒンディー語・ウルドゥー語)
+# 聖書ヘブライ語 (聖書アラム語)・アラビア語・ペルシア語・ヒンディー語・ウルドゥー語、古文 (現代語に組み立て直す))
 #
 #   ./dragoman.py [LANG] [オプション] [ファイル...]     (python3 dragoman.py / python3 -m dragoman でも)
 #
@@ -17,7 +17,8 @@
 #                 推定した言語を標準エラー出力に出す
 #                 (ラテン文字 → la、ギリシア文字 → grc、キリル文字 → ru、ヘブライ文字 → he、
 #                 ウルドゥー語の字 (ٹ ڈ ڑ ں ے ھ) のあるアラビア文字 → ur、ペルシア語の字 (پ چ ژ گ ک ی) の多いもの → fa、
-#                 ほかのアラビア文字 → ar、デーヴァナーガリーはヒンディー語らしい語 (है, का, की, में …) があれば hi、無ければ sa)
+#                 ほかのアラビア文字 → ar、デーヴァナーガリーはヒンディー語らしい語 (है, का, की, में …) があれば hi、無ければ sa、
+#                 かな交じりの日本語 → kobun)
 #   -e, --text=TEXT       引数の文を入力にする (何度でも。ファイル・標準入力の代わりに)
 #   -L, --languages       対応している言語の一覧を出す
 #
@@ -32,11 +33,11 @@ import sys
 import tempfile
 
 LANGUAGES = {'la': 'latin', 'grc': 'greek', 'sa': 'sanskrit', 'ru': 'russian', 'he': 'hebrew', 'ar': 'arabic',
-             'fa': 'persian', 'hi': 'hindi', 'ur': 'urdu'}
+             'fa': 'persian', 'hi': 'hindi', 'ur': 'urdu', 'kobun': 'kobun'}
 NAMES = {'la': 'ラテン語', 'grc': '古典ギリシア語', 'sa': 'サンスクリット', 'ru': 'ロシア語',
          'he': '聖書ヘブライ語 (聖書アラム語も)', 'ar': 'アラビア語 (現代標準アラビア語)', 'fa': 'ペルシア語',
-         'hi': 'ヒンディー語', 'ur': 'ウルドゥー語'}
-CODE = re.compile('^[a-z]{2,4}$')
+         'hi': 'ヒンディー語', 'ur': 'ウルドゥー語', 'kobun': '古文 (平安の和文。現代語に組み立て直す)'}
+CODE = re.compile('^[a-z]{2,5}$')
 HINDI_WORDS = {'है', 'हैं', 'का', 'की', 'के', 'में', 'नहीं', 'को', 'से', 'ने', 'था', 'थी', 'और', 'पर', 'भी'}
 
 
@@ -49,6 +50,7 @@ def detect(text):
         'arabic-script': len(re.findall('[؀-ۿ]', text)),
         'deva': len(re.findall('[ऀ-ॿ]', text)),
         'la': len(re.findall('[A-Za-zāēīōūȳĀĒĪŌŪ]', text)),
+        'kobun': len(re.findall('[\u3040-\u30ff]', text)) * 2,  # かな (日本語の文は古文として)
     }
     best = max(counts, key=counts.get)
     if counts[best] == 0:

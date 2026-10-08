@@ -78,7 +78,7 @@ class DragomanCommandTestCase(unittest.TestCase):
     def test_language_list(self):
         result = subprocess.run([sys.executable, 'dragoman.py', '--languages'], cwd=ROOT, capture_output=True,
                                 text=True)
-        for code in ('la', 'grc', 'sa', 'ru', 'he', 'ar', 'fa', 'hi', 'ur'):
+        for code in ('la', 'grc', 'sa', 'ru', 'he', 'ar', 'fa', 'hi', 'ur', 'kobun'):
             self.assertIn('  %s ' % code, result.stdout)
 
     def test_detect(self):
@@ -86,7 +86,8 @@ class DragomanCommandTestCase(unittest.TestCase):
         from dragoman.main import detect
         cases = {'Gallia est omnis dīvīsa.': 'la', 'ἐν ἀρχῇ ἦν ὁ λόγος.': 'grc', 'Мальчик читает книгу.': 'ru',
                  'בְּרֵאשִׁית בָּרָא אֱלֹהִים': 'he', 'ذهب الولد إلى المدرسة.': 'ar', 'من به مدرسه می‌روم.': 'fa',
-                 'लड़के ने किताब पढ़ी।': 'hi', 'रामो वनं गच्छति ।': 'sa', 'لڑکے نے کتاب پڑھی۔': 'ur'}
+                 'लड़के ने किताब पढ़ी।': 'hi', 'रामो वनं गच्छति ।': 'sa', 'لڑکے نے کتاب پڑھی۔': 'ur',
+                 '今は昔、竹取の翁といふものありけり。': 'kobun'}
         for text, lang in cases.items():
             self.assertEqual(detect(text), lang, text)
 

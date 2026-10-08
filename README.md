@@ -1,6 +1,6 @@
 # dragoman
 
-古典語・現代語の文を辞書引き・構文解析して、日本語の逐語訳を付けるプログラムです。語ごとの辞書引きと文法の解説、
+古典語・現代語の文を辞書引き・構文解析して、日本語の逐語訳を付けるプログラムです（日本語の古文は現代語に組み立て直します）。語ごとの辞書引きと文法の解説、
 並列・係り先・前置詞句・格の枠の解析、日本語の動詞の活用を含む逐語訳、音読ができます。
 もとはラテン語の読解のための「latin」で、解析の骨組みを言語に依存しない形（`core/`）にして、ほかの言語へ広げています。
 
@@ -34,6 +34,7 @@ $ echo "लड़के ने किताब पढ़ी।" | python3 dragom
 | ペルシア語 | `fa` | 自前の規則 + Wiktionary | PerDT: 主語 55%・目的語 43% | espeak-ng | [docs/persian.md](docs/persian.md) |
 | ヒンディー語 | `hi` | Wiktionary の変化表 | HDTB: 主語 53%・目的語 30% | say (Lekha) | [docs/hindi.md](docs/hindi.md) |
 | ウルドゥー語 | `ur` | ヒンディー語の語形に引き当てる | UDTB: 主語 39%・目的語 32% | espeak-ng | [docs/urdu.md](docs/urdu.md) |
+| 古文（平安の和文） | `kobun` | MeCab + 中古和文UniDic。品詞分解して現代語に組み立て直す | — | say (Kyoko) | [docs/kobun.md](docs/kobun.md) |
 
 ラテン語以外は作りかけです。日本語の訳語の無い語は、英語の語義（Wiktionary・CAMeL Tools）を英語 → 日本語の表で
 置き換えます（下の「訳語」）。それでも訳せない語は英語のまま出ます。
@@ -73,7 +74,8 @@ python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sql
 `auto` は省略したときと同じく文字から推定します（推定した言語は標準エラー出力に「推定した言語: ru (ロシア語)」と出す）。
 言語を省略すると文字から推定します（ラテン文字 → ラテン語、ギリシア文字 → 古典ギリシア語、キリル文字 → ロシア語、
 ヘブライ文字 → ヘブライ語、アラビア文字はウルドゥー語の字（ٹ ڈ ڑ ں ے ھ）があればウルドゥー語、ペルシア語の字の多さで
-ペルシア語かアラビア語、デーヴァナーガリーはヒンディー語らしい語の有無でヒンディー語かサンスクリット）。
+ペルシア語かアラビア語、デーヴァナーガリーはヒンディー語らしい語の有無でヒンディー語かサンスクリット、かな交じりの
+日本語は古文）。
 
 | 共通のオプション | |
 |---|---|
@@ -160,6 +162,7 @@ dragoman/                パッケージ
                            را、複数語の動詞)
   hindi/                   ヒンディー語 (Wiktionary の変化表による語形の辞書、schwa の脱落を含む転写、動詞の並び、後置詞と能格)
   urdu/                    ウルドゥー語 (ウルドゥー文字の語をヒンディー語の語形に引き当てる綴りの骨組み。解析は hindi/)
+  kobun/                   古文 (中古和文UniDic による品詞分解、助動詞の連なりからの現代語への組み立て直し、係り結び)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 latin/                   ラテン語のデータ
   words/                 手作りの辞書 (*.def)
@@ -192,4 +195,4 @@ http://github.com/naoyat | http://twitter.com/naoya_t | http://naoyat.hatenablog
 Wiktionary（CC BY-SA）、Latin Macronizer（GPL-3.0）、RFTagger（教育・研究・評価目的なら無償）、
 MBROLA（AGPL-3.0）と la1 音声（MBROLA でのみ使用可・販売不可）、Piper の音声（モデルごと）、
 Vidyut（MIT）、Morpheus（Perseus）、JMdict（EDRDG、CC BY-SA 4.0）、OSHB（本文はパブリックドメイン、解析は CC BY 4.0）、
-CAMeL Tools の形態素辞書・曖昧性解消のモデル（GPL v2）、Universal Dependencies の各ツリーバンク（評価用。ツリーバンクごと）。
+CAMeL Tools の形態素辞書・曖昧性解消のモデル（GPL v2）、中古和文UniDic（国立国語研究所、CC BY-NC-SA 4.0）、Universal Dependencies の各ツリーバンク（評価用。ツリーバンクごと）。

@@ -44,10 +44,10 @@ BACKENDS = {
     'say':    {'command': 'say', 'voice': None},
 }
 # macOS の say の言語ごとの音声 (現代語の読み方になる)
-SAY_VOICES = {'ru': 'Milena', 'sa': 'Lekha', 'grc': 'Melina', 'he': 'Carmit', 'ar': 'Majed', 'hi': 'Lekha'}
+SAY_VOICES = {'ru': 'Milena', 'sa': 'Lekha', 'grc': 'Melina', 'he': 'Carmit', 'ar': 'Majed', 'hi': 'Lekha', 'ja': 'Kyoko'}
 # 方式を指定しないときに試す順 (言語ごと。無ければ DEFAULT_BACKEND → FALLBACK_BACKEND)
 LANGUAGE_BACKENDS = {'ru': ('say', 'espeak'), 'he': ('say', 'espeak'), 'ar': ('say', 'espeak'), 'fa': ('espeak',),
-                     'hi': ('say', 'espeak'), 'ur': ('espeak',)}
+                     'hi': ('say', 'espeak'), 'ur': ('espeak',), 'ja': ('say',)}
 DEFAULT_BACKEND = 'mbrola'
 FALLBACK_BACKEND = 'espeak'
 ESPEAK_SPEED = 140  # words per minute (espeak-ng の既定は175)

@@ -63,6 +63,7 @@ class Command:
     option_help: str = ''           # 固有のオプションの説明 (説明の表示に添える)
     handle_option: object = None    # (option, arg, options) → 処理したら True。'exit' で終了
     texts_hook: object = None       # (options) → 解析の前に行うこと (表の表示など)。True を返したら終わる
+    render: object = None           # (analysis, options) → 解析結果の表示 (既定は core.render。古文は品詞分解と現代語訳)
 
 
 def help_text(command):
@@ -158,8 +159,11 @@ def run(command, argv=None, texts=None):
             if speech:
                 speech.say_latin(command.speech_text(analysis, options) if command.speech_text
                                  else ' '.join(analysis.surfaces))
-            render.render_analysis(analysis, show_word_detail=options.show_word_detail, word_notes=notes,
-                                   romanize=command.romanize if options.romanize else None)
+            if command.render:
+                command.render(analysis, options)
+            else:
+                render.render_analysis(analysis, show_word_detail=options.show_word_detail, word_notes=notes,
+                                       romanize=command.romanize if options.romanize else None)
             if speech:
                 speech.pause_while_speaking()
 
