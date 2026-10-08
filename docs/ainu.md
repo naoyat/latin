@@ -31,6 +31,18 @@
   名詞の所属形の表（[ainu-morphology-data](https://github.com/aynumosir/ainu-morphology-data)。出典が既存の辞典なので
   手元だけで使う）。引けない語（人名・繰り返し句）は訳の中でカタカナにする。
 
+## サンプルと音読
+
+```
+python3 tools/samples.py --lang=ain        # 節の行をつなげて1つの文章として読む (神謡集は行が文の途中で切れる)
+./dragoman.py ain -s samples/ainu.txt      # 音読
+./dragoman.py ain -s -t say samples/ainu.txt
+```
+
+アイヌ語の音声は無いので、既定は espeak-ng のインドネシア語の音声に音素で渡す（母音 a e i o u、c → [tʃ]、r → はじき音。
+綴りで渡すと e を [ə] と読むことがあるため。`dragoman/ainu/phonology.py`）。`-t say` なら macOS の日本語の音声 Kyoko に
+カタカナで読ませる（小書きのㇰ・ㇱなどは普通のカナに。音節末の子音に母音が付く）。
+
 ## 準備
 
 ```

@@ -21,9 +21,10 @@
 #   python3 tools/samples.py --lang=bo       # 古典チベット語 (samples/tibetan.txt)。日本語訳を表示
 #   python3 tools/samples.py --lang=id       # インドネシア語 (samples/indonesian.txt)
 #   python3 tools/samples.py --lang=tl       # タガログ語 (samples/tagalog.txt)
+#   python3 tools/samples.py --lang=ain      # アイヌ語 (samples/ainu.txt。『アイヌ神謡集』第1話の冒頭)
 #   python3 tools/samples.py --lang=kobun    # 古文 (samples/kobun.txt)。現代語訳を表示
 #
-#   --lang=la|grc|sa|ru|he|ar|fa|hi|ur|bo|id|tl|kobun 言語 (既定は la。ラテン語)
+#   --lang=la|grc|sa|ru|he|ar|fa|hi|ur|bo|id|tl|ain|kobun 言語 (既定は la。ラテン語)
 #   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
 #   -r, --romanize      ラテン文字以外の文に転写を添える (-d なら語ごとにも)
 #   -l, --list          節の見出しの一覧を表示する
@@ -50,6 +51,7 @@ LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.tx
               'fa': os.path.join(ROOT, 'samples', 'persian.txt'), 'hi': os.path.join(ROOT, 'samples', 'hindi.txt'),
               'ur': os.path.join(ROOT, 'samples', 'urdu.txt'), 'bo': os.path.join(ROOT, 'samples', 'tibetan.txt'),
               'id': os.path.join(ROOT, 'samples', 'indonesian.txt'), 'tl': os.path.join(ROOT, 'samples', 'tagalog.txt'),
+              'ain': os.path.join(ROOT, 'samples', 'ainu.txt'),
               'kobun': os.path.join(ROOT, 'samples', 'kobun.txt')}
 
 
@@ -88,6 +90,9 @@ def analyzer_for(lang):
     if lang == 'tl':
         from dragoman.tagalog import analyzer as tagalog_analyzer
         return tagalog_analyzer.analyze_text
+    if lang == 'ain':
+        from dragoman.ainu import analyzer as ainu_analyzer
+        return ainu_analyzer.analyze_text
     if lang in ('id', 'ms'):
         from dragoman.indonesian import analyzer as indonesian_analyzer
         return lambda text: indonesian_analyzer.analyze_text(text, lang=lang)
@@ -191,6 +196,14 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
                     else:
                         kobun_command.render(analysis, Options(show_word_detail=(mode == 'detail')))
                     continue
+                if lang == 'ain':
+                    from dragoman.core.cli import Options
+                    from dragoman.ainu import command as ainu_command
+                    if mode == 'brief':
+                        print('  → ', analysis.japanese)
+                    else:
+                        ainu_command.render(analysis, Options(show_word_detail=(mode == 'detail')))
+                    continue
                 if lang == 'bo':
                     from dragoman.core.cli import Options
                     from dragoman.tibetan import command as tibetan_command
@@ -261,6 +274,9 @@ def main():
             return
 
     sections = read_sections(path or LANG_FILES[lang])
+    if lang == 'ain':
+        # アイヌ語 (神謡集) は行が文の途中で切れるので、節の行をつなげて1つの文章として読む
+        sections = [(title, [' '.join(lines)]) for title, lines in sections]
     if list_only:
         for title, sentences in sections:
             print('%s (%d)' % (title, len(sentences)))

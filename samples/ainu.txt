@@ -4,6 +4,7 @@
 # 本文は青空文庫 (https://www.aozora.gr.jp/cards/001529/card44909.html。底本: 岩波文庫) から。表記は知里幸惠のローマ字のまま
 # (sh, ch, kamui …。解析では現代の表記に寄せて読む)。行は文の途中で切れるので、句点までを1文として読む。
 
+## 梟の神の自ら歌った謡「銀の滴降る降るまわりに」(冒頭)
 “Shirokanipe ranran pishkan,  konkanipe
 ranran pishkan.” arian rekpo  chiki kane
 petesoro  sapash aine,  ainukotan  enkashike

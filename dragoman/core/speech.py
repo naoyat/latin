@@ -52,11 +52,12 @@ MMS_SPEAKING_RATE = 0.9   # 1より小さいとゆっくり
 MMS_SENTENCE_PAUSE = 0.4  # 秒 (区切り記号 ། ごと)
 # macOS の say の言語ごとの音声 (現代語の読み方になる)
 SAY_VOICES = {'ru': 'Milena', 'sa': 'Lekha', 'grc': 'Melina', 'he': 'Carmit', 'ar': 'Majed', 'hi': 'Lekha', 'ja': 'Kyoko',
-              'id': 'Damayanti', 'ms': 'Amira'}
+              'id': 'Damayanti', 'ms': 'Amira', 'ain': 'Kyoko'}
 # 方式を指定しないときに試す順 (言語ごと。無ければ DEFAULT_BACKEND → FALLBACK_BACKEND)
 LANGUAGE_BACKENDS = {'ru': ('say', 'espeak'), 'he': ('say', 'espeak'), 'ar': ('say', 'espeak'), 'fa': ('espeak',),
                      'hi': ('say', 'espeak'), 'ur': ('espeak',), 'ja': ('say',), 'bo': ('mms', 'espeak'),
-                     'id': ('say', 'espeak'), 'ms': ('say', 'espeak'), 'tl': ('espeak',)}
+                     'id': ('say', 'espeak'), 'ms': ('say', 'espeak'), 'tl': ('espeak',),
+                     'ain': ('espeak', 'say')}
 DEFAULT_BACKEND = 'mbrola'
 FALLBACK_BACKEND = 'espeak'
 ESPEAK_SPEED = 140  # words per minute (espeak-ng の既定は175)
@@ -69,7 +70,7 @@ divine_name = 'adonai'   # ヘブライ語の神の名の読み方 (adonai / has
 pronunciation = 'attic'  # ギリシア語の発音の流儀 (attic / koine / erasmian)
 ESPEAK_VOICES = {'la': 'la', 'grc': 'grc', 'sa': 'hi', 'ru': 'ru', 'he': 'he', 'ar': 'ar', 'fa': 'fa', 'hi': 'hi', 'ur': 'ur',
                  'bo': 'cmn', 'id': 'id', 'ms': 'ms',
-                 'tl': 'id'}  # タガログ語の音声が無いので、綴りと発音の近いインドネシア語の音声で  # チベット語は普通話の音声に音素 ([[...]]。tibetan/phonology.py) で渡す
+                 'tl': 'id', 'ain': 'id'}  # タガログ語の音声が無いので、綴りと発音の近いインドネシア語の音声で  # チベット語は普通話の音声に音素 ([[...]]。tibetan/phonology.py) で渡す
 # サンスクリットを読む MBROLA のヒンディー語音声 (in1 男声 / in2 女声)
 SANSKRIT_VOICE = os.path.join(MBROLA_HOME, 'voices', 'in1', 'in1')
 # 現代ギリシア語式 (--pron=modern) で読む MBROLA の現代ギリシア語音声 (gr1 / gr2)
@@ -217,6 +218,10 @@ def _plain_text(text):
         from dragoman.hebrew import script
         # 朗唱記号は除く (母音記号は残す)。神の名 יְהוָה は伝統どおり アドナイ (エロヒム) と読み替える
         return script.qere(script.pointed(text), divine_name)
+    if language == 'ain':
+        from dragoman.ainu import phonology
+        # アイヌ語の音声は無い: espeak-ng はインドネシア語の音声に音素で、say は日本語の音声にカタカナで
+        return phonology.espeak_phonemes(text) if backend == 'espeak' else phonology.kana_for_speech(text)
     if language == 'bo' and not text.startswith('[['):
         from dragoman.tibetan import phonology
         return phonology.espeak_phonemes(text, pron=pronunciation if pronunciation in ('lhasa', 'chant') else 'lhasa')

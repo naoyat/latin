@@ -12,6 +12,7 @@ USAGE = '''
   アイヌ語 (北海道方言。ローマ字) の語を人称の接辞 (ku= / e= / ci= / a= / en= / un= …) と語幹に分け、後置詞・助詞から
   語順のまま日本語に訳す。知里幸惠『アイヌ神謡集』の古いローマ字表記 (sh, ch, kamui) も現代の表記に寄せて読む。
   語彙は手作りの表 (dragoman/ainu/grammar.py) と Wiktionary。詳しくは docs/ainu.md
+  音読 (-s) はアイヌ語の音声が無いので、espeak-ng のインドネシア語の音声に音素で (-t say なら日本語の音声 Kyoko にカタカナで)
 '''
 
 KINDS = {'noun': '名詞', 'pron': '代名詞', 'verb': '動詞', 'adj': '形容詞', 'attr': '形容詞 (修飾)', 'adv': '副詞',
@@ -55,4 +56,4 @@ def available():
 
 
 COMMAND = Command(lang='ain', name='アイヌ語', analyzer=analyzer, dictionary=None, available=available,
-                  usage=USAGE, header=header, render=render)
+                  usage=USAGE, header=header, render=render, speech_lang='ain', speech_text=lambda a, o: a.text)
