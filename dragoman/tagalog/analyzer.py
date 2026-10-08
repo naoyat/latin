@@ -98,10 +98,15 @@ def tokens(text):
 
 
 def sentences(text):
+    """文に分ける: 句点・疑問符と、改行 (歌詞・詩の行は意味のまとまり)。行末がカンマなら次の行に続ける"""
     current = []
-    for token in tokens(text):
-        current.append(token)
-        if PUNCTUATION.get(token) in ('period', 'question'):
+    for line in text.splitlines():
+        for token in tokens(line):
+            current.append(token)
+            if PUNCTUATION.get(token) in ('period', 'question'):
+                yield current
+                current = []
+        if current and current[-1] not in (',', ';', ':'):
             yield current
             current = []
     if current:
@@ -163,6 +168,7 @@ def _words(surfaces):
         first = not [w for w in out if w.items is not None]
         items = _choose(items, prev, first)
         word = Word(token, [dict(items[0], surface=token)])
+        word.original_item = dict(items[0], surface=token)  # 表示用 (関係節を組み込む前の訳語)
         word.alternatives = items[1:]
         word.token_ix = ix
         word.linker = linker
@@ -183,6 +189,7 @@ def mark_linkers(words):
         if item is not None and word.surface.lower() == 'na' and prev is not None and _pos(prev) in ('noun', 'adj', 'pronoun') \
                 and nxt is not None and _pos(nxt) in ('noun', 'adj', 'verb'):
             prev.linker = True  # 単独の繋ぎ na (bahay na maganda)
+            word.is_linker = True
             continue
         out.append(word)
     for i, word in enumerate(out[:-1]):
@@ -216,6 +223,7 @@ def mark_phrases(words):
             i += 1
             continue
         kind = item.attrib('marker')
+        word.marker_role = kind
         j = i + 1
         phrase = []
         while j < len(words) and _pos(words[j]) in ('noun', 'adj', 'plural', 'pronoun') and \
@@ -250,6 +258,7 @@ def mark_phrases(words):
         else:
             article = Word(word.surface, [dict(item.item, pos='article')])
             article.token_ix = word.token_ix
+            article.original_marker = word
             head.add_modifier(article)
         out += [w for w in phrase if _pos(w) != 'plural']
         i = j
@@ -338,6 +347,12 @@ def mark_relatives(words):
             j += 1
         hitem = _item(head)
         hja = (hitem.ja or '').split(',')[0]
+        for w in words[i:j]:
+            w.relative_of = head
+            for m in w.modifiers:
+                m.relative_of = head
+                if getattr(m, 'original_marker', None) is not None:
+                    m.original_marker.relative_of = head
         span = ' '.join(' '.join([m.surface for m in w.modifiers if isinstance(m, Word) and m.items and
                                   m.items[0].pos == 'article'] + [w.surface]) for w in words[i:j] if w.items)
         head.items = [type(hitem)(dict(hitem.item, ja=''.join(parts) + verb + hja, gloss_lang='ja', relative=span))]
@@ -418,8 +433,14 @@ def _supply_copula(clause):
     if not clause or any(_pos(w) == 'verb' for w in clause):
         return clause
     for k, w in enumerate(clause):
-        if getattr(w, 'marker', None) is None and _pos(w) in ('adj', 'noun') and not getattr(w, 'linked_to', None) and \
-                any(getattr(x, 'marker', None) == 'ang' for x in clause[k + 1:]):
+        # 代名詞の述語 (Ikaw ang …「〜はあなたである」): ang の形の代名詞のすぐ後ろに ang 名詞句
+        predicate_pronoun = _pos(w) == 'pronoun' and k == 0 and \
+            any(getattr(x, 'marker', None) == 'ang' and x is not w for x in clause[k + 1:])
+        if predicate_pronoun:
+            w.marker = None
+            w.predicate = True
+        if getattr(w, 'marker', None) is None and _pos(w) in ('adj', 'noun', 'pronoun') and \
+                not getattr(w, 'linked_to', None) and any(getattr(x, 'marker', None) == 'ang' for x in clause[k + 1:]):
             copula = Word('(ay)', [dict(COPULA)])
             copula.token_ix = w.token_ix
             _restrict(w, ('Nom',))
@@ -446,6 +467,8 @@ def drop_enclitics(words):
 
 def lookup_all(surfaces):
     words = _words(surfaces)
+    global _display
+    _display = [w for w in words]
     words = mark_linkers(words)
     words = mark_phrases(words)
     mark_possessors(words)
@@ -465,7 +488,11 @@ def analyze_sentence(surfaces):
     with language.using(TAGALOG):
         analysis = common.analyze_words([w.surface for w in words], words, word_details, [])
     analysis.original = list(surfaces)  # 見出しの行・音読は元の文 (標識・関係節の語はまとめた後の語の列に無い)
+    analysis.display = _display        # 語ごとの表は元の語 (標識・関係節の語を含む)
     return analysis
+
+
+_display = []
 
 
 def analyze_text(text):

@@ -68,10 +68,15 @@ def tokens(text):
 
 
 def sentences(text):
+    """文に分ける: 句点・疑問符と、改行 (歌詞・詩の行は意味のまとまり)。行末がカンマなら次の行に続ける"""
     current = []
-    for token in tokens(text):
-        current.append(token)
-        if PUNCTUATION.get(token) in ('period', 'question'):
+    for line in text.splitlines():
+        for token in tokens(line):
+            current.append(token)
+            if PUNCTUATION.get(token) in ('period', 'question'):
+                yield current
+                current = []
+        if current and current[-1] not in (',', ';', ':'):
             yield current
             current = []
     if current:

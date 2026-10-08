@@ -33,6 +33,10 @@ python3 tools/samples.py --lang=tl
 * 縮約形（ngayo'y → ngayon ay、ligaya't → ligaya at、sa'kin → sa akin）、動名詞（pag-ikot「回ること」）、部分的な重複
   （iniisip-isip「何度も考える」）、接辞 + 英語の語根（mag-operate → 操作する）。
 
+文は句点・疑問符と改行で区切ります（歌詞・詩の行は意味のまとまりなので、行末にピリオドが無くてもよい）。
+行末がカンマのときは次の行に続けて読みます。語ごとの表は、訳のためにまとめた語（標識・関係節の語）も元の語ごとに出し、
+「標識: 焦点 (ang)」「関係節の語 (lalaking に掛かる)」「繋ぎ」などの役割を添えます。
+
 ## 準備
 
 ```

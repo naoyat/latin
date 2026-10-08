@@ -206,3 +206,17 @@ def render_analysis(analysis, show_word_detail=True, show_translation=True, show
         if show_translation:
             print("  → ", translate(clause.predicate))
             print()
+
+
+def render_tokens(tokens, notes=None):
+    """元の語ごとの表 (解析でまとめた語・標識・関係節の語も1語ずつ)。tokens は (表記, 説明, [注]) の列。
+    タガログ語・インドネシア語のように、訳のために語をまとめる言語で、まとめる前の語を見せるのに使う"""
+    print("  --- ")
+    width = max([0] + [len(t[0]) for t in tokens])
+    for i, (surface, detail, lines) in enumerate(tokens):
+        print('  %2d  %s %s' % (i, surface + ' ' * (width - len(surface)), detail))
+        for line in lines:
+            print(' ' * (width + 7) + ansi_color.fgcolor(ansi_color.GREEN, line))
+    print("  --- ")
+    print()
+
