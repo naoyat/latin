@@ -20,7 +20,7 @@
 #                 ほかのアラビア文字 → ar、デーヴァナーガリーはヒンディー語らしい語 (है, का, की, में …) があれば hi、無ければ sa、
 #                 チベット文字 → bo、インドネシア語らしい語 (yang, dan, di, ini, itu …) が2つ以上あるラテン文字 → id
 #                 (マレー語らしい語 kerana, sahaja, bahawa … があれば ms)、タガログ語らしい語 (ang, ng, mga, ay …) → tl、
-#                 かな交じりの日本語 → kobun)
+#                 アイヌ語らしい語 (kamuy, kotan, wa, kor, ne …) → ain、かな交じりの日本語 → kobun)
 #   -e, --text=TEXT       引数の文を入力にする (何度でも。ファイル・標準入力の代わりに)
 #   -L, --languages       対応している言語の一覧を出す
 #
@@ -36,13 +36,15 @@ import tempfile
 
 LANGUAGES = {'la': 'latin', 'grc': 'greek', 'sa': 'sanskrit', 'ru': 'russian', 'he': 'hebrew', 'ar': 'arabic',
              'fa': 'persian', 'hi': 'hindi', 'ur': 'urdu', 'bo': 'tibetan', 'id': 'indonesian', 'ms': 'malay',
-             'tl': 'tagalog', 'kobun': 'kobun'}
+             'tl': 'tagalog', 'ain': 'ainu', 'kobun': 'kobun'}
 NAMES = {'la': 'ラテン語', 'grc': '古典ギリシア語', 'sa': 'サンスクリット', 'ru': 'ロシア語',
          'he': '聖書ヘブライ語 (聖書アラム語も)', 'ar': 'アラビア語 (現代標準アラビア語)', 'fa': 'ペルシア語',
-         'hi': 'ヒンディー語', 'ur': 'ウルドゥー語', 'bo': '古典チベット語', 'id': 'インドネシア語', 'ms': 'マレー語', 'tl': 'タガログ語', 'kobun': '古文 (平安の和文。現代語に組み立て直す)'}
+         'hi': 'ヒンディー語', 'ur': 'ウルドゥー語', 'bo': '古典チベット語', 'id': 'インドネシア語', 'ms': 'マレー語', 'tl': 'タガログ語', 'ain': 'アイヌ語', 'kobun': '古文 (平安の和文。現代語に組み立て直す)'}
 CODE = re.compile('^[a-z]{2,5}$')
 INDONESIAN_WORDS = {'yang', 'dan', 'di', 'ini', 'itu', 'dengan', 'untuk', 'tidak', 'adalah', 'akan', 'dari', 'ke', 'pada',
                     'saya', 'mereka', 'ada', 'sudah', 'juga', 'dalam', 'oleh', 'bahwa', 'bahawa', 'kami', 'kita'}
+AINU_WORDS = {'kamuy', 'kamui', 'aynu', 'ainu', 'kotan', 'ruwe', 'sekor', 'somo', 'anakne', 'orowa', 'cise', 'chise',
+              'kor', 'wa', 'ne', 'an', 'oka', 'pirka', 'wen', 'nispa', 'nishpa', 'teeta', 'tane', 'ki', 'kane'}
 TAGALOG_WORDS = {'ang', 'ng', 'mga', 'ay', 'si', 'hindi', 'ako', 'ko', 'siya', 'niya', 'ito', 'kay', 'po', 'naman',
                  'lang', 'pero', 'ikaw', 'mo', 'nila', 'sila', 'kami', 'tayo'}
 MALAY_WORDS = {'kerana', 'sahaja', 'bahawa', 'wang', 'jepun', 'inggeris', 'kerajaan', 'boleh', 'hendak', 'awak'}
@@ -71,6 +73,8 @@ def detect(text):
         return 'fa' if persian > len(re.findall('[كي]', text)) else 'ar'
     if best == 'la':
         words = set(re.findall('[a-z]+', text.lower()))
+        if len(words & AINU_WORDS) >= 3 and len(words & AINU_WORDS) > len(words & TAGALOG_WORDS):
+            return 'ain'  # ラテン文字のアイヌ語 (kamuy, kotan, wa, kor, ne …)
         if len(words & TAGALOG_WORDS) >= 2 and len(words & TAGALOG_WORDS) >= len(words & INDONESIAN_WORDS):
             return 'tl'  # ラテン文字のタガログ語 (ang, ng, mga, ay …)
         if len(words & INDONESIAN_WORDS) >= 2:

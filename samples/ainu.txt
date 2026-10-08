@@ -1,0 +1,12 @@
+# アイヌ語のサンプル (./dragoman.py ain samples/ainu.txt)
+#
+# 知里幸惠 編訳『アイヌ神謡集』(1923、パブリックドメイン) の第1話「梟の神の自ら歌った謡『銀の滴降る降るまわりに』」の冒頭。
+# 本文は青空文庫 (https://www.aozora.gr.jp/cards/001529/card44909.html。底本: 岩波文庫) から。表記は知里幸惠のローマ字のまま
+# (sh, ch, kamui …。解析では現代の表記に寄せて読む)。行は文の途中で切れるので、句点までを1文として読む。
+
+“Shirokanipe ranran pishkan,  konkanipe
+ranran pishkan.” arian rekpo  chiki kane
+petesoro  sapash aine,  ainukotan  enkashike
+chikush kor  shichorpokun  inkarash ko
+teeta wenkur  tane nishpa ne,  teeta nishpa
+tane wenkur ne  kotom shiran.
