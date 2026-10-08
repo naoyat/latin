@@ -23,6 +23,17 @@ HUMANS = {'翁', '嫗', '帝', '御門', '宮', '君', '女御', '更衣', '大�
           '子', '親', '妻', '夫', '童', '翁丸', '姫', '后', '中宮', '上', '大納言', '中納言', '少将', '中将'}
 
 
+# 自発の「る・らる」をとりやすい心情・知覚の動詞 (語彙素)
+EMOTION_VERBS = {'思う', '偲ぶ', '驚く', '嘆く', '泣く', '知る', '眺める', '案ずる', '待つ', '覚える', '思い出す', '見る',
+                 '聞く', '忍ぶ'}
+# 尊敬の「る・らる」をとりやすい、身分の高い主語
+HONORED = {'帝', '御門', '宮', '君', '中宮', '后', '院', '上', '大臣', '殿', '女御', '大納言', '中納言'}
+# 複合動詞 (前の動詞の語彙素, 後ろの動詞の語彙素) → 現代語 (思ひ出づ → 思い出す)
+COMPOUND_VERBS = {('思う', '出でる'): '思い出す', ('見る', '出でる'): '見つける', ('言う', '出でる'): '言い出す',
+                  ('泣く', '出でる'): '泣き出す', ('思う', '立つ'): '思い立つ', ('立つ', '出でる'): '立ち出る'}
+FIRST_PERSON = {'我', '我れ', '吾', 'われ', '己', 'おのれ', '自分', '私'}
+
+
 def is_human(token):
     word = token.lemma if token.lemma not in ('*', '') else token.surface
     return word in HUMANS or token.surface in HUMANS or word in animacy.JAPANESE_WORDS or \
@@ -34,12 +45,17 @@ def subject_of(bunsetsu, i):
     for j in range(i - 1, -1, -1):
         b = bunsetsu[j]
         if b.kind == 'punct':
+            # 読点の前の、助詞の無い体言は主題 (帝、笑はれけり)
+            before = bunsetsu[j - 1] if j > 0 else None
+            if before is not None and before.kind == 'nominal' and not any(t.pos == '助詞' for t in before.tokens) \
+                    and b.head.surface == '、':
+                return before.head
             return None
         if b.kind != 'nominal':
             continue
         particles = [t.lemma for t in b.tokens if t.pos == '助詞']
         if particles and not set(particles) <= {'は', 'が', 'の', 'も'}:
-            return None
+            continue  # 「京へ」「人に」などは主語でない: さらに前を見る
         if b.head.lemma in ('物', '者') and j >= 2 and bunsetsu[j - 1].head.lemma == '言う':
             return bunsetsu[j - 2].head  # 竹取の翁といふもの → 翁
         return b.head
@@ -212,6 +228,11 @@ class Modern:
             self.prefix += self.te(self.last)
             self.last = 'しまう'
 
+    def attach_potential(self):
+        """可能「〜ことができる」(打消が続けば「〜ことができない」)"""
+        self.prefix += self.last + 'ことが'
+        self.last, self.kind = 'できる', 'verb'
+
     def attach(self, word, kind='fixed'):
         """終止形の後ろに付ける (だろう、そうだ …)"""
         self.prefix += self.last
@@ -233,14 +254,36 @@ class Modern:
         return self.text()
 
 
-def _predicate(b, nxt, after_quote, subject=None):
+def _agent_before(bunsetsu, i):
+    """i 番目の述語の前 (句読点まで) に「人 + に」があるか (受身の動作主: 人に笑はる)"""
+    for j in range(i - 1, -1, -1):
+        b = bunsetsu[j]
+        if b.kind == 'punct':
+            return False
+        if b.kind == 'nominal' and any(t.lemma == 'に' and t.pos == '助詞' for t in b.tokens) and is_human(b.head):
+            return True
+    return False
+
+
+def _kakari_koso(bunsetsu, i):
+    return any(t.lemma == 'こそ' for b in bunsetsu[:i + 1] for t in b.tokens)
+
+
+def _predicate(b, nxt, after_quote, subject=None, ctx=None):
     """用言の文節 → (現代語, 残りの助詞)"""
     tokens = b.tokens
     head = tokens[0]
     # 体言 + 動詞的接尾辞 (紫だつ → 紫がかる)
     suffix = next((t for t in tokens if t.pos == '接尾辞' and t.pos2 == '動詞的'), None)
+    bunsetsu_all, index_all = ctx if ctx else ([b], 0)
+    prev = bunsetsu_all[index_all - 1] if index_all > 0 else None
+    compound = None
+    if head.pos == '動詞' and prev is not None and prev.kind == 'verb' and len(prev.tokens) == 1 and \
+            (prev.head.lemma, head.lemma) in COMPOUND_VERBS:
+        compound = COMPOUND_VERBS[(prev.head.lemma, head.lemma)]
+        prev.modern = ''  # 前の動詞は複合動詞に含める
     if head.pos == '動詞':
-        word = vocabulary(head) or _modern_word(head)
+        word = compound or vocabulary(head) or _modern_word(head)
         if head.lemma == '有る' and subject is not None and is_human(subject):
             word = 'いる'  # 人が主語の「あり」(翁といふものありけり → 老人がいた)
         m = Modern(word, 'verb')
@@ -255,8 +298,35 @@ def _predicate(b, nxt, after_quote, subject=None):
     auxes = [t for t in rest if t.pos == '助動詞']
     particles = [t for t in rest if t.pos == '助詞']
     kinds = [grammar.auxiliary(a)[1] for a in auxes]
+    bunsetsu, index = ctx if ctx else ([b], 0)
+    first_person = subject is not None and (subject.lemma in FIRST_PERSON or subject.surface in FIRST_PERSON)
+    attributive = b_is_attributive(b, nxt)
+    emphatic = False
     for k, kind in enumerate(kinds):
         later = kinds[k + 1:]
+        aux = auxes[k]
+        if kind == 'perfect' and later and later[0] in ('conjecture', 'should'):
+            emphatic = True  # 強意 (てむ・なむ・ぬべし): きっと〜
+            aux.chosen = '強意'
+            continue
+        if kind == 'passive':
+            if 'negative' in later or 'neg_conjecture' in later:
+                aux.chosen = '可能'
+                m.attach_potential()   # 〜ことができる (打消と組んで「〜できない」)
+                continue
+            if _agent_before(bunsetsu, index):
+                aux.chosen = '受身'
+            elif head.lemma in EMOTION_VERBS or (compound and prev.head.lemma in EMOTION_VERBS):
+                aux.chosen = '自発'
+                m.prefix = '自然と' + m.prefix
+                continue
+            elif subject is not None and (subject.lemma in HONORED or subject.surface in HONORED):
+                aux.chosen = '尊敬'
+                if m.kind == 'verb':
+                    m.last = m.masu_stem(m.last) + 'なさる'
+                continue
+            else:
+                aux.chosen = '受身'
         if kind in ('passive', 'causative'):
             if m.kind == 'verb':
                 stem = m.neg_stem(m.last)
@@ -280,12 +350,20 @@ def _predicate(b, nxt, after_quote, subject=None):
         elif kind == 'past':
             m.past()
         elif kind == 'conjecture':
-            if after_quote or (nxt is None and False):
-                if m.kind == 'verb':
-                    m.last, m.kind = Modern.volitional(m.last), 'fixed'
-                else:
-                    m.attach('だろう')
+            if attributive and not later:
+                aux.chosen = '婉曲'
+                m.attach('ような')        # 思はむ子 → 思うような子
+            elif aux.form == '連体形' and particles and not later:
+                aux.chosen = '仮定・婉曲'
+                m.attach('ようなこと')    # 準体法 (法師になしたらむこそ → 法師にしたようなことこそ)
+            elif (after_quote or first_person) and m.kind == 'verb' and not emphatic:
+                aux.chosen = '意志'
+                m.last, m.kind = Modern.volitional(m.last), 'fixed'
+            elif aux.form == '已然形' and _kakari_koso(bunsetsu, index):
+                aux.chosen = '適当・勧誘'
+                m.attach('のがよい')      # 〜こそ〜め
             else:
+                aux.chosen = '推量'
                 m.attach('だろう')
         elif kind == 'present_conjecture':
             m.continuous()
@@ -294,7 +372,18 @@ def _predicate(b, nxt, after_quote, subject=None):
             m.past()
             m.attach('だろう')
         elif kind == 'should':
-            m.attach('はずだ')
+            if 'negative' in later:
+                aux.chosen = '可能 (打消と組んで不可能)'
+                m.attach_potential()
+            elif first_person and not later:
+                aux.chosen = '意志'
+                m.attach('つもりだ')
+            elif attributive:
+                aux.chosen = '当然'
+                m.attach('はずの')
+            else:
+                aux.chosen = '当然・推量'
+                m.attach('はずだ')
         elif kind == 'counterfactual':
             m.past()
             m.attach('だろうに')
@@ -313,6 +402,8 @@ def _predicate(b, nxt, after_quote, subject=None):
             if m.kind == 'verb':
                 m.prefix += m.masu_stem(m.last)
                 m.last, m.kind = 'たい', 'adj'
+    if emphatic:
+        m.prefix = 'きっと' + m.prefix
     # 後ろに続くもの
     last_cform = (auxes[-1] if auxes else head).form
     how = 'plain'
@@ -380,7 +471,7 @@ def modernize(tokens):
         after_quote = any(t.lemma in ('と', 'とて') for t in (bunsetsu[i + 1].tokens if i + 1 < len(bunsetsu) else [])) \
             or any(t.lemma in ('と', 'とて') for t in b.tokens)
         if b.kind in ('verb', 'adj') and b.head.pos in ('動詞', '形容詞') or b.kind == 'verb':
-            result = _predicate(b, nxt, after_quote, subject_of(bunsetsu, i))
+            result = _predicate(b, nxt, after_quote, subject_of(bunsetsu, i), (bunsetsu, i))
             if result is not None:
                 text, particles = result
                 last_form = ([t for t in b.tokens if t.pos in ('助動詞', '動詞', '形容詞')] or [b.head])[-1].form

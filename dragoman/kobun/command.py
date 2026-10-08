@@ -17,7 +17,8 @@ USAGE = '''
 
 def explain(token):
     if token.pos == '助動詞':
-        return grammar.auxiliary(token)[0]
+        meaning = grammar.auxiliary(token)[0]
+        return meaning + ('  → ここでは%s' % token.chosen if token.chosen else '')
     if token.pos == '助詞' and token.pos2 == '係助詞' and token.lemma in grammar.KAKARI:
         form, meaning = grammar.KAKARI[token.lemma]
         return '係り結び (%s。結びは%s)' % (meaning, form)

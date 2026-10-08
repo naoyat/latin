@@ -38,6 +38,19 @@ class KobunTestCase(unittest.TestCase):
         self.assertIn('絶えないで', self.modern('ゆく河の流れは絶えずして、しかももとの水にあらず。').modern)
         self.assertIn('竹を取りながら', self.modern('野山にまじりて竹を取りつつ、よろづのことに使ひけり。').modern)
 
+    def test_auxiliary_meaning_in_context(self):
+        def chosen(text):
+            a = self.modern(text)
+            return a.modern, [t.chosen for t in a.tokens if t.chosen]
+        self.assertEqual(chosen('人に笑はれけり。'), ('人に笑われた。', ['受身']))          # 「人に」があれば受身
+        self.assertEqual(chosen('物も言はれず。'), ('物も言うことができない。', ['可能']))  # 打消と組んで可能
+        self.assertEqual(chosen('帝、笑はれけり。'), ('帝、笑いなさった。', ['尊敬']))      # 身分の高い主語は尊敬
+        self.assertIn('自発', chosen('昔のこと思ひ出でられけり。')[1])                     # 心情の動詞は自発
+        self.assertEqual(chosen('我、京へ行かむ。'), ('我、京へ行こう。', ['意志']))        # 一人称の主語は意志
+        self.assertIn('思うような子', chosen('思はむ子を法師になしたらむこそ心苦しけれ。')[0])  # 連体形 + 体言は婉曲
+        self.assertEqual(chosen('この人こそ行かめ。')[1], ['適当・勧誘'])                   # こそ〜め
+        self.assertEqual(chosen('花散りぬべし。'), ('花がきっと散るはずだ。', ['強意', '当然・推量']))
+
     def test_nari(self):
         a = self.modern('男もすなる日記といふものを、女もしてみむとてするなり。')
         self.assertIn('するという日記', a.modern)       # 伝聞の「なり」(体言の前)

@@ -28,6 +28,7 @@ class Token:
     reading: str      # 語彙素の読み (カタカナ)
     base_orth: str    # 書字形の基本形 (古文の綴り: いふ, 白し)
     kana: str         # この形の現代仮名遣いの読み (ひらがな)
+    chosen: str = ''  # 文脈で選んだ助動詞の意味 (受身・意志 …)
 
     @property
     def form(self):
