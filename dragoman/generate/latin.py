@@ -41,6 +41,18 @@ def pronoun_lemma(item):
 frame.LEMMA_HOOKS.append(pronoun_lemma)
 
 
+@functools.lru_cache(maxsize=5000)
+def verb_gloss(pres1sg):
+    """動詞の見出し (直説法現在1人称単数) → 日本語の訳語 (分詞 cantāns のもとの cantō「歌う」)"""
+    for item in latindic.lookup(pres1sg) or []:
+        if item.get('pos') == 'verb' and item.get('pres1sg') == pres1sg:
+            return item.get('ja') if item.get('gloss_lang', 'ja') == 'ja' else None
+    return None
+
+
+frame.VERB_GLOSS_HOOKS.append(verb_gloss)
+
+
 def _lemma(item):
     return item.get('base') or item.get('pres1sg') or pronoun_lemma(item)
 

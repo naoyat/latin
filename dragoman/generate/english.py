@@ -91,9 +91,8 @@ def _table():
     return table, flat
 
 
-def gloss(lex):
-    """語 → 英語の訳語 (無ければ None)。候補のうち、英語 → 日本語の表で解析の日本語の訳語に合うものを選ぶ
-    (ambulō: traverse, walk, … → 日本語が「歩く」なので walk)"""
+def candidates(lex):
+    """語 → 英語の訳語の候補 (解析の日本語の訳語に合うものを先頭に)。無ければ []"""
     table, flat = _table()
     pos = {'participle': 'verb'}.get(lex.pos, lex.pos)
     found = table.get((lex.lemma, pos)) or flat.get((_flat(lex.lemma).lower(), pos))
@@ -103,13 +102,21 @@ def gloss(lex):
     found = [en for en in found or [] if not DESCRIPTION.search(en)]
     for other in synonyms:   # cantō: synonym of canō → canō の訳語 (sing) も候補に
         found += table.get((other, pos)) or flat.get((_flat(other).lower(), pos)) or []
-    found = [en for en in found if not DESCRIPTION.search(en)]
+    found = list(dict.fromkeys(en for en in found if not DESCRIPTION.search(en)))
     if not found:
-        return None
-    return _matching(tuple(dict.fromkeys(found)), lex.ja, pos)
+        return []
+    best = _matching(tuple(found), lex.ja, pos)
+    return [best] + [en for en in found if en != best]
 
 
-SYNONYM = re.compile(r'^synonym of (\S+)$')
+def gloss(lex):
+    """語 → 英語の訳語 (無ければ None)。候補のうち、英語 → 日本語の表で解析の日本語の訳語に合うものを選ぶ
+    (ambulō: traverse, walk, … → 日本語が「歩く」なので walk)"""
+    found = candidates(lex)
+    return found[0] if found else None
+
+
+SYNONYM = re.compile(r'^(?:synonym|alternative form|alternative spelling) of (\S+)$')
 # 訳語でない説明 (synonym of canō, alternative form of epistola, masculine praenomen)
 DESCRIPTION = re.compile(r'\b(synonym|alternative form|alternative spelling|form) of\b|praenomen|cognomen|nomen\b')
 

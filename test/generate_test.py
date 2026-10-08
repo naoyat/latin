@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dragoman.core import paths  # noqa: E402
 from dragoman.latin import latindic, analyzer  # noqa: E402
-from dragoman.generate import frame, english, latin  # noqa: E402
+from dragoman.generate import frame, english, latin, russian, sanskrit  # noqa: E402
 from dragoman.generate.frame import Lex  # noqa: E402
 
 _saved = None
@@ -115,6 +115,44 @@ class EnglishTestCase(unittest.TestCase):
     def test_gloss_follows_japanese(self):
         # Wiktionary の最初の訳語 (traverse) ではなく、解析の日本語「歩く」に合う walk
         self.assertEqual(english.gloss(Lex('ambulō', 'verb', '歩く')), 'walk')
+
+
+
+@unittest.skipUnless(russian.available() and english.gloss(Lex('puella', 'noun', '少女')),
+                     'pymorphy3 か ru/en-index.tsv・la-en.tsv が無い')
+class RussianTestCase(unittest.TestCase):
+    def russian(self, text):
+        return russian.sentence(clauses(text))
+
+    def test_cases_and_agreement(self):
+        self.assertEqual(self.russian('Puella rosam pulchram in hortō videt.'), 'Девочка видит красивую розу в саду.')
+        self.assertEqual(self.russian('Puellae pulchrae erant.'), 'Девочки были красивые.')
+
+    def test_aspect_and_passive(self):
+        # 完了の受動 → был + 完了体の短語尾受動分詞、動作主は造格
+        self.assertEqual(self.russian('Puer ā magistrō nōn laudātus est.'), 'Мальчик не был похвален учителем.')
+
+    def test_possessive_dative(self):
+        self.assertEqual(self.russian('Mihi est liber.'), 'У меня есть книга.')
+
+
+@unittest.skipUnless(sanskrit.available() and english.gloss(Lex('puella', 'noun', '少女')),
+                     'vidyut か sa/en-index.tsv・la-en.tsv が無い')
+class SanskritTestCase(unittest.TestCase):
+    def sanskrit(self, text):
+        return sanskrit.sentence(clauses(text)).split('\n')[0]
+
+    def test_cases(self):
+        self.assertEqual(self.sanskrit('Puella rosam pulchram in hortō videt.'),
+                         'bālikā sundarīm javām udyāne paśyati ।')
+        self.assertEqual(self.sanskrit('Puer ā magistrō laudātur.'), 'bālakaḥ adhyāpakena praśasyate ।')
+
+    def test_government(self):
+        # bhī「恐れる」は奪格を取る
+        self.assertEqual(self.sanskrit('Agricola nautam nōn timet.'), 'kṛṣakaḥ nāvikāt na bibheti ।')
+
+    def test_possessive(self):
+        self.assertEqual(self.sanskrit('Mihi est liber.'), 'mama pustakam asti ।')
 
 
 if __name__ == '__main__':

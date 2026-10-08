@@ -4,7 +4,8 @@
 # 解析の結果 (格の枠) から文を作り直す試み: ラテン語 → 文の枠 → 英語・ラテン語
 #
 #   python3 tools/generate.py "Puella rosam pulchram in hortō videt."
-#   python3 tools/generate.py samples/latin.txt
+#   python3 tools/generate.py samples/samples.txt
+#   python3 tools/generate.py --to=en,ru,sa "…"     作る言語 (既定: en,la と、語の置き換えの表があれば ru,sa)
 #
 # ラテン語に戻した文が元の文と同じ語 (順序は問わない) になれば ✓。違えば、違う語を出す。
 # ファイルは1行1文 (# で始まる行は飛ばす。samples/samples.txt の形)
@@ -17,7 +18,7 @@ from collections import Counter
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dragoman.latin import analyzer, latindic
-from dragoman.generate import frame, english, latin
+from dragoman.generate import frame, english, latin, russian, sanskrit
 
 
 def _word_list(text):
@@ -44,7 +45,14 @@ def run(text):
             continue
         for clause in clauses:
             print(frame.describe(clause))
-        print('  英語:     ' + english.sentence(clauses))
+        if 'en' in TARGETS:
+            print('  英語:     ' + english.sentence(clauses))
+        for lang, label, module in OTHERS:
+            if lang in TARGETS:
+                print('  %s ' % label + module.sentence(clauses))
+        if 'la' not in TARGETS:
+            print()
+            continue
         regenerated = latin.sentence(clauses)
         original, again = _words(analysis.text), _words(regenerated)
         if original != again and _words(_normal(analysis.text)) == _words(_normal(regenerated)):
@@ -59,9 +67,18 @@ def run(text):
         print()
 
 
+TARGETS = ['en', 'la']
+OTHERS = [('ru', 'ロシア語:', russian), ('sa', '梵語:    ', sanskrit)]
+
+
 def main():
+    import getopt
     latindic.load()
-    args = sys.argv[1:]
+    opts, args = getopt.gnu_getopt(sys.argv[1:], '', ['to='])
+    TARGETS[:] = ['en', 'la'] + [lang for lang, _, module in OTHERS if module.available()]
+    for opt, value in opts:
+        if opt == '--to':
+            TARGETS[:] = value.split(',')
     if not args:
         print(__doc__ if __doc__ else 'usage: generate.py TEXT|FILE')
         return

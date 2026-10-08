@@ -39,6 +39,7 @@ class Lex:
     en: str = ''           # 辞書が英語で持っている訳語 (Wiktionary 由来の語。分詞の singing, having spoken …)
     desc: str = ''         # 代名詞の種類 (人称代名詞・指示代名詞 …)
     verb: str = ''         # 分詞のもとの動詞 (直説法現在1人称単数)
+    verb_ja: str = ''      # 分詞のもとの動詞の日本語の訳語 (訳語を選ぶのに使う)
 
 
 @dataclass
@@ -105,6 +106,7 @@ def _first_tag(item, case=None):
 
 
 LEMMA_HOOKS = []   # 見出しの無い項目 (ラテン語の代名詞) の見出しを決める関数 (言語ごとに登録)
+VERB_GLOSS_HOOKS = []   # 動詞の見出し → 日本語の訳語 (分詞のもとの動詞の訳語を引く。言語ごとに登録)
 
 
 def lex_of(word, item=None):
@@ -115,7 +117,9 @@ def lex_of(word, item=None):
     lemma = lemma or item.surface
     return Lex(lemma, item.pos, item.ja, proper=lemma[:1].isupper() and item.pos in ('noun', 'unknown'),
                degree=item.attrib('rank') or '', en=item.attrib('ja_en') or '', desc=item.attrib('desc') or '',
-               verb=item.attrib('pres1sg') or '' if item.pos == 'participle' else '')
+               verb=item.attrib('pres1sg') or '' if item.pos == 'participle' else '',
+               verb_ja=next((ja for ja in (hook(item.attrib('pres1sg')) for hook in VERB_GLOSS_HOOKS) if ja), '')
+               if item.pos == 'participle' and item.attrib('pres1sg') else '')
 
 
 def np_of(node, case=None):
