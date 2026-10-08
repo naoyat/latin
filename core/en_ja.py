@@ -23,6 +23,12 @@ NOTE = re.compile(r'[〔（(\[［【][^〕）)\]］】]*[〕）)\]］】]|\^\([^
 POS_GROUPS = {'noun': ('noun', 'name', 'phrase'), 'verb': ('verb',), 'adj': ('adj', 'noun'), 'adv': ('adv', 'adj'),
               'participle': ('adj', 'verb'), 'pronoun': ('noun',), 'name': ('name', 'noun')}
 
+# 表の順位では決めにくい基本語の訳語 (英語, 品詞) → 日本語
+OVERRIDES = {('minister', 'noun'): '大臣', ('government', 'noun'): '政府', ('quiet', 'adj'): '静かな',
+             ('state', 'noun'): '国家,状態', ('party', 'noun'): '党,パーティー', ('power', 'noun'): '力,権力',
+             ('right', 'noun'): '権利,右', ('case', 'noun'): '場合,事件', ('order', 'noun'): '命令,順序',
+             ('company', 'noun'): '会社,仲間', ('people', 'noun'): '人々,民族', ('man', 'noun'): '男,人'}
+
 _db = None
 
 
@@ -66,6 +72,8 @@ def lookup(english, pos):
     phrase = re.sub(r'\s*\([^)]*\)', '', key(english)).strip()  # take (with) → take
     phrase = re.sub(r'^(to|a|an|the) ', '', phrase) if pos != 'noun' or phrase.startswith(('a ', 'an ', 'the ')) \
         else phrase
+    if (phrase, pos) in OVERRIDES:
+        return OVERRIDES[(phrase, pos)].split(',')
     for p in POS_GROUPS.get(pos, (pos,)):
         row = db.execute('SELECT ja FROM en_ja WHERE en = ? AND pos = ?', (phrase, p)).fetchone()
         if row:

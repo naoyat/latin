@@ -50,10 +50,12 @@ pip install -r requirements.txt
 `LATIN_DATA` と `~/.local/share/latin-data` も読む）に置き、リポジトリには入れません。
 
 英語 → 日本語の訳語の表は、日本語版 Wiktionary の抽出（[kaikki.org の ja-extract](https://kaikki.org/dictionary/rawdata.html)、
-`ja-extract.jsonl.gz` をデータの置き場所に）から作ります:
+`ja-extract.jsonl.gz`）と [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html)（`JMdict_e.gz`、EDRDG、CC BY-SA 4.0。任意）を
+データの置き場所に置いて作ります:
 
 ```
-python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sqlite (約3.6万語)
+curl -L -o ~/.local/share/dragoman-data/JMdict_e.gz http://ftp.edrdg.org/pub/Nihongo/JMdict_e.gz
+python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sqlite (Wiktionary 約3.6万 + JMdict 約3.8万)
 ```
 
 ## 使い方
@@ -86,9 +88,11 @@ python3 latin.py                                              # ラテン語の�
 訳語は、各言語の辞書の日本語の訳語（日本語版 Wiktionary、その訳語の表を逆に引いたもの、手で決めた基本語）を使い、
 無ければ英語の語義を英語 → 日本語の表（`core/en_ja.py`）で置き換えます。英語の語義は品詞ごとに引き、訳せた最初の語義の
 一番の訳語を使います（go,travel → 行く。動詞は日本語の活用に通すため辞書形のものだけ）。元の英語は項目の `ja_en` に残します。
-UD の各言語の先頭 300 文で、名詞・動詞・形容詞の訳語に英語が残る割合は、ロシア語 49% → 9%、アラビア語 70% → 13%、
-ヒンディー語 68% → 26%、古典ギリシア語 84% → 27% になりました。残りは説明的な語義（comparative degree of …）と、
-表に無い語（minister など）です。
+表は日本語版 Wiktionary の英語の項目を先に使い、無い語を JMdict（よく使う語の印・頻度の順位の高い見出し語から）で補い、
+順位では決めにくい基本語（minister → 大臣 など）は手で決めます。UD の各言語の先頭 300 文で、名詞・動詞・形容詞の訳語に
+英語が残る割合は、ロシア語 49% → 6%、アラビア語 70% → 7%、古典ギリシア語 84% → 21%、ヒンディー語 68% → 24%、
+サンスクリット 89% → 31% になりました。残りの多くは固有名詞・民族名（Corinthian）、説明的な語義（comparative degree of …）、
+辞書に無い語です。
 
 ## ラテン文字への転写
 
@@ -179,5 +183,5 @@ http://github.com/naoyat | http://twitter.com/naoya_t | http://naoyat.hatenablog
 追加データ（リポジトリには含まない）はそれぞれのライセンスに従います:
 Wiktionary（CC BY-SA）、Latin Macronizer（GPL-3.0）、RFTagger（教育・研究・評価目的なら無償）、
 MBROLA（AGPL-3.0）と la1 音声（MBROLA でのみ使用可・販売不可）、Piper の音声（モデルごと）、
-Vidyut（MIT）、Morpheus（Perseus）、OSHB（本文はパブリックドメイン、解析は CC BY 4.0）、
+Vidyut（MIT）、Morpheus（Perseus）、JMdict（EDRDG、CC BY-SA 4.0）、OSHB（本文はパブリックドメイン、解析は CC BY 4.0）、
 CAMeL Tools の形態素辞書・曖昧性解消のモデル（GPL v2）、Universal Dependencies の各ツリーバンク（評価用。ツリーバンクごと）。
