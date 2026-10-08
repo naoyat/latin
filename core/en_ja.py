@@ -28,7 +28,7 @@ OVERRIDES = {('minister', 'noun'): '大臣', ('government', 'noun'): '政府', (
              ('state', 'noun'): '国家,状態', ('party', 'noun'): '党,パーティー', ('power', 'noun'): '力,権力',
              ('right', 'noun'): '権利,右', ('case', 'noun'): '場合,事件', ('order', 'noun'): '命令,順序',
              ('company', 'noun'): '会社,仲間', ('people', 'noun'): '人々,民族', ('man', 'noun'): '男,人',
-             ('look', 'verb'): '見る'}
+             ('look', 'verb'): '見る', ('look at', 'verb'): '見る'}
 
 _db = None
 
