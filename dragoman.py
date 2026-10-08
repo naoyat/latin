@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # dragoman: 文を辞書引き・構文解析して、日本語の逐語訳を付ける (ラテン語・古典ギリシア語・サンスクリット・ロシア語・
-# 聖書ヘブライ語 (聖書アラム語)・アラビア語・ペルシア語・ヒンディー語)
+# 聖書ヘブライ語 (聖書アラム語)・アラビア語・ペルシア語・ヒンディー語・ウルドゥー語)
 #
 #   echo "Agricola in silvā magnam casam aedificat." | python3 dragoman.py
 #   python3 dragoman.py --lang=grc FILE...
@@ -10,9 +10,10 @@
 #   python3 dragoman.py --lang=he --help              言語ごとのオプション
 #
 #   --lang=LANG   la (ラテン語) / grc (古典ギリシア語) / sa (サンスクリット) / ru (ロシア語) / he (聖書ヘブライ語) /
-#                 ar (アラビア語) / fa (ペルシア語) / hi (ヒンディー語)。
+#                 ar (アラビア語) / fa (ペルシア語) / hi (ヒンディー語) / ur (ウルドゥー語)。
 #                 省略すると文字から推定する (ラテン文字 → la、ギリシア文字 → grc、キリル文字 → ru、ヘブライ文字 → he、
-#                 ペルシア語の字 (پ چ ژ گ ک ی) の多いアラビア文字 → fa、ほかのアラビア文字 → ar、
+#                 ウルドゥー語の字 (ٹ ڈ ڑ ں ے ھ) のあるアラビア文字 → ur、ペルシア語の字 (پ چ ژ گ ک ی) の多いもの → fa、
+#                 ほかのアラビア文字 → ar、
 #                 デーヴァナーガリーは ヒンディー語らしい語 (है, का, की, में …) があれば hi、無ければ sa)
 #
 # 共通のオプション (-w, -D, -E, -s, -t, -r, --no-explain) は core/cli.py、言語ごとのオプションは --lang=xx --help で。
@@ -27,7 +28,7 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 LANGUAGES = {'la': None, 'grc': 'greek', 'sa': 'sanskrit', 'ru': 'russian', 'he': 'hebrew', 'ar': 'arabic',
-             'fa': 'persian', 'hi': 'hindi'}
+             'fa': 'persian', 'hi': 'hindi', 'ur': 'urdu'}
 HINDI_WORDS = {'है', 'हैं', 'का', 'की', 'के', 'में', 'नहीं', 'को', 'से', 'ने', 'था', 'थी', 'और', 'पर', 'भी'}
 
 
@@ -45,6 +46,8 @@ def detect(text):
     if counts[best] == 0:
         return None
     if best == 'arabic-script':
+        if re.search('[\u0679\u0688\u0691\u06ba\u06d2\u06d3\u06be]', text):
+            return 'ur'  # ٹ ڈ ڑ ں ے ۓ ھ
         persian = len(re.findall('[پچژگکی‌]', text))
         return 'fa' if persian > len(re.findall('[كي]', text)) else 'ar'
     if best == 'deva':

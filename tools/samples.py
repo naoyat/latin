@@ -17,8 +17,9 @@
 #   python3 tools/samples.py --lang=ar       # アラビア語 (samples/arabic.txt)
 #   python3 tools/samples.py --lang=fa       # ペルシア語 (samples/persian.txt)
 #   python3 tools/samples.py --lang=hi       # ヒンディー語 (samples/hindi.txt)
+#   python3 tools/samples.py --lang=ur       # ウルドゥー語 (samples/urdu.txt)
 #
-#   --lang=la|grc|sa|ru|he|ar|fa|hi 言語 (既定は la。ラテン語)
+#   --lang=la|grc|sa|ru|he|ar|fa|hi|ur 言語 (既定は la。ラテン語)
 #   -f, --file=FILE     例文のファイル (既定は言語ごとの samples/*.txt)
 #   -r, --romanize      ラテン文字以外の文に転写を添える (-d なら語ごとにも)
 #   -l, --list          節の見出しの一覧を表示する
@@ -42,7 +43,8 @@ DEFAULT_FILE = os.path.join(ROOT, 'samples', 'samples.txt')
 LANG_FILES = {'la': DEFAULT_FILE, 'grc': os.path.join(ROOT, 'samples', 'greek.txt'),
               'sa': os.path.join(ROOT, 'samples', 'sanskrit.txt'), 'ru': os.path.join(ROOT, 'samples', 'russian.txt'),
               'he': os.path.join(ROOT, 'samples', 'hebrew.txt'), 'ar': os.path.join(ROOT, 'samples', 'arabic.txt'),
-              'fa': os.path.join(ROOT, 'samples', 'persian.txt'), 'hi': os.path.join(ROOT, 'samples', 'hindi.txt')}
+              'fa': os.path.join(ROOT, 'samples', 'persian.txt'), 'hi': os.path.join(ROOT, 'samples', 'hindi.txt'),
+              'ur': os.path.join(ROOT, 'samples', 'urdu.txt')}
 
 
 def analyzer_for(lang):
@@ -68,6 +70,9 @@ def analyzer_for(lang):
     if lang == 'hi':
         from hindi import analyzer as hindi_analyzer
         return hindi_analyzer.analyze_text
+    if lang == 'ur':
+        from urdu import analyzer as urdu_analyzer
+        return urdu_analyzer.analyze_text
     return analyzer.analyze_text
 AUTO_MACRON = '[auto-macron]'
 ANSI = re.compile(r'\x1b\[[0-9;]*m')
@@ -161,6 +166,8 @@ def show(sections, mode, show_descendants=False, show_etymology=False, lang='la'
                     from arabic import analyzer as arabic_analyzer, script as arabic_script
                     vocalized, latin = arabic_analyzer.sentence_text(analysis.forms)
                     print('  %s  (%s)' % (arabic_script.isolate(vocalized), latin))
+                elif lang == 'ur':
+                    print('  (%s)' % analysis.forms_text[1])  # 選んだヒンディー語の語形からの転写
                 elif lang == 'fa':
                     from persian import analyzer as persian_analyzer
                     print('  (%s)' % persian_analyzer.sentence_text(analysis.forms)[1])  # エザーフェを補った転写

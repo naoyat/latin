@@ -74,15 +74,25 @@ def tokens(text):
 COMPOUND_KEYS = {tuple(script.key(w) for w in k) for k in morphology.COMPOUND_POSTPOSITIONS}
 
 
+def _alts(token):
+    """語の位置の候補 (ヒンディー語は1つ。ウルドゥー語の入口は綴りの骨組みの合うデーヴァナーガリーの形の組)"""
+    return token if isinstance(token, tuple) else (token,)
+
+
 def group_tokens(surfaces):
-    """語の列 → [(語, 元の位置のタプル)]。複合後置詞 (के लिए) は1語にまとめる"""
+    """語の列 → [(語 (候補の組のこともある), 元の位置のタプル)]。複合後置詞 (के लिए) は1語にまとめる"""
+    import itertools
     out = []
     i = 0
     while i < len(surfaces):
         for n in (3, 2):
-            seq = tuple(script.key(t) for t in surfaces[i:i + n])
-            if len(seq) == n and seq in COMPOUND_KEYS:
-                out.append((' '.join(surfaces[i:i + n]), tuple(range(i, i + n))))
+            window = surfaces[i:i + n]
+            if len(window) < n:
+                continue
+            combo = next((c for c in itertools.product(*[_alts(t) for t in window])
+                          if tuple(script.key(t) for t in c) in COMPOUND_KEYS), None)
+            if combo:
+                out.append((' '.join(combo), tuple(range(i, i + n))))
                 i += n
                 break
         else:
@@ -115,11 +125,20 @@ def _compound_postposition(token):
 
 
 def _items(token):
-    if ' ' in token:
-        found = _compound_postposition(token)
-        if found:
-            return [found]
-    return [dict(i) for i in morphology.analyses(token)]
+    """語 (候補の組でもよい) → 項目のリスト。候補の組なら、どの形から来たかを 'dev' に"""
+    out = []
+    for k, alt in enumerate(_alts(token)):
+        if ' ' in alt:
+            found = _compound_postposition(alt)
+            if found:
+                out.append(dict(found, dev=alt))
+                continue
+        out += [dict(i, dev=alt, alt_rank=k) for i in morphology.analyses(alt)]
+    return out
+
+
+def _keys(token):
+    return {script.key(t) for t in _alts(token)} if token is not None else set()
 
 
 def _is_postposition(token):
@@ -134,33 +153,37 @@ def choose_items(surfaces):
     """語ごとに1つの項目を選ぶ"""
     out = []
     for i, token in enumerate(surfaces):
-        if token in PUNCTUATION:
+        if not isinstance(token, tuple) and token in PUNCTUATION:
             out.append(None)
             continue
         items = _items(token)
         nxt = surfaces[i + 1] if i + 1 < len(surfaces) else None
         prev_item = out[-1] if out else None
         before_postposition = _is_postposition(nxt)
-        verbal_position = nxt is None or nxt in PUNCTUATION or _is_verbal_helper(nxt) or \
-            script.key(nxt) in ('और', 'कि', 'तो', 'लेकिन', 'पर') and not before_postposition
+        nxt_punct = nxt is not None and not isinstance(nxt, tuple) and nxt in PUNCTUATION
+        verbal_position = nxt is None or nxt_punct or _is_verbal_helper(nxt) or \
+            _keys(nxt) & {'और', 'कि', 'तो', 'लेकिन', 'पर'} and not before_postposition
 
         has_verb = any(i['pos'] == 'verb' for i in items)
         before_helper = nxt is not None and any(i['pos'] == 'verb' and i.get('lemma') in STEM_HELPERS
                                                 for i in _items(nxt))
 
         def score(item):
-            s = 1.0
+            s = 0.97 ** item.get('alt_rank', 0)  # 候補の組では先の候補を少し先に (ウルドゥー語の入口)
             if item.get('unknown'):
                 return 0.0
-            if item['pos'] == 'verb' and item.get('form') == 'infinitive' and item.get('lemma') != script.key(token) \
+            if item['pos'] == 'conj' and item.get('dev') in ('या', 'और', 'तथा') and i == 0:
+                s *= 0.3  # 文頭の「または・と」は無い (ウルドゥー語の یہ は यह で या でない)
+            if item['pos'] == 'postposition' and (prev_item is None or prev_item['pos'] not in ('noun', 'pronoun', 'adj')):
+                s *= 0.1  # 前に名詞の無い後置詞は無い (文頭の میں は मैं「私」で में「〜で」でない)
+            if item['pos'] == 'verb' and item.get('form') == 'infinitive' and item.get('lemma') != script.key(item['dev']) \
                     and not before_postposition:
                 s *= 0.3  # 女性・複数の不定詞 (पानी を पाना の不定詞と読まない)
             if item.get('lemma') in morphology.GLOSSES and item['pos'] != 'verb':
                 s *= 1.25 if item['pos'] == 'noun' else 1.2  # 手で訳語を決めた基本語 (हिंदी「ヒンディー語」は名詞を先に)
             if item['pos'] in ('adv', 'conj', 'postposition') or item.get('possessive'):
                 s *= 1.3  # 機能語の表の読み (कल「昨日・明日」、बहुत「とても」) を辞書の形容詞より先に
-            if item['pos'] == 'postposition' and has_verb and (_is_verbal_helper(nxt) or verbal_position and
-                                                                nxt is not None and nxt in PUNCTUATION):
+            if item['pos'] == 'postposition' and has_verb and (_is_verbal_helper(nxt) or verbal_position and nxt_punct):
                 s *= 0.2  # की・के の後ろが助動詞・文末なら करना の完了分詞 (स्थापित की गई「設置された」)
             if item['pos'] == 'verb' and item.get('form') == 'stem' and before_helper:
                 s *= 3  # रहा・सकता などの前は語幹 (पी रही है「飲んでいる」)
@@ -267,8 +290,9 @@ def mark_possessive_postpositions(words):
         if item is None or not item.attrib('possessive') or key not in {script.key(w) for w in NOUN_POSTPOSITIONS}:
             continue
         ja = next(v for w, v in NOUN_POSTPOSITIONS.items() if script.key(w) == key)
+        oblique = (item.attrib('lemma') or '')[:-1] + 'े'  # 後置詞の前は -e の形 (मेरे पास)
         word.items = [type(item)(dict(item.item, pos='pronoun', ja=item.ja.rstrip('の').split(',')[0],
-                                      _=[('Obl', 'sg', 'm'), ('Obl', 'sg', 'f')]))]
+                                      roman=script.translit(oblique), _=[('Obl', 'sg', 'm'), ('Obl', 'sg', 'f')]))]
         nitem = _item(nxt)
         data = {'surface': nxt.surface, 'pos': 'postposition', 'base': script.translit(nxt.surface), 'ja': ja,
                 'gloss_lang': 'ja', 'roman': script.translit(nxt.surface), 'compact': True,
@@ -535,6 +559,8 @@ def lookup_all(surfaces):
     items = choose_items([g for g, _ in grouped])
     words = []
     for (token, ixs), item in zip(grouped, items):
+        if item is not None:
+            token = item.get('dev', token)  # 候補の組から選んだデーヴァナーガリーの形
         word = Word(token, None if item is None else [item])
         word.token_ix = ixs[0]
         if len(ixs) > 1:

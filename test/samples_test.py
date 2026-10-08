@@ -56,6 +56,8 @@ class SamplesTestCase(unittest.TestCase):
         langs.append(('fa', persian_dictionary.available()))
         from hindi import dictionary as hindi_dictionary
         langs.append(('hi', hindi_dictionary.available()))
+        from urdu import dictionary as urdu_dictionary
+        langs.append(('ur', urdu_dictionary.available()))
         for lang, available in langs:
             sections = samples.read_sections(samples.LANG_FILES[lang])
             self.assertTrue(all(title and sentences for title, sentences in sections), lang)

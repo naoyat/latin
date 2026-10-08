@@ -64,7 +64,7 @@ class DragomanCommandTestCase(unittest.TestCase):
         import dragoman
         cases = {'Gallia est omnis dīvīsa.': 'la', 'ἐν ἀρχῇ ἦν ὁ λόγος.': 'grc', 'Мальчик читает книгу.': 'ru',
                  'בְּרֵאשִׁית בָּרָא אֱלֹהִים': 'he', 'ذهب الولد إلى المدرسة.': 'ar', 'من به مدرسه می‌روم.': 'fa',
-                 'लड़के ने किताब पढ़ी।': 'hi', 'रामो वनं गच्छति ।': 'sa'}
+                 'लड़के ने किताब पढ़ी।': 'hi', 'रामो वनं गच्छति ।': 'sa', 'لڑکے نے کتاب پڑھی۔': 'ur'}
         for text, lang in cases.items():
             self.assertEqual(dragoman.detect(text), lang, text)
 

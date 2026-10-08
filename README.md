@@ -33,6 +33,7 @@ $ echo "लड़के ने किताब पढ़ी।" | python3 dragom
 | アラビア語 (MSA) | `ar` | CAMeL Tools、Wiktionary | PADT: 主語 54%・目的語 53% | say (Majed) | [docs/arabic.md](docs/arabic.md) |
 | ペルシア語 | `fa` | 自前の規則 + Wiktionary | PerDT: 主語 55%・目的語 43% | espeak-ng | [docs/persian.md](docs/persian.md) |
 | ヒンディー語 | `hi` | Wiktionary の変化表 | HDTB: 主語 53%・目的語 30% | say (Lekha) | [docs/hindi.md](docs/hindi.md) |
+| ウルドゥー語 | `ur` | ヒンディー語の語形に引き当てる | UDTB: 主語 39%・目的語 32% | espeak-ng | [docs/urdu.md](docs/urdu.md) |
 
 ラテン語以外は作りかけです。日本語の訳語の無い語は、英語の語義（Wiktionary・CAMeL Tools）を英語 → 日本語の表で
 置き換えます（下の「訳語」）。それでも訳せない語は英語のまま出ます。
@@ -67,8 +68,8 @@ python3 latin.py                                              # ラテン語の�
 ```
 
 `--lang` を省略すると文字から言語を推定します（ラテン文字 → ラテン語、ギリシア文字 → 古典ギリシア語、キリル文字 → ロシア語、
-ヘブライ文字 → ヘブライ語、アラビア文字はペルシア語の字の多さでアラビア語かペルシア語、デーヴァナーガリーはヒンディー語
-らしい語の有無でヒンディー語かサンスクリット）。
+ヘブライ文字 → ヘブライ語、アラビア文字はウルドゥー語の字（ٹ ڈ ڑ ں ے ھ）があればウルドゥー語、ペルシア語の字の多さで
+ペルシア語かアラビア語、デーヴァナーガリーはヒンディー語らしい語の有無でヒンディー語かサンスクリット）。
 
 | 共通のオプション | |
 |---|---|
@@ -120,9 +121,9 @@ python3 -m unittest discover -s test -p '*_test.py'
 ## 構成
 
 ```
-dragoman.py              入口 (--lang=la|grc|sa|ru|he|ar|fa|hi。省略すると文字から言語を推定)
+dragoman.py              入口 (--lang=la|grc|sa|ru|he|ar|fa|hi|ur。省略すると文字から言語を推定)
 latin.py                 ラテン語のコマンド (対話モード・変化表・マクロンの推定を含む)
-greek.py sanskrit.py russian.py hebrew.py arabic.py persian.py hindi.py
+greek.py sanskrit.py russian.py hebrew.py arabic.py persian.py hindi.py urdu.py
                          言語ごとの入口 (dragoman.py --lang=xx と同じ)。read.py は旧名
 core/                    言語に依存しない共通部分
   cli.py                 コマンドの骨組み (共通のオプション・見出しの行・音読・表示。言語ごとの違いは <言語>/command.py)
@@ -155,6 +156,7 @@ arabic/                  アラビア語 (CAMeL Tools による語形の解析�
 persian/                 ペルシア語 (規則による語形の解析: 動詞の語幹・接頭辞・人称語尾、複数・接語。エザーフェの推定、
                          را、複数語の動詞)
 hindi/                   ヒンディー語 (Wiktionary の変化表による語形の辞書、schwa の脱落を含む転写、動詞の並び、後置詞と能格)
+urdu/                    ウルドゥー語 (ウルドゥー文字の語をヒンディー語の語形に引き当てる綴りの骨組み。解析は hindi/)
 tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
 words/                   手作りの辞書
 texts/                   テキストと目録
@@ -165,7 +167,8 @@ test/                    テスト
 ## 経緯
 
 2013年に、初級ラテン語のリーディングの授業に参加しながら書いたプログラム（latin）を、2026年に Python 3 へ
-移行して改修し、古典ギリシア語・サンスクリット・ロシア語・ヘブライ語・アラビア語・ペルシア語・ヒンディー語へ広げたものです。
+移行して改修し、古典ギリシア語・サンスクリット・ロシア語・ヘブライ語・アラビア語・ペルシア語・ヒンディー語・ウルドゥー語へ
+広げたものです。
 名前の dragoman は、オスマン帝国などで通訳・翻訳を務めた人々の呼び名（アラビア語 tarjumān から）。
 2013年からの開発履歴は、権利関係が不明なテキストを含むため、非公開のリポジトリに保管しています。
 
