@@ -24,7 +24,10 @@ VOWELS = {'अ': 'a', 'आ': 'ā', 'इ': 'i', 'ई': 'ī', 'उ': 'u', 'ऊ': '
           'औ': 'au', 'ऑ': 'ô', 'ऍ': 'ê'}
 NASAL = {'a': 'ã', 'ā': 'ā̃', 'i': 'ĩ', 'ī': 'ī̃', 'u': 'ũ', 'ū': 'ū̃', 'e': 'ẽ', 'o': 'õ', 'ai': 'a͠i', 'au': 'a͠u'}
 # 子音の前の anusvāra は同じ調音位置の鼻音 (हिंदी hindī、संबंध sambandh)
-HOMORGANIC = {'k': 'ṅ', 'g': 'ṅ', 'c': 'ñ', 'j': 'ñ', 'ṭ': 'ṇ', 'ḍ': 'ṇ', 'p': 'm', 'b': 'm', 'm': 'm'}
+# (h・y の前、長母音 + ṭh・ch の前は母音の鼻音化: सिंह sĩh、संयोग sãyog。Wiktionary の転写の流儀を数えて決めた)
+HOMORGANIC = {'k': 'ṅ', 'g': 'ṅ', 'c': 'ñ', 'j': 'ñ', 'ṭ': 'ṇ', 'ḍ': 'ṇ', 'p': 'm', 'b': 'm', 'm': 'm', 'ś': 'ñ',
+              'ṣ': 'ñ', 'v': 'm'}
+LONG_VOWELS = {'ā', 'ī', 'ū', 'e', 'o', 'ai', 'au'}
 DANDA = '।॥'
 DIGITS = str.maketrans('०१२३४५६७८९', '0123456789')
 DEVANAGARI = re.compile('[ऀ-ॿ]')
@@ -109,9 +112,9 @@ def translit_word(word):
             out.append(cons)
         if nasal:
             nxt = sylls[k + 1][0] if k + 1 < len(sylls) else None
-            if nasal == 'anusvara' and nxt and nxt[0] not in 'ḥ' and vowel not in ('', None) and \
-                    nxt[0].isalpha():
-                out.append(vowel + HOMORGANIC.get(nxt[0], 'n'))  # संस्कृत sanskŕt、अहिंसा ahinsā
+            if nasal == 'anusvara' and nxt and nxt[0] not in 'ḥhy' and vowel not in ('', None) and \
+                    nxt[0].isalpha() and not (vowel in LONG_VOWELS and nxt in ('ṭh', 'ch')):
+                out.append(vowel + HOMORGANIC.get(nxt[0], 'n'))  # संस्कृत sanskŕt、अहिंसा ahinsā、अंश añś
                 continue
             out.append(NASAL.get(vowel or 'a', (vowel or 'a') + '̃'))
             continue
@@ -124,3 +127,30 @@ def translit(text):
     text = re.sub('[।॥]', '.', text)
     return ' '.join(re.sub('[\u0900-\u0963\u0966-\u097f]+', lambda m: translit_word(m.group(0)), w)
                     for w in text.split())
+
+
+def translit_known(word, lemma, lemma_roman):
+    """辞書にある語の転写: 見出し語なら Wiktionary の転写、変化形なら、見出し語で規則の転写と Wiktionary の転写が
+    違う所 (a の有無・鼻音) を同じ位置に写す (लड़कों: laṛkā の直しを laṛkõ にも)"""
+    import difflib
+    rule = translit_word(word)
+    if not lemma_roman:
+        return rule
+    lemma_roman = unicodedata.normalize('NFC', lemma_roman)
+    if key(word) == key(lemma):
+        return lemma_roman
+    lemma_rule = unicodedata.normalize('NFC', translit_word(lemma))
+    rule = unicodedata.normalize('NFC', rule)
+    if lemma_rule == lemma_roman:
+        return rule
+    common = 0
+    while common < min(len(rule), len(lemma_rule)) and rule[common] == lemma_rule[common]:
+        common += 1
+    out = []
+    last = 0
+    for op, i1, i2, j1, j2 in difflib.SequenceMatcher(None, lemma_rule, lemma_roman).get_opcodes():
+        if op == 'equal' or i2 > common or (op == 'insert' and i1 >= common):
+            continue
+        out.append(rule[last:i1] + lemma_roman[j1:j2])
+        last = i2
+    return ''.join(out) + rule[last:]

@@ -171,8 +171,8 @@ def _nominal_items(word, readings):
         if item is None:
             ja, gloss_lang = _gloss(lemma, pos, entry)
             item = {'surface': word, 'pos': 'adj' if pos in ('adj', 'num', 'det') else 'noun', 'lemma': lemma,
-                    'base': _base(entry, lemma), 'ja': ja, 'gloss_lang': gloss_lang, 'roman': script.translit(word),
-                    'compact': True, '_': []}
+                    'base': _base(entry, lemma), 'ja': ja, 'gloss_lang': gloss_lang,
+                    'roman': script.translit_known(word, lemma, (entry or {}).get('roman')), 'compact': True, '_': []}
             if pos == 'name':
                 item['proper'] = True
             out[key] = item
@@ -234,7 +234,8 @@ def _verb_items(word, readings):
         seen.add(sig)
         ja, gloss_lang = _gloss(lemma, 'verb', entry)
         item = {'surface': word, 'pos': 'verb', 'lemma': lemma, 'pres1sg': lemma, 'base': _base(entry, lemma),
-                'ja': ja, 'gloss_lang': gloss_lang, 'roman': script.translit(word), 'compact': True,
+                'ja': ja, 'gloss_lang': gloss_lang, 'roman': script.translit_known(word, lemma, (entry or {}).get('roman')),
+                'compact': True,
                 'form': kind, 'voice': 'active', 'mood': 'indicative', 'tense': 'present',
                 'person': persons[-1] if persons else 3, 'number': numbers[0] if numbers else 'sg',
                 'gender': genders[0] if len(genders) == 1 else None, 'persons': persons}

@@ -551,17 +551,33 @@ def lookup_all(surfaces):
     return words
 
 
-def sentence_text(surfaces):
-    """(文, 転写の文)"""
+def sentence_text(surfaces, romans=None):
+    """(文, 転写の文)。romans は語ごとの転写 (辞書の語は Wiktionary の転写から。無ければ規則で)"""
     text, latin = '', ''
-    for s in surfaces:
+    for k, s in enumerate(surfaces):
         if s in PUNCTUATION:
             text += s
             latin += '.' if s in '।॥' else s
         else:
             text += (' ' if text else '') + s
-            latin += (' ' if latin else '') + script.translit(s)
+            latin += (' ' if latin else '') + ((romans or {}).get(k) or script.translit(s))
     return text, latin
+
+
+def _romans(words):
+    """元の語の位置 → 選んだ読みの転写"""
+    out = {}
+    for word in words:
+        item = _item(word)
+        ixs = getattr(word, 'token_ixs', None) or (getattr(word, 'token_ix', None),)
+        if item is None or ixs[0] is None:
+            continue
+        parts = (item.attrib('roman') or '').split()
+        if len(parts) == len(ixs):
+            out.update(zip(ixs, parts))
+        elif len(ixs) == 1:
+            out[ixs[0]] = item.attrib('roman')
+    return out
 
 
 def analyze_sentence(surfaces):
@@ -569,7 +585,7 @@ def analyze_sentence(surfaces):
     word_details = [word.detail() for word in words]
     with language.using(HINDI):
         analysis = common.analyze_words([w.surface for w in words], words, word_details, [])
-    analysis.forms_text = sentence_text(surfaces)
+    analysis.forms_text = sentence_text(surfaces, _romans(words))
     return analysis
 
 

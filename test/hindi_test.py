@@ -24,6 +24,14 @@ class ScriptTestCase(unittest.TestCase):
         self.assertEqual(script.translit('हूँ'), 'hū̃')
         self.assertEqual(script.translit('हिंदी'), 'hindī')       # 子音の前の anusvāra は n
         self.assertEqual(script.translit('घर।'), 'ghar.')
+        self.assertEqual(script.translit('अंश'), 'añś')          # ś の前の anusvāra は ñ (Wiktionary の流儀)
+        self.assertEqual(script.translit('सिंह'), 'sĩh')          # h の前は鼻音化
+
+    def test_translit_known(self):
+        # 辞書の語は Wiktionary の転写から。変化形には見出し語での直しを写す
+        self.assertEqual(script.translit_known('जनवरी', 'जनवरी', 'janvarī'), 'janvarī')
+        self.assertEqual(script.translit_known('परमेश्वरों', 'परमेश्वर', 'parameśvar'), 'parameśvarõ')
+        self.assertEqual(script.translit_known('लड़कों', 'लड़का', 'laṛkā'), 'laṛkõ')
 
 
 @unittest.skipUnless(HAVE_DATA, 'no Hindi data (tools/build_hindi_dic.py)')
