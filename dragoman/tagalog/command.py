@@ -93,7 +93,7 @@ def render(analysis, options):
 
 
 OPTION_HELP = '''
-  --sentence-per-line                改行も文の区切りにする (歌詞・詩など、行末に句点の無い行。行末がカンマなら次の行に続ける)
+  --sentence-per-line    改行も文の区切りにする (歌詞・詩など、行末に句点の無い行。行末がカンマなら次の行に続ける)
 '''
 
 
