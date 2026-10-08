@@ -1,0 +1,29 @@
+# インドネシア語のサンプル (python3 tools/samples.py --lang=id で表示する)
+#
+# 自作の文。「## 見出し」で節を分ける。
+
+## 基本の語順 (主語-動詞-目的語、前置詞句)
+Anak itu membaca buku di sekolah.
+Saya sudah makan nasi.
+
+## 受動 (di- + oleh)
+Buku itu ditulis oleh guru.
+
+## 動詞の無い文 (指示詞の後ろの形容詞・名詞は述語)
+Rumah itu besar.
+Dia guru.
+
+## 所有 (接語 -nya、名詞 + 代名詞)、bahasa + 国名
+Ibu memberikan uang kepada anaknya.
+Kucing saya tidur di atas meja.
+Mereka sedang belajar bahasa Jepang di universitas.
+
+## 関係節 (yang)
+Orang yang membaca buku itu adalah guru saya.
+Buku yang ditulis oleh guru itu bagus.
+
+## 否定・時制 (tidak、akan、時の副詞)、助動詞的な語 (ingin、bisa、harus)
+Dia tidak suka kucing.
+Kami akan pergi ke pasar besok.
+Saya ingin belajar bahasa Jepang.
+Pemerintah Indonesia akan membangun rumah sakit baru.
