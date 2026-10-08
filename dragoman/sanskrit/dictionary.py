@@ -33,8 +33,8 @@ def lemmas(key):
     db = _connect()
     if db is None or not key:
         return []
-    from . import buddhist
-    return buddhist.lemmas(key) + [{'pos': pos, 'ja': ja, 'gloss_lang': lang, 'word': word, 'gana': gana,
+    from . import buddhist, glosses
+    return buddhist.lemmas(key) + glosses.lemmas(key) + [{'pos': pos, 'ja': ja, 'gloss_lang': lang, 'word': word, 'gana': gana,
                                     'causative': bool(causative), 'senses': senses or 0}
             for pos, ja, lang, word, gana, causative, senses in db.execute(
                 'SELECT pos, ja, gloss_lang, word, gana, causative, senses FROM lemmas WHERE key = ?',

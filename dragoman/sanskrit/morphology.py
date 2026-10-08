@@ -126,6 +126,8 @@ def _root_gloss(dhatu_entry):
         return None
 
     def score(l):
+        if l.get('override'):
+            return -1  # 訳語を直す表 (glosses.py) の語根
         return ((l['causative'] != causative) * 4 + (l['gana'] is not None and l['gana'] != gana) * 2 +
                 (l['gana'] is None))
     best = min(roots, key=score)

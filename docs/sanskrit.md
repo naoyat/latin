@@ -77,6 +77,12 @@ python3 dragoman.py --lang=sa -s samples/sanskrit.txt                           
   現代のインドの読み方に近い「重い次末音節、無ければその前の重い音節」に軽い強勢（高さ）を置きます。
 * in1 には子音どうしのダイフォンがほとんど無いので、子音の間に短い無音を挟みます（音声の README の書き方 k a c _ r aa に従う）。
 
+## 訳語を直す表
+
+訳語は Wiktionary の語義の先頭から取りますが、先頭の語義が外れている語は `dragoman/sanskrit/glosses.py` の表で直します
+（ārya → 高貴な（先頭は民族名 Indo-Aryan）、pustaka → 本（先頭は「突起のある飾り」）、śruta → 聞かれた、pīta-ambara →
+黄色い衣、語根 vṛṣ → 雨が降る、ud-sthā → 立ち上がる）。仏典の語彙の表（下）を使うときは、そちらが先です。
+
 ## 仏典の語彙
 
 Wiktionary の訳語は一般の意味なので（śāri「チェスの駒」、śruta「筒抜け」）、仏典によく出る語は漢訳語を先に使います

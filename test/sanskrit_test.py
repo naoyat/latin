@@ -177,6 +177,13 @@ class BuddhistTestCase(unittest.TestCase):
         buddhist.detect('देवाः सुरां पिबन्ति ।')                       # 無ければ一般の訳語
         self.assertNotEqual(self.glosses('देवाः')[0], '天')
 
+    def test_general_glosses(self):
+        from dragoman.sanskrit import buddhist
+        buddhist.set_forced(False)
+        buddhist.detect('')
+        self.assertTrue(self.glosses('आर्यः')[0].startswith('高貴な'))  # Wiktionary の先頭は民族名 Indo-Aryan
+        self.assertEqual(self.glosses('पुस्तकम्'), ['本'])                 # 先頭は「突起のある飾り」
+
     def test_terms_and_verbs(self):
         from dragoman.sanskrit import buddhist
         buddhist.set_forced(True)
