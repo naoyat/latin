@@ -8,7 +8,7 @@
 # 見出し語ごとの品詞・訳語・転写 (イラン式と古典式)・動詞の現在語幹と過去語幹 (転写付き)・変化形 (複数形・比較級)・
 # 語源・子孫語を持つ。語形の解析 (接頭辞・人称語尾・複数・接語) は persian/morphology.py が規則で行う。
 #
-# 入力 ($LATIN_DATA/fa/):
+# 入力 ($DRAGOMAN_DATA/fa/):
 #   kaikki-Persian.jsonl.gz   https://kaikki.org/dictionary/Persian/kaikki.org-dictionary-Persian.jsonl.gz
 #   ../ja-extract.jsonl.gz    日本語の訳語 (任意。ペルシア語の項目と、日本語の項目の訳語の表のペルシア語)
 # 出力:

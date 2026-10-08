@@ -8,7 +8,7 @@
 # 語形の解析は pymorphy3 が行うので、ここでは見出し語ごとの品詞・訳語・アスペクト・語源・子孫語と、
 # 変化形の強勢の位置 (кни́ги。pymorphy3 の辞書には強勢が無い) だけを持つ。
 #
-# 入力 ($LATIN_DATA/ru/):
+# 入力 ($DRAGOMAN_DATA/ru/):
 #   kaikki-Russian.jsonl.gz   https://kaikki.org/dictionary/Russian/kaikki.org-dictionary-Russian.jsonl.gz
 #   ../ja-extract.jsonl.gz    日本語の訳語 (任意)
 # 出力:

@@ -5,7 +5,7 @@
 #
 #   python3 tools/build_hebrew_dic.py
 #
-# 入力 ($LATIN_DATA/he/):
+# 入力 ($DRAGOMAN_DATA/he/):
 #   oshb/*.xml        Open Scriptures Hebrew Bible (https://github.com/openscriptures/morphhb の wlc/)。
 #                     本文は Westminster Leningrad Codex (パブリックドメイン)、語形の解析は CC BY 4.0
 #   lexicon/          https://github.com/openscriptures/HebrewLexicon の AugIndex.xml, LexicalIndex.xml, HebrewStrong.xml,

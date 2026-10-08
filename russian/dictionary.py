@@ -8,9 +8,10 @@ import os
 import json
 import sqlite3
 
+from core import paths
 from . import script
 
-DATA_DIR = os.path.join(os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data')), 'ru')
+DATA_DIR = os.path.join(paths.DATA_DIR, 'ru')
 DB_PATH = os.path.join(DATA_DIR, 'wiktionary.sqlite')
 
 _db = None

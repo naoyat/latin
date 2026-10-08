@@ -10,9 +10,10 @@ import os
 import sqlite3
 import unicodedata
 
+from core import paths
 from . import ldt
 
-DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
+DATA_DIR = paths.DATA_DIR
 MACRONIZER_DIR = os.path.join(DATA_DIR, 'latin-macronizer', 'latin_macronizer')
 DB_PATH = os.path.join(DATA_DIR, 'morpheus.sqlite')
 

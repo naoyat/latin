@@ -10,11 +10,12 @@ import re
 import json
 import sqlite3
 
+from core import paths
 from core.wiktionary_import import make_item, flatten
 from .katakana import katakana
 from . import orthography
 
-DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
+DATA_DIR = paths.DATA_DIR
 DB_PATH = os.path.join(DATA_DIR, 'wiktionary.sqlite')
 
 _db = None

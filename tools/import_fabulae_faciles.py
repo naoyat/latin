@@ -3,7 +3,7 @@
 #
 # Ritchie's Fabulae Faciles (Project Gutenberg #8997) を texts/fabulae_faciles/ に取り込む
 #
-#   curl -L -o ~/.local/share/latin-data/fabulae-faciles-pg8997.txt \
+#   curl -L -o ~/.local/share/dragoman-data/fabulae-faciles-pg8997.txt \
 #        https://www.gutenberg.org/cache/epub/8997/pg8997.txt
 #   python3 tools/import_fabulae_faciles.py
 #
@@ -14,9 +14,10 @@
 import os
 import re
 import sys
+from core import paths
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
+DATA_DIR = paths.DATA_DIR
 SOURCE = os.path.join(DATA_DIR, 'fabulae-faciles-pg8997.txt')
 OUT_DIR = os.path.join(ROOT, 'texts', 'fabulae_faciles')
 

@@ -10,10 +10,11 @@ import os
 import json
 import sqlite3
 
+from core import paths
 from core.wiktionary_import import make_item
 from . import orthography
 
-DATA_DIR = os.path.join(os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data')), 'grc')
+DATA_DIR = os.path.join(paths.DATA_DIR, 'grc')
 DB_PATH = os.path.join(DATA_DIR, 'wiktionary.sqlite')
 
 _db = None

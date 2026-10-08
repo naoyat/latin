@@ -17,11 +17,12 @@ import functools
 import os
 import re
 import unicodedata
+from core import paths
 from dataclasses import dataclass, field
 
 from . import dictionary, script
 
-DATA_DIR = os.path.join(os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data')), 'ar')
+DATA_DIR = os.path.join(paths.DATA_DIR, 'ar')
 os.environ.setdefault('CAMELTOOLS_DATA', os.path.join(DATA_DIR, 'camel'))
 
 CASES = {'n': ('Nom',), 'a': ('Acc',), 'g': ('Gen',), 'u': ('Nom', 'Acc', 'Gen')}

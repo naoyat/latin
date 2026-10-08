@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Morpheus (Perseus の語形解析器。perseids-tools/morpheus を $LATIN_DATA/grc/morpheus でビルドしたもの) で、
+# Morpheus (Perseus の語形解析器。perseids-tools/morpheus を $DRAGOMAN_DATA/grc/morpheus でビルドしたもの) で、
 # 辞書に無い語形 (叙事詩・方言の形、加音の無い過去形など) を解析する
 #
 #   ἑτάροισι → ἑταῖρος 男性複数与格 (epic ionic aeolic)

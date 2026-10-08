@@ -50,8 +50,8 @@ pip install -r requirements.txt
 ```
 
 これだけで、手作りの辞書（約1,500語）を使った解析・訳・変化表・マクロンの推定ができます。
-次の追加データは任意で、無ければ使わずに動きます。データは `~/.local/share/latin-data/`
-（環境変数 `LATIN_DATA` で変更可）に置き、リポジトリには入れません。
+次の追加データは任意で、無ければ使わずに動きます。データは `~/.local/share/dragoman-data/`
+（環境変数 `DRAGOMAN_DATA` で変更可。旧名の `LATIN_DATA` と `~/.local/share/latin-data` も読む）に置き、リポジトリには入れません。
 
 | 追加データ | 効果 | 作り方 |
 |---|---|---|
@@ -190,7 +190,7 @@ python3 tools/speak.py -b mbrola -a stress -w out.wav "..."   # 強弱アクセ�
 手作りの辞書（`words/*.def`。日本語の訳語付き）を優先し、そこに無い語は Wiktionary 由来の補助辞書で引きます。
 
 ```
-mkdir -p ~/.local/share/latin-data && cd ~/.local/share/latin-data
+mkdir -p ~/.local/share/dragoman-data && cd ~/.local/share/dragoman-data
 curl -L -o kaikki-Latin.jsonl.gz https://kaikki.org/dictionary/Latin/kaikki.org-dictionary-Latin.jsonl.gz
 curl -LO https://kaikki.org/dictionary/downloads/ja/ja-extract.jsonl.gz   # 日本語の訳語（任意）
 cd - && python3 tools/build_wiktionary_dic.py
@@ -214,7 +214,7 @@ cd - && python3 tools/build_wiktionary_dic.py
 Morpheus の解析結果と、Latin Dependency Treebank で学習した RFTagger のモデルを借ります。
 
 ```
-cd ~/.local/share/latin-data
+cd ~/.local/share/dragoman-data
 git clone https://github.com/Alatius/latin-macronizer.git
 curl -LO https://www.cis.uni-muenchen.de/~schmid/tools/RFTagger/data/RFTagger.zip
 unzip RFTagger.zip && (cd RFTagger/src && make)
@@ -245,14 +245,14 @@ cd - && python3 tools/build_morpheus_dic.py
 テキストは知識から除きます。**目録に無いテキストは「読む対象のみ」**（知識にも評価にも使わない）なので、
 マクロンの無いテキストを読みたいときは `texts/` に置くだけで構いません。
 
-**権利関係が不明なテキストはリポジトリに入れません。** `$LATIN_DATA/private-texts/` に、同じ書式の目録
+**権利関係が不明なテキストはリポジトリに入れません。** `$DRAGOMAN_DATA/private-texts/` に、同じ書式の目録
 `catalog.json` と一緒に置くと、知識・評価・テストに使われます（golden テストの正解ファイルは `golden/` に置く）。
 
 ### 解析の精度
 
 `tools/ud_eval.py` で、Universal Dependencies のラテン語ツリーバンクを正解として、格・形容詞と属格の係り先・
 主語と目的語を測ります。既定は [UD Latin-PROIEL](https://github.com/UniversalDependencies/UD_Latin-PROIEL)
-（CC BY-NC-SA 3.0。`$LATIN_DATA/ud/` に置き、リポジトリには入れない）のカエサルとキケロの文です
+（CC BY-NC-SA 3.0。`$DRAGOMAN_DATA/ud/` に置き、リポジトリには入れない）のカエサルとキケロの文です
 （ウルガタは、品詞タガーの学習データと重なりうるので既定では使わない）。
 
 | カエサル『ガリア戦記』（約2.7万語） | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 独立奪格 | 主語 | 目的語 |
@@ -268,9 +268,9 @@ cd - && python3 tools/build_morpheus_dic.py
 `core/language.py`）で使います。
 
 ```
-mkdir -p ~/.local/share/latin-data/grc && cd ~/.local/share/latin-data/grc
+mkdir -p ~/.local/share/dragoman-data/grc && cd ~/.local/share/dragoman-data/grc
 curl -L -o kaikki-AncientGreek.jsonl.gz "https://kaikki.org/dictionary/Ancient%20Greek/kaikki.org-dictionary-AncientGreek.jsonl.gz"
-cd - && python3 tools/build_greek_dic.py      # → ~/.local/share/latin-data/grc/wiktionary.sqlite（約2.2万語・106万形）
+cd - && python3 tools/build_greek_dic.py      # → ~/.local/share/dragoman-data/grc/wiktionary.sqlite（約2.2万語・106万形）
 python3 tools/samples.py --lang=grc           # サンプルの訳 (-t 構造、-d 語ごとの辞書引き)
 python3 greek.py samples/greek.txt           # 解析の詳細 (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
 ```
@@ -289,7 +289,7 @@ python3 greek.py samples/greek.txt           # 解析の詳細 (-w で語ごと�
   見つからなければアクセント・気息記号を除いた形で引きます。
 * 双数・中動態・アオリスト・希求法・方言（叙事詩・イオニア・アッティカ・コイネー）の別を取り込みます。
 * `-D` で子孫語（ラテン語・英語・フランス語など）、`-E` で語源を表示します。
-* 評価用に UD Ancient Greek-PROIEL / Perseus（CC BY-NC-SA）を `~/.local/share/latin-data/grc/ud/` に置きます
+* 評価用に UD Ancient Greek-PROIEL / Perseus（CC BY-NC-SA）を `~/.local/share/dragoman-data/grc/ud/` に置きます
   （リポジトリには入れない）。`python3 tools/ud_eval.py --lang=grc [--source=nt,herodotus,homer,…]` で測ります。
 
 | UD Ancient Greek | 網羅率 | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 属格独立 | 主語 | 目的語 |
@@ -320,7 +320,7 @@ python3 greek.py samples/greek.txt           # 解析の詳細 (-w で語ごと�
 （`greek/dialect.py`）だけを使います。
 
 ```
-mkdir -p ~/.local/share/latin-data/grc/morpheus && cd ~/.local/share/latin-data/grc
+mkdir -p ~/.local/share/dragoman-data/grc/morpheus && cd ~/.local/share/dragoman-data/grc
 curl -L https://codeload.github.com/perseids-tools/morpheus/tar.gz/refs/heads/master | tar xz -C morpheus --strip-components=1
 cd morpheus/src && make clean
 CFLAGS='-std=gnu89 -Wno-return-type -Wno-implicit-function-declaration -Wno-int-conversion -Wno-incompatible-pointer-types' make LOADLIBES='-ll' && make install
@@ -356,11 +356,11 @@ python3 greek.py -s samples/greek.txt                                     # 解�
 
 ```
 pip install vidyut
-mkdir -p ~/.local/share/latin-data/sa && cd ~/.local/share/latin-data/sa
+mkdir -p ~/.local/share/dragoman-data/sa && cd ~/.local/share/dragoman-data/sa
 curl -L -o vidyut-data-0.4.0.zip https://github.com/ambuda-org/vidyut/releases/download/py-0.4.0/data-0.4.0.zip
 unzip vidyut-data-0.4.0.zip -d vidyut-data
 curl -L -o kaikki-Sanskrit.jsonl.gz "https://kaikki.org/dictionary/Sanskrit/kaikki.org-dictionary-Sanskrit.jsonl.gz"
-cd - && python3 tools/build_sanskrit_dic.py     # → ~/.local/share/latin-data/sa/wiktionary.sqlite
+cd - && python3 tools/build_sanskrit_dic.py     # → ~/.local/share/dragoman-data/sa/wiktionary.sqlite
 python3 tools/samples.py --lang=sa             # サンプルの訳 (-t 構造、-d 語ごとの辞書引き)
 python3 sanskrit.py samples/sanskrit.txt        # 解析の詳細 (-w で語ごとの辞書引きを省く、-D 子孫語、-E 語源)
 ```
@@ -400,7 +400,7 @@ python3 sanskrit.py samples/sanskrit.txt        # 解析の詳細 (-w で語ご�
   UD Sanskrit-UFAL の複合語 136 語で、分けられたもの 94.9%、語の数が合うもの 90.4%、語幹まで合うもの 84.6%
   （`python3 tools/sa_compound_eval.py`）。前の語の訳語は Wiktionary の語義の多い見出しの最初の訳語なので、
   ずれることがあります（pīta「飲まれた / 黄色い」）。
-* 評価用に UD Sanskrit-Vedic と UD Sanskrit-UFAL（どちらも CC BY-SA 4.0）を `~/.local/share/latin-data/sa/ud/` に置き、
+* 評価用に UD Sanskrit-Vedic と UD Sanskrit-UFAL（どちらも CC BY-SA 4.0）を `~/.local/share/dragoman-data/sa/ud/` に置き、
   `python3 tools/ud_eval.py --lang=sa [--source=vedic,ufal]` で測ります（連声を解いて複合語を分けた語の列を入力にする）。
 
 | UD Sanskrit | 網羅率 | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 主語 | 目的語 |
@@ -434,9 +434,9 @@ Wiktionary から取り、解析・訳は共通の解析器（`core/`）をロ�
 
 ```
 pip install pymorphy3 pymorphy3-dicts-ru
-mkdir -p ~/.local/share/latin-data/ru && cd ~/.local/share/latin-data/ru
+mkdir -p ~/.local/share/dragoman-data/ru && cd ~/.local/share/dragoman-data/ru
 curl -L -o kaikki-Russian.jsonl.gz "https://kaikki.org/dictionary/Russian/kaikki.org-dictionary-Russian.jsonl.gz"
-cd - && python3 tools/build_russian_dic.py      # → ~/.local/share/latin-data/ru/wiktionary.sqlite (約5.8万語、強勢付きの変化形 約140万)
+cd - && python3 tools/build_russian_dic.py      # → ~/.local/share/dragoman-data/ru/wiktionary.sqlite (約5.8万語、強勢付きの変化形 約140万)
 python3 tools/samples.py --lang=ru              # サンプルの訳
 python3 russian.py samples/russian.txt          # 解析の詳細 (-w, -D 子孫語, -E 語源, -s 音読)
 ```
@@ -467,7 +467,7 @@ python3 russian.py samples/russian.txt          # 解析の詳細 (-w, -D 子孫
   ロシア語音声。`-t espeak`）。強勢記号はどちらも読まないので、強勢は音声の辞書に任せます。
 * `say` は現代語向けの方式として `tools/speak.py -b say` でほかの言語にも使えます（サンスクリットはヒンディー語の Lekha、
   ギリシア語は現代ギリシア語の Melina で、多調符を単調符に直して渡す。どちらも現代語の読み方になる）。
-* 評価用に UD Russian-GSD・Taiga（CC BY-SA 4.0）と SynTagRus（CC BY-NC-SA 4.0）の test を `~/.local/share/latin-data/ru/ud/` に置き、
+* 評価用に UD Russian-GSD・Taiga（CC BY-SA 4.0）と SynTagRus（CC BY-NC-SA 4.0）の test を `~/.local/share/dragoman-data/ru/ud/` に置き、
   `python3 tools/ud_eval.py --lang=ru [--source=gsd,taiga,syntagrus]` で測ります。
 
 | UD Russian | 網羅率 | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 主語 | 目的語 |
@@ -486,10 +486,10 @@ python3 russian.py samples/russian.txt          # 解析の詳細 (-w, -D 子孫
 日本語訳は Wiktionary から付けます。解析・訳は共通の解析器（`core/`）をヘブライ語の設定で使います。
 
 ```
-mkdir -p ~/.local/share/latin-data/he/oshb ~/.local/share/latin-data/he/lexicon
+mkdir -p ~/.local/share/dragoman-data/he/oshb ~/.local/share/dragoman-data/he/lexicon
 # oshb/ に morphhb の wlc/*.xml、lexicon/ に HebrewLexicon の AugIndex.xml・LexicalIndex.xml・HebrewStrong.xml
 # (態ごとの語義には BrownDriverBriggs.xml も) を置く
-python3 tools/build_hebrew_dic.py        # → ~/.local/share/latin-data/he/hebrew.sqlite (語形 約5.8万、見出し語 約9,300)
+python3 tools/build_hebrew_dic.py        # → ~/.local/share/dragoman-data/he/hebrew.sqlite (語形 約5.8万、見出し語 約9,300)
 python3 tools/samples.py --lang=he       # サンプルの訳
 python3 hebrew.py samples/hebrew.txt     # 解析の詳細 (-w, -D, -E, -s 音読)
 ```
@@ -559,10 +559,10 @@ GPL v2 のデータで、リポジトリには入れない）、訳語・語根�
 
 ```
 pip install camel-tools
-mkdir -p ~/.local/share/latin-data/ar/camel && cd ~/.local/share/latin-data/ar
+mkdir -p ~/.local/share/dragoman-data/ar/camel && cd ~/.local/share/dragoman-data/ar
 CAMELTOOLS_DATA=$PWD/camel camel_data -i morphology-db-msa-r13 disambig-mle-calima-msa-r13   # 約130MB
 curl -L -o kaikki-Arabic.jsonl.gz "https://kaikki.org/dictionary/Arabic/kaikki.org-dictionary-Arabic.jsonl.gz"
-cd - && python3 tools/build_arabic_dic.py       # → ~/.local/share/latin-data/ar/wiktionary.sqlite (約2.7万語)
+cd - && python3 tools/build_arabic_dic.py       # → ~/.local/share/dragoman-data/ar/wiktionary.sqlite (約2.7万語)
 python3 tools/samples.py --lang=ar              # サンプルの訳
 python3 arabic.py samples/arabic.txt            # 解析の詳細 (-w, -D, -E, -s 音読, -r 転写)
 ```
@@ -594,7 +594,7 @@ python3 arabic.py samples/arabic.txt            # 解析の詳細 (-w, -D, -E, -
 * 訳語は手で決めた基本語、母音まで同じ Wiktionary の項目（日本語版 Wiktionary のアラビア語の項目と、日本語の項目の訳語の表を
   逆に引いたもの。約2,100語）、CAMeL Tools の語義（英語）の順。まだ英語の訳語が多いです。
 * 音読（`-s`）は macOS の say のアラビア語音声 Majed に、母音記号を補った形を渡します。
-* 評価用に UD Arabic-PADT（新聞記事。CC BY-NC-SA 3.0）の test を `~/.local/share/latin-data/ar/ud/` に置き、
+* 評価用に UD Arabic-PADT（新聞記事。CC BY-NC-SA 3.0）の test を `~/.local/share/dragoman-data/ar/ud/` に置き、
   `python3 tools/ud_eval.py --lang=ar` で測ります（書かれたとおりの語を渡し、解析器が分けた切れ目を UD の語に対応させる）。
 
 | UD Arabic | 網羅率 | 格 | 形容詞→名詞 | 属格→名詞 | 述語の検出 | 主語 | 目的語 |
@@ -612,9 +612,9 @@ python3 arabic.py samples/arabic.txt            # 解析の詳細 (-w, -D, -E, -
 （`core/`）をペルシア語の設定で使います。
 
 ```
-mkdir -p ~/.local/share/latin-data/fa && cd ~/.local/share/latin-data/fa
+mkdir -p ~/.local/share/dragoman-data/fa && cd ~/.local/share/dragoman-data/fa
 curl -L -o kaikki-Persian.jsonl.gz "https://kaikki.org/dictionary/Persian/kaikki.org-dictionary-Persian.jsonl.gz"
-cd - && python3 tools/build_persian_dic.py      # → ~/.local/share/latin-data/fa/wiktionary.sqlite (約1.7万語)
+cd - && python3 tools/build_persian_dic.py      # → ~/.local/share/dragoman-data/fa/wiktionary.sqlite (約1.7万語)
 python3 tools/samples.py --lang=fa              # サンプルの訳
 python3 persian.py samples/persian.txt          # 解析の詳細 (-w, -D, -E, -s 音読, -r 転写)
 ```
@@ -645,7 +645,7 @@ python3 persian.py samples/persian.txt          # 解析の詳細 (-w, -D, -E, -
 * 語ごとの解説（`--no-explain` で出さない）: 不定形と現在語幹・過去語幹（raftan: rav / raft）、形の作り方、
   複合動詞の軽動詞、エザーフェ、関係形容詞、不定の -i。
 * 音読（`-s`）は espeak-ng のペルシア語音声（macOS の say にはペルシア語の音声が無い）。
-* 評価用に UD Persian-PerDT と Seraji（どちらも CC BY-SA 4.0）の test を `~/.local/share/latin-data/fa/ud/` に置き、
+* 評価用に UD Persian-PerDT と Seraji（どちらも CC BY-SA 4.0）の test を `~/.local/share/dragoman-data/fa/ud/` に置き、
   `python3 tools/ud_eval.py --lang=fa [--source=perdt,seraji]` で測ります。格の無い言語なので格は測らず、属格→名詞は
   エザーフェでつながった名詞（nmod / nmod:poss）を測ります。辞書に無い語にも大まかな転写の項目を付けるので網羅率は 100% に見えます。
 
@@ -664,9 +664,9 @@ Wiktionary の変化表（名詞の直格・斜格、形容詞の性・数、動
 同じなので、同じ解析器にペルシア文字の入口を付ける予定です。
 
 ```
-mkdir -p ~/.local/share/latin-data/hi && cd ~/.local/share/latin-data/hi
+mkdir -p ~/.local/share/dragoman-data/hi && cd ~/.local/share/dragoman-data/hi
 curl -L -o kaikki-Hindi.jsonl.gz "https://kaikki.org/dictionary/Hindi/kaikki.org-dictionary-Hindi.jsonl.gz"
-cd - && python3 tools/build_hindi_dic.py        # → ~/.local/share/latin-data/hi/wiktionary.sqlite (約2.4万語、約20万形)
+cd - && python3 tools/build_hindi_dic.py        # → ~/.local/share/dragoman-data/hi/wiktionary.sqlite (約2.4万語、約20万形)
 python3 tools/samples.py --lang=hi              # サンプルの訳
 python3 hindi.py samples/hindi.txt              # 解析の詳細 (-w, -D, -E, -s 音読, -r 転写)
 ```
@@ -696,7 +696,7 @@ python3 hindi.py samples/hindi.txt              # 解析の詳細 (-w, -D, -E, -
 * yah / vah + 名詞は「この / その」（斜格の is / us の後ろの名詞も斜格: is sāl「今年」）、ek + 名詞は不定の印（訳に出さない）。
 * 語ごとの解説（`--no-explain` で出さない）: 動詞の形（未完了分詞・完了分詞・未来…）、性・数の一致、能格、斜格。
 * 音読（`-s`）は macOS の say のヒンディー語音声 Lekha。
-* 評価用に UD Hindi-HDTB（CC BY-NC-SA 4.0）の test を `~/.local/share/latin-data/hi/ud/` に置き、
+* 評価用に UD Hindi-HDTB（CC BY-NC-SA 4.0）の test を `~/.local/share/dragoman-data/hi/ud/` に置き、
   `python3 tools/ud_eval.py --lang=hi` で測ります。UD の格（直格・斜格）と解析器の格（後置詞の働きで読み替えたもの）は
   体系が違うので格は測りません。HDTB は受動文の主語（mūrti sthāpit kī gaī「像が据えられた」の mūrti）を目的語とするので、
   目的語の数字は低めに出ます。

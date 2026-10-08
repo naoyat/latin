@@ -8,7 +8,7 @@
 # 語形の解析は CAMeL Tools (形態素辞書 calima-msa-r13) が行うので、ここでは見出し語ごとの品詞・訳語・
 # 動詞の型 (I〜X)・語根・語源・子孫語だけを持つ。
 #
-# 入力 ($LATIN_DATA/ar/):
+# 入力 ($DRAGOMAN_DATA/ar/):
 #   kaikki-Arabic.jsonl.gz   https://kaikki.org/dictionary/Arabic/kaikki.org-dictionary-Arabic.jsonl.gz
 #   ../ja-extract.jsonl.gz   日本語の訳語 (任意。アラビア語の項目と、日本語の項目の訳語の表のアラビア語)
 # 出力:

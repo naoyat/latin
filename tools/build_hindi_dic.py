@@ -9,7 +9,7 @@
 # 性・数、動詞の分詞・未来・接続法・命令、代名詞の能格・与格・属格) を語形の辞書にする。助動詞と組む形
 # (पढ़ता हूँ) は文の解析 (hindi/analyzer.py) で組み立てる。
 #
-# 入力 ($LATIN_DATA/hi/):
+# 入力 ($DRAGOMAN_DATA/hi/):
 #   kaikki-Hindi.jsonl.gz   https://kaikki.org/dictionary/Hindi/kaikki.org-dictionary-Hindi.jsonl.gz
 #   ../ja-extract.jsonl.gz  日本語の訳語 (任意。ヒンディー語の項目と、日本語の項目の訳語の表のヒンディー語)
 # 出力:

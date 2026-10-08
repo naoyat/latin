@@ -13,8 +13,9 @@
 import os
 import subprocess
 import tempfile
+from core import paths
 
-DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
+DATA_DIR = paths.DATA_DIR
 RFTAGGER = os.environ.get('LATIN_RFTAGGER', os.path.join(DATA_DIR, 'RFTagger', 'src', 'rft-annotate'))
 MODEL = os.environ.get('LATIN_RFTAGGER_MODEL',
                        os.path.join(DATA_DIR, 'latin-macronizer', 'latin_macronizer', 'rftagger-ldt.model'))

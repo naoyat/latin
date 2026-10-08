@@ -8,7 +8,7 @@
 # 語形の解析は vidyut (kosha) が行うので、ここでは見出し語 (語幹・語根) ごとの品詞・訳語・語源・子孫語だけを持つ。
 # 動詞は Wiktionary では現在3人称単数 (गच्छति) が見出しなので、語根 (गम् gam) のキーでも入れる。
 #
-# 入力 ($LATIN_DATA/sa/):
+# 入力 ($DRAGOMAN_DATA/sa/):
 #   kaikki-Sanskrit.jsonl.gz  https://kaikki.org/dictionary/Sanskrit/kaikki.org-dictionary-Sanskrit.jsonl.gz
 #   ../ja-extract.jsonl.gz    日本語の訳語 (任意)
 # 出力:

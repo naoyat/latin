@@ -64,7 +64,7 @@ def main():
             return
     if not (dictionary.available() and morphology.available()):
         sys.exit('no Arabic data (pip install camel-tools; camel_data -i morphology-db-msa-r13 '
-                 'disambig-mle-calima-msa-r13 (CAMELTOOLS_DATA=$LATIN_DATA/ar/camel); '
+                 'disambig-mle-calima-msa-r13 (CAMELTOOLS_DATA=$DRAGOMAN_DATA/ar/camel); '
                  'python3 tools/build_arabic_dic.py)')
     notes = word_notes(show_descendants, show_etymology, show_explanation)
     if speech_mode:

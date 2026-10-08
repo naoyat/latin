@@ -6,9 +6,9 @@
 #
 #   python3 tools/build_morpheus_dic.py
 #
-# 入力: $LATIN_DATA/latin-macronizer/latin_macronizer/macrons.txt
+# 入力: $DRAGOMAN_DATA/latin-macronizer/latin_macronizer/macrons.txt
 #       (語形 \t LDT タグ \t 見出し語 \t 長短付きの形)  長短の表記: 長母音の後に '_'、短母音の後に '^'
-# 出力: $LATIN_DATA/morpheus.sqlite
+# 出力: $DRAGOMAN_DATA/morpheus.sqlite
 #
 # データは Latin Macronizer (GPL-3.0) 由来なのでリポジトリには入れない
 #

@@ -40,7 +40,7 @@ TOKEN = re.compile(r"[Ͱ-Ͽἀ-῿̀-ͯ]+(?:[’'ʼ᾽][Ͱ-Ͽἀ-῿̀-ͯ]*)?"
 PUNCTUATION = set('.,·;·;:!')
 SENTENCE_END = re.compile(r'(?<=[.;;··])\s+')
 
-USE_MORPHEUS = True  # 辞書に無い語を Morpheus で解析する ($LATIN_DATA/grc/morpheus にビルドしてあれば)
+USE_MORPHEUS = True  # 辞書に無い語を Morpheus で解析する ($DRAGOMAN_DATA/grc/morpheus にビルドしてあれば)
 ARTICLE_WINDOW = 4  # 冠詞と名詞の間に入りうる語の数 (ὁ ἀγαθὸς ἀνήρ, ὁ τοῦ βασιλέως υἱός)
 
 

@@ -8,16 +8,17 @@
 #   - マクロン推定の評価データに使えるか、評価するときに知識から除くべきテキスト (同じ family)
 # 目録に無いテキストは「読む対象のみ」(知識にも評価にも使わない)
 #
-# 権利関係が不明なテキストはリポジトリに入れず、$LATIN_DATA/private-texts/ に
+# 権利関係が不明なテキストはリポジトリに入れず、$DRAGOMAN_DATA/private-texts/ に
 # 同じ書式の目録 (catalog.json) と一緒に置く。両方の目録を合わせて使う
 #
 import os
 import json
+from core import paths
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEXTS_DIR = os.path.join(ROOT, 'texts')
 CATALOG_PATH = os.environ.get('LATIN_CATALOG', os.path.join(TEXTS_DIR, 'catalog.json'))
-DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
+DATA_DIR = paths.DATA_DIR
 PRIVATE_TEXTS_DIR = os.path.join(DATA_DIR, 'private-texts')
 
 

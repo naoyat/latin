@@ -5,7 +5,7 @@
 #
 #   python3 tools/build_wiktionary_dic.py
 #
-# 入力 ($LATIN_DATA, 既定 ~/.local/share/latin-data):
+# 入力 ($DRAGOMAN_DATA, 既定 ~/.local/share/dragoman-data):
 #   kaikki-Latin.jsonl.gz  https://kaikki.org/dictionary/Latin/kaikki.org-dictionary-Latin.jsonl.gz
 #   ja-extract.jsonl.gz    https://kaikki.org/dictionary/downloads/ja/ja-extract.jsonl.gz (任意。日本語の訳語)
 # 出力:

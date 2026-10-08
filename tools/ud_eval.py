@@ -11,29 +11,29 @@
 #   python3 tools/ud_eval.py --lang=fa [--source=perdt,seraji]       ペルシア語
 #   python3 tools/ud_eval.py --lang=hi                               ヒンディー語
 #
-# 古典ギリシア語 (--lang=grc) の既定は $LATIN_DATA/grc/ud/grc_*-ud-*.conllu (UD Ancient Greek-PROIEL / Perseus,
+# 古典ギリシア語 (--lang=grc) の既定は $DRAGOMAN_DATA/grc/ud/grc_*-ud-*.conllu (UD Ancient Greek-PROIEL / Perseus,
 # CC BY-NC-SA) のうち、新約聖書とヘロドトス『歴史』。マクロンの推定・品詞タガーは使わない。
 # 独立奪格の項目は、ギリシア語では属格独立を測る。
 #
-# サンスクリット (--lang=sa) の既定は $LATIN_DATA/sa/ud/sa_*-ud-test.conllu (UD Sanskrit-Vedic と
+# サンスクリット (--lang=sa) の既定は $DRAGOMAN_DATA/sa/ud/sa_*-ud-test.conllu (UD Sanskrit-Vedic と
 # UD Sanskrit-UFAL『パンチャタントラ』。どちらも CC BY-SA 4.0)。どちらも連声を解いて複合語を分けた語の列。
 # 独立奪格の項目は処格独立を測る。
 #
-# ロシア語 (--lang=ru) の既定は $LATIN_DATA/ru/ud/ru_*-ud-test.conllu (UD Russian-GSD, Taiga (CC BY-SA 4.0)、
+# ロシア語 (--lang=ru) の既定は $DRAGOMAN_DATA/ru/ud/ru_*-ud-test.conllu (UD Russian-GSD, Taiga (CC BY-SA 4.0)、
 # SynTagRus (CC BY-NC-SA 4.0))。独立奪格にあたる構文は無い。
 #
-# アラビア語 (--lang=ar) の既定は $LATIN_DATA/ar/ud/ar_padt-ud-test.conllu (UD Arabic-PADT, CC BY-NC-SA 3.0。
+# アラビア語 (--lang=ar) の既定は $DRAGOMAN_DATA/ar/ud/ar_padt-ud-test.conllu (UD Arabic-PADT, CC BY-NC-SA 3.0。
 # 新聞記事)。解析器には書かれたとおりの語 (接続詞・前置詞・人称接尾辞の付いた形) を渡し、解析器が分けた切れ目を
 # UD の語 (複合語の行の中の語) に対応させる。
 #
-# ペルシア語 (--lang=fa) の既定は $LATIN_DATA/fa/ud/fa_*-ud-test.conllu (UD Persian-PerDT, Seraji。CC BY-SA 4.0)。
+# ペルシア語 (--lang=fa) の既定は $DRAGOMAN_DATA/fa/ud/fa_*-ud-test.conllu (UD Persian-PerDT, Seraji。CC BY-SA 4.0)。
 # 格の無い言語なので格は測らず、属格→名詞 の項目はエザーフェでつながった名詞 (nmod) を測る。
 #
-# ヒンディー語 (--lang=hi) の既定は $LATIN_DATA/hi/ud/hi_hdtb-ud-test.conllu (UD Hindi-HDTB, CC BY-NC-SA 4.0)。
+# ヒンディー語 (--lang=hi) の既定は $DRAGOMAN_DATA/hi/ud/hi_hdtb-ud-test.conllu (UD Hindi-HDTB, CC BY-NC-SA 4.0)。
 # UD の格 (直格 Nom・斜格 Acc) と解析器の格 (後置詞の働きで読み替えた主格・対格・与格・属格) は体系が違うので格は測らず、
 # 属格→名詞 は名詞に掛かる名詞 (nmod) を測る。
 #
-# 既定は $LATIN_DATA/ud/la_proiel-ud-*.conllu (UD Latin-PROIEL, CC BY-NC-SA 3.0。リポジトリには入れない)
+# 既定は $DRAGOMAN_DATA/ud/la_proiel-ud-*.conllu (UD Latin-PROIEL, CC BY-NC-SA 3.0。リポジトリには入れない)
 # のうち、カエサル『ガリア戦記』とキケロ『義務について』『アッティクス宛書簡』の文。
 # ウルガタは、品詞タガー (RFTagger) の学習データ (Latin Dependency Treebank) と重なりうるので既定では使わない。
 #
@@ -54,6 +54,7 @@ import collections
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from core import paths
 from latin import latindic, analyzer, macronizer
 from greek import analyzer as greek_analyzer
 from sanskrit import analyzer as sanskrit_analyzer
@@ -66,7 +67,7 @@ from core.AndOr import AndOr
 from core.PrepClause import PrepClause
 from core.Predicate import Predicate
 
-DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
+DATA_DIR = paths.DATA_DIR
 DEFAULT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'ud', 'la_proiel-ud-*.conllu')))
 GREEK_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'grc', 'ud', 'grc_*-ud-*.conllu')))
 SANSKRIT_FILES = sorted(glob.glob(os.path.join(DATA_DIR, 'sa', 'ud', 'sa_*-ud-test.conllu')))

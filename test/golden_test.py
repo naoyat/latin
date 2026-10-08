@@ -7,7 +7,7 @@
 #   UPDATE_GOLDEN=1 python3 test/golden_test.py     # 意図して出力を変えたときに更新
 #
 # - パブリックドメインのテキスト: 正解ファイルは test/golden/
-# - リポジトリに入れないテキスト ($LATIN_DATA/private-texts/*.txt): 正解ファイルは private-texts/golden/
+# - リポジトリに入れないテキスト ($DRAGOMAN_DATA/private-texts/*.txt): 正解ファイルは private-texts/golden/
 #   (フォルダが無ければスキップ)
 #
 # 日本語訳の動詞の活用は MeCab の辞書に依存する (golden は UniDic (unidic-lite) で生成)

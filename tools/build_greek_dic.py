@@ -5,7 +5,7 @@
 #
 #   python3 tools/build_greek_dic.py
 #
-# 入力 ($LATIN_DATA/grc/, 既定 ~/.local/share/latin-data/grc/):
+# 入力 ($DRAGOMAN_DATA/grc/, 既定 ~/.local/share/dragoman-data/grc/):
 #   kaikki-AncientGreek.jsonl.gz  https://kaikki.org/dictionary/Ancient%20Greek/kaikki.org-dictionary-AncientGreek.jsonl.gz
 #   ../ja-extract.jsonl.gz        日本語の訳語 (任意。ラテン語の辞書と共用)
 # 出力:

@@ -3,7 +3,7 @@
 #
 # D'Ooge, Latin for Beginners (Project Gutenberg #18251) の読み物を texts/dooge/ に取り込む
 #
-#   curl -L -o ~/.local/share/latin-data/dooge-pg18251.txt \
+#   curl -L -o ~/.local/share/dragoman-data/dooge-pg18251.txt \
 #        https://www.gutenberg.org/cache/epub/18251/pg18251.txt
 #   python3 tools/import_dooge.py
 #
@@ -15,9 +15,10 @@ import os
 import re
 import sys
 import unicodedata
+from core import paths
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.environ.get('LATIN_DATA', os.path.expanduser('~/.local/share/latin-data'))
+DATA_DIR = paths.DATA_DIR
 SOURCE = os.path.join(DATA_DIR, 'dooge-pg18251.txt')
 OUT_DIR = os.path.join(ROOT, 'texts', 'dooge')
 
