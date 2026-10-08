@@ -55,9 +55,26 @@ class DragomanCommandTestCase(unittest.TestCase):
         self.assertIn('→', ANSI_ESCAPE.sub('', result.stdout))
 
     def test_unknown_lang(self):
-        result = subprocess.run([sys.executable, 'dragoman.py', '--lang=xx'], cwd=ROOT, input='',
+        for args in (['--lang=xx'], ['xx']):
+            result = subprocess.run([sys.executable, 'dragoman.py'] + args, cwd=ROOT, input='',
+                                    capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('grc', result.stderr)  # 対応している言語の一覧を出す
+
+    def test_positional_lang_and_text_option(self):
+        # ./dragoman.py LANG -e TEXT (言語を最初の引数で、文を -e で)
+        result = subprocess.run([sys.executable, 'dragoman.py', 'la', '-w', '-e', 'Rōma magna est.'], cwd=ROOT,
                                 capture_output=True, text=True)
-        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('→', ANSI_ESCAPE.sub('', result.stdout))
+        result = subprocess.run([sys.executable, 'dragoman.py', '-w', '-e', 'Rōma magna est.', '-e', 'Mārcus currit.'],
+                                cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(ANSI_ESCAPE.sub('', result.stdout).count('→'), 2)
+
+    def test_language_list(self):
+        result = subprocess.run([sys.executable, 'dragoman.py', '--languages'], cwd=ROOT, capture_output=True,
+                                text=True)
+        for code in ('la', 'grc', 'sa', 'ru', 'he', 'ar', 'fa', 'hi', 'ur'):
+            self.assertIn('  %s ' % code, result.stdout)
 
     def test_detect(self):
         sys.path.insert(0, ROOT)

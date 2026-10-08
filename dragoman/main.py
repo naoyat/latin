@@ -4,21 +4,25 @@
 # dragoman: 文を辞書引き・構文解析して、日本語の逐語訳を付ける (ラテン語・古典ギリシア語・サンスクリット・ロシア語・
 # 聖書ヘブライ語 (聖書アラム語)・アラビア語・ペルシア語・ヒンディー語・ウルドゥー語)
 #
-#   echo "Agricola in silvā magnam casam aedificat." | python3 dragoman.py      (python3 -m dragoman でも)
-#   python3 dragoman.py --lang=grc FILE...
-#   python3 dragoman.py --lang=hi -s -w FILE...
-#   python3 dragoman.py --lang=he --help              言語ごとのオプション
+#   ./dragoman.py [LANG] [オプション] [ファイル...]     (python3 dragoman.py / python3 -m dragoman でも)
 #
-#   --lang=LANG   la (ラテン語) / grc (古典ギリシア語) / sa (サンスクリット) / ru (ロシア語) / he (聖書ヘブライ語) /
-#                 ar (アラビア語) / fa (ペルシア語) / hi (ヒンディー語) / ur (ウルドゥー語)。
-#                 省略すると文字から推定する (ラテン文字 → la、ギリシア文字 → grc、キリル文字 → ru、ヘブライ文字 → he、
+#   echo "Agricola in silvā magnam casam aedificat." | ./dragoman.py
+#   ./dragoman.py grc FILE...
+#   ./dragoman.py hi -e "लड़के ने किताब पढ़ी।"
+#   ./dragoman.py la                                   ラテン語の対話モード (変化表・マクロンの推定)
+#   ./dragoman.py he --help                            言語ごとのオプション
+#   ./dragoman.py --languages                          対応している言語の一覧
+#
+#   LANG          最初の引数が言語の符号なら言語の指定 (--lang=LANG でも)。省略すると文字から推定する
+#                 (ラテン文字 → la、ギリシア文字 → grc、キリル文字 → ru、ヘブライ文字 → he、
 #                 ウルドゥー語の字 (ٹ ڈ ڑ ں ے ھ) のあるアラビア文字 → ur、ペルシア語の字 (پ چ ژ گ ک ی) の多いもの → fa、
-#                 ほかのアラビア文字 → ar、
-#                 デーヴァナーガリーは ヒンディー語らしい語 (है, का, की, में …) があれば hi、無ければ sa)
+#                 ほかのアラビア文字 → ar、デーヴァナーガリーはヒンディー語らしい語 (है, का, की, में …) があれば hi、無ければ sa)
+#   -e, --text=TEXT       引数の文を入力にする (何度でも。ファイル・標準入力の代わりに)
+#   -L, --languages       対応している言語の一覧を出す
 #
-# 共通のオプション (-w, -D, -E, -s, -t, -r, --no-explain) は core/cli.py、言語ごとのオプションは --lang=xx --help で。
-# ラテン語は dragoman/latin/main.py (対話モード・変化表・マクロンの推定などを含む) に渡す。
-# python3 dragoman.py --lang=la だけなら対話モード
+# 共通のオプション (-w, -D, -E, -s, -t, -r, --no-explain, --english-glosses) は core/cli.py、
+# 言語ごとのオプションは ./dragoman.py LANG --help で。
+# ラテン語は dragoman/latin/main.py (対話モード・変化表・マクロンの推定などを含む) に渡す
 #
 import importlib
 import os
@@ -26,8 +30,12 @@ import re
 import sys
 import tempfile
 
-LANGUAGES = {'la': None, 'grc': 'greek', 'sa': 'sanskrit', 'ru': 'russian', 'he': 'hebrew', 'ar': 'arabic',
+LANGUAGES = {'la': 'latin', 'grc': 'greek', 'sa': 'sanskrit', 'ru': 'russian', 'he': 'hebrew', 'ar': 'arabic',
              'fa': 'persian', 'hi': 'hindi', 'ur': 'urdu'}
+NAMES = {'la': 'ラテン語', 'grc': '古典ギリシア語', 'sa': 'サンスクリット', 'ru': 'ロシア語',
+         'he': '聖書ヘブライ語 (聖書アラム語も)', 'ar': 'アラビア語 (現代標準アラビア語)', 'fa': 'ペルシア語',
+         'hi': 'ヒンディー語', 'ur': 'ウルドゥー語'}
+CODE = re.compile('^[a-z]{2,4}$')
 HINDI_WORDS = {'है', 'हैं', 'का', 'की', 'के', 'में', 'नहीं', 'को', 'से', 'ने', 'था', 'थी', 'और', 'पर', 'भी'}
 
 
@@ -59,10 +67,15 @@ def command_for(lang):
     return importlib.import_module('dragoman.%s.command' % LANGUAGES[lang]).COMMAND
 
 
-def main(argv=None):
-    argv = list(sys.argv[1:] if argv is None else argv)
-    lang = None
-    args = []
+def language_list():
+    """対応している言語の一覧 (符号・名前・説明の文書)"""
+    return '\n'.join('  %-4s %s  (docs/%s.md)' % (code, NAMES[code], LANGUAGES[code]) for code in LANGUAGES)
+
+
+def parse_args(argv):
+    """(言語, 言語に渡す引数, -e の文のリスト)。言語は --lang=LANG か、最初の引数が言語の符号のとき"""
+    lang, args, texts = None, [], []
+    positional_seen = False
     i = 0
     while i < len(argv):
         arg = argv[i]
@@ -71,27 +84,51 @@ def main(argv=None):
         elif arg == '--lang' and i + 1 < len(argv):
             lang = argv[i + 1]
             i += 1
+        elif arg.startswith('--text='):
+            texts.append(arg.split('=', 1)[1])
+        elif arg in ('-e', '--text') and i + 1 < len(argv):
+            texts.append(argv[i + 1])
+            i += 1
+        elif arg.startswith('-e') and len(arg) > 2:
+            texts.append(arg[2:])
+        elif not arg.startswith('-') and not positional_seen and lang is None and not os.path.exists(arg) \
+                and CODE.match(arg):
+            lang = arg  # ./dragoman.py grc …
+            positional_seen = True
         else:
+            if not arg.startswith('-'):
+                positional_seen = True
             args.append(arg)
         i += 1
-    if lang is not None and lang not in LANGUAGES:
-        sys.exit('--lang: %s のどれか' % '|'.join(LANGUAGES))
-    if lang is None and ('-h' in args or '--help' in args):
-        print(open(__file__, encoding='utf-8').read().split('\nimport')[0])
+    return lang, args, texts
+
+
+def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if '-L' in argv or '--languages' in argv:
+        print('対応している言語:\n' + language_list())
         return
-    texts = None
+    lang, args, texts = parse_args(argv)
+    if lang is not None and lang not in LANGUAGES:
+        sys.exit('知らない言語: %s\n対応している言語:\n%s' % (lang, language_list()))
+    if lang is None and ('-h' in args or '--help' in args):
+        print(open(__file__, encoding='utf-8').read().split('\nimport')[0].replace('# ', '').replace('#', ''))
+        print('対応している言語:\n' + language_list())
+        return
+    texts = texts or None
     if lang is None:
         # 言語を推定するためにテキストを先に読む (ファイルの指定はオプションでない引数)
         from dragoman.core import cli
-        files = [a for a in args if not a.startswith('-') and os.path.exists(a)]
-        texts = cli.read_texts(files)
+        if texts is None:
+            files = [a for a in args if not a.startswith('-') and os.path.exists(a)]
+            texts = cli.read_texts(files)
+            args = [a for a in args if a not in files]
         lang = detect('\n'.join(texts)) or 'la'
-        args = [a for a in args if a not in files]
     if lang == 'la':
         from dragoman.latin import main as latin_main
-        if texts is not None:  # 読んでしまったテキストは一時ファイルで渡す
+        if texts is not None:  # 文はラテン語のコマンドに一時ファイルで渡す
             with tempfile.NamedTemporaryFile('w', suffix='.txt', delete=False, encoding='utf-8') as fp:
-                fp.write('\n'.join(texts))
+                fp.write('\n'.join(texts) + '\n')
             args.append(fp.name)
         latin_main.main(args)
         return

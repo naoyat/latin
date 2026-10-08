@@ -62,12 +62,15 @@ python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sql
 ## 使い方
 
 ```
-python3 dragoman.py [--lang=LANG] [オプション] [ファイル...]   # ファイル (無ければ標準入力) を解析 (python3 -m dragoman でも)
-python3 dragoman.py --lang=he --help                          # 言語ごとのオプション
-python3 dragoman.py --lang=la                                 # ラテン語の対話モード (変化表・マクロンの推定)
+./dragoman.py [LANG] [オプション] [ファイル...]   # ファイル (無ければ標準入力) を解析 (python3 dragoman.py / python3 -m dragoman でも)
+./dragoman.py hi -e "लड़के ने किताब पढ़ी।"        # 引数の文を解析 (-e は何度でも)
+./dragoman.py he --help                          # 言語ごとのオプション
+./dragoman.py la                                 # ラテン語の対話モード (変化表・マクロンの推定)
+./dragoman.py --languages                        # 対応している言語の一覧
 ```
 
-`--lang` を省略すると文字から言語を推定します（ラテン文字 → ラテン語、ギリシア文字 → 古典ギリシア語、キリル文字 → ロシア語、
+言語は最初の引数（`grc` など。`--lang=grc` でも）で指定します。知らない符号なら言語の一覧を出して終わります。
+言語を省略すると文字から推定します（ラテン文字 → ラテン語、ギリシア文字 → 古典ギリシア語、キリル文字 → ロシア語、
 ヘブライ文字 → ヘブライ語、アラビア文字はウルドゥー語の字（ٹ ڈ ڑ ں ے ھ）があればウルドゥー語、ペルシア語の字の多さで
 ペルシア語かアラビア語、デーヴァナーガリーはヒンディー語らしい語の有無でヒンディー語かサンスクリット）。
 
