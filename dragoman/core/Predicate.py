@@ -233,7 +233,7 @@ class Predicate (LatinObject):
                 tr.append(clause.translate()[0])
 
         for case, objs in list(case_slot.items()):
-            if case in ('Nom', 'Nom/Acc', 'Acc', 'Inf'): continue
+            if case in ('Nom', 'Nom/Acc', 'Acc', 'Inf', 'Q'): continue
             if not objs: continue
             if isinstance(case, tuple):
                 # prep-clause
@@ -274,6 +274,9 @@ class Predicate (LatinObject):
 
         # 不定詞句 ({少年が 遊ぶ}と / {本を 読む}ことが)
         for clause in case_slot.get('Inf', []):
+            tr.append(clause.translate()[0])
+        # 間接疑問 ({何が なる ことを 望んでいた}かを)
+        for clause in case_slot.get('Q', []):
             tr.append(clause.translate()[0])
 
         if verb.attrib('negative'):

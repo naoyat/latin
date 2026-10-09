@@ -43,7 +43,7 @@ PREPOSITIONS = {('in', 'Abl'): ('Loc', None), ('in', 'Acc'): ('Acc', None), ('ad
                 ('contrā', 'Acc'): ('Acc', 'prati'), ('super', 'Acc'): ('Gen', 'upari'), ('ob', 'Acc'): ('Abl', None)}
 # ラテン語の代名詞 → サンスクリットの代名詞の語幹
 PRONOUNS = {'ego': 'asmad', 'tū': 'yuzmad', 'nōs': 'asmad', 'vōs': 'yuzmad', 'is': 'tad', 'hīc': 'etad',
-            'hic': 'etad', 'ille': 'adas', 'quī': 'yad', 'quis': 'kim', 'īdem': 'tad',
+            'hic': 'etad', 'ille': 'adas', 'quī': 'yad', 'quis': 'kim', 'quid': 'kim', 'īdem': 'tad',
             'meus': 'madIya', 'tuus': 'tvadIya', 'noster': 'asmadIya', 'vester': 'yuzmadIya', 'suus': 'sva',
             'sē': 'Atman', 'alius': 'anya', 'alter': 'anya', 'cēterus': 'anya', 'omnis': 'sarva', 'tōtus': 'sarva',
             'tantus': 'tAvat', 'ūnus': 'eka', 'sōlus': 'eka', 'duo': 'dvi', 'trēs': 'tri', 'quattuor': 'catur',
@@ -498,7 +498,23 @@ def infinitive_phrase(inner, main_subject):
     return rest
 
 
+def question_phrase(inner):
+    """間接疑問: 疑問詞はその場に (疑問代名詞 kim は格変化、疑問の副詞は節の頭)、動詞は直説法、終わりに iti
+    (rAjA bAlakaH kimarTam arodIt iti apfcCat)"""
+    import dataclasses
+    from . import connectives
+    from .frame import interrogative_np
+    finite = dataclasses.replace(inner, mood='indicative', question_word='')
+    text = realize(finite)
+    if interrogative_np(inner)[2] is None:
+        entry = connectives.interrogative(inner.question_word)
+        text = (entry[2] if entry else inner.question_word) + ' ' + text
+    return text + ' iti'
+
+
 def realize(clause, capitalize=True):
+    from .frame import lexical_negation
+    clause = lexical_negation(clause)   # nesciō → na + jYA
     subjects = clause.role('subject')
     subject = subjects[0] if subjects else None
     gender, person, number = _agreement(subject, clause)
@@ -532,6 +548,8 @@ def realize(clause, capitalize=True):
                    else noun_phrase(np, ROLE_CASES.get(role, 'Ins')))
     for inner in clause.infinitives:
         out.append(infinitive_phrase(inner, subject))
+    for inner in clause.questions:
+        out.append(question_phrase(inner))
     for np in clause.role('complement'):
         if subject is not None and not np.members and np.head.pos in ('adj', 'participle'):
             out.append(adjective(np.head, gender, 'Nom', number))   # 補語の形容詞は主語に一致 (jIvanam alpam)

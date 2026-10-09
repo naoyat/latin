@@ -40,7 +40,7 @@ PREPOSITIONS = {('in', 'Abl'): ('в', 'Loc'), ('in', 'Acc'): ('в', 'Acc'), ('ad
 PRONOUNS = {'ego': 'я', 'tū': 'ты', 'nōs': 'мы', 'vōs': 'вы', 'is': 'он', 'sē': 'себя', 'hīc': 'этот', 'hic': 'этот',
             'ille': 'тот', 'ipse': 'сам', 'īdem': 'тот же', 'quī': 'который', 'quis': 'кто',
             'meus': 'мой', 'tuus': 'твой', 'noster': 'наш', 'vester': 'ваш', 'suus': 'свой',
-            'aliquis': 'кто-то', 'aliquī': 'какой-то', 'nēmō': 'никто', 'nihil': 'ничто', 'quīdam': 'некий', 'quisquam': 'кто-либо',
+            'quid': 'что', 'aliquis': 'кто-то', 'aliquī': 'какой-то', 'nēmō': 'никто', 'nihil': 'ничто', 'quīdam': 'некий', 'quisquam': 'кто-либо',
             'quisque': 'каждый', 'alius': 'другой', 'alter': 'другой', 'omnis': 'весь', 'tōtus': 'весь',
             'nūllus': 'никакой', 'cēterus': 'остальной', 'tantus': 'такой', 'tālis': 'такой', 'sōlus': 'один',
             'ūnus': 'один', 'duo': 'два', 'trēs': 'три', 'quattuor': 'четыре', 'quīnque': 'пять', 'sex': 'шесть',
@@ -51,7 +51,9 @@ NUMERALS = {'два': 2, 'три': 3, 'четыре': 4, 'пять': 5, 'шес�
 NEGATIVE_PRONOUNS = {'никто', 'ничто', 'никакой'}   # これがあれば動詞にも не (никто не вернулся)
 # 固有名詞: ロシア語で決まった形のあるもの
 NAMES = {'Roma': 'Рим', 'Caesar': 'Цезарь', 'Cicero': 'Цицерон', 'Pompeius': 'Помпей', 'Iulia': 'Юлия',
-         'Iuno': 'Юнона', 'Iuppiter': 'Юпитер', 'Romulus': 'Ромул', 'Graecia': 'Греция', 'Italia': 'Италия'}  # マクロン無しで
+         'Iuno': 'Юнона', 'Iason': 'Ясон', 'Medea': 'Медея', 'Hercules': 'Геракл', 'Perseus': 'Персей',
+         'Ulixes': 'Улисс', 'Circe': 'Цирцея', 'Pelias': 'Пелий', 'Aeetes': 'Ээт', 'Andromeda': 'Андромеда',
+         'Medusa': 'Медуза', 'Minerva': 'Минерва', 'Apollo': 'Аполлон', 'Neptunus': 'Нептун', 'Iuppiter': 'Юпитер', 'Romulus': 'Ромул', 'Graecia': 'Греция', 'Italia': 'Италия'}  # マクロン無しで
 # 対格でなく生格を取る動詞 (бояться моря)、与格を取る動詞
 GOVERNMENT = {'бояться': 'Gen', 'испугаться': 'Gen', 'ждать': 'Gen', 'помогать': 'Dat', 'помочь': 'Dat'}
 # 複数で別の語になる名詞 (цветок → цветы)
@@ -66,7 +68,7 @@ PERFECTIVES = {'давать': 'дать', 'видеть': 'увидеть', 'х
                'плакать': 'заплакать', 'смеяться': 'засмеяться', 'строить': 'построить', 'ранить': 'ранить',
                'уходить': 'уйти', 'бояться': 'испугаться', 'узнавать': 'узнать', 'двигать': 'двинуть',
                'умирать': 'умереть', 'трогать': 'тронуть', 'убивать': 'убить', 'встречать': 'встретить',
-               'находить': 'найти', 'получать': 'получить', 'бросать': 'бросить', 'отправляться': 'отправиться'}
+               'находить': 'найти', 'спрашивать': 'спросить', 'хотеть': 'захотеть', 'получать': 'получить', 'бросать': 'бросить', 'отправляться': 'отправиться'}
 GENDERS = {'m': 'masc', 'f': 'femn', 'n': 'neut'}
 # в / на + 第二前置格 (-у) を取るよく使う名詞 (pymorphy3 の loc2 は дом → дому のような形も返すので、名詞を限る)
 LOCATIVE2 = {'сад', 'лес', 'берег', 'мост', 'угол', 'пол', 'шкаф', 'глаз', 'нос', 'рот', 'снег', 'порт', 'год',
@@ -240,6 +242,7 @@ def noun_phrase(np, case):
         word = adjective(head, case, np.number, GENDERS.get(np.gender, 'masc'), False)
     elif head.proper:
         word = _inflect(lemma, 'NOUN', {CASES[case], number}) if _parse(lemma, 'NOUN') else lemma
+        word = word[:1].upper() + word[1:]   # pymorphy3 は小文字で返す (Ясона)
     elif number == 'plur' and lemma in PLURALS:
         word = _inflect(PLURALS[lemma], 'NOUN', {CASES[case], number})
     else:
@@ -458,9 +461,33 @@ def infinitive_phrase(inner, main_subject):
     return rest
 
 
+def question_phrase(inner):
+    """間接疑問: 読点 + 疑問詞 + 直説法の節 (спросил, почему мальчик плакал、объяснил, что он хотел …)。
+    ли (num, utrum) は節の最初の語の後ろ"""
+    import dataclasses
+    from .frame import interrogative_np, without_interrogative
+    from . import connectives
+    finite = dataclasses.replace(inner, mood='indicative', question_word='')
+    owner, role, wh = interrogative_np(inner)
+    if wh is None:
+        entry = connectives.interrogative(inner.question_word)
+        word = entry[1] if entry else inner.question_word
+        text = realize(finite, capitalize=False)
+        if word == 'ли':
+            head, _, rest = text.partition(' ')
+            return ', ' + head + ' ли' + (' ' + rest if rest else '')
+        return ', ' + word + ' ' + text
+    pronoun = 'кто' if wh.head.lemma in ('quis', 'quī') and inner.question_word != 'quid' else 'что'
+    case = 'Nom' if role == 'subject' else ROLE_CASES.get(role, 'Acc')
+    if owner is inner and role == 'subject':
+        return ', ' + realize(without_interrogative(finite, dataclasses.replace(wh, head=Lex(
+            'quis' if pronoun == 'кто' else 'quid', 'pronoun'), interrogative=False)), capitalize=False)
+    return ', ' + _inflect(pronoun, 'NPRO', {CASES[case]}) + ' ' + realize(without_interrogative(finite), capitalize=False)
+
+
 def realize(clause, capitalize=True):
-    from .frame import periphrastic
-    clause = periphrastic(clause)   # prōgressus est → 完了の能動 (advanced / продвинулся)
+    from .frame import periphrastic, lexical_negation
+    clause = lexical_negation(periphrastic(clause))   # prōgressus est → 完了の能動 (advanced / продвинулся)
     subjects = clause.role('subject')
     subject = subjects[0] if subjects else None
     gender, person, number = _subject_agreement(subject, clause)
@@ -500,6 +527,8 @@ def realize(clause, capitalize=True):
             out.append(noun_phrase(np, case))
     for inner in clause.infinitives:
         out.append(infinitive_phrase(inner, subject))
+    for inner in clause.questions:
+        out.append(question_phrase(inner))
     for role, np in clause.args:
         if role in ('subject', 'object', 'recipient', 'complement'):
             continue

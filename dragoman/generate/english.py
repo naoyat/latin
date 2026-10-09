@@ -573,9 +573,26 @@ def _pronoun_np(lemma, np):
     return NP(Lex(lemma, 'pronoun'), number=np.number, gender=np.gender)
 
 
+def question_phrase(inner):
+    """間接疑問: 疑問詞を頭に、動詞は直説法で (asked why the boy was weeping、showed what he wanted to happen)。
+    疑問代名詞が節の主語なら主語の位置のまま (who had come)"""
+    from .frame import interrogative_np, without_interrogative, NP
+    from . import connectives
+    finite = _replace(inner, mood='indicative', question_word='')
+    owner, role, wh = interrogative_np(inner)
+    if wh is None:
+        entry = connectives.interrogative(inner.question_word)
+        return (entry[0] if entry else inner.question_word) + ' ' + realize(finite, capitalize=False)
+    word = 'who' if wh.head.lemma in ('quis', 'quī') and wh.gender != 'n' and inner.question_word != 'quid' \
+        else 'what'
+    if owner is inner and role == 'subject':
+        return realize(without_interrogative(finite, NP(Lex(word, 'noun', proper=True))), capitalize=False)
+    return word + ' ' + realize(without_interrogative(finite), capitalize=False)
+
+
 def realize(clause, capitalize=True):
-    from .frame import periphrastic
-    clause = periphrastic(clause)   # prōgressus est → 完了の能動 (advanced / продвинулся)
+    from .frame import periphrastic, lexical_negation
+    clause = lexical_negation(periphrastic(clause))   # prōgressus est → 完了の能動 (advanced / продвинулся)
     """Clause → 英語の文"""
     subjects = clause.role('subject')
     subject = subjects[0] if subjects else None
@@ -626,6 +643,8 @@ def realize(clause, capitalize=True):
         out.append(noun_phrase(np, objective=True))
     for inner in clause.infinitives:
         out.append(infinitive_phrase(inner, subject))
+    for inner in clause.questions:
+        out.append(question_phrase(inner))
     for role, np in clause.args:
         if role in ('subject', 'object', 'complement'):
             continue

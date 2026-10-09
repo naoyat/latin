@@ -19,6 +19,7 @@ from .PrepClause import PrepClause
 from .Absolute import AblativeAbsolute
 from .Participle import ParticiplePhrase, participle_kind, participle_item
 from .Infinitive import InfinitiveClause, governor_kind, takes_accusative_subject
+from .Question import QuestionClause, QUESTION_VERBS, is_interrogative
 
 
 # 前置詞に支配される部分を切り出す
@@ -1191,6 +1192,57 @@ def detect_infinitive_clauses(nodes, trace):
     return nodes, clauses
 
 
+def _nodes_in(predicate, extra=()):
+    """述語の節の中の語 (格の枠・修飾語・不定詞句の中・結びつかなかった語) をたどる"""
+    stack = list(extra) + list(predicate.modifiers) + [predicate.conjunction]
+    for objs in predicate.case_slot.values():
+        stack.extend(objs)
+    while stack:
+        node = stack.pop()
+        if node is None:
+            continue
+        yield node
+        if isinstance(node, InfinitiveClause):
+            stack.extend(_nodes_in(node.predicate))
+        elif isinstance(node, PrepClause):
+            stack.extend(node.words)
+        elif isinstance(node, AndOr):
+            stack.extend(w for words in node.words_slots for w in words)
+
+
+def detect_indirect_questions(clauses, trace):
+    """間接疑問: 疑問詞を含み動詞が接続法の節を、隣の節の「問う・知る・教える・言う」動詞の格の枠 'Q' に入れる。
+    節が et などで始まれば前の節と並列なので、支配する動詞は後ろの節 (…, et quid fierī vellet docuit)、
+    ほかは前の節を先に見る (rogāvit quid vellet)"""
+    out = list(clauses)
+    questions = []
+    for q in list(clauses):
+        pred = q.predicate
+        if pred.first_item.attrib('mood') != 'subjunctive':
+            continue
+        word = next((n for n in _nodes_in(pred, q.not_solved) if isinstance(n, Word) and is_interrogative(n)), None)
+        if word is None:
+            continue
+        k = out.index(q)
+        coordinated = pred.conjunction is not None and pred.conjunction.surface in language.current().and_words
+        neighbors = [k + 1, k - 1] if coordinated else [k - 1, k + 1]
+        for g in neighbors:
+            if not 0 <= g < len(out) or out[g].predicate.first_item.attrib('pres1sg') not in QUESTION_VERBS:
+                continue
+            governor = out[g].predicate
+            question = QuestionClause(pred, governor, word)
+            pred.subordinate = True
+            if coordinated and g > k and governor.conjunction is None:
+                governor.conjunction, pred.conjunction = pred.conjunction, None   # et は支配する動詞の節へ
+            governor.add_nominal('Q', question)
+            out[g].not_solved.extend(q.not_solved)
+            out.remove(q)
+            questions.append(question)
+            trace.append('// QUESTION %s (%s) <- VERB %s' % (pred.surface, word.surface, governor.surface))
+            break
+    return out, questions
+
+
 def _agreeing_with_verb(cngs, pred):
     """主格の読みのうち、3人称の動詞と数の合わないものを除く (Puellae est rosa の puellae は主格複数でなく与格単数。
     vane siṃhaḥ asti の vane は主格双数でなく処格)。合う読みが残らなければそのまま。
@@ -1314,6 +1366,7 @@ class SentenceAnalysis:
     absolutes: list = field(default_factory=list)  # 独立奪格 (AblativeAbsolute)
     participles: list = field(default_factory=list)  # 分詞句 (ParticiplePhrase)
     infinitives: list = field(default_factory=list)  # 不定詞句 (InfinitiveClause)
+    questions: list = field(default_factory=list)    # 間接疑問 (QuestionClause)
 
     @property
     def text(self):
@@ -1361,9 +1414,10 @@ def analyze_words(surfaces, words, word_details=None, trace=None):
         for i, group in enumerate(groups):
             not_solved = _attach_to_predicate(nodes, group, verbs_ix[i])
             clauses.append(Clause(nodes[verbs_ix[i]], not_solved))
+    clauses, questions = detect_indirect_questions(clauses, trace)
 
     return SentenceAnalysis(
         surfaces=list(surfaces), words=words, word_details=word_details,
         trace=trace, nodes=nodes, verbs=[nodes[ix] for ix in verbs_ix],
         grouping_trace=grouping_trace, clauses=clauses, absolutes=absolutes, participles=participles,
-        infinitives=infinitives)
+        infinitives=infinitives, questions=questions)

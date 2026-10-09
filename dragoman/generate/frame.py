@@ -19,6 +19,7 @@ from dragoman.core.Infinitive import InfinitiveClause
 from dragoman.core.Predicate import is_negation
 from dragoman.core.Participle import ParticiplePhrase, participle_kind, participle_item
 from dragoman.core.Absolute import AblativeAbsolute
+from dragoman.core.Question import QuestionClause
 from . import connectives as conn
 
 # 格 → 役割 (前置詞の無い格)
@@ -60,6 +61,7 @@ class NP:
     members: list = field(default_factory=list)     # 並列の要素 (NP)
     participles: list = field(default_factory=list)  # 名詞に係る分詞句 (Participial。hostem fugientem)
     prep: Lex = None         # 前置詞句なら前置詞
+    interrogative: bool = False   # 間接疑問の疑問代名詞 (quid fierī vellet の quid)
     surface: str = ''
 
 
@@ -78,6 +80,8 @@ class Clause:
     adverbs: list = field(default_factory=list)    # Lex
     infinitives: list = field(default_factory=list)  # 不定詞句 (Clause。mood='infinitive')
     infinitive_kind: str = ''   # 不定詞句なら、支配する動詞の種類 (saying / perception / command / complement)
+    questions: list = field(default_factory=list)  # 間接疑問 (Clause。question_word に疑問詞)
+    question_word: str = ''   # 間接疑問の節なら疑問詞 (quid, cūr …。副詞の疑問詞は adverbs から除いてある)
     adjuncts: list = field(default_factory=list)   # 独立奪格・述語的な分詞句 (Participial)
     connectives: list = field(default_factory=list)  # 文をつなぐ語 (et, autem, igitur, tum …。connectives.py の見出し)
     subordinator: str = ''   # 従属節の接続詞 (ubi, postquam, dum …)。あれば従属節
@@ -211,6 +215,9 @@ def clause_of(predicate, lang=None):
                 inner.infinitive_kind = obj.kind or 'complement'
                 clause.infinitives.append(inner)
                 continue
+            if isinstance(obj, QuestionClause):
+                clause.questions.append(question_of(obj))
+                continue
             if isinstance(obj, ParticiplePhrase) or isinstance(obj, AblativeAbsolute):
                 clause.adjuncts.append(participial_of(obj))
                 continue
@@ -289,6 +296,40 @@ def _add_connective(clause, surface):
         clause.connectives.append(key)
 
 
+def question_of(question):
+    """QuestionClause → 間接疑問の節 (Clause)。疑問代名詞の名詞句に印を付け、疑問の副詞は adverbs から除く"""
+    inner = clause_of(question.predicate)
+    word = question.word.surface.lower()
+    inner.question_word = word
+    inner.adverbs = [adv for adv in inner.adverbs if (adv.surface or adv.lemma).lower() != word]
+    inner.connectives = [c for c in inner.connectives if c != word]
+    for c in [inner] + inner.infinitives:
+        for _, np in c.args:
+            if np.surface and np.surface.split(' ')[0].lower() == word:
+                np.interrogative = True
+    return inner
+
+
+def interrogative_np(clause):
+    """間接疑問の節の疑問代名詞の名詞句と、それを持つ節 (不定詞句の中のこともある: quid fierī vellet)"""
+    for c in [clause] + clause.infinitives:
+        for role, np in c.args:
+            if np.interrogative:
+                return c, role, np
+    return None, None, None
+
+
+def without_interrogative(clause, replacement=None):
+    """間接疑問の節から疑問代名詞の名詞句を除いた (replacement があれば置き換えた) 写し。不定詞句の中も"""
+    import dataclasses
+
+    def strip(c):
+        args = [(r, replacement if np.interrogative else np) for r, np in c.args
+                if not np.interrogative or replacement is not None]
+        return dataclasses.replace(c, args=args, infinitives=[strip(i) for i in c.infinitives])
+    return strip(clause)
+
+
 def participial_of(phrase):
     """ParticiplePhrase / AblativeAbsolute → Participial"""
     item = participle_item(phrase.verb)
@@ -337,6 +378,19 @@ def periphrastic(clause):
     args = [(r, np) for r, np in clause.args if np is not participle]
     number = participle.number if not clause.role('subject') else clause.number
     return dataclasses.replace(clause, verb=verb, copula=False, tense=tense, voice=voice, args=args, number=number)
+
+
+# 否定を含む動詞 → (もとの動詞, 日本語の訳語)。英語・ロシア語・サンスクリットでは「否定 + もとの動詞」にする
+LEXICAL_NEGATIONS = {'nesciō': ('sciō', '知る'), 'nōlō': ('volō', '望む,欲しい'), 'nequeō': ('queō', 'できる')}
+
+
+def lexical_negation(clause):
+    """nesciō「知らない」→ 否定 + sciō (英語 not know、ロシア語 не знает、サンスクリット na jAnAti)"""
+    if clause.verb.lemma not in LEXICAL_NEGATIONS:
+        return clause
+    import dataclasses
+    base, ja = LEXICAL_NEGATIONS[clause.verb.lemma]
+    return dataclasses.replace(clause, verb=Lex(base, 'verb', ja), negated=not clause.negated)
 
 
 def frames(analysis):
@@ -442,6 +496,9 @@ def describe(clause, indent='  '):
         lines.extend(describe(inner, indent + '    ').splitlines())
     for p in clause.adjuncts:
         lines.append(describe_participial(p, indent + '  '))
+    for inner in clause.questions:
+        lines.append('%s  間接疑問 (%s):' % (indent, inner.question_word))
+        lines.extend(describe(inner, indent + '    ').splitlines())
     return '\n'.join(lines)
 
 

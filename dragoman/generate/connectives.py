@@ -56,6 +56,24 @@ CONNECTIVES = {
 # 従属節の後ろに来たときの読み (ubi「〜するところの」: ad eum locum vēnit ubi Medūsa dormiēbat)
 AFTER_MAIN = {'ubi': ('where', 'где', ('yatra', ''))}
 SA_ENCLITIC = {'ca', 'tu', 'hi', 'api'}
+# 間接疑問の疑問詞: (英語, ロシア語, サンスクリット)。疑問代名詞 (quis, quid) は名詞句として各言語で変化させる
+INTERROGATIVES = {
+    'quis': ('who', 'кто', 'kim'), 'quid': ('what', 'что', 'kim'),
+    'cūr': ('why', 'почему', 'kimartham'), 'quārē': ('why', 'почему', 'kimartham'),
+    'quōmodo': ('how', 'как', 'katham'), 'quemadmodum': ('how', 'как', 'katham'),
+    'ubi': ('where', 'где', 'kutra'), 'quō': ('where', 'куда', 'kutra'), 'quā': ('which way', 'где', 'kena'),
+    'unde': ('from where', 'откуда', 'kutaH'), 'quandō': ('when', 'когда', 'kadA'),
+    'quotiēns': ('how often', 'как часто', 'katikftvaH'), 'num': ('whether', 'ли', 'api'),
+    'utrum': ('whether', 'ли', 'api'), 'quam': ('how', 'как', 'kiyat'),
+    'quantus': ('how great', 'какой', 'kiyat'), 'quālis': ('what kind of', 'какой', 'kIdfSa'),
+    'quot': ('how many', 'сколько', 'kati'),
+}
+
+
+def interrogative(word):
+    from .english import _flat
+    key = word.lower()
+    return INTERROGATIVES.get(key) or next((v for k, v in INTERROGATIVES.items() if _flat(k) == _flat(key)), None)
 
 
 def lookup(word):

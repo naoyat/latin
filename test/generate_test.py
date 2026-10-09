@@ -99,6 +99,25 @@ class PeriphrasticTestCase(unittest.TestCase):
                          ('past-perfect', 'passive'))
 
 
+class QuestionTestCase(unittest.TestCase):
+    """間接疑問: 解析で支配する動詞の格の枠 'Q' に入れ、文の枠では questions に"""
+
+    def test_analysis_and_frame(self):
+        analysis, = analyzer.analyze_text('Magister rogāvit quis cantāret.')
+        self.assertEqual(len(analysis.clauses), 1)
+        question, = analysis.clauses[0].predicate.case_slot['Q']
+        self.assertEqual((question.word.surface, question.predicate.surface), ('quis', 'cantāret'))
+        self.assertEqual(question.translate()[0][-3:], '}かを')
+        main, = frame.frames(analysis)
+        self.assertEqual([q.question_word for q in main.questions], ['quis'])
+        self.assertEqual(latin.sentence([main]), 'Magister quis cantāret rogāvit.')
+
+    def test_not_a_question(self):
+        # 支配する動詞が問う・知る類でなければ入れない (ubi + 接続法の時の節)
+        analysis, = analyzer.analyze_text('Puer cantat ubi puella dormiat.')
+        self.assertFalse(any('Q' in c.predicate.case_slot for c in analysis.clauses))
+
+
 class ConnectiveTestCase(unittest.TestCase):
     """文をつなぐ語・従属節の接続詞"""
 
@@ -154,6 +173,11 @@ class EnglishTestCase(unittest.TestCase):
         self.assertEqual(self.english('Ubi puella cantat, puer dormit.'), 'When the girl sings, the boy sleeps.')
         self.assertEqual(self.english('Puer ad hortum venit ubi puella cantat.'),
                          'The boy comes to the garden, where the girl sings.')
+
+    def test_indirect_question(self):
+        self.assertEqual(self.english('Magister rogāvit quis cantāret.'), 'The teacher asked who was singing.')
+        self.assertEqual(self.english('Rēx rogat quid puer videat.'), 'The king asks what the boy sees.')
+        self.assertEqual(self.english('Puella nescit quis cantet.'), 'The girl does not know who sings.')
 
     def test_homographs(self):
         # 同綴の語は解析の日本語の訳語で (volō「飛ぶ」/「望む」)、決まらなければ語形と基本形で (appellō)

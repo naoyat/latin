@@ -14,6 +14,7 @@ from . import descendants
 from . import etymology
 from .Participle import ParticiplePhrase
 from .Infinitive import InfinitiveClause
+from .Question import QuestionClause
 
 
 def decolate(word):
@@ -56,6 +57,10 @@ def render_with_indent(indent, obj):
 
         elif isinstance(obj, InfinitiveClause):
             print(' '*indent + '[infinitive%s]' % (' ' + obj.kind if obj.kind else ''))
+            render_with_indent(indent+2, obj.predicate)
+
+        elif isinstance(obj, QuestionClause):
+            print(' '*indent + '[question %s]' % obj.word.surface)
             render_with_indent(indent+2, obj.predicate)
 
         elif isinstance(obj, ParticiplePhrase):

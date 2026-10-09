@@ -244,6 +244,9 @@ def realize(clause, capitalize=True):
             out.append(noun_phrase(np))
     for inner in clause.infinitives:
         out.append(realize(inner, capitalize=False))
+    for inner in clause.questions:   # 間接疑問: 疑問の副詞を節の頭に (rogāvit cūr puer flēret)
+        text = realize(inner, capitalize=False)
+        out.append(text if frame.interrogative_np(inner)[2] is not None else inner.question_word + ' ' + text)
     for role, np in clause.args:
         if role not in ('subject', 'recipient', 'object', 'complement'):
             out.append(noun_phrase(np))
