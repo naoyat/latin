@@ -1391,10 +1391,15 @@ def detect_relative_clauses(clauses, trace):
                         out[target].predicate.add_nominal(case, o)
             if antecedent in q.not_solved:
                 q.not_solved.remove(antecedent)
-        if slot_obj != 'conjunction' and pred.conjunction is not None and k + 1 < len(out) and \
-                out[k + 1].predicate.conjunction is None:
-            # 関係節の節にまとめられていた接続詞は後ろの主節のもの (et arcum, quem … attulerat, intendit)
-            out[k + 1].predicate.conjunction, pred.conjunction = pred.conjunction, None
+        if slot_obj != 'conjunction' and pred.conjunction is not None and k + 1 < len(out):
+            # 関係節の節にまとめられていた接続詞は後ろの主節のもの (et arcum, quem … attulerat, intendit)。
+            # 主節の conjunction に副詞 (posteā) が入っていれば修飾語へ移す (et pellem, quam …, posteā gerēbat)
+            main = out[k + 1].predicate
+            if main.conjunction is not None and main.conjunction.items and main.conjunction.items[0].pos == 'adv':
+                main.add_modifier(main.conjunction)
+                main.conjunction = None
+            if main.conjunction is None:
+                main.conjunction, pred.conjunction = pred.conjunction, None
         if slot_obj == 'conjunction':
             pred.conjunction = None
         elif slot_obj is not None:
