@@ -92,8 +92,22 @@ def _dhatus():
     return index
 
 
+def _loose(root):
+    """綴りの揺れを除いた語根 (Apte の praC / vidyut の pracC、Arab / AraB、palAy / palAay)"""
+    root = root.replace('cC', 'c').replace('Aa', 'A')
+    return root.translate(str.maketrans('KGCJWQTDPB', 'kgcjwqtdpb'))
+
+
+@functools.lru_cache(maxsize=1)
+def _loose_dhatus():
+    index = {}
+    for root, found in _dhatus().items():
+        index.setdefault(_loose(root), []).extend(found)
+    return index
+
+
 def dhatu(root, gana=''):
-    found = _dhatus().get(root, [])
+    found = _dhatus().get(root, []) or _loose_dhatus().get(_loose(root), [])
     if gana:
         same = [d for d in found if repr(d.gana).endswith('.' + GANAS.get(gana, ''))]
         found = same or found
@@ -193,10 +207,13 @@ def name(latin):
 
 
 def verb_root(lex):
+    """動詞の語根と類。vidyut に無い語根 (rac 第10類) は次の候補に"""
     if lex.lemma in VERBS:
         return VERBS[lex.lemma]
-    target = transfer.best(lex, 'sa', 'verb')
-    return (target.lemma, target.gana) if target else (None, '')
+    for _, target in transfer.candidates(lex, 'sa', 'verb')[:8]:
+        if dhatu(target.lemma, target.gana) is not None:
+            return target.lemma, target.gana
+    return None, ''
 
 
 def _verb_lex(p):
@@ -213,6 +230,12 @@ FEMININE_I = {'sundara', 'gOra'}
 def adjective(lex, linga, case, number):
     if lex.lemma in INDECLINABLE:
         return INDECLINABLE[lex.lemma]   # arcam ipsam → svayam
+    if lex.lemma in INDEFINITES:   # rēx quīdam → nfpaH kaScit
+        stem, suffix, negative = INDEFINITES[lex.lemma]
+        word = subanta(stem, linga, case, number)
+        if suffix == 'cit' and word.endswith('H'):
+            word = word[:-1] + 'S'
+        return ('na ' if negative else '') + word + ('' if suffix == 'cit' else ' ') + suffix
     positive = english._positive(lex)
     degree = lex.degree or ('++' if positive is not None else '')
     lex = positive or lex   # 最上級の見出し (difficillimus) は原級で引いて -tama を付ける
