@@ -84,6 +84,21 @@ class LatinRegenerationTestCase(unittest.TestCase):
         self.assertEqual(self.again('Puellae pulchrae erant.'), 'Puellae pulchrae erant.')
 
 
+class PeriphrasticTestCase(unittest.TestCase):
+    def test_deponent_perfect(self):
+        # 繋辞 + 形式受動態動詞の完了分詞 (prōgressus est) → 完了の能動、ふつうの動詞の分詞 → 受動
+        from dragoman.generate.frame import Clause, NP
+        participle = NP(Lex('prōgressus', 'participle', '', verb='prōgredior', ptense='past'))
+        clause = Clause(Lex('sum', 'verb'), copula=True, args=[('complement', participle)])
+        again = frame.periphrastic(clause)
+        self.assertEqual((again.verb.lemma, again.tense, again.voice, again.copula, again.args),
+                         ('prōgredior', 'perfect', 'active', False, []))
+        participle = NP(Lex('occīsus', 'participle', '', verb='occīdō', ptense='past'))
+        clause = Clause(Lex('sum', 'verb'), tense='imperfect', copula=True, args=[('complement', participle)])
+        self.assertEqual((frame.periphrastic(clause).tense, frame.periphrastic(clause).voice),
+                         ('past-perfect', 'passive'))
+
+
 class ConnectiveTestCase(unittest.TestCase):
     """文をつなぐ語・従属節の接続詞"""
 
@@ -190,6 +205,16 @@ class SanskritTestCase(unittest.TestCase):
 
     def test_possessive(self):
         self.assertEqual(self.sanskrit('Mihi est liber.'), 'mama pustakam asti ।')
+
+    def test_participles(self):
+        # 分詞はもとの動詞の語根から: 現在 → śānac / śatṛ、完了 → kta、形式受動態 → ktavatu、動形容詞 → tavya
+        def form(lemma, verb, ptense, linga='m', case='Nom'):
+            return sanskrit.participle_from_lex(Lex(lemma, 'participle', '', verb=verb, ptense=ptense),
+                                                linga, case, 'sg')
+        self.assertEqual(form('fugiēns', 'fugiō', 'present', case='Acc'), 'palAyamAnam')
+        self.assertEqual(form('laudāta', 'laudō', 'past', 'f'), 'praSastA')
+        self.assertEqual(form('locūtus', 'loquor', 'past'), 'uditavAn')
+        self.assertEqual(form('cantandus', 'cantō', 'future', 'n'), 'gAtavyam')
 
 
 if __name__ == '__main__':

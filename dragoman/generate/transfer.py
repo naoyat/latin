@@ -229,6 +229,19 @@ def candidates(lex, lang, pos=None):
     return sorted(best_by_lemma.values(), key=lambda st: st[0])
 
 
+def by_english(words, lang, pos):
+    """英語の語の列 (前ほど良い) → 作る言語の見出し語の候補 (分詞の英語の訳語から動詞を引く)"""
+    scored = {}
+    for i, en in _variants(list(words)[:8]):
+        for j, target in _index(lang).get(en.lower(), []):
+            if target.pos == pos and j <= 5:
+                score = 3 * i + j - math.log(1 + target.senses)
+                key = (target.lemma, target.gana)
+                if key not in scored or score < scored[key][0]:
+                    scored[key] = (score, target)
+    return sorted(scored.values(), key=lambda st: st[0])
+
+
 def best(lex, lang, pos=None):
     found = candidates(lex, lang, pos)
     return found[0][1] if found else None

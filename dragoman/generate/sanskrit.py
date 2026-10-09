@@ -227,7 +227,49 @@ def _verb_lex(p):
 FEMININE_I = {'sundara', 'gOra'}
 
 
+def participle_root(lex):
+    """分詞のもとの動詞の語根: 動詞の見出しがあればそれを置き換え、無ければ (動形容詞 adeundus) 英語の訳語から"""
+    if lex.verb:
+        root, gana = verb_root(Lex(lex.verb, 'verb', lex.verb_ja))
+        if root:
+            return dhatu(root, gana)
+    for _, target in transfer.by_english(english.verb_bases(lex.en or ''), 'sa', 'verb')[:8]:
+        d = dhatu(target.lemma, target.gana)
+        if d is not None:
+            return d
+    return None
+
+
+def participle_from_lex(lex, linga, case, number):
+    """名詞に係る分詞・補語の分詞 (Latin の分詞の Lex): 現在 → śatṛ、完了 → kta (形式受動態は ktavatu、
+    prōgressus → pragatavat)、未来 (動形容詞) → tavya (adeundus → abhigantavya)"""
+    d = participle_root(lex)
+    if d is None:
+        return None
+    deponent = lex.verb.endswith('r')
+    if lex.ptense == 'present':
+        krts = ['Satf', 'SAnac']
+    elif lex.ptense == 'future':
+        krts = ['tavyat']
+    else:
+        krts = ['ktavatu' if deponent else 'kta']
+    for krt in krts:
+        stem = Pratipadika.krdanta(d, getattr(Krt, krt))
+        if linga == 'f':
+            nominative = subanta(stem, 'f', 'Nom', 'sg')
+            if nominative.endswith(('I', 'A')):
+                stem = nominative   # 女性は -ī・-ā 語幹として (vidyut の分詞の女性の処格の不具合を避ける)
+        form = subanta(stem, linga, case, number)
+        if not form.startswith('*'):
+            return form
+    return None
+
+
 def adjective(lex, linga, case, number):
+    if lex.pos == 'participle':
+        form = participle_from_lex(lex, linga, case, number)
+        if form:
+            return form
     if lex.lemma in INDECLINABLE:
         return INDECLINABLE[lex.lemma]   # arcam ipsam → svayam
     if lex.lemma in INDEFINITES:   # rēx quīdam → nfpaH kaScit

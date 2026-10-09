@@ -42,6 +42,7 @@ class Lex:
     verb: str = ''         # 分詞のもとの動詞 (直説法現在1人称単数)
     verb_ja: str = ''      # 分詞のもとの動詞の日本語の訳語 (訳語を選ぶのに使う)
     surface: str = ''      # 文中の形 (変化しない語 (副詞) は元の言語に戻すときこの形で)
+    ptense: str = ''       # 分詞の時制: present / past / future (future は動形容詞 adeundus「近づかれるべき」も)
 
 
 @dataclass
@@ -114,18 +115,24 @@ LEMMA_HOOKS = []   # 見出しの無い項目 (ラテン語の代名詞) の見�
 VERB_GLOSS_HOOKS = []   # 動詞の見出し → 日本語の訳語 (分詞のもとの動詞の訳語を引く。言語ごとに登録)
 
 
+def _verb_lemma(pres1sg):
+    """分詞のもとの動詞の見出し ('the deponent verb orior' のような説明つきの値は最後の語)"""
+    return (pres1sg or '').split(' ')[-1]
+
+
 def lex_of(word, item=None):
     item = item or word.items[0]
-    lemma = item.attrib('base') or item.attrib('pres1sg')
+    lemma = item.attrib('base') or _verb_lemma(item.attrib('pres1sg'))
     for hook in LEMMA_HOOKS:
         lemma = lemma or hook(item.item)
     lemma = lemma or item.surface
+    verb = _verb_lemma(item.attrib('pres1sg')) if item.pos == 'participle' else ''
+    english = item.attrib('ja_en') or (item.ja if item.attrib('gloss_lang') == 'en' or item.ja.isascii() else '')
     return Lex(lemma, item.pos, item.ja, proper=lemma[:1].isupper() and item.pos in ('noun', 'unknown'),
-               degree=item.attrib('rank') or '', en=item.attrib('ja_en') or '', desc=item.attrib('desc') or '',
-               verb=item.attrib('pres1sg') or '' if item.pos == 'participle' else '',
-               verb_ja=next((ja for ja in (hook(item.attrib('pres1sg')) for hook in VERB_GLOSS_HOOKS) if ja), '')
-               if item.pos == 'participle' and item.attrib('pres1sg') else '',
-               surface=word.surface if word is not None else item.surface)
+               degree=item.attrib('rank') or '', en=english, desc=item.attrib('desc') or '', verb=verb,
+               verb_ja=next((ja for ja in (hook(verb) for hook in VERB_GLOSS_HOOKS) if ja), '') if verb else '',
+               surface=word.surface if word is not None else item.surface,
+               ptense=item.attrib('tense') or '' if item.pos == 'participle' else '')
 
 
 def np_of(node, case=None):
@@ -242,6 +249,11 @@ def clause_of(predicate, lang=None):
             inner.args = [(r, x) for r, x in inner.args if x is not np]
             clause.args.insert(0, ('subject', np))
             nominatives.append(np)
+    if predicate.is_sum and len(nominatives) == 1 and nominatives[0].head is not None and \
+            nominatives[0].head.pos == 'participle' and not nominatives[0].modifiers:
+        # 繋辞と分詞だけ (prōgressus est「進んだ」、ortus est): 分詞は補語、主語は動詞の人称から
+        clause.args = [('complement', np) if np is nominatives[0] else (r, np) for r, np in clause.args]
+        nominatives = []
     if predicate.is_sum and len(nominatives) >= 2:
         # 繋辞の文: 名詞を主語に、ほか (形容詞・2つめの名詞) を補語に
         subject = next((np for np in nominatives if np.head and np.head.pos in ('noun', 'pronoun')), nominatives[0])
@@ -306,6 +318,25 @@ def participial_of(phrase):
         else:
             p.args.append((ROLES.get(np.case, 'means'), np))
     return p
+
+
+def periphrastic(clause):
+    """繋辞 + 完了分詞の補語 (prōgressus est) を、完了の述語に読み替えた節 (英語・ロシア語で使う)。
+    形式受動態動詞 (prōgredior) なら能動、ほかの動詞なら受動。当てはまらなければ元の節"""
+    complements = clause.role('complement')
+    if not (clause.copula and len(complements) == 1 and complements[0].head is not None and
+            complements[0].head.pos == 'participle' and complements[0].head.ptense == 'past' and
+            complements[0].head.verb):
+        return clause
+    import dataclasses
+    participle = complements[0]
+    tense = {'present': 'perfect', 'imperfect': 'past-perfect', 'perfect': 'past-perfect',
+             'future': 'future-perfect'}.get(clause.tense, 'perfect')
+    voice = 'active' if participle.head.verb.endswith('r') else 'passive'
+    verb = Lex(participle.head.verb, 'verb', participle.head.verb_ja)
+    args = [(r, np) for r, np in clause.args if np is not participle]
+    number = participle.number if not clause.role('subject') else clause.number
+    return dataclasses.replace(clause, verb=verb, copula=False, tense=tense, voice=voice, args=args, number=number)
 
 
 def frames(analysis):

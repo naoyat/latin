@@ -152,6 +152,26 @@ SUPERLATIVES = (('illimus', 'ilis'), ('errimus', 'er'), ('issimus', 'us'), ('iss
 DEGREE_OF = re.compile(r'^(comparative|superlative) degree of (\S+)$', re.I)
 
 
+def verb_bases(english):
+    """分詞の英語の訳語から動詞の原形の候補: 'which is to be approached' → approach、'having risen' → rise、
+    'followed' → follow"""
+    out = []
+    for en in english.split(','):
+        en = re.sub(r'^(which is to be|which is to|to be|having been|having|being)\s+', '', en.strip())
+        head, _, rest = en.partition(' ')
+        rest = (' ' + rest) if rest else ''
+        bases = [base for base, (past_form, pp) in IRREGULAR.items() if head in (past_form, pp)]
+        if head.endswith('ing'):
+            bases += [head[:-3], head[:-3] + 'e']
+        elif head.endswith('ied'):
+            bases.append(head[:-3] + 'y')
+        elif head.endswith('ed'):
+            bases += [head[:-2], head[:-1], head[:-3]]   # approached → approach / approache / approac (doubled: stopped → stop)
+        bases.append(head)
+        out += [b + rest for b in bases if b]
+    return list(dict.fromkeys(out))
+
+
 def candidates(lex):
     """語 → 英語の訳語の候補 (解析の日本語の訳語に合うものを先頭に)。無ければ []"""
     pos = {'participle': 'verb'}.get(lex.pos, lex.pos)
@@ -554,6 +574,8 @@ def _pronoun_np(lemma, np):
 
 
 def realize(clause, capitalize=True):
+    from .frame import periphrastic
+    clause = periphrastic(clause)   # prōgressus est → 完了の能動 (advanced / продвинулся)
     """Clause → 英語の文"""
     subjects = clause.role('subject')
     subject = subjects[0] if subjects else None
@@ -611,6 +633,8 @@ def realize(clause, capitalize=True):
             out.append(noun_phrase(np, objective=True, passive=clause.voice == 'passive'))
         elif role == 'possessor':
             out.append('of ' + noun_phrase(np, objective=True))
+        elif role == 'recipient' and verb.split(' ')[-1] in ('into', 'to', 'at', 'on', 'with', 'upon'):
+            out.append(noun_phrase(np, objective=True))   # run into + 与格: 前置詞を重ねない
         else:
             out.append(ROLE_PREPS.get(role, '') + ' ' + noun_phrase(np, objective=True))
     out += [adverb(adv) for adv in clause.adverbs]
