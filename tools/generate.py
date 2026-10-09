@@ -32,6 +32,16 @@ def _normal(text):
     return text.replace('j', 'i').replace('J', 'I').replace('v', 'u').replace('V', 'U')
 
 
+def _spelling(word):
+    """綴りの流儀をそろえた語 (比較用): マクロン・j/v・i 語幹の対格複数 -īs (omnīs = omnēs)・ad- の同化 (adfectus = affectus)"""
+    word = _normal(word).lower()
+    for plain, assimilated in (('adf', 'aff'), ('adc', 'acc'), ('adp', 'app'), ('adl', 'all'), ('inr', 'irr'),
+                               ('conl', 'coll'), ('inl', 'ill'), ('adt', 'att')):
+        if word.startswith(plain):
+            word = assimilated + word[len(plain):]
+    return word[:-2] + 'es' if word.endswith('is') and len(word) > 4 else word
+
+
 def _words(text):
     return Counter(_word_list(text))
 
@@ -58,14 +68,17 @@ def run(text):
             continue
         regenerated = latin.sentence(clauses)
         original, again = _words(analysis.text), _words(regenerated)
-        if original != again and _words(_normal(analysis.text)) == _words(_normal(regenerated)):
-            mark = '✓ 綴りの違いだけ (マクロン・i/j・u/v)'
+        spelled = Counter(map(_spelling, _word_list(analysis.text))), Counter(map(_spelling, _word_list(regenerated)))
+        if original != again and spelled[0] == spelled[1]:
+            mark = '✓ 綴りの違いだけ (マクロン・i/j・u/v・-īs/-ēs・同化)'
         elif original == again:
             mark = '✓ 同じ語' + (' (語順も同じ)' if _word_list(regenerated) == _word_list(analysis.text) else '')
         else:
+            # 違う語は綴りの違いを除いて出す
+            only_original = [w for w in _word_list(analysis.text) if (spelled[0] - spelled[1])[_spelling(w)] > 0]
+            only_again = [w for w in _word_list(regenerated) if (spelled[1] - spelled[0])[_spelling(w)] > 0]
             mark = '✗ 元にだけある語: %s / 作った文にだけある語: %s' % (
-                ' '.join(sorted((original - again).elements())) or '-',
-                ' '.join(sorted((again - original).elements())) or '-')
+                ' '.join(sorted(set(only_original))) or '-', ' '.join(sorted(set(only_again))) or '-')
         print('  ラテン語: ' + regenerated + '   ' + mark)
         print()
 

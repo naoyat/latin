@@ -39,7 +39,16 @@ PREPOSITIONS = {('in', 'Abl'): ('в', 'Loc'), ('in', 'Acc'): ('в', 'Acc'), ('ad
 # ラテン語の代名詞 → ロシア語の代名詞 (見出し)
 PRONOUNS = {'ego': 'я', 'tū': 'ты', 'nōs': 'мы', 'vōs': 'вы', 'is': 'он', 'sē': 'себя', 'hīc': 'этот', 'hic': 'этот',
             'ille': 'тот', 'ipse': 'сам', 'īdem': 'тот же', 'quī': 'который', 'quis': 'кто',
-            'meus': 'мой', 'tuus': 'твой', 'noster': 'наш', 'vester': 'ваш', 'suus': 'свой'}
+            'meus': 'мой', 'tuus': 'твой', 'noster': 'наш', 'vester': 'ваш', 'suus': 'свой',
+            'aliquis': 'кто-то', 'aliquī': 'какой-то', 'nēmō': 'никто', 'nihil': 'ничто', 'quīdam': 'некий', 'quisquam': 'кто-либо',
+            'quisque': 'каждый', 'alius': 'другой', 'alter': 'другой', 'omnis': 'весь', 'tōtus': 'весь',
+            'nūllus': 'никакой', 'cēterus': 'остальной', 'tantus': 'такой', 'tālis': 'такой', 'sōlus': 'один',
+            'ūnus': 'один', 'duo': 'два', 'trēs': 'три', 'quattuor': 'четыре', 'quīnque': 'пять', 'sex': 'шесть',
+            'septem': 'семь', 'octō': 'восемь', 'novem': 'девять', 'decem': 'десять', 'duodecim': 'двенадцать',
+            'centum': 'сто', 'mīlle': 'тысяча'}
+NUMERALS = {'два': 2, 'три': 3, 'четыре': 4, 'пять': 5, 'шесть': 6, 'семь': 7, 'восемь': 8, 'девять': 9,
+            'десять': 10, 'двенадцать': 12, 'сто': 100}
+NEGATIVE_PRONOUNS = {'никто', 'ничто', 'никакой'}   # これがあれば動詞にも не (никто не вернулся)
 # 固有名詞: ロシア語で決まった形のあるもの
 NAMES = {'Roma': 'Рим', 'Caesar': 'Цезарь', 'Cicero': 'Цицерон', 'Pompeius': 'Помпей', 'Iulia': 'Юлия',
          'Iuno': 'Юнона', 'Iuppiter': 'Юпитер', 'Romulus': 'Ромул', 'Graecia': 'Греция', 'Italia': 'Италия'}  # マクロン無しで
@@ -75,7 +84,8 @@ def available():
 @functools.lru_cache(maxsize=5000)
 def _parse(lemma, pos):
     """見出し語の解析 (pymorphy3)。pos: NOUN / ADJF / INFN / NPRO。人名 (Роза) でない解析を先に"""
-    parses = [p for p in _morph().parse(lemma) if p.normal_form == lemma.lower() and p.tag.POS == pos]
+    key = lemma.lower().replace('ё', 'е')   # pymorphy3 の見出しは ё で書く (мудрёный)
+    parses = [p for p in _morph().parse(lemma) if p.normal_form.replace('ё', 'е') == key and p.tag.POS == pos]
     parses.sort(key=lambda p: any(g in p.tag for g in ('Name', 'Surn', 'Patr', 'Geox')))
     return parses[0] if parses else None
 
@@ -177,6 +187,9 @@ def _animate(lemma):
 
 
 def adjective(lex, case, number, gender, animate):
+    positive = english._positive(lex)
+    degree = lex.degree or ('++' if positive is not None else '')
+    lex = positive or lex   # 最上級の見出し (difficillimus) は原級 (difficilis) で引いて самый を付ける
     lemma = PRONOUNS.get(lex.lemma)   # 代名詞的な形容詞 (suus → свой, hic → этот)
     if lex.lemma == 'is':
         lemma = 'тот'   # 名詞に係る is (eum locum「その場所」)
@@ -192,10 +205,13 @@ def adjective(lex, case, number, gender, animate):
         grammemes = (grammemes - {'accs'}) | {'gent'}   # 活動体の対格は生格と同じ (красивого мальчика)
     elif case == 'Acc' and (number == 'pl' or gender == 'masc'):
         grammemes.add('inan')   # 不活動体の対格は主格と同じ (красивые розы)
-    for pos in ('ADJF', 'NPRO'):
-        if _parse(lemma, pos) is not None:
-            return _inflect(lemma, pos, grammemes)
-    return lemma
+    form = next((_inflect(lemma, pos, grammemes if pos != 'NUMR' else {CASES[case]})
+                 for pos in ('ADJF', 'NPRO', 'NUMR') if _parse(lemma, pos) is not None), lemma)
+    if degree == '+':
+        return 'более ' + form   # 比較級: более трудный
+    if degree == '++':
+        return _inflect('самый', 'ADJF', grammemes) + ' ' + form   # 最上級: самый трудный
+    return form
 
 
 def noun_phrase(np, case):
@@ -214,7 +230,8 @@ def noun_phrase(np, case):
             lemma = 'она'
         if lemma == 'он' and np.number == 'pl':
             lemma = 'они'
-        word = _inflect(lemma, 'NPRO', {CASES[case]}) if _parse(lemma, 'NPRO') else lemma
+        word = next((_inflect(lemma, pos, {CASES[case]}) for pos in ('NPRO', 'ADJF', 'NUMR') if _parse(lemma, pos)),
+                    lemma)
         if head.desc == '指示代名詞':
             word = adjective(head, case, np.number, GENDERS.get(np.gender, 'masc'), False) \
                 if np.modifiers else _inflect('это', 'NPRO', {CASES[case]})
@@ -235,6 +252,15 @@ def noun_phrase(np, case):
             before.append((' %s ' % conj).join(adjective(m.head, case, np.number, g, animate) for m in mod.members))
         else:
             before.append(adjective(mod, case, np.number, g, animate))
+    numeral = next((PRONOUNS[m.lemma] for m in np.modifiers if not isinstance(m, NP) and
+                    PRONOUNS.get(m.lemma) in NUMERALS), None)
+    if numeral and case in ('Nom', 'Acc') and not animate:
+        # 数詞の格支配: 2〜4 は名詞が生格単数 (три стула)、5 以上は生格複数 (пять стульев)。形容詞は生格複数
+        noun_case = {'sing'} if NUMERALS[numeral] < 5 else {'plur'}
+        word = _inflect(lemma, 'NOUN', {'gent'} | noun_case)
+        before = [_inflect(PRONOUNS[m.lemma], 'NUMR', {'nomn'}) if PRONOUNS.get(m.lemma) == numeral
+                  else adjective(m, 'Gen', 'pl', g, animate) for m in np.modifiers if not isinstance(m, NP)]
+        before.sort(key=lambda w: w != _inflect(numeral, 'NUMR', {'nomn'}))   # 数詞を先頭に
     after = [noun_phrase(gen, 'Gen') for gen in np.genitives]
     for p in np.participles:
         if p.args:
@@ -457,8 +483,10 @@ def realize(clause, capitalize=True):
     for p in clause.adjuncts:
         if p.kind != 'absolute':
             out.append(', ' + participial(p, subject) + ',')
-    if clause.negated:
-        out.append('не')
+    negative_pronoun = any(np.head is not None and not np.members and
+                           (PRONOUNS.get(np.head.lemma) in NEGATIVE_PRONOUNS) for _, np in clause.args)
+    if clause.negated or negative_pronoun:
+        out.append('не')   # 否定の代名詞は動詞の否定と一緒に (никто не вернулся。ラテン語は nēmō だけ)
     out += verb_form(clause, gender, person, number)
     for np in clause.role('complement'):
         out.append(noun_phrase(_agreeing(np, subject), 'Nom'))

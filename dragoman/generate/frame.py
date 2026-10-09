@@ -217,6 +217,24 @@ def clause_of(predicate, lang=None):
                 if not np.case:
                     np.case = case
                 clause.args.append((ROLES.get(case, case), np))
+    if clause.voice == 'passive' and not nominatives:
+        # 受動の文で主語が無ければ、主格にも読める目的語を主語に (omnia parāta sunt、Haec nārrantur)
+        for k, (role, np) in enumerate(clause.args):
+            if role == 'object' and 'Nom' in (np.cases or [np.case]):
+                np.case = 'Nom'
+                clause.args[k] = ('subject', np)
+                nominatives.append(np)
+                break
+    for inner in clause.infinitives:
+        # 補足の不定詞 (cōnstituit līberāre) の主語は主節の主語 (解析で不定詞句に入ることがある: Herculēs)
+        inner_subjects = inner.role('subject')
+        if inner.infinitive_kind in ('complement', '') and inner_subjects and not nominatives and \
+                'Nom' in (inner_subjects[0].cases or [inner_subjects[0].case]):
+            np = inner_subjects[0]
+            np.case = 'Nom'
+            inner.args = [(r, x) for r, x in inner.args if x is not np]
+            clause.args.insert(0, ('subject', np))
+            nominatives.append(np)
     if predicate.is_sum and len(nominatives) >= 2:
         # 繋辞の文: 名詞を主語に、ほか (形容詞・2つめの名詞) を補語に
         subject = next((np for np in nominatives if np.head and np.head.pos in ('noun', 'pronoun')), nominatives[0])

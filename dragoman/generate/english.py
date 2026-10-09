@@ -59,6 +59,10 @@ LATIN_PRONOUNS = {'ego': ('I', 'we'), 'tū': ('you', 'you'), 'sē': ('himself', 
                   'quī': ('who', 'who'), 'quis': ('who', 'who')}
 GENDERED = {('is', 'f'): ('she', 'they'), ('is', 'n'): ('it', 'they'), ('sē', 'f'): ('herself', 'themselves'),
             ('ipse', 'f'): ('herself', 'themselves'), ('ipse', 'n'): ('itself', 'themselves')}
+# 名詞的に使う形容詞・代名詞的な形容詞 (単数, 複数)
+SUBSTANTIVES = {'omnis': ('everything', 'all'), 'multus': ('much', 'many'), 'alius': ('another', 'others'),
+                'cēterus': ('the rest', 'the others'), 'paucus': ('few', 'few'), 'nūllus': ('none', 'none'),
+                'tōtus': ('the whole', 'all')}
 # 所有形容詞 → 限定詞 (dominum suum「自分の主人」→ his own master)
 POSSESSIVES = {'meus': 'my', 'tuus': 'your', 'noster': 'our', 'vester': 'your', 'suus': 'his own'}
 # ラテン語の前置詞 (+ 格) → 英語。Wiktionary の訳語より、格で分けたほうが分かりやすいもの
@@ -140,23 +144,66 @@ def substantive(lex):
     return noun if _entries(noun.lemma, 'noun') else None
 
 
+# 品詞が辞書と違うときに引く品詞 (trēs: 解析では形容詞、辞書では数詞。modo: 接続詞 / 副詞)
+POS_FALLBACK = {'adj': ('num', 'pronoun'), 'pronoun': ('adj',), 'conj': ('adv',), 'adv': ('conj',), 'num': ('adj',)}
+# 最上級の形 → 原級 (Wiktionary 由来の項目は最上級の形が見出し: difficillimus → difficilis)
+SUPERLATIVES = (('illimus', 'ilis'), ('errimus', 'er'), ('issimus', 'us'), ('issimus', 'is'),
+                ('illimē', 'ilis'), ('errimē', 'er'), ('issimē', 'us'), ('issimē', 'is'))
+DEGREE_OF = re.compile(r'^(comparative|superlative) degree of (\S+)$', re.I)
+
+
 def candidates(lex):
     """語 → 英語の訳語の候補 (解析の日本語の訳語に合うものを先頭に)。無ければ []"""
     pos = {'participle': 'verb'}.get(lex.pos, lex.pos)
     entries = _entries(lex.lemma, pos)
-    if not entries and pos in ('pronoun', 'adj'):
-        entries = _entries(lex.lemma, 'pronoun' if pos == 'adj' else 'adj')
+    for other in POS_FALLBACK.get(pos, ()):
+        entries = entries or _entries(lex.lemma, other)
+    if not entries:
+        positive = _positive(lex)
+        if positive is not None:   # 最上級の見出し → 原級の訳語を最上級に (difficillimus → most difficult)
+            return [superlative(en) if pos != 'adv' else 'most ' + _adverb(en) for en in candidates(positive)]
     found = list(_homograph(entries, lex.ja, pos, lex.surface))
     synonyms = [m.group(1) for m in (SYNONYM.match(en) for en in found) if m]
+    degrees = [m.groups() for m in (DEGREE_OF.match(en) for en in found) if m]
     found = [DEGREE.sub('', en) for en in found]   # Superlative degree of magnus: greatest → greatest
     found = [en for en in found if not DESCRIPTION.search(en)]
     for other in synonyms:   # cantō: synonym of canō → canō の訳語 (sing) も候補に
         found += _homograph(_entries(other, pos), lex.ja, pos, lex.surface)
+    for degree, other in degrees:   # superior: comparative degree of superus → superus の訳語の比較級
+        inflect = comparative if degree.lower() == 'comparative' else superlative
+        base = [en for en in _homograph(_entries(other, pos), lex.ja, pos, lex.surface) if not DESCRIPTION.search(en)]
+        ready = [en for en in base if en.endswith('er' if inflect is comparative else 'est') and ' ' not in en]
+        found += ready or [inflect(en) for en in base]   # 原級の訳語に比較級があればそれを (superus: upper)
     found = list(dict.fromkeys(en for en in found if not DESCRIPTION.search(en)))
     if not found:
         return []
     best = _matching(tuple(found), lex.ja, pos)
     return [best] + [en for en in found if en != best]
+
+
+def _positive(lex):
+    for ending, base in SUPERLATIVES:
+        if lex.lemma.endswith(ending):
+            stem = lex.lemma[:-len(ending)] + base
+            if _entries(stem, 'adj'):
+                return Lex(stem, 'adj', '')
+    return None
+
+
+IRREGULAR_ADVERBS = {'fast': 'fast', 'good': 'well', 'hard': 'hard', 'early': 'early', 'late': 'late'}
+
+
+def _adverb(adjective):
+    """形容詞 → 副詞 (quick → quickly)"""
+    if adjective in IRREGULAR_ADVERBS:
+        return IRREGULAR_ADVERBS[adjective]
+    if adjective.endswith('ly') or ' ' in adjective:
+        return adjective
+    if adjective.endswith('y'):
+        return adjective[:-1] + 'ily'
+    if adjective.endswith('le'):
+        return adjective[:-1] + 'y'
+    return adjective + 'ly'
 
 
 def gloss(lex):
@@ -195,6 +242,8 @@ def word(lex):
         return '[%s]' % lex.ja.split(',')[0]
     if ' or ' in en and lex.pos in ('verb', 'participle'):
         en = en.split(' or ')[0]   # drive or move to → drive
+    if _positive(lex) is not None and not lex.degree:
+        return en   # 最上級の見出し (difficillimus) は candidates で最上級にしてある
     already = en.startswith(('more ', 'most ')) or en.endswith(('er', 'est')) and lex.lemma[-2:] != en[-2:]
     if lex.degree == '+' and not already:
         return comparative(en)
@@ -381,7 +430,9 @@ def noun_phrase(np, objective=False, passive=False):
             en = word(head)
             noun = plural(en) if np.number == 'pl' and head.pos == 'noun' and gloss(head) else en
             noun_lex = substantive(head)
-            if noun_lex is not None:
+            if head.lemma in SUBSTANTIVES and not np.modifiers:
+                noun = SUBSTANTIVES[head.lemma][1 if np.number == 'pl' else 0]   # omnium「すべての人の」→ of all
+            elif noun_lex is not None:
                 noun = gloss(noun_lex)   # 名詞として辞書にある形 (tālāria「翼のあるサンダル」← tālāris)
             elif head.pos in ('adj', 'participle', 'pronoun') and not np.modifiers:
                 noun = en + (' ones' if np.number == 'pl' else ' one')  # 形容詞の名詞的用法 (bonī「良い人たち」)
@@ -397,7 +448,7 @@ def noun_phrase(np, objective=False, passive=False):
                 else:
                     adjectives.append(modifier(m))
             text = ' '.join(adjectives + [noun])
-            if not head.proper:
+            if not head.proper and not (head.lemma in SUBSTANTIVES and not np.modifiers):
                 text = determiner + ' ' + text
         for gen in np.genitives:
             text += ' of ' + noun_phrase(gen, True)

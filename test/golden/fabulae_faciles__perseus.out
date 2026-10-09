@@ -1671,10 +1671,12 @@ Ob hanc causam pavor animōs omnium occupāverat .
       ob <Acc>
         causam
           hanc
-        animōs
-        omnium
+    Acc:
+      animōs
+    Gen:
+      omnium
 
-  →  彼,彼女,それが / {{この,これ}原因 (?) 心,考え すべての}〜の前へ,〜ゆえに,〜の代わりに / 先取りする,占有する,占領する
+  →  彼,彼女,それが / {{この,これ}原因 (?)}〜の前へ,〜ゆえに,〜の代わりに / すべてのの / 心,考えを / 先取りする,占有する,占領する
 
 
 Cēpheus igitur ōrāculum deī Hammōnis cōnsuluit , atque ā deō iūssus est fīliam mōnstrō trādere .

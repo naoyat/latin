@@ -32,10 +32,15 @@ def _pronoun_groups():
     return groups
 
 
+# 語形を共有する代名詞の見出し (nēmō の属格 nūllīus は nūllus から借りるので、最初の語形が nūllīus になる)
+PRONOUN_LEMMAS = {'だれも...ない': 'nēmō', 'なにも...ない': 'nihil'}
+
+
 def pronoun_lemma(item):
     if item.get('pos') != 'pronoun' or item.get('base'):
         return None
-    return _pronoun_groups().get((item.get('desc'), item.get('ja'), item.get('person')))
+    return PRONOUN_LEMMAS.get(item.get('ja')) or \
+        _pronoun_groups().get((item.get('desc'), item.get('ja'), item.get('person')))
 
 
 frame.LEMMA_HOOKS.append(pronoun_lemma)
@@ -115,8 +120,10 @@ def decline(lex, case, number, gender='', prefer=None):
                                    0 if prefer is None or prefer(surface) else 1, _greek(surface, case), order,
                                    surface.replace('\u0361', '')))
     if not candidates:
+        if lex.surface and not any(item.get('_') for _, item in _forms(lex.lemma, pos)):
+            return lex.surface.lower()   # 格変化しない語 (duodecim, centum)
         return '*' + lex.lemma
-    return min(candidates)[-1]
+    return min(candidates)[-1].replace('\u0306', '')   # 短音の記号 (Wiktionary の ā̆) は除く
 
 
 def _attested(surfaces):
@@ -152,7 +159,7 @@ def conjugate(lex, person, number, tense, mood, voice, gender=''):
         ending = PARTICIPLE_ENDINGS.get((number, gender))
         agreeing = [f for f in found if ending and f.split(' ')[0].endswith(ending)]
         found = agreeing or found
-    return _attested(found) if found else '*' + lex.lemma
+    return _attested(found).replace('\u0306', '') if found else '*' + lex.lemma
 
 
 def infinitive(lex, tense, voice):

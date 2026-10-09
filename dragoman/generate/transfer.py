@@ -14,6 +14,7 @@ import csv
 import functools
 import math
 import os
+import re
 import sqlite3
 from dataclasses import dataclass
 
@@ -136,7 +137,12 @@ PREFERRED = {
            ('receive', 'verb'): ('grah', '9'), ('greatly', 'adv'): ('atIva', ''), ('suddenly', 'adv'): ('sahasA', ''),
            ('willingly', 'adv'): ('sAnandam', ''), ('gladly', 'adv'): ('sAnandam', ''), ('uselessly', 'adv'): ('vfTA', ''),
            ('in vain', 'adv'): ('vfTA', ''), ('heavily', 'adv'): ('BfSam', ''), ('by chance', 'adv'): ('daivAt', ''),
-           ('kindly', 'adv'): ('snehena', ''), ('everywhere', 'adv'): ('sarvatra', '')},
+           ('kindly', 'adv'): ('snehena', ''), ('everywhere', 'adv'): ('sarvatra', ''),
+           ('ask', 'verb'): ('praC', '6'), ('begin', 'verb'): ('Arab', '1'), ('seize', 'verb'): ('grah', '9'),
+           ('drag', 'verb'): ('kfz', '1'), ('climb up', 'verb'): ('Aruh', '1'), ('climb', 'verb'): ('Aruh', '1'),
+           ('carefully', 'adv'): ('yatnena', ''), ('centaur', 'noun'): ('kinnara', 'm'),
+           ('boat', 'noun'): ('nOkA', 'f'), ('ship', 'noun'): ('nO', 'f'), ('cattle', 'noun'): ('go', 'm'),
+           ('fruit', 'noun'): ('Pala', 'n'), ('priestess', 'noun'): ('tApasI', 'f'), ('victim', 'noun'): ('paSu', 'm')},
 }
 
 
@@ -150,6 +156,16 @@ def _variants(sources):
     out = []
     for i, en in enumerate(sources):
         out.append((i, en))
+        m = re.match(r'^(?:any |a )?(?:head|heads|type|kind|sort|piece|species) of (.+)$', en)
+        if m:
+            out.append((i + 0.3, m.group(1)))   # head of cattle → cattle, any type of fruit → fruit
+        elif ' of ' in en and not en.startswith('of '):
+            out.append((i + 0.6, en.split(' of ')[0]))   # priestess of Pythian Apollo → priestess
+        if en.startswith('of '):
+            out.append((i + 0.6, en[3:].split(' ')[0]))   # of such size → such
+        words = en.split()
+        if 1 < len(words) <= 3 and ' of ' not in en and ' or ' not in en:
+            out.append((i + 0.8, words[-1]))   # sacrificial victim → victim, light boat → boat (名詞の頭)
         for part in en.split(' or '):
             words = part.split()
             while len(words) > 1 and words[-1] in PARTICLES:

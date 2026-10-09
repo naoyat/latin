@@ -55,15 +55,24 @@ def detect_prep_domination(words):
         # print "PREP (%s) DETECTED AT %d :" % (word.surface.encode('utf-8'), i), dominates
 
         j = i + 1
+        noun_seen = False   # 前置詞句の名詞をもう取ったか
+        numbers = set()     # その名詞の数
         while j < M:
             w = words[j]
             if isinstance(w, Word):
+                if w.items and noun_seen and w.items[0].pos in ('noun', 'pronoun') and w.items[0]._ and \
+                        not language.current().objects_follow_verb and not _continues_phrase(w, dominates, numbers):
+                    # 名詞の後ろの名詞は、支配する格で数も合うときだけ前置詞句に入れる (同格: ad Volscōs, Rōmae hostēs、
+                    # in mediō labyrinthō)。数の合わない語 (ad templum multa dōna) や、固有名詞 (単数として見る:
+                    # post diēs Herculēs) は句の外
+                    break # while-j-loop
                 if w.items is None:
                     if w.surface in (',', ';', ':') and language.current().objects_follow_verb:
                         break # while-j-loop (句読点で前置詞句を閉じる: в Новуре, но …)
                     j += 1
                     continue # while-j-loop
                 stop = False
+                matched = None   # 支配する格に合う名詞の読みの格
                 for k, item in enumerate(w.items):
                     if item.pos in ['verb', 'preposition', 'conj', 'adv']:
                         stop = True
@@ -75,7 +84,7 @@ def detect_prep_domination(words):
                         yes = False
                         for case, number, gender in item._:
                             if case in dominates:
-                                dominates = [case] # 絞り込み
+                                matched = matched or case
                                 yes = True
                                 break # for-cng-loop
                             elif case == 'Gen':
@@ -89,6 +98,17 @@ def detect_prep_domination(words):
                         if not yes and not can_skip:
                             stop = True
                             break # for-k-loop
+                if stop and matched and not language.current().objects_follow_verb and \
+                        w.items[0].pos not in ('verb', 'preposition', 'conj', 'adv'):
+                    # 一番の読みが名詞で支配する格に合えば、ほかの読み (別の語の Dat/Abl など) で止めない
+                    # (in hostīs: hostis の対格と、hostus の与格・奪格)
+                    stop = False
+                if matched:
+                    dominates = [matched] # 絞り込み
+                    if not noun_seen and any(item.pos in ('noun', 'pronoun') for item in w.items):
+                        noun_seen = True
+                        numbers = {number for item in w.items if item._ for case, number, _ in item._
+                                   if case in dominates}
                 if stop:
                     break # while-j-loop
             elif isinstance(w, AndOr):
@@ -118,6 +138,14 @@ def detect_prep_domination(words):
         i = j
 
     return words
+
+
+def _continues_phrase(word, dominates, numbers):
+    """前置詞句の名詞の後ろの名詞が句に続くか: 支配する格の読みで、数が前の名詞と合う (固有名詞は単数だけ)"""
+    item = word.items[0]
+    proper = (item.attrib('base') or '')[:1].isupper()
+    return any(case in dominates and number in numbers and (number == 'sg' or not proper)
+               for case, number, _ in item._) or any(case == 'Gen' for case, _, _ in item._)
 
 
 def detect_and_or(words, trace):

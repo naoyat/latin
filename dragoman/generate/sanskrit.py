@@ -44,7 +44,15 @@ PREPOSITIONS = {('in', 'Abl'): ('Loc', None), ('in', 'Acc'): ('Acc', None), ('ad
 # ラテン語の代名詞 → サンスクリットの代名詞の語幹
 PRONOUNS = {'ego': 'asmad', 'tū': 'yuzmad', 'nōs': 'asmad', 'vōs': 'yuzmad', 'is': 'tad', 'hīc': 'etad',
             'hic': 'etad', 'ille': 'adas', 'quī': 'yad', 'quis': 'kim', 'īdem': 'tad',
-            'meus': 'madIya', 'tuus': 'tvadIya', 'noster': 'asmadIya', 'vester': 'yuzmadIya', 'suus': 'sva'}
+            'meus': 'madIya', 'tuus': 'tvadIya', 'noster': 'asmadIya', 'vester': 'yuzmadIya', 'suus': 'sva',
+            'sē': 'Atman', 'alius': 'anya', 'alter': 'anya', 'cēterus': 'anya', 'omnis': 'sarva', 'tōtus': 'sarva',
+            'tantus': 'tAvat', 'ūnus': 'eka', 'sōlus': 'eka', 'duo': 'dvi', 'trēs': 'tri', 'quattuor': 'catur',
+            'quīnque': 'paYcan', 'sex': 'zaz', 'septem': 'saptan', 'octō': 'azwan', 'novem': 'navan', 'decem': 'daSan',
+            'duodecim': 'dvAdaSan', 'centum': 'Sata', 'mīlle': 'sahasra'}
+# 不定代名詞: (疑問代名詞, 後ろに付ける語、否定するか) (aliquis → kaScit、nēmō → na kaH api)
+INDEFINITES = {'aliquis': ('kim', 'cit', False), 'aliquī': ('kim', 'cit', False), 'quīdam': ('kim', 'cit', False), 'quisquam': ('kim', 'api', False),
+               'nēmō': ('kim', 'api', True), 'nihil': ('kim', 'api', True), 'nūllus': ('kim', 'api', True)}
+INDECLINABLE = {'ipse': 'svayam'}
 CONJUNCTIONS = {'et': 'ca', 'atque': 'ca', 'ac': 'ca', 'que': 'ca', '-que': 'ca', 'aut': 'vA', 'vel': 'vA',
                 'neque': 'na', 'nec': 'na', 'sed': 'kintu'}
 LINGAS = {'m': 'Pum', 'f': 'Stri', 'n': 'Napumsaka', 'c': 'Pum'}
@@ -197,6 +205,9 @@ FEMININE_I = {'sundara', 'gOra'}
 
 
 def adjective(lex, linga, case, number):
+    positive = english._positive(lex)
+    degree = lex.degree or ('++' if positive is not None else '')
+    lex = positive or lex   # 最上級の見出し (difficillimus) は原級で引いて -tama を付ける
     stem = PRONOUNS.get(lex.lemma)
     pronoun = stem is not None
     if stem is None:
@@ -204,7 +215,9 @@ def adjective(lex, linga, case, number):
         stem = target.lemma if target else None
     if stem is None:
         return '[%s]' % english.word(lex)
-    if linga == 'f' and stem.endswith('a') and not pronoun and stem not in FEMININE_I:
+    if degree and not pronoun:
+        stem = stem + ('tara' if degree == '+' else 'tama')   # -tara / -tama (kaWina → kaWinatama)
+    if linga == 'f' and stem.endswith('a') and not pronoun and (stem not in FEMININE_I or degree):
         stem = stem[:-1] + 'A'
     return subanta(stem, linga, case, number)
 
@@ -220,6 +233,15 @@ def noun_phrase(np, case):
             return ' '.join(p + ' ca' for p in parts) if np.correlative else ' '.join(parts) + ' ca'   # A B ca
         return ' '.join(parts) + ' ' + conj
     head = np.head
+    if head.lemma in INDEFINITES or head.lemma in INDECLINABLE:
+        if head.lemma in INDECLINABLE:
+            return INDECLINABLE[head.lemma]
+        stem, suffix, negative = INDEFINITES[head.lemma]
+        gender = 'n' if head.lemma == 'nihil' else (np.gender or 'm')
+        word = subanta(stem, gender, case, np.number)
+        if suffix == 'cit' and word.endswith('H'):
+            word = word[:-1] + 'S'   # kaH + cit → kaScit
+        return ('na ' if negative else '') + word + ('' if suffix == 'cit' else ' ') + suffix
     stem, gender = noun_stem(head, np.gender)
     if head.pos == 'pronoun' and head.desc == '指示代名詞' and np.modifiers:
         stem = None
