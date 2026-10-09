@@ -1099,6 +1099,7 @@ tandem tamen ad eum locum vēnit ubi Medūsa cum cēterīs Gorgonibus habitābat
   --- 
 
 // DET#3 (eum) -> NOUN#4 (locum)
+// RELATIVE habitābat (ubi) -> locum
 
 2 VERBS FOUND: vēnit, habitābat
   NOT WELL: {4..6}
@@ -1113,16 +1114,13 @@ tandem tamen ad eum locum vēnit ubi Medūsa cum cēterīs Gorgonibus habitābat
       ad <Acc>
         locum
           eum
+          [relative ubi: Loc]
+            habitābat (indicative 3sg)
+              prep:
+                cum <Abl>
+                  cēterīs
 
-  →  結局,最後に / 彼,彼女,それが / {{その,それ}場所}〜の方へ,〜のところまで / 来た
-
-  habitābat (indicative 3sg)
-    (ubi)
-    prep:
-      cum <Abl>
-        cēterīs
-
-  →  どこ / 彼,彼女,それが / {他の全て (?)}〜とともに,〜をもって / 住んでいた
+  →  結局,最後に / 彼,彼女,それが / {{彼,彼女,それが {他の全て (?)}〜とともに,〜をもって 住んでいた}{その,それ}場所}〜の方へ,〜のところまで / 来た
 
 
 Gorgonēs autem mōnstra erant speciē horribilī ;
@@ -1322,6 +1320,7 @@ hōc modō ad locum vēnit ubi Medūsa dormiēbat .
   --- 
 
 // DET#0 (hōc) -> NOUN#1 (modō)
+// RELATIVE dormiēbat (ubi) -> locum
 
 2 VERBS FOUND: vēnit, dormiēbat
   NOT WELL: {3..4}
@@ -1333,13 +1332,10 @@ hōc modō ad locum vēnit ubi Medūsa dormiēbat .
     prep:
       ad <Acc>
         locum
+          [relative ubi: Loc]
+            dormiēbat (indicative 3sg)
 
-  →  彼,彼女,それが / {この,これ}制限,方法に / {場所}〜の方へ,〜のところまで / 来た
-
-  dormiēbat (indicative 3sg)
-    (ubi)
-
-  →  どこ / 彼,彼女,それが / 眠っていた
+  →  彼,彼女,それが / {この,これ}制限,方法に / {{彼,彼女,それが 眠っていた}場所}〜の方へ,〜のところまで / 来た
 
 
 Tum falce suā caput ēius ūnō īctū abscīdit .

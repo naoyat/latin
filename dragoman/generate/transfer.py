@@ -151,7 +151,7 @@ PREFERRED = {
            ('willingly', 'adv'): ('sAnandam', ''), ('gladly', 'adv'): ('sAnandam', ''), ('uselessly', 'adv'): ('vfTA', ''),
            ('in vain', 'adv'): ('vfTA', ''), ('heavily', 'adv'): ('BfSam', ''), ('by chance', 'adv'): ('daivAt', ''),
            ('kindly', 'adv'): ('snehena', ''), ('everywhere', 'adv'): ('sarvatra', ''),
-           ('kill', 'verb'): ('han', '2'), ('slay', 'verb'): ('han', '2'), ('reply', 'verb'): ('prativac', '2'),
+           ('place', 'noun'): ('sTAna', 'n'), ('kill', 'verb'): ('han', '2'), ('slay', 'verb'): ('han', '2'), ('reply', 'verb'): ('prativac', '2'),
            ('answer', 'verb'): ('prativac', '2'), ('stretch', 'verb'): ('tan', '8'), ('greek', 'adj'): ('yavana', ''),
            ('greek', 'noun'): ('yavana', 'm'), ('flee', 'verb'): ('palAy', '1'),
            ('ask', 'verb'): ('praC', '6'), ('begin', 'verb'): ('Arab', '1'), ('seize', 'verb'): ('grah', '9'),

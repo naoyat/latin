@@ -340,7 +340,31 @@ def noun_phrase(np, case):
             before.append(adjective(mod, gender, case, np.number))
     for p in np.participles:
         before.append(participial_phrase(p, gender, case, np.number))
+    if np.relatives:
+        # 関係節は相関構文: 関係節 (yad …) を先に、名詞には相関詞 tad を (yam aDyApakaH praSaMsati taM bAlakam)
+        relatives = [relative_clause(r, gender, np.number) for r in np.relatives]
+        correlative = subanta('tad', gender, case, np.number) if any(r.gap != 'place' for r in np.relatives) else ''
+        return ' '.join(relatives + [w for w in [correlative] + before + [word] if w])
     return ' '.join(before + [word])
+
+
+GAP_CASES = {'subject': 'Nom', 'object': 'Acc', 'recipient': 'Dat', 'means': 'Ins', 'possessor': 'Gen'}
+
+
+def relative_clause(r, gender, number):
+    """関係節: 関係代名詞 yad を先行詞の性・数と空所の格で (yam …)、場所なら yatra、動詞は直説法"""
+    import dataclasses
+    post = None
+    if r.gap == 'place':
+        word = 'yatra'
+    else:
+        if r.gap == 'prep':
+            case, post = PREPOSITIONS.get((r.gap_prep[0].lemma, r.gap_prep[1]), ('Loc', None))
+        else:
+            case = GAP_CASES.get(r.gap, 'Nom')
+        word = subanta('yad', gender, case, number) + (' ' + post if post else '')
+    finite = dataclasses.replace(r, mood='indicative') if r.mood == 'subjunctive' else r
+    return word + ' ' + realize(finite)
 
 
 def prepositional(np, passive=False):

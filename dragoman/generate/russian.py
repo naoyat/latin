@@ -274,7 +274,36 @@ def noun_phrase(np, case):
             after.append(participle_form(p, case, np.number, g, animate))
         else:
             before.append(participle_form(p, case, np.number, g, animate))   # бегущего врага
-    return ' '.join(before + [word] + after)
+    for r in np.relatives:
+        after.append(', ' + relative_clause(r, np.number, g, animate) + ',')
+    return ' '.join(before + [word] + after).replace(' ,', ',')
+
+
+GAP_CASES = {'subject': 'Nom', 'object': 'Acc', 'recipient': 'Dat', 'means': 'Ins', 'possessor': 'Gen'}
+
+
+def relative_clause(r, number, gender, animate):
+    """関係節: который を先行詞の性・数と空所の格で (мальчика, которого хвалит учитель)、где (ubi)、
+    前置詞 + который (место, в котором …)"""
+    import dataclasses
+    if r.gap == 'place':
+        word = 'где'
+    else:
+        prep = None
+        if r.gap == 'prep':
+            prep, case = PREPOSITIONS.get((r.gap_prep[0].lemma, r.gap_prep[1]), ('в', 'Loc'))
+        else:
+            case = GAP_CASES.get(r.gap, 'Nom')
+        grammemes = {CASES[case], 'plur' if number == 'pl' else 'sing'} | ({gender} if number != 'pl' else set())
+        if case == 'Acc' and animate and (number == 'pl' or gender == 'masc'):
+            grammemes = (grammemes - {'accs'}) | {'gent'}
+        word = _inflect('который', 'ADJF', grammemes)
+        if prep:
+            word = prep + ' ' + word
+    finite = dataclasses.replace(r, mood='indicative') if r.mood == 'subjunctive' else r
+    finite.antecedent_gender = gender   # 主語が空所なら過去形の性は先行詞から (девочка, которая пела)
+    finite.antecedent_number = number
+    return word + ' ' + realize(finite, capitalize=False)
 
 
 def prepositional(np, passive=False):
@@ -432,6 +461,8 @@ def participial(p, subject=None):
 # 節
 
 def _subject_agreement(subject, clause):
+    if subject is None and clause.gap == 'subject' and getattr(clause, 'antecedent_gender', None):
+        return clause.antecedent_gender, 3, clause.number
     if subject is None:
         return 'masc', clause.person, clause.number
     if subject.members:
@@ -519,7 +550,7 @@ def realize(clause, capitalize=True):
             out.append(noun_phrase(subject, 'Nom'))
             for other in subjects[1:]:
                 out[-1] += ', ' + noun_phrase(other, 'Nom') + ','
-        elif clause.copula or clause.tense in ('imperfect', 'perfect', 'past-perfect'):
+        elif (clause.copula or clause.tense in ('imperfect', 'perfect', 'past-perfect')) and clause.gap != 'subject':
             out.append(PERSONAL.get((person, number), 'он'))   # 過去形は人称を示さないので代名詞を補う
     for p in clause.adjuncts:
         if p.kind != 'absolute':

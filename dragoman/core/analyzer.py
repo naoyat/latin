@@ -20,6 +20,7 @@ from .Absolute import AblativeAbsolute
 from .Participle import ParticiplePhrase, participle_kind, participle_item
 from .Infinitive import InfinitiveClause, governor_kind, takes_accusative_subject
 from .Question import QuestionClause, QUESTION_VERBS, is_interrogative
+from .Relative import RelativeClause, is_relative
 
 
 # 前置詞に支配される部分を切り出す
@@ -1259,6 +1260,143 @@ def detect_indirect_questions(clauses, trace):
     return out, questions
 
 
+RELATIVE_ADVERBS = {'ubi': 'Loc', 'unde': 'Abl', 'quō': 'Acc'}   # 名詞のすぐ後ろの関係の副詞と、空所の役割
+
+
+def _relative_pronoun(pred, not_solved):
+    """関係節の関係代名詞と、節の中での役割 (格の枠の名前、前置詞句なら前置詞句そのもの)"""
+    for case, objs in pred.case_slot.items():
+        for obj in objs:
+            if isinstance(obj, Word) and is_relative(obj):
+                return obj, case, obj
+            if isinstance(obj, PrepClause) and len(obj.words) == 1 and is_relative(obj.words[0]):
+                return obj.words[0], case, obj   # in quō、cum quibus: 前置詞句ごと空所に
+    for obj in not_solved:
+        if isinstance(obj, Word) and is_relative(obj):
+            item = next(i for i in obj.items if i.attrib('desc') == '関係代名詞')
+            return obj, (item._[0][0] if item._ else 'Nom'), None
+    adverb = pred.conjunction if isinstance(pred.conjunction, Word) else None
+    if adverb is not None and adverb.surface.lower() == 'ubi':
+        return adverb, RELATIVE_ADVERBS['ubi'], 'conjunction'   # ubi「〜するところの」(場所の空所)
+    return None, None, None
+
+
+def _antecedent(pronoun, words_by_index, adverb=False):
+    """関係代名詞の前の、性・数の一致する名詞。句読点・前置詞の語は飛ばして6語まで。
+    関係の副詞 ubi は、前の名詞 (間に動詞が1つあってもよい。句読点を挟まない: ad eum locum vēnit ubi …)"""
+    if adverb:
+        for index in range(pronoun.index - 1, max(-1, pronoun.index - 3), -1):
+            word = words_by_index.get(index)
+            if word is None:
+                return None   # 句読点 (時の ubi: …, ubi …)
+            if word.items and word.items[0].pos == 'noun':
+                return word
+            if not (word.items and word.items[0].pos == 'verb'):
+                return None
+        return None
+    readings = {(n, g) for item in pronoun.items if item.attrib('desc') == '関係代名詞' for _, n, g in item._ or []}
+    for index in range(pronoun.index - 1, max(-1, pronoun.index - 7), -1):
+        word = words_by_index.get(index)
+        if word is None or not word.items:
+            continue
+        nouns = [item for item in word.items if item.pos in ('noun', 'pronoun') and item._ and
+                 item.attrib('desc') != '関係代名詞']
+        if any((n, g) in readings for noun in nouns for _, n, g in noun._):
+            return word
+    return None
+
+
+COMPARISON_WORDS = {'magis', 'plūs', 'minus', 'potius', 'prius', 'tam', 'tantō', 'aliter', 'citius', 'saepius'}
+
+
+def _comparative_quam(pronoun, words_by_index):
+    """比較の quam「〜より」(clārior erat quam Hector): 前の8語に比較級・magis・tam などがある"""
+    if pronoun.surface.lower() != 'quam':
+        return False
+    for index in range(pronoun.index - 1, max(-1, pronoun.index - 9), -1):
+        word = words_by_index.get(index)
+        if word is not None and (word.surface.lower() in COMPARISON_WORDS or
+                                 any(item.attrib('rank') == '+' for item in word.items or [])):
+            return True
+    return False
+
+
+def _gap_by_agreement(pronoun, antecedent, pred):
+    """格の枠に入っていない関係代名詞の役割: 先行詞と性・数の一致する読みの格のうち、節に主語が無ければ主格、
+    目的語が無ければ対格 (Puella cantat quae in hortō sedet の quae: 主格)"""
+    nouns = {(n, g) for item in antecedent.items if item._ for _, n, g in item._}
+    cases = [c for item in pronoun.items if item.attrib('desc') == '関係代名詞' for c, n, g in item._ or []
+             if (n, g) in nouns]
+    if not cases:
+        # 解析の途中で格の候補が絞られて先行詞と合う読みが残っていない: 節に主語が無ければ主格 (いちばん多い)
+        return 'Nom' if not pred.case_slot.get('Nom') else 'Acc'
+    for case, slot in (('Nom', 'Nom'), ('Acc', 'Acc')):
+        if case in cases and not pred.case_slot.get(slot):
+            return case
+    return cases[0] if cases else 'Nom'
+
+
+def detect_relative_clauses(clauses, trace):
+    """関係節: 関係代名詞を含む節を、前にある性・数の一致する名詞 (先行詞) の Word.relatives に付ける。
+    関係代名詞は節の格の枠から外し、その役割を空所 (gap) として持つ。
+    (関係節が先行詞より前に来るもの (quī …, is …)、先行詞の省かれたものは扱わない)"""
+    out = list(clauses)
+    relatives = []
+    words_by_index = {}
+    for c in clauses:
+        for n in list(_nodes_in(c.predicate, c.not_solved)) + [c.predicate.verb]:
+            if isinstance(n, Word) and n.index is not None:
+                words_by_index.setdefault(n.index, n)
+    for q in list(clauses):
+        pred = q.predicate
+        pronoun, gap, slot_obj = _relative_pronoun(pred, q.not_solved)
+        if pronoun is None or pronoun.index is None or _comparative_quam(pronoun, words_by_index):
+            continue
+        antecedent = _antecedent(pronoun, words_by_index, adverb=slot_obj == 'conjunction')
+        if antecedent is None:
+            continue
+        if slot_obj is None:
+            gap = _gap_by_agreement(pronoun, antecedent, pred)
+        k = out.index(q)
+        if any(n is antecedent for n in _nodes_in(pred, q.not_solved)):
+            # 先行詞が関係節の語として付いていた (Hīc est locus in quō …): 前の節へ戻す
+            if k == 0:
+                continue
+            for case in list(pred.case_slot):
+                if any(o is antecedent for o in pred.case_slot[case]):
+                    pred.case_slot[case] = [o for o in pred.case_slot[case] if o is not antecedent]
+                    if not pred.case_slot[case]:
+                        del pred.case_slot[case]
+                    out[k - 1].predicate.add_nominal(case, antecedent)
+            if antecedent in q.not_solved:
+                q.not_solved.remove(antecedent)
+        if slot_obj == 'conjunction':
+            pred.conjunction = None
+        elif slot_obj is not None:
+            pred.case_slot[gap] = [o for o in pred.case_slot[gap] if o is not slot_obj]
+            if not pred.case_slot[gap]:
+                del pred.case_slot[gap]
+        else:
+            q.not_solved.remove(pronoun)
+        if gap in ('Nom', 'Acc', 'Nom/Acc') and slot_obj is not None:
+            # 主格・対格の両方に読める関係代名詞 (quae) は、解析で付いた枠より先行詞との一致と節の空きで決める
+            gap = _gap_by_agreement(pronoun, antecedent, pred)
+        if isinstance(gap, tuple) and slot_obj not in (None, 'conjunction'):
+            gap = (gap, slot_obj)   # 前置詞句: (('prep', 'in'), PrepClause)
+        pred.subordinate = True
+        pred.gap = gap if not isinstance(gap, tuple) else gap[0]
+        relative = RelativeClause(pred, antecedent, pronoun, gap)
+        antecedent.relatives.append(relative)
+        out.remove(q)
+        for c in out:   # 結びつかなかった語は先行詞のある節へ
+            if any(n is antecedent for n in _nodes_in(c.predicate, c.not_solved)):
+                c.not_solved.extend(q.not_solved)
+                break
+        relatives.append(relative)
+        trace.append('// RELATIVE %s (%s) -> %s' % (pred.surface, pronoun.surface, antecedent.surface))
+    return out, relatives
+
+
 def _agreeing_with_verb(cngs, pred):
     """主格の読みのうち、3人称の動詞と数の合わないものを除く (Puellae est rosa の puellae は主格複数でなく与格単数。
     vane siṃhaḥ asti の vane は主格双数でなく処格)。合う読みが残らなければそのまま。
@@ -1383,6 +1521,7 @@ class SentenceAnalysis:
     participles: list = field(default_factory=list)  # 分詞句 (ParticiplePhrase)
     infinitives: list = field(default_factory=list)  # 不定詞句 (InfinitiveClause)
     questions: list = field(default_factory=list)    # 間接疑問 (QuestionClause)
+    relatives: list = field(default_factory=list)    # 関係節 (RelativeClause。先行詞の Word.relatives にも)
 
     @property
     def text(self):
@@ -1431,9 +1570,10 @@ def analyze_words(surfaces, words, word_details=None, trace=None):
             not_solved = _attach_to_predicate(nodes, group, verbs_ix[i])
             clauses.append(Clause(nodes[verbs_ix[i]], not_solved))
     clauses, questions = detect_indirect_questions(clauses, trace)
+    clauses, relatives = detect_relative_clauses(clauses, trace)
 
     return SentenceAnalysis(
         surfaces=list(surfaces), words=words, word_details=word_details,
         trace=trace, nodes=nodes, verbs=[nodes[ix] for ix in verbs_ix],
         grouping_trace=grouping_trace, clauses=clauses, absolutes=absolutes, participles=participles,
-        infinitives=infinitives, questions=questions)
+        infinitives=infinitives, questions=questions, relatives=relatives)

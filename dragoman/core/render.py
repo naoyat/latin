@@ -88,6 +88,11 @@ def render_with_indent(indent, obj):
             for mod in obj.modifiers:
                 render_with_indent(indent+2, mod)
 #                print '    ' + mod.surface.encode('utf-8')
+            for relative in obj.relatives:
+                gap = relative.gap[0][1] + ' + ' + relative.gap[1].dominated_case if isinstance(relative.gap, tuple) \
+                    else relative.gap
+                print(' '*(indent+2) + '[relative %s: %s]' % (relative.pronoun.surface, gap))
+                render_with_indent(indent+4, relative.predicate)
 
         elif isinstance(obj, Predicate):
             text = obj.surface

@@ -38,6 +38,7 @@ class Predicate (LatinObject):
         self.conjunction = None
         self.subordinates = []  # 従属節 (独立奪格など)
         self.subordinate = False  # 不定詞句の中の述語 (主語は sum でも「は」でなく「が」)
+        self.gap = None  # 関係節の述語なら空所の役割 ('Nom' なら主語を補わない)
         self.language = language.current()  # 訳すときにもこの言語の設定を使う (訳は解析の後で行うので)
         self.is_sum = self.language.is_copula(self.first_item.item.get('pres1sg', None))  # 繋辞 (sum)
 
@@ -209,7 +210,8 @@ class Predicate (LatinObject):
             case_slot['Acc'] = case_slot.get('Acc', []) + nom_acc_objs
             case_slot['Nom/Acc'] = []
 
-        if not noms and verb.attrib('mood') != 'imperative' and not (self.is_sum and case_slot.get('Inf')):
+        if not noms and verb.attrib('mood') != 'imperative' and not (self.is_sum and case_slot.get('Inf')) and \
+                self.gap not in ('Nom', 'Nom/Acc'):   # 関係節で主語が空所なら補わない ({歌う}少女)
             pn = str(self.person()) + str(self.number())
             subj_ja = {'1sg':'私', '2sg':'あなた', '3sg':'彼,彼女,それ',
                        '1pl':'我々', '2pl':'あなた方', '3pl':'彼ら,彼女ら,それら'}

@@ -23,6 +23,7 @@ class Word (LatinObject):
         self.index = None
         self.modifiers = []
         self.genitives = []
+        self.relatives = []   # 関係節 (RelativeClause)
 
     def add_modifier(self, word):
         self.modifiers.append(word)
@@ -93,6 +94,8 @@ class Word (LatinObject):
                 s = self.items[0].ja
                 if tr:
                     s = '{' + ' & '.join(tr) + '}' + s
+                for relative in self.relatives:   # 関係節は連体修飾節として前に ({少女が 見た}少年)
+                    s = '{' + relative.translate()[0] + '}' + s
                 return (s, False)
             else:
                 return ('(?)', False)

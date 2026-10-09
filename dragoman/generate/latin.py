@@ -209,6 +209,8 @@ def noun_phrase(np, case=None):
             words.append(participial(p))
         if any(m.desc == '指示代名詞' for m in np.modifiers if isinstance(m, frame.Lex)):
             words = words[1:2] + words[:1] + words[2:]   # 指示代名詞は名詞の前 (haec puella)
+        for r in np.relatives:
+            words.append(relative_clause(r, np))
         text = ' '.join(words)
     if np.prep is not None:
         text = np.prep.lemma + ' ' + text
@@ -222,6 +224,25 @@ def agree(mod, case, number, gender):
                       members=[frame.NP(m.head, number=number, gender=gender) for m in mod.members])
         return noun_phrase(np, case)
     return decline(mod, case, number, gender)
+
+
+GAP_CASES = {'subject': 'Nom', 'object': 'Acc', 'recipient': 'Dat', 'means': 'Abl', 'possessor': 'Gen'}
+
+
+def relative_clause(r, np):
+    """関係節: 関係代名詞 quī を先行詞の性・数と空所の格で (puerum quem magister laudat、locus in quō …、
+    locum ubi …)"""
+    if r.relative is not None and r.relative.pos != 'pronoun':
+        word = (r.relative.surface or r.relative.lemma).lower()   # 関係の副詞 ubi
+    else:
+        case = r.gap_prep[1] if r.gap == 'prep' else GAP_CASES.get(r.gap, 'Nom')
+        relative = r.relative or frame.Lex('quī', 'pronoun')
+        word = decline(relative, case, np.number, np.gender)
+        if word.startswith('*') and relative.surface:
+            word = relative.surface.lower()
+        if r.gap == 'prep':
+            word = r.gap_prep[0].lemma + ' ' + word
+    return word + ' ' + realize(r, capitalize=False)
 
 
 def realize(clause, capitalize=True):

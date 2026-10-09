@@ -123,6 +123,35 @@ class QuestionTestCase(unittest.TestCase):
         self.assertFalse(any('Q' in c.predicate.case_slot for c in analysis.clauses))
 
 
+class RelativeTestCase(unittest.TestCase):
+    """関係節: 先行詞の名詞に付き、関係代名詞の格を空所の役割として持つ"""
+
+    def test_analysis(self):
+        analysis, = analyzer.analyze_text('Puella puerum videt quem magister laudat.')
+        self.assertEqual(len(analysis.clauses), 1)
+        relative, = analysis.relatives
+        self.assertEqual((relative.antecedent.surface, relative.pronoun.surface, relative.gap),
+                         ('puerum', 'quem', 'Acc'))
+        self.assertIn('{教師,先生が 称賛する,ほめる}少年を', analysis.clauses[0].predicate.translate()[0])
+
+    def test_subject_gap(self):
+        # 主格・対格のどちらにも読める quae は、先行詞との一致と節の空きで主格 (主語を補わない)
+        analysis, = analyzer.analyze_text('Puella cantat quae in hortō sedet.')
+        self.assertEqual(analysis.relatives[0].gap, 'Nom')
+        self.assertTrue(analysis.clauses[0].predicate.translate()[0].startswith('{{庭}'))
+
+    def test_comparative_quam(self):
+        analysis, = analyzer.analyze_text('Nēmō clārior erat quam Hector.')
+        self.assertEqual(analysis.relatives, [])
+
+    def test_latin(self):
+        # 関係節は先行詞のすぐ後ろに戻す (関係節が主節の動詞の前に入った文の解析はまだできない)
+        self.assertEqual(latin.sentence(clauses('Puella puerum videt quem magister laudat.')),
+                         'Puella puerum quem magister laudat videt.')
+        self.assertEqual(latin.sentence(clauses('Puella cantat quae in hortō sedet.')),
+                         'Puella quae in hortō sedet cantat.')
+
+
 class ConnectiveTestCase(unittest.TestCase):
     """文をつなぐ語・従属節の接続詞"""
 
@@ -131,8 +160,9 @@ class ConnectiveTestCase(unittest.TestCase):
         self.assertEqual(main.connectives, ['autem'])
         sub, main = clauses('Ubi puella cantat, puer dormit.')
         self.assertEqual((sub.subordinator, sub.after_main, main.subordinator), ('ubi', False, ''))
-        _, relative = clauses('Puer ad hortum venit ubi puella cantat.')
-        self.assertTrue(relative.after_main)   # 主節の後ろの ubi は「〜するところの」
+        main, = clauses('Puer ad hortum venit ubi puella cantat.')
+        garden = main.role('prep')[0]   # 名詞のすぐ後ろの ubi は関係節「〜するところの」
+        self.assertEqual([(r.gap, r.relative.surface) for r in garden.relatives], [('place', 'ubi')])
 
     def test_latin(self):
         # 後置の語 (autem, igitur) は節の2語目に
@@ -177,7 +207,9 @@ class EnglishTestCase(unittest.TestCase):
     def test_connectives(self):
         self.assertEqual(self.english('Ubi puella cantat, puer dormit.'), 'When the girl sings, the boy sleeps.')
         self.assertEqual(self.english('Puer ad hortum venit ubi puella cantat.'),
-                         'The boy comes to the garden, where the girl sings.')
+                         'The boy comes to the garden where the girl sings.')
+        self.assertEqual(self.english('Puella puerum videt quem magister laudat.'),
+                         'The girl sees the boy whom the teacher praises.')
 
     def test_indirect_question(self):
         self.assertEqual(self.english('Magister rogāvit quis cantāret.'), 'The teacher asked who was singing.')

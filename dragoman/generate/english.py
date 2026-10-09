@@ -483,6 +483,8 @@ def noun_phrase(np, objective=False, passive=False):
             text += ' of ' + noun_phrase(gen, True)
         for p in np.participles:
             text += ' ' + participial(p)   # the enemy fleeing
+        for r in np.relatives:
+            text += ' ' + relative_clause(r, np)
     if np.prep is not None:
         prep = LATIN_PREPS.get((np.prep.lemma, np.case)) or gloss(np.prep) or '[%s]' % np.prep.ja
         if passive and np.prep.lemma in ('ā', 'ab', 'abs'):
@@ -575,6 +577,28 @@ def _pronoun_np(lemma, np):
     return NP(Lex(lemma, 'pronoun'), number=np.number, gender=np.gender)
 
 
+def relative_clause(r, np):
+    """関係節: who / whom / which (人・動物かどうか)、where (ubi)、前置詞 + which (in which)、whose"""
+    person = np.animate
+    if r.gap == 'place':
+        word = 'where'
+    elif r.gap == 'prep':
+        prep, case = r.gap_prep
+        word = (LATIN_PREPS.get((prep.lemma, case)) or gloss(prep) or prep.lemma) + ' ' + ('whom' if person else 'which')
+    elif r.gap == 'subject':
+        word = 'who' if person else 'which'
+    elif r.gap == 'possessor':
+        word = 'whose'
+    elif r.gap == 'recipient':
+        word = 'to whom' if person else 'to which'
+    elif r.gap == 'means':
+        word = 'by whom' if person else 'with which'
+    else:
+        word = 'whom' if person else 'which'
+    finite = _replace(r, mood='indicative') if r.mood == 'subjunctive' else r
+    return word + ' ' + realize(finite, capitalize=False)
+
+
 WHO = {'quis', 'quem', 'cui', 'cūius', 'cuius', 'quibus'}   # 人を問う形 (ほかの quae, quid, quod … は what)
 
 
@@ -633,7 +657,7 @@ def realize(clause, capitalize=True):
     for p in clause.adjuncts:
         if p.kind == 'absolute':
             out.append(participial(p) + ',')
-    if clause.mood not in ('imperative', 'infinitive'):
+    if clause.mood not in ('imperative', 'infinitive') and not (subject is None and clause.gap == 'subject'):
         out.append(noun_phrase(subject) if subject is not None else PRONOUNS.get((person, number), 'it'))
         for other in subjects[1:]:
             out[-1] += ', ' + noun_phrase(other) + ','   # 主語が2つ (並列でない): 同格として (this, the slave,)

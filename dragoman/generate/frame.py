@@ -21,6 +21,7 @@ from dragoman.core.Participle import ParticiplePhrase, participle_kind, particip
 from dragoman.core.Absolute import AblativeAbsolute
 from dragoman.core.Question import QuestionClause
 from . import connectives as conn
+from dragoman.core.animacy import is_animate
 
 # 格 → 役割 (前置詞の無い格)
 ROLES = {'Nom': 'subject', 'Acc': 'object', 'Dat': 'recipient', 'Abl': 'means', 'Gen': 'possessor',
@@ -60,6 +61,8 @@ class NP:
     correlative: bool = False   # 接続詞を各要素の前に置く並列 (et … et …「…も…も」)
     members: list = field(default_factory=list)     # 並列の要素 (NP)
     participles: list = field(default_factory=list)  # 名詞に係る分詞句 (Participial。hostem fugientem)
+    relatives: list = field(default_factory=list)    # 関係節 (Clause。gap に空所の役割)
+    animate: bool = False    # 人・動物 (関係代名詞 who / which の選択)
     prep: Lex = None         # 前置詞句なら前置詞
     interrogative: bool = False   # 間接疑問の疑問代名詞 (quid fierī vellet の quid)
     surface: str = ''
@@ -82,6 +85,9 @@ class Clause:
     infinitive_kind: str = ''   # 不定詞句なら、支配する動詞の種類 (saying / perception / command / complement)
     questions: list = field(default_factory=list)  # 間接疑問 (Clause。question_word に疑問詞)
     question_word: str = ''   # 間接疑問の節なら疑問詞 (quid, cūr …。副詞の疑問詞は adverbs から除いてある)
+    gap: str = ''             # 関係節なら空所の役割: subject / object / recipient / means / possessor / place / prep
+    gap_prep: object = None   # 空所が前置詞句なら前置詞 (Lex) と格: (Lex, 'Abl')  (locus in quō)
+    relative: object = None   # 関係節の関係詞 (Lex。ラテン語に戻すとき quī を変化させる。ubi なら副詞)
     adjuncts: list = field(default_factory=list)   # 独立奪格・述語的な分詞句 (Participial)
     connectives: list = field(default_factory=list)  # 文をつなぐ語 (et, autem, igitur, tum …。connectives.py の見出し)
     subordinator: str = ''   # 従属節の接続詞 (ubi, postquam, dum …)。あれば従属節
@@ -175,7 +181,30 @@ def np_of(node, case=None):
             np.participles.append(participial_of(mod))
     for gen in node.genitives:
         np.genitives.append(np_of(gen, 'Gen'))
+    np.animate = is_animate(item)
+    for relative in getattr(node, 'relatives', []):
+        np.relatives.append(relative_of(relative))
     return np
+
+
+GAP_ROLES = {'Nom': 'subject', 'Acc': 'object', 'Dat': 'recipient', 'Abl': 'means', 'Gen': 'possessor',
+             'Loc': 'place', 'Nom/Acc': 'subject'}
+
+
+def relative_of(relative):
+    """RelativeClause → 関係節 (Clause。空所の役割と関係詞を持つ)"""
+    inner = clause_of(relative.predicate)
+    pronoun = relative.pronoun
+    item = next((i for i in pronoun.items if i.attrib('desc') == '関係代名詞'), pronoun.items[0])
+    inner.relative = lex_of(pronoun, item)
+    gap = relative.gap
+    if isinstance(gap, tuple):   # 前置詞句: ((('prep', 'in'), PrepClause)
+        prep_clause = gap[1]
+        inner.gap = 'prep'
+        inner.gap_prep = (Lex(prep_clause.item.surface, 'preposition', prep_clause.item.ja), prep_clause.dominated_case)
+    else:
+        inner.gap = GAP_ROLES.get(gap, 'subject')
+    return inner
 
 
 _sentence_words = []   # 解析中の文の語 (Word の列。並列の接続詞が先頭の要素の前にもあるかを見る)
@@ -555,4 +584,8 @@ def describe_np(np):
         text += ' ← 属格 ' + describe_np(gen)
     for p in np.participles:
         text += ' ← ' + describe_participial(p, '').strip()
+    for r in np.relatives:
+        gap = r.gap + (' %s + %s' % (r.gap_prep[0].lemma, r.gap_prep[1]) if r.gap_prep else '')
+        text += ' ← 関係節 (%s、空所: %s) [%s]' % (r.relative.surface if r.relative else '', gap,
+                                                describe(r, '').replace('\n', ' /'))
     return text
