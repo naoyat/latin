@@ -24,7 +24,7 @@ from . import connectives as conn
 # 格 → 役割 (前置詞の無い格)
 ROLES = {'Nom': 'subject', 'Acc': 'object', 'Dat': 'recipient', 'Abl': 'means', 'Gen': 'possessor',
          'Loc': 'place', 'Voc': 'address', 'Nom/Acc': 'object'}
-ROLE_JA = {'subject': '主語', 'object': '目的語', 'recipient': '受け手', 'means': '手段・道具', 'possessor': '所有者',
+ROLE_JA = {'unknown': '辞書に無い語', 'subject': '主語', 'object': '目的語', 'recipient': '受け手', 'means': '手段・道具', 'possessor': '所有者',
            'place': '場所', 'address': '呼びかけ', 'complement': '補語', 'prep': '前置詞句', 'infinitive': '不定詞句',
            'adverb': '副詞'}
 
@@ -207,6 +207,13 @@ def clause_of(predicate, lang=None):
             if isinstance(obj, ParticiplePhrase) or isinstance(obj, AblativeAbsolute):
                 clause.adjuncts.append(participial_of(obj))
                 continue
+            if isinstance(obj, PrepClause) and not obj.words:
+                # 中身の無い前置詞句: 接続詞 (cum ita essent の cum) か、副詞として使った前置詞 (paulō post の post)
+                if conn.is_connective(obj.prep):
+                    _add_connective(clause, obj.prep)
+                else:
+                    clause.adverbs.append(Lex(obj.prep, 'adv', obj.item.ja, surface=obj.prep))
+                continue
             np = np_of(obj, case if case in ('Nom', 'Acc', 'Dat', 'Abl', 'Gen', 'Loc', 'Voc') else None)
             if isinstance(case, tuple):
                 clause.args.append(('prep', np))
@@ -251,6 +258,11 @@ def clause_of(predicate, lang=None):
         if isinstance(sub, (ParticiplePhrase, AblativeAbsolute)):
             clause.adjuncts.append(participial_of(sub))
     return clause
+
+
+def _first_index(np):
+    words = [w for w in _sentence_words if w.surface == (np.surface.split(' ')[0] if np.surface else '')]
+    return words[0].index if words else None
 
 
 def _add_connective(clause, surface):
@@ -302,12 +314,73 @@ def frames(analysis):
     clauses = []
     for c in analysis.clauses:
         clause = clause_of(c.predicate)
-        for word in c.not_solved:   # 述語に結びつかなかった接続詞 (et postquam … の postquam)
+        for word in c.not_solved:   # 述語に結びつかなかった接続詞 (et postquam … の postquam)、副詞 (aegrē)
             if isinstance(word, Word) and conn.is_connective(word.surface):
                 _add_connective(clause, word.surface)
+            elif isinstance(word, Word) and word.items and any(item.pos == 'adv' for item in word.items):
+                clause.adverbs.append(lex_of(word, next(item for item in word.items if item.pos == 'adv')))
+            elif isinstance(word, Word) and word.items and word.items[0].pos in ('indecl', 'num') and \
+                    word.index is not None:
+                # 結びつかなかった数詞 (duo frātrēs の duo): すぐ後ろの語の名詞句に付ける
+                following = next((np for _, np in clause.args if np.head is not None and
+                                  _first_index(np) == word.index + 1), None)
+                if following is not None:
+                    following.modifiers.insert(0, lex_of(word))
         clause.after_main = bool(clauses) and clause.subordinator in conn.AFTER_MAIN and not clause.connectives
         clauses.append(clause)
+    _add_unknown_words(analysis, clauses)
     return clauses
+
+
+ACCUSATIVE_ENDINGS = ('am', 'em', 'um', 'ēn', 'ān', 'ān', 'ōn')
+
+
+def _add_unknown_words(analysis, clauses):
+    """辞書に無い語 (多くはギリシア系の固有名詞: Zētēs, Peliam) は解析の構造に入らないので、文の中の位置で
+    後ろの最も近い述語の節に 'unknown' として入れる (元の言語には綴りのまま戻し、ほかの言語では名前として)"""
+    if not clauses:
+        return
+    verb_positions = []
+    for c, clause in zip(analysis.clauses, clauses):
+        index = getattr(c.predicate.verb, 'index', None)
+        verb_positions.append(index if index is not None else 10 ** 6)
+    nodes = analysis.nodes
+    words = analysis.words
+    skip = set()
+    for n, node in enumerate(nodes):
+        if n in skip or not (isinstance(node, Word) and node.items == [] and node.surface[:1].isalpha()):
+            continue
+        index = node.index if node.index is not None else 0
+        after = [k for k, pos in enumerate(verb_positions) if pos >= index]
+        k = after[0] if after else len(clauses) - 1
+        if k > 0 and any(conn.lookup(w.surface) and conn.lookup(w.surface)[0] == 'sub'
+                         for w in words[index + 1:verb_positions[k]] if isinstance(w, Word)):
+            k -= 1   # 間に従属節の接続詞があれば前の節の語 (Monuit Peliam ut … cavēret の Peliam)
+        clause = clauses[k]
+        # 辞書に無い名前どうしの並列 (Zētēs et Calais): et は文のつなぎではなく名前の並列
+        if n + 2 < len(nodes) and isinstance(nodes[n + 1], Word) and nodes[n + 1].surface in ('et', 'ac', 'atque') \
+                and isinstance(nodes[n + 2], Word) and nodes[n + 2].items == [] and nodes[n + 2].surface[:1].isupper():
+            other = nodes[n + 2]
+            members = [NP(Lex(w.surface, 'noun', '', proper=True, surface=w.surface), surface=w.surface)
+                       for w in (node, other)]
+            np = NP(conj=nodes[n + 1].surface, members=members, number='pl', surface=node.surface + ' et ' + other.surface)
+            skip.add(n + 2)
+            if nodes[n + 1].surface in clause.connectives:
+                clause.connectives.remove(nodes[n + 1].surface)
+            role = 'subject' if not clause.role('subject') else 'unknown'
+            np.case = 'Nom' if role == 'subject' else ''
+            clause.args.append((role, np))
+            continue
+        if True:
+            proper = node.surface[:1].isupper()
+            np = NP(Lex(node.surface, 'noun' if proper else 'unknown', '', proper=proper, surface=node.surface),
+                    surface=node.surface)
+            role = 'unknown'
+            if proper and node.surface.endswith(ACCUSATIVE_ENDINGS):
+                role, np.case = 'object', 'Acc'   # Peliam, Aeētem, Glaucēn
+            elif proper and not clause.role('subject') and (not after or index < verb_positions[after[0]]):
+                role, np.case = 'subject', 'Nom'   # 述語より前で、節に主語が無ければ主語 (Zētēs … sublevāvērunt)
+            clause.args.append((role, np))
 
 
 def describe(clause, indent='  '):

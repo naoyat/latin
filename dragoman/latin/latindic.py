@@ -51,11 +51,15 @@ def _orthography_index():
     return _ortho_index
 
 
+# 実際にはまず使われない読みを除く語: ita の分詞 (eō の非人称受動の完了分詞 itus の女性形)。副詞「このように」だけに
+UNUSED_READINGS = {'ita': ('participle',)}
+
+
 def lookup_hand(word):
     """手作りの辞書 (latin/words/*.def から生成) を引く。
     表記どおりで無ければ、i/j を同一視 → u/v も同一視 (入力に v が無ければ) の順で探す
     (手作りの辞書は juvenis, Jovis のように j で書いている)"""
-    items = LatinDic.dic.get(word, None)
+    items = _drop_unused(word, LatinDic.dic.get(word, None))
     if items:
         return items
     candidates = _orthography_index().get(orthography.uv(orthography.ij(word)), [])
@@ -63,7 +67,7 @@ def lookup_hand(word):
                     lambda s: orthography.may_merge_uv(word)):                  # u/v も違う
         surfaces = [s for s in candidates if allowed(s)]
         if surfaces:
-            return [item for s in surfaces for item in LatinDic.dic[s]]
+            return _drop_unused(word, [item for s in surfaces for item in LatinDic.dic[s]])
     return None
 
 
@@ -71,7 +75,14 @@ def lookup_wiktionary(word):
     """Wiktionary 由来の補助辞書を引く (tools/build_wiktionary_dic.py で作成)"""
     if not LatinDic.use_wiktionary:
         return None
-    return wiktionary.lookup(word)
+    return _drop_unused(word, wiktionary.lookup(word))
+
+
+def _drop_unused(word, items):
+    unused = UNUSED_READINGS.get(word.lower())
+    if items and unused:
+        items = [item for item in items if item.get('pos') not in unused] or items
+    return items
 
 
 def lookup(word):

@@ -230,7 +230,14 @@ def _matching(candidates, ja, pos):
     return candidates[0]
 
 
+NUMERALS = {'ūnus': 'one', 'duo': 'two', 'trēs': 'three', 'quattuor': 'four', 'quīnque': 'five', 'sex': 'six',
+            'septem': 'seven', 'octō': 'eight', 'novem': 'nine', 'decem': 'ten', 'ūndecim': 'eleven',
+            'duodecim': 'twelve', 'vīgintī': 'twenty', 'centum': 'a hundred', 'mīlle': 'a thousand'}
+
+
 def word(lex):
+    if lex.lemma in NUMERALS:
+        return NUMERALS[lex.lemma]
     if lex.proper:
         return _flat(lex.lemma)   # 固有名詞は綴りのまま (Wiktionary の説明 Roman cognomen … は使わない)
     en = gloss(lex)

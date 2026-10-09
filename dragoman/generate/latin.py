@@ -121,7 +121,8 @@ def decline(lex, case, number, gender='', prefer=None):
                                    surface.replace('\u0361', '')))
     if not candidates:
         if lex.surface and not any(item.get('_') for _, item in _forms(lex.lemma, pos)):
-            return lex.surface.lower()   # 格変化しない語 (duodecim, centum)
+            # 格変化しない語 (duodecim, centum)、辞書に無い語 (Zētēs, Peliam) は文中の形のまま
+            return lex.surface if lex.proper or lex.pos == 'unknown' else lex.surface.lower()
         return '*' + lex.lemma
     return min(candidates)[-1].replace('\u0306', '')   # 短音の記号 (Wiktionary の ā̆) は除く
 

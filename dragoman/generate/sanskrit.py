@@ -62,6 +62,9 @@ GANAS = {'1': 'Bhvadi', '2': 'Adadi', '3': 'Juhotyadi', '4': 'Divadi', '5': 'Sva
          '8': 'Tanadi', '9': 'Kryadi', '10': 'Curadi'}
 LAKARAS = {'present': 'Lat', 'imperfect': 'Lan', 'perfect': 'Lan', 'past-perfect': 'Lan', 'future': 'Lrt',
            'future-perfect': 'Lrt'}
+# 数: 'du' は両数 (ラテン語の duo・ambō と一緒の名詞)
+VACANAS = {'sg': Vacana.Eka, 'du': Vacana.Dvi, 'pl': Vacana.Bahu} if vidyut_kosha is not None else {}
+DUAL_WORDS = {'duo', 'ambō'}
 # 動詞の見出しの置き換え (英語の訳語の表に無い語根)
 VERBS = {'sum': ('as', '2'), 'possum': ('Sak', '5')}
 # 対格でない格を取る動詞 (BI「恐れる」+ 奪格: samudrAt biByati、snih「愛する」+ 処格)
@@ -125,7 +128,7 @@ def subanta(stem, linga, case, number):
         return '*' + str(stem)
     form = _derive(Pada.Subanta(pratipadika=prat, linga=getattr(Linga, LINGAS.get(linga, 'Pum')),
                                 vibhakti=getattr(Vibhakti, VIBHAKTIS[case]),
-                                vacana=Vacana.Bahu if number == 'pl' else Vacana.Eka))
+                                vacana=VACANAS.get(number, Vacana.Eka)))
     return form or '*' + (stem if isinstance(stem, str) else '?')
 
 
@@ -134,7 +137,7 @@ def tinanta(d, tense, mood, voice, person, number):
     return _derive(Pada.Tinanta(dhatu=d, prayoga=Prayoga.Karmani if voice == 'passive' else Prayoga.Kartari,
                                 lakara=getattr(Lakara, lakara),
                                 purusha={1: Purusha.Uttama, 2: Purusha.Madhyama}.get(person, Purusha.Prathama),
-                                vacana=Vacana.Bahu if number == 'pl' else Vacana.Eka))
+                                vacana=VACANAS.get(number, Vacana.Eka)))
 
 
 # ----------------------------------------------------------------------
@@ -180,8 +183,11 @@ def name(latin):
         if two == 'qu':
             out, i = out + 'kv', i + 2
             continue
+        if two in ('th', 'ph', 'ch'):
+            out, i = out + {'th': 'T', 'ph': 'P', 'ch': 'K'}[two], i + 2   # ギリシア語の有気音 (Thessalia)
+            continue
         c = word[i]
-        out += long.get(c) or {'c': 'k', 'j': 'y', 'i': 'i', 'x': 'kz', 'h': 'h'}.get(c, c)
+        out += long.get(c) or {'c': 'k', 'j': 'y', 'i': 'i', 'x': 'kz', 'h': 'h', 'z': 'j', 'y': 'i'}.get(c, c)
         i += 1
     return out.replace('iu', 'yu').replace('ia', 'iy') + tail, gender
 
@@ -242,6 +248,9 @@ def noun_phrase(np, case):
         if suffix == 'cit' and word.endswith('H'):
             word = word[:-1] + 'S'   # kaH + cit → kaScit
         return ('na ' if negative else '') + word + ('' if suffix == 'cit' else ' ') + suffix
+    if any(getattr(m, 'lemma', '') in DUAL_WORDS for m in np.modifiers) and np.number == 'pl':
+        import dataclasses
+        np = dataclasses.replace(np, number='du')   # duo frātrēs → dvau BrAtarO (両数)
     stem, gender = noun_stem(head, np.gender)
     if head.pos == 'pronoun' and head.desc == '指示代名詞' and np.modifiers:
         stem = None
@@ -370,6 +379,8 @@ def _agreement(subject, clause):
     gender = noun_stem(subject.head, subject.gender)[1] if subject.head is not None else 'm'
     if subject.head.pos == 'pronoun':
         return subject.gender or 'm', clause.person, clause.number
+    if subject.number == 'pl' and any(getattr(m, 'lemma', '') in DUAL_WORDS for m in subject.modifiers):
+        return gender, 3, 'du'   # 両数の主語には両数の動詞 (dvau BrAtarO AstAm)
     return gender, 3, subject.number
 
 

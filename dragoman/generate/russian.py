@@ -254,7 +254,7 @@ def noun_phrase(np, case):
             before.append(adjective(mod, case, np.number, g, animate))
     numeral = next((PRONOUNS[m.lemma] for m in np.modifiers if not isinstance(m, NP) and
                     PRONOUNS.get(m.lemma) in NUMERALS), None)
-    if numeral and case in ('Nom', 'Acc') and not animate:
+    if numeral and (case == 'Nom' or case == 'Acc' and not animate):
         # 数詞の格支配: 2〜4 は名詞が生格単数 (три стула)、5 以上は生格複数 (пять стульев)。形容詞は生格複数
         noun_case = {'sing'} if NUMERALS[numeral] < 5 else {'plur'}
         word = _inflect(lemma, 'NOUN', {'gent'} | noun_case)

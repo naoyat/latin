@@ -39,6 +39,7 @@ def _spelling(word):
                                ('conl', 'coll'), ('inl', 'ill'), ('adt', 'att')):
         if word.startswith(plain):
             word = assimilated + word[len(plain):]
+    word = {'iis': 'eis', 'ii': 'ei', 'isdem': 'eisdem', 'iidem': 'eidem'}.get(word, word)   # is の複数 iīs = eīs
     return word[:-2] + 'es' if word.endswith('is') and len(word) > 4 else word
 
 

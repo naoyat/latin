@@ -41,6 +41,7 @@ CONNECTIVES = {
     'sīve': ('coord', 'or', 'или', 'vA'),
     'seu': ('coord', 'or', 'или', 'vA'),
     'ubi': ('sub', 'when', 'когда', ('yadA', 'tadA')),
+    'cum': ('sub', 'when', 'когда', ('yadA', 'tadA')),   # 接続詞の cum (解析で中身の無い前置詞句になったもの)
     'postquam': ('sub', 'after', 'после того как', ('yadA', 'tadA')),
     'dum': ('sub', 'while', 'пока', ('yAvat', 'tAvat')),
     'quod': ('sub', 'because', 'потому что', ('yataH', 'ataH')),

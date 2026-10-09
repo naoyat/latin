@@ -74,12 +74,21 @@ def detect_prep_domination(words):
                 stop = False
                 matched = None   # 支配する格に合う名詞の読みの格
                 for k, item in enumerate(w.items):
-                    if item.pos in ['verb', 'preposition', 'conj', 'adv']:
-                        stop = True
+                    if item.pos in ['verb', 'preposition', 'conj', 'adv'] or \
+                            (item.pos == 'indecl' and noun_seen and not language.current().objects_follow_verb):
+                        stop = True   # 名詞の後ろの格変化しない数詞も句の外 (in Thessaliā duo frātrēs)
                         break # for-k-loop
                     if item._: # subst
                         if item.pos == 'adj':
+                            if noun_seen and not language.current().objects_follow_verb and \
+                                    not any(case in dominates or case == 'Gen' for case, _, _ in item._):
+                                stop = True   # 名詞の後ろの、格の合わない形容詞・数詞 (in Thessaliā duo frātrēs の duo)
+                                break # for-k-loop
                             continue # for-k-loop
+                        if noun_seen and item.pos == 'pronoun' and item.attrib('desc') in ('人称代名詞', '再帰代名詞') \
+                                and not language.current().objects_follow_verb:
+                            stop = True   # 名詞の後ろの人称・再帰代名詞は句の外 (in āera sē sublevāvērunt)
+                            break # for-k-loop
                         can_skip = False
                         yes = False
                         for case, number, gender in item._:
