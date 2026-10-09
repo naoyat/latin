@@ -242,6 +242,7 @@ def relative_clause(r, np):
             word = relative.surface.lower()
         if r.gap == 'prep':
             word = r.gap_prep[0].lemma + ' ' + word
+    r.antecedent_gender, r.antecedent_number = np.gender, np.number   # 主語の空所の分詞の性 (quae … imbūtae erant)
     return word + ' ' + realize(r, capitalize=False)
 
 
@@ -277,7 +278,8 @@ def realize(clause, capitalize=True):
     if clause.mood == 'infinitive':
         out.append(infinitive(clause.verb, clause.tense, clause.voice))
     else:
-        gender = subjects[0].gender if subjects and not subjects[0].members else ''
+        gender = subjects[0].gender if subjects and not subjects[0].members else \
+            getattr(clause, 'antecedent_gender', '') if clause.gap == 'subject' else ''
         out.append(conjugate(clause.verb, clause.person, clause.number, clause.tense, clause.mood, clause.voice,
                              gender))
     text = ' '.join(out)

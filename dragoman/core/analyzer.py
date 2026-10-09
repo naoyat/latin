@@ -1299,6 +1299,8 @@ def _antecedent(pronoun, words_by_index, adverb=False):
         word = words_by_index.get(index)
         if word is None or not word.items:
             continue
+        if word.items[0].pos == 'conj':
+            return None   # 間に接続詞 (et quod … supererat の quod は「〜なので」)
         nouns = [item for item in word.items if item.pos in ('noun', 'pronoun') and item._ and
                  item.attrib('desc') != '関係代名詞']
         if any((n, g) in readings for noun in nouns for _, n, g in noun._):
@@ -1319,6 +1321,17 @@ def _comparative_quam(pronoun, words_by_index):
                                  any(item.attrib('rank') == '+' for item in word.items or [])):
             return True
     return False
+
+
+def _first_word_index(node):
+    """語・並列句・前置詞句の最初の語の位置"""
+    if isinstance(node, Word):
+        return node.index
+    if isinstance(node, AndOr):
+        return next((w.index for words in node.words_slots for w in words if isinstance(w, Word)), None)
+    if isinstance(node, PrepClause):
+        return next((w.index - 1 for w in node.words if isinstance(w, Word) and w.index is not None), None)
+    return None
 
 
 def _gap_by_agreement(pronoun, antecedent, pred):
@@ -1359,17 +1372,28 @@ def detect_relative_clauses(clauses, trace):
             gap = _gap_by_agreement(pronoun, antecedent, pred)
         k = out.index(q)
         if any(n is antecedent for n in _nodes_in(pred, q.not_solved)):
-            # 先行詞が関係節の語として付いていた (Hīc est locus in quō …): 前の節へ戻す
-            if k == 0:
+            # 先行詞が関係節の語として付いていた: 後ろに節があればそこへ (…, et nautae, quī …, nāvem appulērunt)、
+            # 無ければ前の節へ (Hīc est locus in quō …)
+            target = k + 1 if k + 1 < len(out) else k - 1
+            if target < 0:
                 continue
+            # 先行詞と、関係代名詞より前の語 (Domine Deus, Agnus Dei, Fīlius Patris, quī tollis … の呼びかけ) を移す
             for case in list(pred.case_slot):
-                if any(o is antecedent for o in pred.case_slot[case]):
-                    pred.case_slot[case] = [o for o in pred.case_slot[case] if o is not antecedent]
+                moving = [o for o in pred.case_slot[case]
+                          if o is antecedent or (_first_word_index(o) is not None and
+                                                 _first_word_index(o) < pronoun.index)]
+                if moving:
+                    pred.case_slot[case] = [o for o in pred.case_slot[case] if not any(o is m for m in moving)]
                     if not pred.case_slot[case]:
                         del pred.case_slot[case]
-                    out[k - 1].predicate.add_nominal(case, antecedent)
+                    for o in moving:
+                        out[target].predicate.add_nominal(case, o)
             if antecedent in q.not_solved:
                 q.not_solved.remove(antecedent)
+        if slot_obj != 'conjunction' and pred.conjunction is not None and k + 1 < len(out) and \
+                out[k + 1].predicate.conjunction is None:
+            # 関係節の節にまとめられていた接続詞は後ろの主節のもの (et arcum, quem … attulerat, intendit)
+            out[k + 1].predicate.conjunction, pred.conjunction = pred.conjunction, None
         if slot_obj == 'conjunction':
             pred.conjunction = None
         elif slot_obj is not None:

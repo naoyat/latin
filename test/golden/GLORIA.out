@@ -183,10 +183,13 @@ Domine fīlī ūnigenite , Iēsū Christe , Domine Deus , Agnus Deī , Fīlius P
 // GEN#19 (mundī) -> TARGET#18 (peccāta)
 // GEN#14 (Patris) -> TARGET#13 (Fīlius)
 // GEN#11 (Deī) -> TARGET#10 (Agnus)
+// RELATIVE tollis (quī) -> Fīlius
 
 2 VERBS FOUND: tollis, miserēre
 
-  tollis (indicative 2sg)
+  miserēre (infinitive NoneNone)
+    Dat:
+      nōbīs
     Voc:
       Domine
       fīlī
@@ -201,18 +204,13 @@ Domine fīlī ūnigenite , Iēsū Christe , Domine Deus , Agnus Deī , Fīlius P
         Deī
       Fīlius
         Patris
-      quī
-    Nom/Acc:
-      peccāta
-        mundī
+        [relative quī: Nom]
+          tollis (indicative 2sg)
+            Nom/Acc:
+              peccāta
+                mundī
 
-  →  神={神の}小羊={父の}息子=各人(の)(人,物)が / 主,主人={一人っ子の}息子=キリスト=主,主人よ / イエス={世界,宇宙の}罪を / 取り去る
-
-  miserēre (infinitive NoneNone)
-    Dat:
-      nōbīs
-
-  →  私に / 憐れむ
+  →  神={神の}小羊={{世界,宇宙の}罪を 取り去る}{父の}息子が / 私に / 主,主人={一人っ子の}息子=キリスト=主,主人よ / イエスを / 憐れむ
 
 
 quī tollis peccāta mundī , suscipe dēprecātiōnem nostram , quī sedēs ad dextram Patris , miserēre nōbīs .
