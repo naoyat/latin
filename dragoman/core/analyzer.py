@@ -1007,6 +1007,11 @@ def _group_by_verbs(words, verbs_ix, trace):
                 break
         if well_divided_at is None:
             for j in range(fr, to+1):
+                if isinstance(words[j], Word) and is_relative(words[j]) and j > fr:
+                    well_divided_at = j-1   # 関係代名詞は後ろの動詞の節の頭 (erant quīdam | quī īnsulam … incolēbant)
+                    break
+        if well_divided_at is None:
+            for j in range(fr, to+1):
                 if words[j].surface == 'quod':
                     well_divided_at = j-1
                     break
@@ -1374,9 +1379,11 @@ def detect_relative_clauses(clauses, trace):
         if any(n is antecedent for n in _nodes_in(pred, q.not_solved)):
             # 先行詞が関係節の語として付いていた: 後ろに節があればそこへ (…, et nautae, quī …, nāvem appulērunt)、
             # 無ければ前の節へ (Hīc est locus in quō …)
-            target = k + 1 if k + 1 < len(out) else k - 1
-            if target < 0:
-                continue
+            finite = [t for t in (k + 1, k - 1) if 0 <= t < len(out) and
+                      any(item.attrib('mood') != 'infinitive' for item in out[t].predicate.verb.items)]
+            if not finite:
+                continue   # 不定詞の節には入れない (poterant iī quī … relictī erant lacrimās tenēre)
+            target = finite[0]
             # 先行詞と、関係代名詞より前の語 (Domine Deus, Agnus Dei, Fīlius Patris, quī tollis … の呼びかけ) を移す
             for case in list(pred.case_slot):
                 moving = [o for o in pred.case_slot[case]
@@ -1400,6 +1407,19 @@ def detect_relative_clauses(clauses, trace):
                 main.conjunction = None
             if main.conjunction is None:
                 main.conjunction, pred.conjunction = pred.conjunction, None
+        if slot_obj != 'conjunction' and pred.conjunction is not None and \
+                not (pred.conjunction.items and pred.conjunction.items[0].pos == 'adv'):
+            # 後ろに節が無ければ先行詞のある節へ (Cyclōpēs autem pāstōrēs erant quīdam quī … incolēbant)
+            owner = next((c.predicate for c in out if c is not q and
+                          any(n is antecedent for n in _nodes_in(c.predicate, c.not_solved))), None)
+            if owner is not None and owner.conjunction is None:
+                owner.conjunction, pred.conjunction = pred.conjunction, None
+        if isinstance(pronoun, Word) and slot_obj != 'conjunction':
+            # 関係代名詞に係っていた語は節に戻す (quem lōtum appellābant の lōtum: 二重対格の補語)
+            for attached in pronoun.modifiers + pronoun.genitives:
+                cases = [c for item in getattr(attached, 'items', None) or [] if item._ for c, _, _ in item._]
+                pred.add_nominal(gap if gap in cases or not cases else cases[0], attached)
+            pronoun.modifiers, pronoun.genitives = [], []
         if slot_obj == 'conjunction':
             pred.conjunction = None
         elif slot_obj is not None:
