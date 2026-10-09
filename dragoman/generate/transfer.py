@@ -32,22 +32,33 @@ class Target:
     senses: int = 1
 
 
+# 英語 → 見出し語の表: Wiktionary 由来 (tools/build_english_index.py) と、サンスクリットは Apte の英梵辞典
+# (tools/build_sanskrit_apte.py。7列目に英語の見出しの中での候補の順位)
+INDEX_FILES = {'sa': ('en-index.tsv', 'en-index-apte.tsv')}
+
+
 @functools.lru_cache(maxsize=4)
 def _index(lang):
     """英語 → [(訳語の中の順位, Target)]"""
     index = {}
-    path = paths.data(lang, 'en-index.tsv')
-    if not os.path.exists(path):
-        return index
-    with open(path, encoding='utf-8') as f:
-        for row in csv.reader(f, delimiter='\t', quoting=csv.QUOTE_NONE):
-            if len(row) != 6:
-                continue
-            lemma, pos, en, gender, gana, senses = row
-            glosses = tuple(g.strip() for g in en.split(',') if g.strip())
-            target = Target(lemma, pos, glosses, gender, gana, int(senses))
-            for rank, g in enumerate(glosses):
-                index.setdefault(g.lower(), []).append((rank, target))
+    for name in INDEX_FILES.get(lang, ('en-index.tsv',)):
+        path = paths.data(lang, name)
+        if not os.path.exists(path):
+            continue
+        with open(path, encoding='utf-8') as f:
+            for row in csv.reader(f, delimiter='\t', quoting=csv.QUOTE_NONE):
+                if len(row) not in (6, 7):
+                    continue
+                lemma, pos, en, gender, gana, senses = row[:6]
+                glosses = tuple(g.strip() for g in en.split(',') if g.strip())
+                target = Target(lemma, pos, glosses, gender, gana, int(senses))
+                if len(row) == 7:   # 英梵辞典: 見出しの英語ひとつ (chest=box は chest で引き、box で日本語と照らす)
+                    key, _, ref = en.partition('=')
+                    target = Target(lemma, pos, (ref or key,), gender, gana, int(senses))
+                    index.setdefault(key.lower(), []).append((int(row[6]), target))
+                    continue
+                for rank, g in enumerate(glosses):
+                    index.setdefault(g.lower(), []).append((rank, target))
     return index
 
 
@@ -192,7 +203,7 @@ def candidates(lex, lang, pos=None):
             gender, gana = (extra, '') if pos != 'verb' else ('', extra)
             return [(-100, Target(lemma, pos, (en,), gender, gana))]
     wanted = [j.strip() for j in (lex.ja or '').split(',') if j.strip()]
-    scored = {}
+    scored, matched = {}, {}
     for i, en in _variants(sources[:6]):
         for j, target in _index(lang).get(en.lower(), []):
             if target.pos != pos or j > 5:
@@ -203,9 +214,17 @@ def candidates(lex, lang, pos=None):
                 score -= 3     # 日本語の一番の訳語が合う
             elif any(w in ja for w in wanted):
                 score -= 2
+            matched.setdefault((target.lemma, target.pos), set()).add(int(i))
             if target not in scored or score < scored[target]:
                 scored[target] = score
-    return sorted(((s, t) for t, s in scored.items()), key=lambda st: st[0])
+    # 元の語の英語の訳語の複数に合う語を良くする (arca: chest, box → 「胸」の uras より、chest と box の両方にある「箱」)
+    best_by_lemma = {}
+    for target, score in scored.items():
+        score -= 2 * (len(matched[(target.lemma, target.pos)]) - 1)
+        key = (target.lemma, target.pos)
+        if key not in best_by_lemma or score < best_by_lemma[key][0]:
+            best_by_lemma[key] = (score, target)
+    return sorted(best_by_lemma.values(), key=lambda st: st[0])
 
 
 def best(lex, lang, pos=None):

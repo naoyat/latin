@@ -211,6 +211,8 @@ FEMININE_I = {'sundara', 'gOra'}
 
 
 def adjective(lex, linga, case, number):
+    if lex.lemma in INDECLINABLE:
+        return INDECLINABLE[lex.lemma]   # arcam ipsam → svayam
     positive = english._positive(lex)
     degree = lex.degree or ('++' if positive is not None else '')
     lex = positive or lex   # 最上級の見出し (difficillimus) は原級で引いて -tama を付ける

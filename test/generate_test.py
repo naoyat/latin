@@ -179,8 +179,9 @@ class SanskritTestCase(unittest.TestCase):
         return sanskrit.sentence(clauses(text)).split('\n')[0]
 
     def test_cases(self):
-        self.assertEqual(self.sanskrit('Puella rosam pulchram in hortō videt.'),
-                         'bālikā sundarīm javām udyāne paśyati ।')
+        # 優先表の語だけの文 (英梵辞典の表の有無で変わらない)。形容詞は名詞の性に一致 (sundaram pustakam)
+        self.assertEqual(self.sanskrit('Puella librum pulchrum in hortō videt.'),
+                         'bālikā sundaram pustakam udyāne paśyati ।')
         self.assertEqual(self.sanskrit('Puer ā magistrō laudātur.'), 'bālakaḥ adhyāpakena praśasyate ।')
 
     def test_government(self):
