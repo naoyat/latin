@@ -1210,19 +1210,35 @@ def _nodes_in(predicate, extra=()):
             stack.extend(w for words in node.words_slots for w in words)
 
 
+def _relative_with_antecedent(word, words_by_index):
+    """関係代名詞にも読める語で、すぐ前の語が性・数の一致する名詞なら先行詞のある関係代名詞"""
+    relatives = [item for item in word.items if item.attrib('desc') == '関係代名詞' and item._]
+    before = words_by_index.get(word.index - 1) if word.index else None
+    if not relatives or before is None or not before.items:
+        return False
+    nouns = [item for item in before.items if item.pos in ('noun', 'pronoun') and item._]
+    return any((n, g) == (n2, g2) or g2 == 'c' for r in relatives for _, n, g in r._
+               for noun in nouns for _, n2, g2 in noun._)
+
+
 def detect_indirect_questions(clauses, trace):
     """間接疑問: 疑問詞を含み動詞が接続法の節を、隣の節の「問う・知る・教える・言う」動詞の格の枠 'Q' に入れる。
     節が et などで始まれば前の節と並列なので、支配する動詞は後ろの節 (…, et quid fierī vellet docuit)、
     ほかは前の節を先に見る (rogāvit quid vellet)"""
     out = list(clauses)
     questions = []
+    words_by_index = {}
+    for c in clauses:
+        for n in _nodes_in(c.predicate, c.not_solved):
+            if isinstance(n, Word) and n.index is not None:
+                words_by_index[n.index] = n
     for q in list(clauses):
         pred = q.predicate
         if pred.first_item.attrib('mood') != 'subjunctive':
             continue
         word = next((n for n in _nodes_in(pred, q.not_solved) if isinstance(n, Word) and is_interrogative(n)), None)
-        if word is None:
-            continue
+        if word is None or _relative_with_antecedent(word, words_by_index):
+            continue   # 先行詞のある関係代名詞 (hominem quem ōrāculum dēmōnstrāvisset) は間接疑問ではない
         k = out.index(q)
         coordinated = pred.conjunction is not None and pred.conjunction.surface in language.current().and_words
         neighbors = [k + 1, k - 1] if coordinated else [k - 1, k + 1]

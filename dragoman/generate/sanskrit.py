@@ -504,7 +504,13 @@ def question_phrase(inner):
     import dataclasses
     from . import connectives
     from .frame import interrogative_np
+    from .frame import question_idiom
     finite = dataclasses.replace(inner, mood='indicative', question_word='')
+    idiom, stripped = question_idiom(inner)
+    stripped = dataclasses.replace(stripped, mood='indicative', question_word='')
+    if idiom:
+        return {'where': 'kutra', 'why': 'kimartham', 'how': 'katham', 'when': 'kadA'}[idiom] + ' ' + \
+            realize(stripped) + ' iti'
     text = realize(finite)
     if interrogative_np(inner)[2] is None:
         entry = connectives.interrogative(inner.question_word)

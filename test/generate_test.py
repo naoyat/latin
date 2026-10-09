@@ -112,6 +112,11 @@ class QuestionTestCase(unittest.TestCase):
         self.assertEqual([q.question_word for q in main.questions], ['quis'])
         self.assertEqual(latin.sentence([main]), 'Magister quis cantāret rogāvit.')
 
+    def test_relative_is_not_a_question(self):
+        # 先行詞 (性・数の一致する名詞) のすぐ後ろの quem は関係代名詞
+        analysis, = analyzer.analyze_text('Puer magistrum quem puella amet videt.')
+        self.assertFalse(any('Q' in c.predicate.case_slot for c in analysis.clauses))
+
     def test_not_a_question(self):
         # 支配する動詞が問う・知る類でなければ入れない (ubi + 接続法の時の節)
         analysis, = analyzer.analyze_text('Puer cantat ubi puella dormiat.')

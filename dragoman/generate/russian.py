@@ -235,7 +235,10 @@ def noun_phrase(np, case):
             lemma = 'они'
         word = next((_inflect(lemma, pos, {CASES[case]}) for pos in ('NPRO', 'ADJF', 'NUMR') if _parse(lemma, pos)),
                     lemma)
-        if head.desc == '指示代名詞':
+        if head.desc == '指示代名詞' and head.lemma == 'ille' and not np.modifiers:
+            personal = 'она' if np.gender == 'f' else 'они' if np.number == 'pl' else 'он'   # 単独の ille → он
+            word = _inflect(personal, 'NPRO', {CASES[case]})
+        elif head.desc == '指示代名詞':
             word = adjective(head, case, np.number, GENDERS.get(np.gender, 'masc'), False) \
                 if np.modifiers else _inflect('это', 'NPRO', {CASES[case]})
     elif head.pos in ('adj', 'participle') and not english.substantive(head):
@@ -461,13 +464,21 @@ def infinitive_phrase(inner, main_subject):
     return rest
 
 
+IDIOMS = {'where': 'где', 'why': 'почему', 'how': 'как', 'when': 'когда'}
+
+
 def question_phrase(inner):
     """間接疑問: 読点 + 疑問詞 + 直説法の節 (спросил, почему мальчик плакал、объяснил, что он хотел …)。
     ли (num, utrum) は節の最初の語の後ろ"""
     import dataclasses
     from .frame import interrogative_np, without_interrogative
     from . import connectives
+    from .frame import question_idiom
     finite = dataclasses.replace(inner, mood='indicative', question_word='')
+    idiom, stripped = question_idiom(inner)
+    stripped = dataclasses.replace(stripped, mood='indicative', question_word='')
+    if idiom:
+        return ', ' + IDIOMS[idiom] + ' ' + realize(stripped, capitalize=False)
     owner, role, wh = interrogative_np(inner)
     if wh is None:
         entry = connectives.interrogative(inner.question_word)
@@ -477,7 +488,7 @@ def question_phrase(inner):
             head, _, rest = text.partition(' ')
             return ', ' + head + ' ли' + (' ' + rest if rest else '')
         return ', ' + word + ' ' + text
-    pronoun = 'кто' if wh.head.lemma in ('quis', 'quī') and inner.question_word != 'quid' else 'что'
+    pronoun = 'кто' if inner.question_word in ('quis', 'quem', 'cui', 'cūius', 'cuius') else 'что'
     case = 'Nom' if role == 'subject' else ROLE_CASES.get(role, 'Acc')
     if owner is inner and role == 'subject':
         return ', ' + realize(without_interrogative(finite, dataclasses.replace(wh, head=Lex(

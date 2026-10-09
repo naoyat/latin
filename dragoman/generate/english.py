@@ -452,7 +452,9 @@ def noun_phrase(np, objective=False, passive=False):
     else:
         head = np.head
         if head.pos == 'pronoun' and not np.modifiers:
-            text = pronoun(head, np.number, np.gender, objective)
+            # 単独の ille (「彼」の意味で語りに多い) は人称代名詞に
+            lemma = 'is' if head.lemma == 'ille' else head.lemma
+            text = pronoun(Lex(lemma, 'pronoun', head.ja, desc=head.desc), np.number, np.gender, objective)
         else:
             en = word(head)
             noun = plural(en) if np.number == 'pl' and head.pos == 'noun' and gloss(head) else en
@@ -573,18 +575,25 @@ def _pronoun_np(lemma, np):
     return NP(Lex(lemma, 'pronoun'), number=np.number, gender=np.gender)
 
 
+WHO = {'quis', 'quem', 'cui', 'cūius', 'cuius', 'quibus'}   # 人を問う形 (ほかの quae, quid, quod … は what)
+
+
 def question_phrase(inner):
     """間接疑問: 疑問詞を頭に、動詞は直説法で (asked why the boy was weeping、showed what he wanted to happen)。
     疑問代名詞が節の主語なら主語の位置のまま (who had come)"""
     from .frame import interrogative_np, without_interrogative, NP
     from . import connectives
+    from .frame import question_idiom
     finite = _replace(inner, mood='indicative', question_word='')
+    idiom, stripped = question_idiom(inner)
+    stripped = _replace(stripped, mood='indicative', question_word='')
+    if idiom:   # quō in locō → where、quam ob causam → why
+        return idiom + ' ' + realize(stripped, capitalize=False)
     owner, role, wh = interrogative_np(inner)
     if wh is None:
         entry = connectives.interrogative(inner.question_word)
         return (entry[0] if entry else inner.question_word) + ' ' + realize(finite, capitalize=False)
-    word = 'who' if wh.head.lemma in ('quis', 'quī') and wh.gender != 'n' and inner.question_word != 'quid' \
-        else 'what'
+    word = 'who' if inner.question_word in WHO else 'what'   # quae causa esset → what
     if owner is inner and role == 'subject':
         return realize(without_interrogative(finite, NP(Lex(word, 'noun', proper=True))), capitalize=False)
     return word + ' ' + realize(without_interrogative(finite), capitalize=False)

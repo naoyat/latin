@@ -319,6 +319,31 @@ def interrogative_np(clause):
     return None, None, None
 
 
+# 疑問詞 + 名詞で一つの疑問の語になる句: 名詞の見出し → 意味 (quō in locō「どこに」、quam ob causam「なぜ」)
+DETERMINER_FORMS = {'quam', 'quō', 'quā', 'quae', 'quod', 'quem', 'quī', 'quibus'}   # 名詞に係る疑問詞の形
+QUESTION_IDIOMS = {'locus': 'where', 'causa': 'why', 'modus': 'how', 'tempus': 'when'}
+
+
+def question_idiom(clause):
+    """間接疑問の節の「疑問詞 + 名詞」の句 (quō in locō → where、quam ob causam → why)。
+    (意味, その名詞句を除いた節) か (None, 節)"""
+    import dataclasses
+    _, _, wh = interrogative_np(clause)
+    for c in [clause] + clause.infinitives:
+        for role, np in c.args:
+            if np.head is not None and np.head.lemma in QUESTION_IDIOMS and \
+                    (np.prep is not None or np.case in ('Abl', 'Acc')) and (
+                        wh is not None or clause.question_word in DETERMINER_FORMS or any(
+                            isinstance(m, Lex) and m.lemma in ('quī', 'quis') for m in np.modifiers)):
+                meaning = QUESTION_IDIOMS[np.head.lemma]
+
+                def strip(x):
+                    return dataclasses.replace(x, args=[(r, n) for r, n in x.args if n is not np and not n.interrogative],
+                                               infinitives=[strip(i) for i in x.infinitives])
+                return meaning, strip(clause)
+    return None, clause
+
+
 def without_interrogative(clause, replacement=None):
     """間接疑問の節から疑問代名詞の名詞句を除いた (replacement があれば置き換えた) 写し。不定詞句の中も"""
     import dataclasses
