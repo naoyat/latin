@@ -1380,8 +1380,9 @@ def detect_relative_clauses(clauses, trace):
             # 先行詞と、関係代名詞より前の語 (Domine Deus, Agnus Dei, Fīlius Patris, quī tollis … の呼びかけ) を移す
             for case in list(pred.case_slot):
                 moving = [o for o in pred.case_slot[case]
-                          if o is antecedent or (_first_word_index(o) is not None and
-                                                 _first_word_index(o) < pronoun.index)]
+                          if o is not slot_obj and o is not pronoun and
+                          (o is antecedent or (_first_word_index(o) is not None and
+                                               _first_word_index(o) < pronoun.index))]
                 if moving:
                     pred.case_slot[case] = [o for o in pred.case_slot[case] if not any(o is m for m in moving)]
                     if not pred.case_slot[case]:
@@ -1397,7 +1398,7 @@ def detect_relative_clauses(clauses, trace):
         if slot_obj == 'conjunction':
             pred.conjunction = None
         elif slot_obj is not None:
-            pred.case_slot[gap] = [o for o in pred.case_slot[gap] if o is not slot_obj]
+            pred.case_slot[gap] = [o for o in pred.case_slot.get(gap, []) if o is not slot_obj]
             if not pred.case_slot[gap]:
                 del pred.case_slot[gap]
         else:
