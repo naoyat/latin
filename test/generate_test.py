@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dragoman.core import paths  # noqa: E402
 from dragoman.latin import latindic, analyzer  # noqa: E402
-from dragoman.generate import frame, english, latin, russian, sanskrit, greek, indonesian  # noqa: E402
+from dragoman.generate import frame, english, latin, russian, sanskrit, greek, indonesian, kobun  # noqa: E402
 from dragoman.generate.frame import Lex  # noqa: E402
 
 _saved = None
@@ -495,6 +495,40 @@ class IndonesianTestCase(unittest.TestCase):
         self.assertEqual(indonesian.passive('memiliki'), 'dimiliki')
         self.assertEqual(indonesian.intransitive('nyanyi'), 'bernyanyi')
         self.assertEqual(indonesian.active('beri'), 'memberi')   # ber- で始まるが語根
+
+
+class KobunTestCase(unittest.TestCase):
+    """ラテン語 → 文の枠 → 古文"""
+
+    @classmethod
+    def setUpClass(cls):
+        latindic.load()
+
+    def kobun(self, text):
+        analysis, = analyzer.analyze_text(text)
+        return kobun.sentence(frame.frames(analysis))
+
+    def test_verbs(self):
+        forms = {v: kobun.classical_verb(v).form('終止') for v in
+                 ('見る', '褒める', '与える', '歌う', '起きる', '見える', '植える', '出る', '死ぬ', 'ある', '愛する', '感じる')}
+        self.assertEqual(forms, {'見る': '見る', '褒める': '褒む', '与える': '与ふ', '歌う': '歌ふ', '起きる': '起く',
+                                 '見える': '見ゆ', '植える': '植う', '出る': '出づ', '死ぬ': '死ぬ', 'ある': 'あり',
+                                 '愛する': '愛す', '感じる': '感ず'})
+        self.assertEqual(kobun.classical_verb('褒める').form('連体'), '褒むる')
+
+    def test_sentences(self):
+        self.assertEqual(self.kobun('Puella rosam pulchram in hortō videt.'), '乙女は美しきバラを庭にて見る。')
+        self.assertEqual(self.kobun('Rēgīna puellīs rosās dedit.'), '女王は乙女どもにバラを与へけり。')
+        self.assertEqual(self.kobun('Puer ā magistrō laudātus est.'), '童は師に褒められけり。')   # 受身 らる + けり
+        self.assertEqual(self.kobun('Puella puerum videt quem magister laudat.'), '乙女は師の褒むる童を見る。')
+
+    def test_copula_and_negation(self):
+        self.assertEqual(self.kobun('Nauta nōn est malus.'), '舟人は悪からず。')
+        self.assertEqual(self.kobun('Puella est rēgīna.'), '乙女は女王なり。')
+
+    def test_question_and_absolute(self):
+        self.assertEqual(self.kobun('Magister rogāvit quis cantāret.'), '師は誰か歌ひけると問ひけり。')   # 係り結び
+        self.assertEqual(self.kobun('Urbe captā, cīvēs fūgērunt.'), '都の捕へられて、民どもは逃げけり。')
 
 
 if __name__ == '__main__':
