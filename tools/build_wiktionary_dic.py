@@ -125,6 +125,7 @@ def main():
     db.executescript('''
         CREATE INDEX forms_surface ON forms (surface);
         CREATE INDEX forms_flat ON forms (flat);
+        CREATE INDEX forms_lemma ON forms (lemma_id);   -- 見出し語の語形をすべて (文の生成の逆引き)
         CREATE INDEX forms_flat_uv ON forms (flat_uv);
         CREATE INDEX descendants_lemma ON descendants (lemma);
         CREATE INDEX etymology_lemma ON etymology (lemma);

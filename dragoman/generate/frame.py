@@ -284,6 +284,10 @@ def relative_of(relative):
         prep_clause = gap[1]
         inner.gap = 'prep'
         inner.gap_prep = (Lex(prep_clause.item.surface, 'preposition', prep_clause.item.ja), prep_clause.dominated_case)
+        latin = SOURCE_PREPOSITIONS.get(_lang, {}).get((prep_clause.item.surface.lower(), prep_clause.dominated_case))
+        if latin:   # ἐν ᾗ → in + 奪格 (元の前置詞は surface に)
+            inner.gap_prep = (Lex(latin[0], 'preposition', prep_clause.item.ja, surface=prep_clause.item.surface.lower(),
+                                  lang=_lang), latin[1])
     else:
         inner.gap = GAP_ROLES.get(gap, 'subject')
     return inner

@@ -111,7 +111,14 @@ def source_key(lang, lemma):
 def english_glosses(lang, lemma, pos):
     """元の言語の語の英語の訳語 (表から)"""
     pos = {'participle': 'verb', 'name': 'noun'}.get(pos, pos)
-    return list(dict.fromkeys(_by_lemma(lang).get((source_key(lang, lemma), pos), [])))
+    glosses = list(dict.fromkeys(_by_lemma(lang).get((source_key(lang, lemma), pos), [])))
+    first = FIRST_GLOSSES.get(lang, {}).get(lemma)
+    return [first] + [g for g in glosses if g != first] if first in glosses else glosses
+
+
+# 表の最初の訳語が教科書の意味でない語 (βασιλεύς: chief, emperor, … king): 先に使う訳語
+FIRST_GLOSSES = {'grc': {'βασιλεύς': 'king', 'ὁράω': 'see', 'λόγος': 'word', 'ἀνήρ': 'man', 'κόρη': 'girl',
+                         'λέγω': 'say', 'γράφω': 'write', 'παῖς': 'child', 'πόλις': 'city', 'ἔχω': 'have'}}
 
 
 def available(lang):

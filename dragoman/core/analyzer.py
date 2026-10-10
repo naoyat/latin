@@ -1322,8 +1322,8 @@ def _antecedent(pronoun, words_by_index, adverb=False):
             continue
         if word.items[0].pos == 'conj':
             return None   # 間に接続詞 (et quod … supererat の quod は「〜なので」)
-        nouns = [item for item in word.items if item.pos in ('noun', 'pronoun') and item._ and
-                 item.attrib('desc') != '関係代名詞']
+        nouns = [item for item in word.items if item._ and item.attrib('desc') != '関係代名詞' and
+                 (item.pos in ('noun', 'pronoun') or (item.pos == 'adj' and item.attrib('desc') == '指示代名詞'))]
         # 固有名詞は単数の読みだけ (Herculēs の複数の読みで quō 「どこで」に合わせない)
         if any((n, g) in readings for noun in nouns for _, n, g in noun._
                if n == 'sg' or not (noun.attrib('base') or '')[:1].isupper()):
@@ -1389,7 +1389,8 @@ def _antecedent_after(pronoun, clause):
         for item in word.items:
             is_demonstrative = item.attrib('desc') == '指示代名詞' or \
                 (item.attrib('base') or '') in CORRELATIVES
-            if item.pos in ('noun', 'pronoun') and item._ and is_demonstrative == demonstrative and \
+            if item.pos in ('noun', 'pronoun', 'adj' if demonstrative else 'noun') and item._ and \
+                    is_demonstrative == demonstrative and \
                     item.attrib('desc') != '関係代名詞' and any((n, g) in readings for _, n, g in item._):
                 return True
         return False

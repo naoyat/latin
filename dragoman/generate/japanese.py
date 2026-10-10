@@ -43,6 +43,13 @@ def available():
 
 def gloss(lex):
     """ラテン語の語 → 日本語の訳語 (最初のもの。注記・〜を除く)"""
+    from . import transfer
+    first = transfer.FIRST_GLOSSES.get(lex.lang, {}).get(lex.lemma)
+    if first:   # 先に使う英語の訳語の決まっている語 (βασιλεύς: king → 王)
+        from dragoman.core import en_ja
+        ja = en_ja.translate(first, lex.pos if lex.pos in ('noun', 'verb', 'adj', 'adv') else 'noun')
+        if ja:
+            return ja.split(',')[0]
     keys = ja_lexicon._keys(lex.ja or '')
     if keys:
         return keys[0]
@@ -52,8 +59,16 @@ def gloss(lex):
     from dragoman.core import en_ja
     from . import english
     en = english.gloss(lex) or (lex.ja if lex.ja and lex.ja.isascii() else None)
-    ja = en_ja.translate(en.split(',')[0], lex.pos if lex.pos in ('noun', 'verb', 'adj', 'adv') else 'noun') \
-        if en else None
+    pos = lex.pos if lex.pos in ('noun', 'verb', 'adj', 'adv') else 'noun'
+    ja = en_ja.translate(en.split(',')[0], pos) if en else None
+    if not ja and lex.lang:
+        # ほかの言語の語: 英語の訳語を順に、簡単な形も (ὁράω: look with the eyes → … → see)
+        from . import transfer
+        sources = [e for e in (lex.ja or '').split(',') if e] + transfer.english_glosses(lex.lang, lex.lemma, lex.pos)
+        for _, candidate in sorted(transfer._variants(sources[:8])):
+            ja = en_ja.translate(candidate, pos)
+            if ja:
+                break
     return ja.split(',')[0] if ja else (lex.surface or lex.lemma)
 
 

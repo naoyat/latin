@@ -8,10 +8,10 @@
 #   語順は 主語 - 受け手 - 目的語 - 前置詞句・手段 - 副詞 - (否定) - 動詞 (ラテン語の散文のふつうの順)。
 #   形容詞は名詞の後ろ、属格は名詞の後ろ。主語が代名詞だけなら省く (動詞の人称で分かる)
 #
-import json
 import functools
 
 from dragoman.latin import latindic, wiktionary
+from .reverse import Reverse
 from . import frame
 
 CONJUNCTIONS = {'et': 'et', 'atque': 'atque', 'ac': 'ac', 'aut': 'aut', 'vel': 'vel', 'neque': 'neque',
@@ -79,18 +79,16 @@ def _hand_index():
 @functools.lru_cache(maxsize=2000)
 def _wiktionary_forms(lemma, pos):
     """Wiktionary 由来の辞書の逆引き: 見出し語の語形をすべて [(語形, 項目)]"""
-    db = wiktionary._connect()
-    if db is None:
+    reverse = _reverse()
+    if reverse is None:
         return []
-    key = '$.pres1sg' if pos == 'verb' else '$.base'
-    rows = db.execute('SELECT f.surface, l.info, f.features FROM lemmas l JOIN forms f ON f.lemma_id = l.id '
-                      'WHERE json_extract(l.info, ?) = ?', (key, lemma)).fetchall()
-    out = []
-    for surface, info, features in rows:
-        item = dict(json.loads(info), **json.loads(features))
-        if item.get('pos') == pos:
-            out.append((surface, item))
-    return out
+    return [(surface, item) for surface, item in reverse.forms(lemma, pos) if item.get('pos') == pos]
+
+
+@functools.lru_cache(maxsize=1)
+def _reverse():
+    db = wiktionary._connect()
+    return Reverse(db) if db is not None else None
 
 
 def _forms(lemma, pos, ja=None):
@@ -317,7 +315,8 @@ def realize(clause, capitalize=True):
     for role, np in clause.args:
         if role not in ('subject', 'recipient', 'object', 'complement'):
             out.append(noun_phrase(np))
-    out += [(adv.surface or adv.lemma).lower() for adv in clause.adverbs]   # 副詞は変化しないので文中の形で
+    out += [(adv.surface or adv.lemma).lower() if adv.lang in ('', 'la') else _adverb(adv)
+            for adv in clause.adverbs]   # 副詞は変化しないので文中の形で
     if clause.negated:
         out.append('nōn')
     if clause.mood == 'infinitive':
@@ -339,3 +338,10 @@ def sentence(clauses):
     from . import connectives
     text = connectives.join(clauses, [realize(c, capitalize=False) for c in clauses], 'la')
     return text[:1].upper() + text[1:] + '.'
+
+
+def _adverb(adv):
+    """ほかの言語の副詞 → ラテン語の副詞 (ἀνδρείως → fortiter)。見つからなければ [英語]"""
+    from . import transfer, english
+    target = transfer.best(adv, 'la', 'adv')
+    return target.lemma if target else '[%s]' % english.word(adv)

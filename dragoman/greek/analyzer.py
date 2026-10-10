@@ -75,11 +75,33 @@ def _word(surface, next_surface=None):
     if key.lower() in GREEK.negations:
         # 否定 (οὐ, οὐκ, οὐχ, μή): 述語を否定形にする副詞として (οὐκ, οὐχ は辞書に無い)
         return Word(key, [{'surface': key, 'pos': 'adv', 'ja': '〜ない', 'base': key}])
-    items = dictionary.lookup(surface)
+    items = mark_relatives(dictionary.lookup(surface))
     for item in items:
         if item['pos'] == 'particle':
             item['pos'] = 'conj'  # δέ, γάρ, οὖν などの後置の小辞は接続詞と同じに扱う
     return Word(key, items)
+
+
+RELATIVES = {'ὅς', 'ὅστις', 'ὅσπερ'}
+DEMONSTRATIVES = {'οὗτος', 'ὅδε', 'ἐκεῖνος'}
+
+
+def mark_relatives(items):
+    """関係代名詞 ὅς・ὅστις・ὅσπερ の読みに desc 関係代名詞、指示代名詞 οὗτος・ὅδε・ἐκεῖνος に desc 指示代名詞
+    (共通の解析の関係節の検出に)。
+    関係代名詞の読みがあれば、同じ形の所有の ὅς (his own: 叙事詩) の読みは除く"""
+    for item in items:
+        if item.get('base') in DEMONSTRATIVES and not item.get('desc'):
+            item['desc'] = '指示代名詞'   # 関係節の先行詞 (ταῦτά ἐστιν ἃ λέγει)・相関の形の指示代名詞に
+    relative = [item for item in items if item.get('base') in RELATIVES and item['pos'] == 'pronoun' and
+                not (item.get('ja') or '').startswith('his')]
+    if not relative:
+        return items
+    for item in relative:
+        item['desc'] = '関係代名詞'
+        if item.get('base') == 'ὅς':
+            item['ja'] = 'who,which'
+    return [item for item in items if item.get('base') not in RELATIVES or item in relative]
 
 
 def lookup_all(surfaces):

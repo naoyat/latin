@@ -11,12 +11,12 @@
 #   節: 関係代名詞 ὅς ἥ ὅ (先行詞の性・数、空所の格)、不定詞句は対格 + 不定詞、独立奪格は属格独立
 #
 import functools
-import json
 import os
 import unicodedata
 
 from dragoman.core import paths
 from . import transfer, english
+from .reverse import Reverse
 from .frame import Lex, NP
 
 DB_PATH = paths.data('grc', 'wiktionary.sqlite')
@@ -65,15 +65,13 @@ def _db():
 
 @functools.lru_cache(maxsize=4000)
 def _forms(lemma, pos):
-    key = '$.pres1sg' if pos == 'verb' else '$.base'
-    rows = _db().execute('SELECT f.surface, l.info, f.features FROM lemmas l JOIN forms f ON f.lemma_id = l.id '
-                         'WHERE json_extract(l.info, ?) = ?', (key, lemma)).fetchall()
-    out = []
-    for surface, info, features in rows:
-        item = dict(json.loads(info), **json.loads(features))
-        if item.get('pos') == pos or (pos == 'pronoun' and item.get('pos') in ('pronoun', 'adj')):
-            out.append((surface, item))
-    return out
+    return [(surface, item) for surface, item in _reverse().forms(lemma, pos)
+            if item.get('pos') == pos or (pos == 'pronoun' and item.get('pos') in ('pronoun', 'adj'))]
+
+
+@functools.lru_cache(maxsize=1)
+def _reverse():
+    return Reverse(_db())
 
 
 def to_greek(lex, pos=None):
@@ -170,7 +168,8 @@ def noun_phrase(np, case):
     lex, gender = to_greek(head)
     if lex is None:
         return '[%s]' % english.word(head)
-    gender = np.gender if (head.lang == 'grc' and np.gender in GENDERS) else _gender(lex, gender)
+    gender = np.gender if ((head.lang == 'grc' or lex.pos == 'pronoun') and np.gender in GENDERS) else \
+        _gender(lex, gender)   # 代名詞は指す語の性 (ταῦτα: 中性複数)
     number = np.number
     if lex.pos == 'pronoun' and number == 'pl' and lex.lemma in PERSONAL_PLURALS:
         lex = Lex(PERSONAL_PLURALS[lex.lemma], 'pronoun')
@@ -367,13 +366,58 @@ def wrap(text, clause):
     return text
 
 
-ENCLITICS = {'τε', 'ἐστί', 'ἐστίν', 'εἰσί', 'εἰσίν', 'τις', 'τι', 'μου', 'μοι', 'με', 'σου', 'σοι', 'σε'}
+ENCLITICS = {'τε', 'ἐστί', 'ἐστίν', 'εἰσί', 'εἰσίν', 'ἐστι', 'ἐστιν', 'εἰσι', 'εἰσιν', 'τις', 'τι', 'μου', 'μοι', 'με', 'σου', 'σοι', 'σε'}
 VOWELS = set('αεηιουω')
+
+
+ENCLITIC_VERBS = {'ἐστί': 'ἐστι', 'ἐστίν': 'ἐστιν', 'εἰσί': 'εἰσι', 'εἰσίν': 'εἰσιν'}
+
+
+def _accent(word):
+    """アクセントの種類 (鋭 '\u0301'・曲 '\u0342') と、語末から数えた音節の位置 (0: 最後の音節)。無ければ (None, None)"""
+    d = unicodedata.normalize('NFD', word)
+    k = max(d.rfind('\u0301'), d.rfind('\u0342'))
+    if k < 0:
+        return None, None
+    base = ''.join(c for c in d[:k] if not unicodedata.combining(c))
+    tail = ''.join(c for c in d[k + 1:] if not unicodedata.combining(c))
+    if base[-1:] and tail[:1] and base[-1] + tail[0] in DIPHTHONGS:
+        tail = tail[1:]   # εἰ・οὐ の2つめの母音にアクセント: 前の母音と同じ音節
+    count, n = 0, 0
+    while n < len(tail):
+        if tail[n] in VOWELS:
+            count += 1
+            n += 2 if tail[n:n + 2] in DIPHTHONGS else 1
+        else:
+            n += 1
+    return d[k], count
+
+
+def _enclitic(previous, verb):
+    """前接語 ἐστί(ν)・εἰσί(ν) の前の語とのアクセント: 前が鋭アクセント語末・曲アクセント語末なら前接語はアクセントを失う、
+    前が語末から3音節目の鋭アクセント・2音節目の曲アクセントなら前の語の語末に鋭アクセントを足す (ἄνθρωπός ἐστι)、
+    前が語末から2音節目の鋭アクセントなら前接語はアクセントを保つ (λόγος ἐστί)"""
+    accent, position = _accent(previous)
+    if accent is None:
+        return previous, verb
+    if position == 0:
+        return previous, ENCLITIC_VERBS[verb]
+    if (accent == '\u0301' and position == 2) or (accent == '\u0342' and position == 1):
+        d = unicodedata.normalize('NFD', previous)
+        k = max(i for i, c in enumerate(d) if c in VOWELS)
+        while k + 1 < len(d) and unicodedata.combining(d[k + 1]):
+            k += 1
+        return unicodedata.normalize('NFC', d[:k + 1] + '\u0301' + d[k + 1:]), ENCLITIC_VERBS[verb]
+    return previous, verb
 
 
 def _grave(text):
     """文中の語末の鋭アクセント → 重アクセント (καλὸν ῥόδον)。句読点・前接語の前と τίς はそのまま"""
     words = text.split(' ')
+    for i in range(1, len(words)):
+        if words[i] in ENCLITIC_VERBS and words[i - 1][-1:].isalpha() and words[i - 1] not in ('οὐκ', 'οὐχ', 'οὐ'):
+            previous = unicodedata.normalize('NFC', unicodedata.normalize('NFD', words[i - 1]).replace('\u0300', '\u0301'))
+            words[i - 1], words[i] = _enclitic(previous, words[i])
     out = []
     for i, w in enumerate(words):
         following = words[i + 1] if i + 1 < len(words) else ''

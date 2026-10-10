@@ -389,6 +389,22 @@ class OtherSourceTestCase(unittest.TestCase):
         cs = self.frames_of(gr, 'οἱ στρατιῶται οὐκ ἐμάχοντο.')
         self.assertEqual(greek.sentence(cs), 'οἱ στρατιῶται οὐκ ἐμάχοντο.')
 
+    @unittest.skipUnless(greek.available(), 'grc/wiktionary.sqlite か grc/en-index.tsv が無い')
+    def test_greek_relative(self):
+        from dragoman.greek import analyzer as gr
+        cs = self.frames_of(gr, 'ὁ ἀνὴρ ὃν εἶδες σοφός ἐστιν.')
+        self.assertEqual(greek.sentence(cs), 'ὁ ἀνὴρ ὃν εἶδες σοφός ἐστι.')   # 前接語 ἐστι
+        self.assertEqual(latin.sentence(cs), 'Vir quem vīdistī catus est.')
+        cs = self.frames_of(gr, 'ἡ πόλις ἐν ᾗ οἰκοῦμεν μεγάλη ἐστίν.')
+        self.assertEqual(latin.sentence(cs), 'Urbs in quā habitāmus magna est.')   # 前置詞の空所
+        cs = self.frames_of(gr, 'ἃ λέγει ὁ διδάσκαλος, ταῦτα γράφομεν.')   # 先行詞より前の関係節
+        self.assertEqual(latin.sentence(cs), 'Haec quae magister dīcit scrībimus.')
+
+    def test_greek_enclitic_accent(self):
+        self.assertEqual(greek._grave('ὁ ἄνθρωπος ἐστί'), 'ὁ ἄνθρωπός ἐστι')
+        self.assertEqual(greek._grave('τὸ δῶρον ἐστί'), 'τὸ δῶρόν ἐστι')
+        self.assertEqual(greek._grave('ὁ λόγος ἐστί'), 'ὁ λόγος ἐστί')
+
 
 @unittest.skipUnless(greek.available(), 'grc/wiktionary.sqlite か grc/en-index.tsv が無い')
 class GreekTestCase(unittest.TestCase):

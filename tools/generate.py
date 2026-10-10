@@ -154,10 +154,14 @@ def _source_words(text, lang):
     if lang == 'sa':
         from dragoman.sanskrit import script
         return Counter(re.sub('[sr]$', 'H', script.to_slp1(w)) for w in words)   # rāmas = rāmaḥ (語末の連声)
-    if lang == 'grc':   # 重アクセント = 鋭アクセント、語末の ν (ἔδωκεν = ἔδωκε)
-        words = [unicodedata.normalize('NFC', unicodedata.normalize('NFD', w.lower()).replace('\u0300', '\u0301'))
-                 for w in words]
-        return Counter(re.sub('(?<=[ει])ν$', '', w) for w in words)
+    if lang == 'grc':   # 重アクセント = 鋭アクセント、前接語の前の2つめのアクセントは除く、語末の ν (ἔδωκεν = ἔδωκε)
+        words = [unicodedata.normalize('NFD', w.lower()).replace('\u0300', '\u0301') for w in words]
+        words = [w[:w.rfind('\u0301')] + w[w.rfind('\u0301') + 1:] if w.count('\u0301') + w.count('\u0342') > 1 else w
+                 for w in words]   # 前接語の前で足したアクセント (ταῦτά ἐστιν)
+        words = [unicodedata.normalize('NFC', w) for w in words]
+        words = [{'ἐστί': 'ἐστι', 'ἐστίν': 'ἐστιν', 'εἰσί': 'εἰσι', 'εἰσίν': 'εἰσιν'}.get(w, w) for w in words]   # 前接語
+        return Counter(unicodedata.normalize('NFC', re.sub('(?<=[ει])([\u0300-\u036f]*)ν$', r'\1',
+                                                           unicodedata.normalize('NFD', w))) for w in words)
     return Counter(w.lower().replace('ё', 'е') for w in words)
 
 
