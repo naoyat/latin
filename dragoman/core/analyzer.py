@@ -1345,12 +1345,46 @@ def _first_word_index(node):
     return None
 
 
+CORRELATIVES = {'is', 'ille', 'hic', 'hīc', 'iste', 'īdem', 'ipse'}
+
+
+def _agreeing_gender(pronoun, antecedent):
+    """関係代名詞と先行詞の一致する性 (ea quae …: 中性複数)"""
+    readings = {(n, g) for item in pronoun.items if item.attrib('desc') == '関係代名詞' for _, n, g in item._ or []}
+    return next((g for item in antecedent.items if item._ for _, n, g in item._ if (n, g) in readings), None)
+
+
+def _antecedent_after(pronoun, clause):
+    """関係節が先行詞より前に来る形の先行詞: 後ろの節の語のうち位置の早い6語までの、性・数の一致する指示代名詞
+    (is, ille, hic …: Quem puella amat, eum magister laudat の eum)"""
+    readings = {(n, g) for item in pronoun.items if item.attrib('desc') == '関係代名詞' for _, n, g in item._ or []}
+    words = sorted((n for n in _nodes_in(clause.predicate, clause.not_solved)
+                    if isinstance(n, Word) and n.items and n.index is not None and n.index > pronoun.index),
+                   key=lambda w: w.index)[:6]
+
+    def agrees(word, demonstrative):
+        for item in word.items:
+            is_demonstrative = item.attrib('desc') == '指示代名詞' or \
+                (item.attrib('base') or '') in CORRELATIVES
+            if item.pos in ('noun', 'pronoun') and item._ and is_demonstrative == demonstrative and \
+                    item.attrib('desc') != '関係代名詞' and any((n, g) in readings for _, n, g in item._):
+                return True
+        return False
+    # 名詞は先行詞にしない (疑問の Quae īnsulae … Trōjam oppūgnāvērunt? の後ろの文の名詞を拾わないように)
+    return next((w for w in words if agrees(w, True)), None)
+
+
 def _gap_by_agreement(pronoun, antecedent, pred):
     """格の枠に入っていない関係代名詞の役割: 先行詞と性・数の一致する読みの格のうち、節に主語が無ければ主格、
     目的語が無ければ対格 (Puella cantat quae in hortō sedet の quae: 主格)"""
     nouns = {(n, g) for item in antecedent.items if item._ for _, n, g in item._}
     cases = [c for item in pronoun.items if item.attrib('desc') == '関係代名詞' for c, n, g in item._ or []
              if (n, g) in nouns]
+    numbers = {n for item in pronoun.items if item.attrib('desc') == '関係代名詞' for c, n, g in item._ or []
+               if (n, g) in nouns and c == 'Nom'}
+    if pred.person() in (1, 2) or (pred.number() and numbers and pred.number() not in numbers):
+        # 動詞が1・2人称、数が合わない: 関係代名詞は主語でない (Quae dīxistī「あなたが言ったこと」)
+        cases = [c for c in cases if c != 'Nom']
     if not cases:
         # 解析の途中で格の候補が絞られて先行詞と合う読みが残っていない: 節に主語が無ければ主格 (いちばん多い)
         return 'Nom' if not pred.case_slot.get('Nom') else 'Acc'
@@ -1377,11 +1411,16 @@ def detect_relative_clauses(clauses, trace):
         if pronoun is None or pronoun.index is None or _comparative_quam(pronoun, words_by_index):
             continue
         antecedent = _antecedent(pronoun, words_by_index, adverb=slot_obj == 'conjunction')
+        k = out.index(q)
+        before = antecedent is None   # 関係節が先行詞より前 (相関の形)
+        if antecedent is None and slot_obj != 'conjunction' and k + 1 < len(out) and pred.person() not in (1, 2):
+            # 先行詞より前の関係節 (相関の形): 後ろの節の頭の指示代名詞 (Quī bene cantat, is laudātur)。
+            # 動詞が1・2人称なら先行詞は話し手・聞き手で省かれている (quī sedēs ad dextram Patris, miserēre nōbīs)
+            antecedent = _antecedent_after(pronoun, out[k + 1])
         if antecedent is None:
             continue
         if slot_obj is None:
             gap = _gap_by_agreement(pronoun, antecedent, pred)
-        k = out.index(q)
         if any(n is antecedent for n in _nodes_in(pred, q.not_solved)):
             # 先行詞が関係節の語として付いていた: 後ろに節があればそこへ (…, et nautae, quī …, nāvem appulērunt)、
             # 無ければ前の節へ (Hīc est locus in quō …)
@@ -1404,7 +1443,7 @@ def detect_relative_clauses(clauses, trace):
                         out[target].predicate.add_nominal(case, o)
             if antecedent in q.not_solved:
                 q.not_solved.remove(antecedent)
-        if slot_obj != 'conjunction' and pred.conjunction is not None and k + 1 < len(out):
+        if not before and slot_obj != 'conjunction' and pred.conjunction is not None and k + 1 < len(out):
             # 関係節の節にまとめられていた接続詞は後ろの主節のもの (et arcum, quem … attulerat, intendit)。
             # 主節の conjunction に副詞 (posteā) が入っていれば修飾語へ移す (et pellem, quam …, posteā gerēbat)
             main = out[k + 1].predicate
@@ -1413,7 +1452,7 @@ def detect_relative_clauses(clauses, trace):
                 main.conjunction = None
             if main.conjunction is None:
                 main.conjunction, pred.conjunction = pred.conjunction, None
-        if slot_obj != 'conjunction' and pred.conjunction is not None and \
+        if not before and slot_obj != 'conjunction' and pred.conjunction is not None and \
                 not (pred.conjunction.items and pred.conjunction.items[0].pos == 'adv'):
             # 後ろに節が無ければ先行詞のある節へ (Cyclōpēs autem pāstōrēs erant quīdam quī … incolēbant)
             owner = next((c.predicate for c in out if c is not q and
@@ -1442,6 +1481,7 @@ def detect_relative_clauses(clauses, trace):
         pred.subordinate = True
         pred.gap = gap if not isinstance(gap, tuple) else gap[0]
         relative = RelativeClause(pred, antecedent, pronoun, gap)
+        relative.gender = _agreeing_gender(pronoun, antecedent)
         antecedent.relatives.append(relative)
         out.remove(q)
         for c in out:   # 結びつかなかった語は先行詞のある節へ

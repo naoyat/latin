@@ -343,7 +343,8 @@ def noun_phrase(np, case):
     if np.relatives:
         # 関係節は相関構文: 関係節 (yad …) を先に、名詞には相関詞 tad を (yam aDyApakaH praSaMsati taM bAlakam)
         relatives = [relative_clause(r, gender, np.number) for r in np.relatives]
-        correlative = subanta('tad', gender, case, np.number) if any(r.gap != 'place' for r in np.relatives) else ''
+        correlative = subanta('tad', gender, case, np.number) \
+            if any(r.gap != 'place' for r in np.relatives) and stem not in ('tad', 'etad', 'adas', 'idam') else ''
         return ' '.join(relatives + [w for w in [correlative] + before + [word] if w])
     return ' '.join(before + [word])
 

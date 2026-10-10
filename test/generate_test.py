@@ -140,6 +140,13 @@ class RelativeTestCase(unittest.TestCase):
         self.assertEqual(analysis.relatives[0].gap, 'Nom')
         self.assertTrue(analysis.clauses[0].predicate.translate()[0].startswith('{{庭}'))
 
+    def test_relative_before_antecedent(self):
+        # 先行詞より前の関係節 (相関の形): 後ろの節の指示代名詞が先行詞。日本語は「{…する}人」
+        analysis, = analyzer.analyze_text('Quem puella amat, eum magister laudat.')
+        relative, = analysis.relatives
+        self.assertEqual((relative.antecedent.surface, relative.gap), ('eum', 'Acc'))
+        self.assertIn('{少女が 愛する}人を', analysis.clauses[0].predicate.translate()[0])
+
     def test_comparative_quam(self):
         analysis, = analyzer.analyze_text('Nēmō clārior erat quam Hector.')
         self.assertEqual(analysis.relatives, [])
@@ -210,6 +217,8 @@ class EnglishTestCase(unittest.TestCase):
                          'The boy comes to the garden where the girl sings.')
         self.assertEqual(self.english('Puella puerum videt quem magister laudat.'),
                          'The girl sees the boy whom the teacher praises.')
+        self.assertEqual(self.english('Quem puella amat, eum magister laudat.'),
+                         'The teacher praises him whom the girl loves.')
 
     def test_indirect_question(self):
         self.assertEqual(self.english('Magister rogāvit quis cantāret.'), 'The teacher asked who was singing.')

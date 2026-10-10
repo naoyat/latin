@@ -451,7 +451,15 @@ def noun_phrase(np, objective=False, passive=False):
         text = coordinate(parts, CONJUNCTIONS.get(np.conj, 'and'), np.correlative)
     else:
         head = np.head
-        if head.pos == 'pronoun' and not np.modifiers:
+        if head.pos == 'pronoun' and not np.modifiers and np.relatives and head.lemma in CORRELATIVE_HEADS:
+            # 関係節の付いた指示代名詞: 人なら he who … / those who …、物なら what … (ea quae dīxistī → what you said)
+            relative = np.relatives[0]
+            if not np.animate:
+                return ((np.prep and (LATIN_PREPS.get((np.prep.lemma, np.case)) or np.prep.lemma) + ' ') or '') + \
+                    'what ' + realize(_replace(relative, mood='indicative'), capitalize=False)
+            text = pronoun(Lex('is', 'pronoun'), np.number, np.gender, objective) if np.number == 'sg' else \
+                ('them' if objective else 'those')
+        elif head.pos == 'pronoun' and not np.modifiers:
             # 単独の ille (「彼」の意味で語りに多い) は人称代名詞に
             lemma = 'is' if head.lemma == 'ille' else head.lemma
             text = pronoun(Lex(lemma, 'pronoun', head.ja, desc=head.desc), np.number, np.gender, objective)
@@ -496,6 +504,8 @@ def noun_phrase(np, objective=False, passive=False):
 def _subject_features(np, clause):
     if np is None:
         return clause.person, clause.number
+    if np.relatives and not np.animate and np.head is not None and np.head.lemma in CORRELATIVE_HEADS:
+        return 3, 'sg'   # what you said is true
     if np.members:
         return 3, 'pl'
     if np.head.pos == 'pronoun':
@@ -599,6 +609,7 @@ def relative_clause(r, np):
     return word + ' ' + realize(finite, capitalize=False)
 
 
+CORRELATIVE_HEADS = {'is', 'ille', 'hic', 'hīc', 'iste', 'īdem'}
 WHO = {'quis', 'quem', 'cui', 'cūius', 'cuius', 'quibus'}   # 人を問う形 (ほかの quae, quid, quod … は what)
 
 

@@ -186,7 +186,8 @@ class Predicate (LatinObject):
                         sum_complement.append(obj)
                 elif self.is_sum:
                     # 形容詞（修飾語）の場合 (サンスクリットでは代名詞も名詞と同じく主語になる: tat tvam asi)
-                    nominal = ('noun', 'pronoun') if self.language.pronoun_subject else ('noun',)
+                    nominal = ('noun', 'pronoun') if self.language.pronoun_subject or getattr(obj, 'relatives', None) \
+                        else ('noun',)   # 関係節の付いた代名詞は主語になる (Quae dīxistī, ea vēra sunt)
                     if isinstance(obj, Word) and obj.items[0].pos not in nominal:
                         # sum なら補語として
                         sum_complement.append(obj)

@@ -184,11 +184,20 @@ def np_of(node, case=None):
     np.animate = is_animate(item)
     for relative in getattr(node, 'relatives', []):
         np.relatives.append(relative_of(relative))
+        if relative.gender and item.attrib('desc') == '指示代名詞':
+            # 関係節の付いた指示代名詞 (is quī …, ea quae …) は関係代名詞と一致する性・数で。人なら animate
+            readings = [(n, g) for _, n, g in item._ or [] if g == relative.gender]
+            if readings:
+                np.number, np.gender = readings[0]
+            np.animate = relative.gender != 'n'
     return np
 
 
 GAP_ROLES = {'Nom': 'subject', 'Acc': 'object', 'Dat': 'recipient', 'Abl': 'means', 'Gen': 'possessor',
              'Loc': 'place', 'Nom/Acc': 'subject'}
+
+
+CORRELATIVE_HEADS = {'is', 'ille', 'hic', 'hīc', 'iste', 'īdem'}   # 関係節の付く指示代名詞 (is quī …「…する者」)
 
 
 def relative_of(relative):

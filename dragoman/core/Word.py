@@ -94,6 +94,10 @@ class Word (LatinObject):
                 s = self.items[0].ja
                 if tr:
                     s = '{' + ' & '.join(tr) + '}' + s
+                if self.relatives and self.items[0].attrib('desc') == '指示代名詞':
+                    # 関係節の付いた指示代名詞 (is quī …「…する者」) は、人ならば「人」、中性なら「もの」
+                    genders = [r.gender for r in self.relatives if r.gender] or [g for _, _, g in self.items[0]._ or []]
+                    s = 'もの' if genders and all(g == 'n' for g in genders) else '人'
                 for relative in self.relatives:   # 関係節は連体修飾節として前に ({少女が 見た}少年)
                     s = '{' + relative.translate()[0] + '}' + s
                 return (s, False)

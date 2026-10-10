@@ -235,6 +235,22 @@ def noun_phrase(np, case):
             lemma = 'они'
         word = next((_inflect(lemma, pos, {CASES[case]}) for pos in ('NPRO', 'ADJF', 'NUMR') if _parse(lemma, pos)),
                     lemma)
+        if head.desc == '指示代名詞' and np.relatives and not np.modifiers and head.lemma in CORRELATIVE_HEADS:
+            # 関係節の付いた指示代名詞: тот, кто … (人) / то, что … (物)。関係詞は空所の格で
+            g = 'neut' if not np.animate else GENDERS.get(np.gender, 'masc')
+            number = 'sg' if not np.animate else np.number   # 物は単数の то (то, что ты сказал)
+            grammemes = {CASES[case], 'plur' if number == 'pl' else 'sing'} | ({g} if number != 'pl' else set())
+            if case == 'Acc' and np.animate and (number == 'pl' or g == 'masc'):
+                grammemes = (grammemes - {'accs'}) | {'gent'}   # 活動体の対格 (того, кого …)
+            word = _inflect('тот', 'ADJF', grammemes)
+            relative = np.relatives[0]
+            pronoun = 'кто' if np.animate else 'что'
+            gap_case = GAP_CASES.get(relative.gap, 'Nom') if relative.gap != 'prep' else 'Loc'
+            import dataclasses
+            inner = dataclasses.replace(relative, mood='indicative') if relative.mood == 'subjunctive' else relative
+            inner.antecedent_gender, inner.antecedent_number = 'masc', 'sg'   # кто は男性単数で一致
+            return word + ', ' + _inflect(pronoun, 'NPRO', {CASES[gap_case]}) + ' ' + \
+                realize(inner, capitalize=False) + ','
         if head.desc == '指示代名詞' and head.lemma == 'ille' and not np.modifiers:
             personal = 'она' if np.gender == 'f' else 'они' if np.number == 'pl' else 'он'   # 単独の ille → он
             word = _inflect(personal, 'NPRO', {CASES[case]})
@@ -279,6 +295,7 @@ def noun_phrase(np, case):
     return ' '.join(before + [word] + after).replace(' ,', ',')
 
 
+CORRELATIVE_HEADS = {'is', 'ille', 'hic', 'hīc', 'iste', 'īdem'}
 GAP_CASES = {'subject': 'Nom', 'object': 'Acc', 'recipient': 'Dat', 'means': 'Ins', 'possessor': 'Gen'}
 
 

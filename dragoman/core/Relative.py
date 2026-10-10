@@ -24,6 +24,7 @@ class RelativeClause(LatinObject):
         self.antecedent = antecedent    # 先行詞 (Word)
         self.pronoun = pronoun          # 関係代名詞 (Word。節の格の枠からは外してある)
         self.gap = gap                  # 空所の役割: 'Nom' / 'Acc' / 'Dat' / 'Abl' / 'Gen' / ('prep', 'in') …
+        self.gender = None              # 関係代名詞と先行詞の一致する性 (m / f / n)
         self.surface = pronoun.surface + ' … ' + predicate.surface
         self.surface_len = len(self.surface)
         self.case_slot = predicate.case_slot
