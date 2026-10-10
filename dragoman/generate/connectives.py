@@ -53,6 +53,21 @@ CONNECTIVES = {
     'quamquam': ('sub', 'although', 'хотя', ('yadyapi', 'taTApi')),
     'simul': ('sub', 'as soon as', 'как только', ('yadA eva', 'tadA')),   # simul atque「〜するとすぐに」
 }
+# ほかの言語の接続詞 → この表の見出し (文の枠に入れるときに)
+SOURCE_CONNECTIVES = {
+    'ru': {'когда': 'ubi', 'если': 'sī', 'потому': 'quod', 'пока': 'dum', 'хотя': 'quamquam', 'чтобы': 'ut',
+           'и': 'et', 'но': 'sed', 'однако': 'tamen', 'поэтому': 'itaque', 'тогда': 'tum', 'ведь': 'enim',
+           'же': 'autem', 'после': 'postquam', 'прежде': 'antequam', 'как': 'ubi'},
+    'sa': {'yadā': 'ubi', 'yadi': 'sī', 'yataḥ': 'quod', 'yāvat': 'dum', 'yadyapi': 'quamquam', 'ca': 'et',
+           'kintu': 'sed', 'tu': 'autem', 'hi': 'enim', 'tathāpi': 'tamen', 'tadā': 'tum', 'ataḥ': 'itaque'},
+}
+
+
+def normalize(word, lang):
+    """ほかの言語の接続詞をこの表の見出しに (когда → ubi)"""
+    return SOURCE_CONNECTIVES.get(lang, {}).get((word or '').lower(), word)
+
+
 # 従属節の後ろに来たときの読み (ubi「〜するところの」: ad eum locum vēnit ubi Medūsa dormiēbat)
 AFTER_MAIN = {'ubi': ('where', 'где', ('yatra', ''))}
 SA_ENCLITIC = {'ca', 'tu', 'hi', 'api'}

@@ -390,6 +390,11 @@ def verb_form(clause, gender, person, number):
         return [be, short]
     if tense in ('imperfect', 'perfect', 'past-perfect'):
         return [_inflect(lemma, 'INFN', past)]
+    original = clause.verb.lemma if clause.verb.lang == 'ru' else lemma   # 体を替える前の見出し (прийти)
+    perfective_lemma = _parse(original, 'INFN') is not None and 'perf' in _parse(original, 'INFN').tag
+    if tense == 'future' and (clause.aspect == 'perf' or (clause.verb.lang == 'ru' and perfective_lemma)):
+        perf = verb_lemma(clause.verb, 'perf')   # 完了体の未来 (придёшь)
+        return [_inflect(perf, 'INFN', {'futr', _person(person), num})]
     if tense == 'future':
         return [_inflect('быть', 'INFN', {'futr', _person(person), num}), lemma]
     if tense == 'future-perfect':

@@ -24,6 +24,36 @@ from . import connectives as conn
 from dragoman.core.animacy import is_animate
 
 # 格 → 役割 (前置詞の無い格)
+# 元の言語ごとの閉じた語類をラテン語の形に (文の枠ではラテン語を閉じた語類の中立の形に使う)
+SOURCE_PRONOUNS = {
+    'ru': {'я': ('ego', 'sg'), 'ты': ('tū', 'sg'), 'он': ('is', 'sg'), 'она': ('is', 'sg'), 'оно': ('is', 'sg'),
+           'мы': ('ego', 'pl'), 'вы': ('tū', 'pl'), 'они': ('is', 'pl'), 'этот': ('hic', ''), 'тот': ('ille', ''),
+           'себя': ('sē', ''), 'свой': ('suus', ''), 'мой': ('meus', ''), 'твой': ('tuus', ''), 'наш': ('noster', ''),
+           'ваш': ('vester', ''), 'который': ('quī', ''), 'кто': ('quis', ''), 'что': ('quid', ''),
+           'весь': ('omnis', ''), 'сам': ('ipse', '')},
+    'sa': {'asmad': ('ego', ''), 'yuṣmad': ('tū', ''), 'tad': ('is', ''), 'idam': ('hic', ''), 'etad': ('hic', ''),
+           'adas': ('ille', ''), 'yad': ('quī', ''), 'kim': ('quis', ''), 'sva': ('suus', ''), 'sarva': ('omnis', '')},
+}
+# ロシア語の前置詞 + 格 → ラテン語の前置詞 + 格
+SOURCE_PREPOSITIONS = {
+    'ru': {('в', 'Loc'): ('in', 'Abl'), ('в', 'Acc'): ('in', 'Acc'), ('во', 'Loc'): ('in', 'Abl'),
+           ('во', 'Acc'): ('in', 'Acc'), ('на', 'Loc'): ('in', 'Abl'), ('на', 'Acc'): ('in', 'Acc'),
+           ('к', 'Dat'): ('ad', 'Acc'), ('с', 'Ins'): ('cum', 'Abl'), ('со', 'Ins'): ('cum', 'Abl'),
+           ('с', 'Gen'): ('ex', 'Abl'), ('из', 'Gen'): ('ex', 'Abl'), ('от', 'Gen'): ('ab', 'Abl'),
+           ('о', 'Loc'): ('dē', 'Abl'), ('об', 'Loc'): ('dē', 'Abl'), ('без', 'Gen'): ('sine', 'Abl'),
+           ('через', 'Acc'): ('per', 'Acc'), ('под', 'Ins'): ('sub', 'Abl'), ('над', 'Ins'): ('super', 'Acc'),
+           ('перед', 'Ins'): ('ante', 'Acc'), ('после', 'Gen'): ('post', 'Acc'), ('у', 'Gen'): ('apud', 'Acc'),
+           ('для', 'Gen'): ('prō', 'Abl'), ('до', 'Gen'): ('ad', 'Acc'), ('по', 'Dat'): ('per', 'Acc'),
+           ('за', 'Ins'): ('post', 'Acc'), ('между', 'Ins'): ('inter', 'Acc'), ('около', 'Gen'): ('prope', 'Acc'),
+           ('против', 'Gen'): ('contrā', 'Acc'), ('вокруг', 'Gen'): ('circum', 'Acc')},
+}
+# 前置詞の無い格の役割 (ラテン語に無い格): 具格は手段、サンスクリットの奪格は起点、処格は場所
+SOURCE_ROLES = {'ru': {'Ins': 'means', 'Loc': 'place'}, 'sa': {'Ins': 'means', 'Abl': 'source', 'Loc': 'place'}}
+TENSES = {'aorist': 'perfect'}   # ギリシア語・サンスクリットのアオリストは完了 (語りの過去) に
+SOURCE_TENSES = {'sa': {'imperfect': 'perfect'}}   # サンスクリットの laṅ は語りの過去 (ラテン語の完了に)
+
+_lang = ''   # 解析中の文の言語 (clause_of で述語の言語から)
+
 ROLES = {'Nom': 'subject', 'Acc': 'object', 'Dat': 'recipient', 'Abl': 'means', 'Gen': 'possessor',
          'Loc': 'place', 'Voc': 'address', 'Nom/Acc': 'object'}
 ROLE_JA = {'unknown': '辞書に無い語', 'subject': '主語', 'object': '目的語', 'recipient': '受け手', 'means': '手段・道具', 'possessor': '所有者',
@@ -45,6 +75,7 @@ class Lex:
     verb_ja: str = ''      # 分詞のもとの動詞の日本語の訳語 (訳語を選ぶのに使う)
     surface: str = ''      # 文中の形 (変化しない語 (副詞) は元の言語に戻すときこの形で)
     ptense: str = ''       # 分詞の時制: present / past / future (future は動形容詞 adeundus「近づかれるべき」も)
+    lang: str = ''         # 元の言語 ('' / 'la' はラテン語。ru・sa の語は作るときに英語を仲立ちに置き換える)
 
 
 @dataclass
@@ -79,6 +110,7 @@ class Clause:
     number: str = 'sg'
     negated: bool = False
     copula: bool = False
+    aspect: str = ''          # 体 (ロシア語の perf / impf。ほかの言語の完了・未完了の時制とは別に)
     args: list = field(default_factory=list)       # (役割, NP) の列 (元の語順)
     adverbs: list = field(default_factory=list)    # Lex
     infinitives: list = field(default_factory=list)  # 不定詞句 (Clause。mood='infinitive')
@@ -130,6 +162,11 @@ def _verb_lemma(pres1sg):
     return (pres1sg or '').split(' ')[-1]
 
 
+def _pronoun_desc(latin):
+    return {'ego': '人称代名詞', 'tū': '人称代名詞', 'is': '指示代名詞', 'hic': '指示代名詞', 'ille': '指示代名詞',
+            'quī': '関係代名詞', 'quis': '疑問代名詞', 'quid': '疑問代名詞', 'sē': '再帰代名詞'}.get(latin, '')
+
+
 def lex_of(word, item=None):
     item = item or word.items[0]
     lemma = item.attrib('base') or _verb_lemma(item.attrib('pres1sg'))
@@ -138,7 +175,15 @@ def lex_of(word, item=None):
     lemma = lemma or item.surface
     verb = _verb_lemma(item.attrib('pres1sg')) if item.pos == 'participle' else ''
     english = item.attrib('ja_en') or (item.ja if item.attrib('gloss_lang') == 'en' or item.ja.isascii() else '')
-    return Lex(lemma, item.pos, item.ja, proper=lemma[:1].isupper() and item.pos in ('noun', 'unknown'),
+    lang = _lang if _lang not in ('', 'la') else ''
+    if lang == 'sa':
+        lemma = lemma.split(' = ')[0].split(' ')[0]   # 'pustaka = pur-tak tatpuruṣa' (複合語の分析の注記) → pustaka
+    pronoun = SOURCE_PRONOUNS.get(lang, {}).get(lemma.lower()) if item.pos in ('pronoun', 'adj', 'det') else None
+    if pronoun:   # 閉じた語類はラテン語の形に (я → ego、tad → is)
+        return Lex(pronoun[0], 'pronoun', item.ja, desc=item.attrib('desc') or _pronoun_desc(pronoun[0]),
+                   surface=word.surface if word is not None else item.surface)
+    proper = item.attrib('name') is True or (lemma[:1].isupper() and item.pos in ('noun', 'unknown'))
+    return Lex(lemma, item.pos, item.ja, proper=proper and item.pos in ('noun', 'unknown', 'name'), lang=lang,
                degree=item.attrib('rank') or '', en=english, desc=item.attrib('desc') or '', verb=verb,
                verb_ja=next((ja for ja in (hook(verb) for hook in VERB_GLOSS_HOOKS) if ja), '') if verb else '',
                surface=word.surface if word is not None else item.surface,
@@ -153,6 +198,9 @@ def np_of(node, case=None):
         np = np_of(inner[0], node.dominated_case) if inner else NP(Lex('?', 'noun'))
         np.prep = prep
         np.case = node.dominated_case
+        latin = SOURCE_PREPOSITIONS.get(_lang, {}).get((node.item.surface.lower(), node.dominated_case))
+        if latin:   # в + 前置格 → in + 奪格
+            np.prep, np.case = Lex(latin[0], 'preposition', node.item.ja), latin[1]
         np.surface = node.surface
         return np
     if isinstance(node, AndOr):
@@ -230,18 +278,22 @@ def _led_by_conjunction(node, words):
 
 def clause_of(predicate, lang=None):
     """Predicate → Clause"""
+    global _lang
+    _lang = getattr(predicate.language, 'name', '') or ''
     verb_item = predicate.first_item
-    clause = Clause(lex_of(predicate.verb),
-                    tense=verb_item.attrib('tense') or 'present', mood=verb_item.attrib('mood') or 'indicative',
+    tense = verb_item.attrib('tense') or 'present'
+    clause = Clause(lex_of(predicate.verb), aspect=verb_item.attrib('aspect') or '',
+                    tense=SOURCE_TENSES.get(_lang, {}).get(tense) or TENSES.get(tense, tense),
+                    mood=verb_item.attrib('mood') or 'indicative',
                     voice=verb_item.attrib('voice') or 'active', person=verb_item.attrib('person') or 3,
                     number=verb_item.attrib('number') or 'sg', copula=predicate.is_sum, surface=predicate.surface)
     if predicate.conjunction is not None and is_negation(predicate.conjunction, predicate.language):
         clause.negated = True
-    elif predicate.conjunction is not None and conn.is_connective(predicate.conjunction.surface):
-        if conn.lookup(predicate.conjunction.surface)[0] == 'adv' and predicate.conjunction.items:
+    elif predicate.conjunction is not None and conn.is_connective(conn.normalize(predicate.conjunction.surface, _lang)):
+        if conn.lookup(conn.normalize(predicate.conjunction.surface, _lang))[0] == 'adv' and predicate.conjunction.items:
             clause.adverbs.append(lex_of(predicate.conjunction))   # tum, tandem, statim …
         else:
-            _add_connective(clause, predicate.conjunction.surface)
+            _add_connective(clause, conn.normalize(predicate.conjunction.surface, _lang))
     elif isinstance(predicate.conjunction, Word) and predicate.conjunction.items:
         clause.adverbs.append(lex_of(predicate.conjunction))   # 文頭の副詞 (解析では conjunction に入る: māgnopere)
     nominatives = []
@@ -275,7 +327,15 @@ def clause_of(predicate, lang=None):
             else:
                 if not np.case:
                     np.case = case
-                clause.args.append((ROLES.get(case, case), np))
+                role = SOURCE_ROLES.get(_lang, {}).get(case) or ROLES.get(case, case)
+                if role in ('means', 'source', 'place') and _lang not in ('', 'la'):
+                    # ラテン語に無い格は、ラテン語の形に: 具格 → 奪格、奪格 (起点) → ex + 奪格、処格 → in + 奪格
+                    if role == 'means':
+                        np.case = 'Abl'
+                    else:
+                        np.prep, np.case = Lex('ex' if role == 'source' else 'in', 'preposition'), 'Abl'
+                        role = 'prep'
+                clause.args.append((role, np))
     if clause.voice == 'passive' and not nominatives:
         # 受動の文で主語が無ければ、主格にも読める目的語を主語に (omnia parāta sunt、Haec nārrantur)
         for k, (role, np) in enumerate(clause.args):
@@ -307,8 +367,9 @@ def clause_of(predicate, lang=None):
     for adv in predicate.modifiers:
         if is_negation(adv, predicate.language):
             clause.negated = True
-        elif isinstance(adv, Word) and conn.lookup(adv.surface) and conn.lookup(adv.surface)[0] != 'adv':
-            _add_connective(clause, adv.surface)
+        elif isinstance(adv, Word) and conn.lookup(conn.normalize(adv.surface, _lang)) and \
+                conn.lookup(conn.normalize(adv.surface, _lang))[0] != 'adv':
+            _add_connective(clause, conn.normalize(adv.surface, _lang))
         elif isinstance(adv, Word) and adv.items:
             clause.adverbs.append(lex_of(adv))
     for sub in predicate.subordinates:
@@ -463,8 +524,8 @@ def frames(analysis):
     for c in analysis.clauses:
         clause = clause_of(c.predicate)
         for word in c.not_solved:   # 述語に結びつかなかった接続詞 (et postquam … の postquam)、副詞 (aegrē)
-            if isinstance(word, Word) and conn.is_connective(word.surface):
-                _add_connective(clause, word.surface)
+            if isinstance(word, Word) and conn.is_connective(conn.normalize(word.surface, _lang)):
+                _add_connective(clause, conn.normalize(word.surface, _lang))
             elif isinstance(word, Word) and word.items and any(item.pos == 'adv' for item in word.items):
                 clause.adverbs.append(lex_of(word, next(item for item in word.items if item.pos == 'adv')))
             elif isinstance(word, Word) and word.items and word.items[0].pos in ('indecl', 'num') and \

@@ -175,6 +175,18 @@ def verb_bases(english):
 def candidates(lex):
     """語 → 英語の訳語の候補 (解析の日本語の訳語に合うものを先頭に)。無ければ []"""
     pos = {'participle': 'verb'}.get(lex.pos, lex.pos)
+    if lex.lang and lex.lang != 'la':
+        # ロシア語・サンスクリットの語: その言語の英語の訳語の表と、辞書の英語の訳語 (ja_en)
+        from . import transfer
+        found = transfer.english_glosses(lex.lang, lex.lemma, pos) + \
+            [g.strip() for g in (lex.en or '').split(',') if g.strip()]
+        # 辞書の英語の訳語の並びのまま。ただし一番の日本語の訳語に合う英語があれば先頭に (pustaka「本」→ book)
+        # (二番目以降の日本語の訳語では並べ替えない: видеть「見える,会う」を meet にしないように)
+        found = list(dict.fromkeys(g for g in found if not DESCRIPTION.search(g)))
+        first = (lex.ja or '').split(',')[0].strip()
+        match = next((g for g in found if first and first in en_ja.lookup(g, pos)), None) if lex.ja and \
+            not lex.ja.isascii() else None
+        return ([match] + [g for g in found if g != match]) if match else found
     entries = _entries(lex.lemma, pos)
     for other in POS_FALLBACK.get(pos, ()):
         entries = entries or _entries(lex.lemma, other)

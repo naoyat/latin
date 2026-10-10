@@ -163,6 +163,8 @@ def noun_stem(lex, gender=''):
         stem = PRONOUNS.get(lex.lemma) or PRONOUNS.get(english._flat(lex.lemma))
         if stem:
             return stem, gender or 'm'
+    if lex.proper and lex.lang == 'sa':
+        return transfer.source_key('sa', lex.lemma), gender or 'm'   # サンスクリットの名前はそのまま (rāma)
     if lex.proper:
         return name(lex.lemma)
     lex = english.substantive(lex) or lex   # 名詞として辞書にある形 (tālāria)
@@ -485,6 +487,15 @@ def verb_word(clause, person, number):
         return None
     root, gana = verb_root(clause.verb)
     d = dhatu(root, gana) if root else None
+    if clause.verb.lang == 'sa' and clause.verb.surface and root and not gana:
+        # 元がサンスクリットなら、元の語形を作る類の語根を選ぶ (adadāt → dā 第3類)
+        from dragoman.sanskrit import script
+        original = script.to_slp1(clause.verb.surface)
+        for candidate in _dhatus().get(root, []) + _loose_dhatus().get(_loose(root), []):
+            if tinanta(candidate, clause.tense if clause.tense != 'perfect' else 'imperfect', clause.mood,
+                       clause.voice, person, number) == original:
+                d = candidate
+                break
     if d is None:
         return '[%s]' % english.word(clause.verb)
     if clause.mood == 'infinitive':

@@ -354,5 +354,31 @@ class JapaneseOutputTestCase(unittest.TestCase):
         self.assertEqual(self.japanese('Puer ā magistrō laudātur.'), '少年は教師に称賛される。')
 
 
+
+class OtherSourceTestCase(unittest.TestCase):
+    """ロシア語・サンスクリット → 文の枠 → 元の言語・ラテン語"""
+
+    def frames_of(self, module, text):
+        analysis, = module.analyze_text(text)
+        return frame.frames(analysis)
+
+    @unittest.skipUnless(russian.available(), 'pymorphy3 か ru/en-index.tsv が無い')
+    def test_russian(self):
+        from dragoman.russian import analyzer as ru
+        cs = self.frames_of(ru, 'Мальчик, которого хвалит учитель, читал книгу.')
+        self.assertEqual(russian.sentence(cs), 'Мальчик, которого учитель хвалит, читал книгу.')
+        self.assertEqual(latin.sentence(cs), 'Puer quem magister laudat librum legēbat.')
+        cs = self.frames_of(ru, 'Если ты придёшь, я буду рад.')
+        self.assertEqual(russian.sentence(cs), 'Если ты придёшь, я буду рад.')   # 完了体の未来
+
+    @unittest.skipUnless(sanskrit.available(), 'vidyut か sa/en-index.tsv が無い')
+    def test_sanskrit(self):
+        from dragoman.sanskrit import analyzer as sa
+        cs = self.frames_of(sa, 'नृपः अश्वान् अददात्')
+        self.assertEqual(sanskrit.sentence(cs).split('\n')[0], 'nṛpaḥ aśvān adadāt ।')   # 元の類 (dā 第3類)
+        cs = self.frames_of(sa, 'बालकः पुस्तकं पठति')
+        self.assertEqual(latin.sentence(cs), 'Puer librum legit.')
+
+
 if __name__ == '__main__':
     unittest.main()

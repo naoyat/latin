@@ -105,7 +105,31 @@ def _forms(lemma, pos, ja=None):
     return forms
 
 
+def to_latin(lex):
+    """ほかの言語の語 (ロシア語・サンスクリット) → ラテン語の語 (英語を仲立ちに)"""
+    if not lex.lang or lex.lang == 'la':
+        return lex
+    from . import transfer
+    if lex.proper:   # 名前はそのまま (Rāma)
+        return frame.Lex(lex.lemma[:1].upper() + lex.lemma[1:], 'noun', '', proper=True,
+                         surface=lex.lemma[:1].upper() + lex.lemma[1:])
+    target = transfer.best(lex, 'la', {'participle': 'verb', 'name': 'noun'}.get(lex.pos, lex.pos))
+    if target is None:
+        return frame.Lex(lex.surface or lex.lemma, 'unknown', lex.ja, proper=lex.proper, surface=lex.surface or lex.lemma)
+    return frame.Lex(target.lemma, lex.pos, '', degree=lex.degree, desc=lex.desc)
+
+
+def latin_gender(lex):
+    """ラテン語の名詞の性 (辞書の語形から)"""
+    for _, item in _forms(lex.lemma, 'noun', lex.ja):
+        for tag in item.get('_') or []:
+            if len(tag) > 2 and tag[2]:
+                return tag[2]
+    return ''
+
+
 def decline(lex, case, number, gender='', prefer=None):
+    lex = to_latin(lex)
     """名詞・代名詞・形容詞・分詞の語形。見つからなければ見出し語に * を付けて返す。
     同じ働きの形が複数あれば、手作りの辞書の形 → prefer (語形を受けて真偽を返す関数) に合う形 → Wiktionary にもある形"""
     pos = lex.pos
@@ -150,11 +174,22 @@ PARTICIPLE_ENDINGS = {('sg', 'm'): 'us', ('sg', 'f'): 'a', ('sg', 'n'): 'um',
 
 
 def conjugate(lex, person, number, tense, mood, voice, gender=''):
+    lex = to_latin(lex)
     found = [surface for surface, item in _forms(lex.lemma, 'verb', lex.ja)
              if item.get('person') == person and item.get('number') == number and
              (item.get('tense') or 'present') == tense and (item.get('mood') or 'indicative') == mood and
              (item.get('voice') or 'active') == voice]
     found = list(dict.fromkeys(found))
+    if not found and voice == 'active' and tense in ('perfect', 'past-perfect', 'future-perfect'):
+        # 形式受動態動詞の完了 (辞書に定動詞形が無い): 完了不定詞の分詞 + sum (mortuum esse → mortuus est)
+        perfect_inf = infinitive(lex, 'perfect', 'active')
+        if not perfect_inf.startswith('*') and perfect_inf.endswith(' esse'):
+            stem = perfect_inf.split(' ')[0][:-2]   # mortuum → mortu
+            ending = PARTICIPLE_ENDINGS.get((number, gender or 'm'), 'us')
+            sum_tense = {'perfect': 'present', 'past-perfect': 'imperfect', 'future-perfect': 'future'}[tense]
+            return stem + ending + ' ' + conjugate(frame.Lex('sum', 'verb'), person, number, sum_tense, mood, 'active')
+    if not found and voice == 'active':
+        return conjugate(lex, person, number, tense, mood, 'passive', gender)   # 形式受動態動詞 (loquitur)
     if found and not wiktionary.lookup(found[0]):
         # 手作りの表の形が Wiktionary に無ければ (possum の posest)、同じ見出しの別の項目の形も候補に (potest)
         found += [surface for surface, item in _forms(lex.lemma, 'verb')
@@ -170,6 +205,7 @@ def conjugate(lex, person, number, tense, mood, voice, gender=''):
 
 
 def infinitive(lex, tense, voice):
+    lex = to_latin(lex)
     found = [surface for surface, item in _forms(lex.lemma, 'verb', lex.ja)
              if item.get('mood') == 'infinitive' and (item.get('tense') or 'present') == tense and
              (item.get('voice') or 'active') == voice]
@@ -205,9 +241,12 @@ def noun_phrase(np, case=None):
         else:
             text = (' %s ' % conj).join(parts)
     else:
-        words = [decline(np.head, case, np.number, np.gender)]
+        gender = np.gender
+        if np.head.lang and np.head.lang != 'la' and np.head.pos == 'noun':
+            gender = latin_gender(to_latin(np.head)) or gender   # 置き換えたラテン語の名詞の性 (сад m → hortus m)
+        words = [decline(np.head, case, np.number, gender)]
         for mod in np.modifiers:
-            words.append(agree(mod, case, np.number, np.gender))  # 形容詞は名詞の格・数・性に一致させる
+            words.append(agree(mod, case, np.number, gender))  # 形容詞は名詞の格・数・性に一致させる
         for gen in np.genitives:
             words.append(noun_phrase(gen, 'Gen'))
         for p in np.participles:

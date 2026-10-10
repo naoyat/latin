@@ -40,6 +40,8 @@ INDEX_FILES = {'sa': ('en-index.tsv', 'en-index-apte.tsv')}
 @functools.lru_cache(maxsize=4)
 def _index(lang):
     """英語 → [(訳語の中の順位, Target)]"""
+    if lang == 'la':
+        return _latin_index()
     index = {}
     for name in INDEX_FILES.get(lang, ('en-index.tsv',)):
         path = paths.data(lang, name)
@@ -62,6 +64,56 @@ def _index(lang):
     return index
 
 
+@functools.lru_cache(maxsize=1)
+def _latin_index():
+    """ラテン語を作るとき: 英語 → ラテン語の見出し (la-en.tsv。english._table を逆に)"""
+    table, _ = english._table()
+    index = {}
+    for (lemma, pos), entries in table.items():
+        for glosses in entries:
+            target = Target(lemma, pos, tuple(glosses), '', '', len(glosses))
+            for rank, g in enumerate(glosses):
+                index.setdefault(g.lower(), []).append((rank, target))
+    return index
+
+
+@functools.lru_cache(maxsize=4)
+def _by_lemma(lang):
+    """見出し → [英語] (ロシア語・サンスクリットの語の英語の訳語。en-index.tsv を見出しで)"""
+    out = {}
+    for name in INDEX_FILES.get(lang, ('en-index.tsv',))[:1]:
+        path = paths.data(lang, name)
+        if not os.path.exists(path):
+            continue
+        with open(path, encoding='utf-8') as f:
+            for row in csv.reader(f, delimiter='\t', quoting=csv.QUOTE_NONE):
+                if len(row) >= 6:
+                    out.setdefault((row[0], row[1]), []).extend(g.strip() for g in row[2].split(',') if g.strip())
+    return out
+
+
+def _in_hand_dictionary(lemma):
+    from . import latin
+    return lemma in latin._hand_index()
+
+
+def source_key(lang, lemma):
+    """元の言語の見出しを表の形に (サンスクリットは IAST → SLP1)"""
+    if lang == 'sa':
+        from dragoman.sanskrit import script
+        return script.to_slp1(lemma)
+    if lang == 'ru':
+        from dragoman.russian import script
+        return script.key(lemma)
+    return lemma
+
+
+def english_glosses(lang, lemma, pos):
+    """元の言語の語の英語の訳語 (表から)"""
+    pos = {'participle': 'verb', 'name': 'noun'}.get(pos, pos)
+    return list(dict.fromkeys(_by_lemma(lang).get((source_key(lang, lemma), pos), [])))
+
+
 def available(lang):
     return bool(_index(lang))
 
@@ -76,6 +128,12 @@ def _db(lang):
 def japanese(lang, target):
     """作る言語の見出し語の日本語の訳語 (の集合)"""
     out = set()
+    if lang == 'la':   # ラテン語の辞書 (手作りの辞書・Wiktionary) の項目の訳語
+        from . import latin
+        from .ja_lexicon import _keys
+        for _, item in latin._forms(target.lemma, target.pos)[:20]:
+            out.update(_keys(item.get('ja')))
+        return frozenset(out)
     db = _db(lang)
     if db is not None:
         pos = 'root' if target.pos == 'verb' and lang == 'sa' else target.pos
@@ -122,6 +180,17 @@ PREFERRED = {
            ('in vain', 'adv'): ('напрасно', ''), ('heavily', 'adv'): ('тяжело', ''), ('by chance', 'adv'): ('случайно', ''),
            ('kindly', 'adv'): ('ласково', ''), ('everywhere', 'adv'): ('везде', ''),
            ('golden', 'adj'): ('золотой', ''), ('happy', 'adj'): ('счастливый', ''), ('glad', 'adj'): ('радостный', '')},
+    'la': {('see', 'verb'): ('videō', ''), ('die', 'verb'): ('morior', ''), ('give', 'verb'): ('dō', ''),
+           ('love', 'verb'): ('amō', ''), ('like', 'verb'): ('amō', ''), ('praise', 'verb'): ('laudō', ''),
+           ('read', 'verb'): ('legō', ''), ('weep', 'verb'): ('fleō', ''), ('cry', 'verb'): ('fleō', ''),
+           ('boy', 'noun'): ('puer', 'm'), ('girl', 'noun'): ('puella', 'f'), ('teacher', 'noun'): ('magister', 'm'),
+           ('book', 'noun'): ('liber', 'm'), ('king', 'noun'): ('rēx', 'm'), ('tsar', 'noun'): ('rēx', 'm'),
+           ('people', 'noun'): ('populus', 'm'), ('garden', 'noun'): ('hortus', 'm'), ('winter', 'noun'): ('hiems', 'f'),
+           ('say', 'verb'): ('dīcō', ''), ('come', 'verb'): ('veniō', ''), ('go', 'verb'): ('eō', ''),
+           ('know', 'verb'): ('sciō', ''), ('want', 'verb'): ('volō', ''), ('sing', 'verb'): ('cantō', ''),
+           ('write', 'verb'): ('scrībō', ''), ('live', 'verb'): ('vīvō', ''), ('city', 'noun'): ('urbs', 'f'),
+           ('house', 'noun'): ('domus', 'f'), ('water', 'noun'): ('aqua', 'f'), ('man', 'noun'): ('vir', 'm'),
+           ('woman', 'noun'): ('fēmina', 'f'), ('mother', 'noun'): ('māter', 'f'), ('father', 'noun'): ('pater', 'm')},
     'sa': {('girl', 'noun'): ('bAlikA', 'f'), ('boy', 'noun'): ('bAlaka', 'm'), ('king', 'noun'): ('nfpa', 'm'),
            ('book', 'noun'): ('pustaka', 'n'), ('farmer', 'noun'): ('kfzaka', 'm'), ('slave', 'noun'): ('dAsa', 'm'),
            ('lord', 'noun'): ('svAmin', 'm'), ('master', 'noun'): ('svAmin', 'm'),
@@ -195,12 +264,16 @@ def _variants(sources):
 
 
 def candidates(lex, lang, pos=None):
-    """Lex → [(点, Target)] (点の小さいほうが良い)"""
+    """Lex → [(点, Target)] (点の小さいほうが良い)。元の言語と作る言語が同じなら置き換えない"""
     pos = pos or {'participle': 'verb'}.get(lex.pos, lex.pos)
+    if (lex.lang or 'la') == lang:
+        return [(-1000, Target(source_key(lang, lex.lemma), pos, (), '', '', 1))]
     sources = english.candidates(lex) or ([e for e in lex.en.split(',') if e] if lex.en else [])
     for en in sources[:1] + [e.replace(' for', '') for e in sources[:1] if e.endswith(' for')]:   # wait for → wait
+        words = en.lower().split(' ')
         preferred = PREFERRED.get(lang, {}).get((en.lower(), pos)) or \
-            PREFERRED.get(lang, {}).get((en.lower().split(' ')[-1], pos))   # male friend → friend
+            PREFERRED.get(lang, {}).get((words[-1], pos)) or \
+            (PREFERRED.get(lang, {}).get((words[0], pos)) if pos == 'verb' else None)   # die of … → die
         if preferred:
             lemma, extra = preferred
             gender, gana = (extra, '') if pos != 'verb' else ('', extra)
@@ -212,6 +285,8 @@ def candidates(lex, lang, pos=None):
             if target.pos != pos or j > 5:
                 continue
             score = 3 * i + j - math.log(1 + target.senses)
+            if lang == 'la' and _in_hand_dictionary(target.lemma):
+                score -= 3   # 手作りの辞書にある (よく使う) ラテン語の語 (hortus を gardīnum より)
             ja = japanese(lang, target)
             if wanted and wanted[0] in ja:
                 score -= 3     # 日本語の一番の訳語が合う

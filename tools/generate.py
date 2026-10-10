@@ -113,6 +113,48 @@ def run_japanese(text):
         print()
 
 
+def run_other(text, source):
+    """ロシア語・サンスクリットの文 → 文の枠 → 各言語。元の言語に戻した文と元の文を比べる"""
+    import importlib
+    analyzer_module = importlib.import_module('dragoman.%s.analyzer' % {'ru': 'russian', 'sa': 'sanskrit'}[source])
+    modules = {'la': ('ラテン語:', latin), 'en': ('英語:    ', english), 'ru': ('ロシア語:', russian),
+               'sa': ('梵語:    ', sanskrit), 'ja': ('日本語:  ', japanese)}
+    for analysis in analyzer_module.analyze_text(text):
+        print(analysis.text)
+        clauses = frame.frames(analysis)
+        if not clauses:
+            print('  (述語が見つからない)\n')
+            continue
+        for clause in clauses:
+            print(frame.describe(clause))
+        for lang in ['ja', 'la', 'en', 'ru', 'sa']:
+            if lang not in TARGETS and lang != source:
+                continue
+            label, module = modules[lang]
+            try:
+                out = module.sentence(clauses)
+            except Exception as e:
+                out = '(作れない: %s: %s)' % (type(e).__name__, e)
+            mark = ''
+            if lang == source:
+                first = out.split('\n')[0]
+                original = _source_words(analysis.text, source)
+                mark = '   ✓ 同じ語' if original == _source_words(first, source) else '   ✗'
+            first, _, rest = out.partition('\n')
+            print('  %s %s%s%s' % (label, first, mark, ('\n' + rest) if rest else ''))
+        print()
+
+
+def _source_words(text, lang):
+    """元の言語の文の語 (比べる用。サンスクリットは SLP1 に、ロシア語は小文字・ё → е)"""
+    words = [w.strip('.,;:!?।"“”()') for w in text.split()]
+    words = [w for w in words if w]
+    if lang == 'sa':
+        from dragoman.sanskrit import script
+        return Counter(re.sub('[sr]$', 'H', script.to_slp1(w)) for w in words)   # rāmas = rāmaḥ (語末の連声)
+    return Counter(w.lower().replace('ё', 'е') for w in words)
+
+
 def main():
     import getopt
     latindic.load()
@@ -125,6 +167,9 @@ def main():
         elif opt == '--from':
             source = value
     global run
+    if source in ('ru', 'sa'):
+        def run(text, source=source):
+            run_other(text, source)
     if source == 'ja':
         run = run_japanese
         if 'ja' not in TARGETS:

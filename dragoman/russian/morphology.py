@@ -201,6 +201,9 @@ def _item(parse):
         cng = _cng(tag)
         if not cng:
             return None
+        if lemma == 'который':   # 関係代名詞 (解析で先行詞に付ける関係節を作る)
+            return {'pos': 'pronoun', 'base': lemma, 'ja': DETERMINERS.get(lemma, '〜するところの'), 'gloss_lang': 'ja',
+                    '_': [cng], 'desc': '関係代名詞'}
         if lemma in DETERMINERS or 'Apro' in tag:
             ja = DETERMINERS.get(lemma) or _gloss(lemma, ('pronoun', 'adj'))[0]
             return {'pos': 'adj', 'base': lemma, 'ja': ja, 'gloss_lang': 'ja', '_': [cng], 'desc': '指示代名詞'}
