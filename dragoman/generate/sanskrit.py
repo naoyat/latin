@@ -131,6 +131,8 @@ ATMANEPADA = ('te', 'se', 'e', 'ta', 'TAH', 'tAm', 'ntAm', 'sva', 'Dvam', 'mahi'
 
 def subanta(stem, linga, case, number):
     """名詞・形容詞・代名詞の語形 (SLP1)。作れなければ語幹に * を付けて"""
+    if stem == 'mahat' and linga == 'm':
+        stem = 'mahant'   # vidyut は mahat の男性を mahat (主格) にするので、mahAn・mahAntam になる語幹で
     try:
         if not isinstance(stem, str):
             prat = stem
@@ -219,7 +221,7 @@ def verb_root(lex):
 
 
 def _verb_lex(p):
-    return Lex(p.verb.verb, 'verb', p.verb.verb_ja)
+    return Lex(p.verb.verb, 'verb', p.verb.verb_ja, lang=p.verb.lang)
 
 
 # ----------------------------------------------------------------------
@@ -232,7 +234,7 @@ FEMININE_I = {'sundara', 'gOra'}
 def participle_root(lex):
     """分詞のもとの動詞の語根: 動詞の見出しがあればそれを置き換え、無ければ (動形容詞 adeundus) 英語の訳語から"""
     if lex.verb:
-        root, gana = verb_root(Lex(lex.verb, 'verb', lex.verb_ja))
+        root, gana = verb_root(Lex(lex.verb, 'verb', lex.verb_ja, lang=lex.lang))
         if root:
             return dhatu(root, gana)
     for _, target in transfer.by_english(english.verb_bases(lex.en or ''), 'sa', 'verb')[:8]:
@@ -317,7 +319,7 @@ def noun_phrase(np, case):
         if suffix == 'cit' and word.endswith('H'):
             word = word[:-1] + 'S'   # kaH + cit → kaScit
         return ('na ' if negative else '') + word + ('' if suffix == 'cit' else ' ') + suffix
-    if any(getattr(m, 'lemma', '') in DUAL_WORDS for m in np.modifiers) and np.number == 'pl':
+    if (np.dual or any(getattr(m, 'lemma', '') in DUAL_WORDS for m in np.modifiers)) and np.number == 'pl':
         import dataclasses
         np = dataclasses.replace(np, number='du')   # duo frātrēs → dvau BrAtarO (両数)
     stem, gender = noun_stem(head, np.gender)
@@ -419,6 +421,8 @@ def adverb(lex):
     entry = connectives.lookup(lex.surface or lex.lemma) or connectives.lookup(lex.lemma)
     if entry and isinstance(entry[3], str):
         return entry[3]
+    if lex.lang == 'sa':
+        return transfer.source_key('sa', lex.lemma)   # yathāśakti (複合語の切れ目を除く)
     target = transfer.best(lex, 'sa', 'adv')
     return target.lemma if target else '[%s]' % english.word(lex)
 
@@ -469,7 +473,9 @@ def _agreement(subject, clause):
     if subject is None:
         return 'm', clause.person, clause.number
     if subject.members:
-        return 'm', 3, 'pl'
+        return 'm', 3, 'du' if len(subject.members) == 2 else 'pl'   # A ca B → 両数 (gacchataH)
+    if subject.dual or clause.dual:
+        return noun_stem(subject.head, subject.gender)[1], 3, 'du'
     gender = noun_stem(subject.head, subject.gender)[1] if subject.head is not None else 'm'
     if subject.head.pos == 'pronoun':
         return subject.gender or 'm', clause.person, clause.number
@@ -484,6 +490,8 @@ def verb_word(clause, person, number):
             return tinanta(dhatu('as', '2'), 'imperfect', 'indicative', 'active', person, number)
         if clause.tense in ('future', 'future-perfect'):
             return tinanta(dhatu('BU', '1'), 'future', 'indicative', 'active', person, number)
+        if clause.verb.lang == 'sa' and clause.verb.surface:
+            return tinanta(dhatu('as', '2'), 'present', 'indicative', 'active', person, number)   # tat tvam asi
         return None
     root, gana = verb_root(clause.verb)
     d = dhatu(root, gana) if root else None

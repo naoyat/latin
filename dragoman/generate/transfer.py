@@ -101,7 +101,7 @@ def source_key(lang, lemma):
     """元の言語の見出しを表の形に (サンスクリットは IAST → SLP1)"""
     if lang == 'sa':
         from dragoman.sanskrit import script
-        return script.to_slp1(lemma)
+        return script.to_slp1(lemma.replace('-', ''))   # 複合語・語根の切れ目 (rāma-lakṣmaṇa、ud-i) は除く
     if lang == 'ru':
         from dragoman.russian import script
         return script.key(lemma)

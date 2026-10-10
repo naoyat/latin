@@ -94,6 +94,7 @@ class NP:
     participles: list = field(default_factory=list)  # 名詞に係る分詞句 (Participial。hostem fugientem)
     relatives: list = field(default_factory=list)    # 関係節 (Clause。gap に空所の役割)
     animate: bool = False    # 人・動物 (関係代名詞 who / which の選択)
+    dual: bool = False       # 両数 (number は pl)
     prep: Lex = None         # 前置詞句なら前置詞
     interrogative: bool = False   # 間接疑問の疑問代名詞 (quid fierī vellet の quid)
     surface: str = ''
@@ -111,6 +112,7 @@ class Clause:
     negated: bool = False
     copula: bool = False
     aspect: str = ''          # 体 (ロシア語の perf / impf。ほかの言語の完了・未完了の時制とは別に)
+    dual: bool = False        # 両数 (number は pl。サンスクリットに戻すとき両数に)
     args: list = field(default_factory=list)       # (役割, NP) の列 (元の語順)
     adverbs: list = field(default_factory=list)    # Lex
     infinitives: list = field(default_factory=list)  # 不定詞句 (Clause。mood='infinitive')
@@ -180,7 +182,9 @@ def lex_of(word, item=None):
         lemma = lemma.split(' = ')[0].split(' ')[0]   # 'pustaka = pur-tak tatpuruṣa' (複合語の分析の注記) → pustaka
     pronoun = SOURCE_PRONOUNS.get(lang, {}).get(lemma.lower()) if item.pos in ('pronoun', 'adj', 'det') else None
     if pronoun:   # 閉じた語類はラテン語の形に (я → ego、tad → is)
-        return Lex(pronoun[0], 'pronoun', item.ja, desc=item.attrib('desc') or _pronoun_desc(pronoun[0]),
+        personal = lemma.lower() in ('я', 'ты', 'он', 'она', 'оно', 'мы', 'вы', 'они', 'asmad', 'yuṣmad')
+        return Lex(pronoun[0], 'pronoun', item.ja,
+                   desc='人称代名詞' if personal else (item.attrib('desc') or _pronoun_desc(pronoun[0])),
                    surface=word.surface if word is not None else item.surface)
     proper = item.attrib('name') is True or (lemma[:1].isupper() and item.pos in ('noun', 'unknown'))
     return Lex(lemma, item.pos, item.ja, proper=proper and item.pos in ('noun', 'unknown', 'name'), lang=lang,
@@ -199,14 +203,16 @@ def np_of(node, case=None):
         np.prep = prep
         np.case = node.dominated_case
         latin = SOURCE_PREPOSITIONS.get(_lang, {}).get((node.item.surface.lower(), node.dominated_case))
-        if latin:   # в + 前置格 → in + 奪格
-            np.prep, np.case = Lex(latin[0], 'preposition', node.item.ja), latin[1]
+        if latin:   # в + 前置格 → in + 奪格 (元の前置詞と格も持つ: 同じ言語に戻すとき на столе を в столе にしない)
+            np.prep = Lex(latin[0], 'preposition', node.item.ja, surface=node.item.surface.lower(), lang=_lang)
+            np.case = latin[1]
+            np.source_case = node.dominated_case
         np.surface = node.surface
         return np
     if isinstance(node, AndOr):
         member_case = case or (node.cases[0] if node.cases else None)   # 要素は並列句の格で (puerī: 属格単数でなく主格複数)
         members = [np_of(words[0], member_case) for words in node.words_slots if words]
-        conj = node.and_or_word
+        conj = conn.normalize(node.and_or_word, _lang)   # ca → et、и → et
         last = node.words_slots[-1][0] if node.words_slots and node.words_slots[-1] else None
         if isinstance(last, Word) and last.surface.endswith('que') and conj == 'et' and \
                 not (last.items and (last.items[0].attrib('base') or '').endswith('que')):
@@ -220,6 +226,8 @@ def np_of(node, case=None):
     case, number, gender = _first_tag(item, case)
     np = NP(lex_of(node), case=case or '', number=number or 'sg', gender=gender or '',
             cases=list(dict.fromkeys(t[0] for t in item._ or [])), surface=node.surface)
+    if np.number == 'du':
+        np.number, np.dual = 'pl', True
     for mod in node.modifiers:
         if isinstance(mod, Word) and mod.items and mod.items[0].pos != 'article':
             np.modifiers.append(lex_of(mod))
@@ -287,11 +295,15 @@ def clause_of(predicate, lang=None):
                     mood=verb_item.attrib('mood') or 'indicative',
                     voice=verb_item.attrib('voice') or 'active', person=verb_item.attrib('person') or 3,
                     number=verb_item.attrib('number') or 'sg', copula=predicate.is_sum, surface=predicate.surface)
+    if clause.number == 'du':
+        clause.number, clause.dual = 'pl', True   # 両数はほかの言語では複数
     if predicate.conjunction is not None and is_negation(predicate.conjunction, predicate.language):
         clause.negated = True
     elif predicate.conjunction is not None and conn.is_connective(conn.normalize(predicate.conjunction.surface, _lang)):
         if conn.lookup(conn.normalize(predicate.conjunction.surface, _lang))[0] == 'adv' and predicate.conjunction.items:
-            clause.adverbs.append(lex_of(predicate.conjunction))   # tum, tandem, statim …
+            key = conn.key(conn.normalize(predicate.conjunction.surface, _lang))
+            clause.adverbs.append(lex_of(predicate.conjunction) if _lang in ('', 'la') else
+                                  Lex(key, 'adv', surface=key))   # tum, tandem, statim … (tadā → tum)
         else:
             _add_connective(clause, conn.normalize(predicate.conjunction.surface, _lang))
     elif isinstance(predicate.conjunction, Word) and predicate.conjunction.items:

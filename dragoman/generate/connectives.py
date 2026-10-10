@@ -144,7 +144,7 @@ def wrap(text, clause, lang, previous=None):
         front.append(word[0] if isinstance(word, tuple) else word)
     elif lang == 'sa' and previous is not None and previous.subordinator and not previous.after_main:
         correlative = _word(previous.subordinator, 'sa')[1]
-        if correlative:
+        if correlative and correlative not in text.split(' '):   # 元の文に tadA があれば重ねない
             front.append(correlative)   # yadA … tadA …
     if lang == 'en' and front and any(CONNECTIVES[k][0] == 'post' for k in clause.connectives):
         front[-1] += ','   # However, …

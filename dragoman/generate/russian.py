@@ -233,6 +233,8 @@ def noun_phrase(np, case):
             lemma = 'она'
         if lemma == 'он' and np.number == 'pl':
             lemma = 'они'
+        if np.number == 'pl' and lemma in ('я', 'ты'):
+            lemma = {'я': 'мы', 'ты': 'вы'}[lemma]   # ego / tū の複数 (мы были в театре)
         word = next((_inflect(lemma, pos, {CASES[case]}) for pos in ('NPRO', 'ADJF', 'NUMR') if _parse(lemma, pos)),
                     lemma)
         if head.desc == '指示代名詞' and np.relatives and not np.modifiers and head.lemma in CORRELATIVE_HEADS:
@@ -266,6 +268,9 @@ def noun_phrase(np, case):
         word = _inflect(PLURALS[lemma], 'NOUN', {CASES[case], number})
     else:
         word = _inflect(lemma, 'NOUN', {CASES[case], number})
+        parses = [p for p in _morph().parse(lemma) if p.tag.POS == 'NOUN' and p.normal_form == lemma.lower()]
+        if parses and all(any(g in p.tag for g in ('Geox', 'Name', 'Surn', 'Orgn')) for p in parses):
+            word = word[:1].upper() + word[1:]   # 固有名詞 (России)
     g = _gender_of(lemma, gender or np.gender)
     animate = _animate(lemma)
     before = []
@@ -325,6 +330,8 @@ def relative_clause(r, number, gender, animate):
 
 def prepositional(np, passive=False):
     prep, case = PREPOSITIONS.get((np.prep.lemma, np.case), (None, None))
+    if np.prep.lang == 'ru' and np.prep.surface and getattr(np, 'source_case', None):
+        prep, case = np.prep.surface, np.source_case   # 元がロシア語なら元の前置詞と格 (на столе)
     if passive and np.prep.lemma in ('ā', 'ab', 'abs'):
         return noun_phrase(np, 'Ins')   # 受動の動作主は造格 (учителем)
     if prep is None:
@@ -417,7 +424,7 @@ def _short_participle(lemma, gender, number):
 
 def participle_form(p, case, number, gender, animate):
     """名詞に係る分詞 (hostem fugientem → бегущего врага の бегущего)。形動詞 (PRTF)"""
-    lemma = verb_lemma(Lex(p.verb.verb, 'verb', p.verb.verb_ja), 'impf' if p.tense == 'present' else 'perf',
+    lemma = verb_lemma(Lex(p.verb.verb, 'verb', p.verb.verb_ja, lang=p.verb.lang), 'impf' if p.tense == 'present' else 'perf',
                        transitive=p.voice == 'passive') if p.verb.verb else None
     parse = _parse(lemma, 'INFN') if lemma else None
     if parse is None:
@@ -435,7 +442,7 @@ def participle_form(p, case, number, gender, animate):
 
 def gerund(p):
     """副動詞: 現在 → 不完了体 (срывая)、完了 → 完了体 (сказав)"""
-    lemma = verb_lemma(Lex(p.verb.verb, 'verb', p.verb.verb_ja), 'impf' if p.tense == 'present' else 'perf') \
+    lemma = verb_lemma(Lex(p.verb.verb, 'verb', p.verb.verb_ja, lang=p.verb.lang), 'impf' if p.tense == 'present' else 'perf') \
         if p.verb.verb else None
     parse = _parse(lemma, 'INFN') if lemma else None
     if parse is None:
@@ -460,7 +467,7 @@ def participial(p, subject=None):
     if p.kind == 'absolute' and p.subject is not None:
         g = _gender_of(noun_lemma(p.subject.head)[0], p.subject.gender) if not p.subject.members else 'masc'
         number = p.subject.number
-        lemma = verb_lemma(Lex(p.verb.verb, 'verb', p.verb.verb_ja), 'perf' if p.tense != 'present' else 'impf',
+        lemma = verb_lemma(Lex(p.verb.verb, 'verb', p.verb.verb_ja, lang=p.verb.lang), 'perf' if p.tense != 'present' else 'impf',
                            transitive=p.voice == 'passive') if p.verb.verb else None
         num = 'plur' if number == 'pl' else 'sing'
         if lemma is None:
@@ -556,6 +563,20 @@ def realize(clause, capitalize=True):
     subject = subjects[0] if subjects else None
     gender, person, number = _subject_agreement(subject, clause)
     out = []
+    places = [np for r, np in clause.args if r == 'prep'] if clause.copula and not clause.role('complement') else []
+    if places and subject is not None and clause.mood == 'indicative':
+        # 存在・所有 (場所・所有者を先に): В комнате есть стол、У меня есть книга、нет + 生格、было / не было
+        before = ' '.join(prepositional(np) for np in places)
+        if clause.tense in ('perfect', 'imperfect', 'past-perfect'):
+            if clause.negated:
+                text = before + ' не было ' + noun_phrase(subject, 'Gen')
+            else:
+                past = {'past', 'plur' if number == 'pl' else 'sing'} | ({gender} if number != 'pl' else set())
+                text = before + ' ' + _inflect('быть', 'INFN', past) + ' ' + noun_phrase(subject, 'Nom')
+        else:
+            text = before + (' нет ' + noun_phrase(subject, 'Gen') if clause.negated else
+                             ' есть ' + noun_phrase(subject, 'Nom'))
+        return text[:1].upper() + text[1:] if capitalize else text
     possessors = [np for np in clause.role('recipient') if clause.copula and not clause.role('complement')]
     if possessors and subject is not None:
         # 所有の与格 (Liber mihi est) → у меня есть книга
@@ -583,6 +604,15 @@ def realize(clause, capitalize=True):
         out.append('не')   # 否定の代名詞は動詞の否定と一緒に (никто не вернулся。ラテン語は nēmō だけ)
     out += verb_form(clause, gender, person, number)
     for np in clause.role('complement'):
+        if not np.members and np.head is not None and np.head.desc == '短語尾' and np.head.lang == 'ru':
+            # 述語の短語尾形容詞 (Книга интересна)
+            agreeing = _agreeing(np, subject)
+            grammemes = {'plur'} if agreeing.number == 'pl' else {'sing', GENDERS.get(agreeing.gender, 'masc')}
+            parse = _parse(np.head.lemma, 'ADJF')
+            short = next((f.word for f in parse.lexeme if 'ADJS' in f.tag and grammemes <= set(str(f.tag).replace(' ', ',').split(','))), None) if parse else None
+            if short:
+                out.append(short)
+                continue
         out.append(noun_phrase(_agreeing(np, subject), 'Nom'))
     verb = verb_lemma(clause.verb) if not clause.copula else None
     for role in ('recipient', 'object'):
