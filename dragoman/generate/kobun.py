@@ -224,10 +224,11 @@ def chain(verb, clause, name):
 
 def predicate(clause, name='終止'):
     """述語の name 形"""
-    if clause.copula:
+    if clause.copula or clause.verb.lemma == 'sum':   # 日本語の入口の いる・ある (sum) も
         complements = clause.role('complement')
-        if not complements:
-            return chain(Verb('あ', 'ラ変'), clause, name)
+        if not complements:   # 存在: 人・動物は をり、ほかは あり
+            animate = any(np.animate for np in clause.role('subject'))
+            return chain(Verb('を' if animate else 'あ', 'ラ変'), clause, name)
         np = complements[0]
         is_adj = not np.members and np.head is not None and np.head.pos in ('adj', 'participle')
         if is_adj:
@@ -241,7 +242,7 @@ def predicate(clause, name='終止'):
             return text + 'なり' + attach('', 'けり', name)
         return text + adjective('な', name)[0:0] + {'終止': 'なり', '連体': 'なる', '已然': 'なれ', '連用': 'にて',
                                                     '未然': 'なら'}[name]
-    modern = gloss(clause.verb)
+    modern = japanese.collocation(clause, gloss(clause.verb))   # 雨の降る (落ちる でなく)
     modern = WORDS.get(modern, modern)
     if not re.search('[うくぐすつぬぶむる]$', modern):
         modern += 'する'
@@ -414,11 +415,7 @@ def clause_text(clause, name='終止', attributive=False, topic=None):
 
 
 CLAUSE_INITIAL = {'もし', 'もしも', 'たとひ', 'たとえ', 'かりに', 'さて', 'されど', 'されば', 'しかるに'}
-EXISTENCE = {'いる', '居る', 'ある', '有る', '在る', '住む', '住まう', '暮らす', 'とどまる', '泊まる', '滞在する', '居住する'}
-
-
-def _existence(clause):
-    return clause.copula and not clause.role('complement') or gloss(clause.verb) in EXISTENCE
+_existence = japanese._existence   # 存在・居住の動詞 (場所は に)
 
 
 def infinitive(inner, governor):

@@ -545,7 +545,10 @@ class KobunTestCase(unittest.TestCase):
         self.assertEqual(round_trip('王は大きな都に住んでいた。'), ('王は大きなる都に住みたりけり。', '王は大きな都に住んでいた。'))
         self.assertEqual(round_trip('子供が泣いているのを母が聞いた。')[1], '母は子が泣くのを聞いた。')   # 準体法の の
         self.assertEqual(round_trip('先生が少年を褒めた。')[1], '先生は子供を褒めた。')
-        self.assertEqual(round_trip('私は彼が何を書いたか知らない。')[1], '私はあの人の何を書いたか知らない。')
+        self.assertEqual(round_trip('私は彼が何を書いたか知らない。')[1], '私はあの人が何を書いたか知らない。')
+        self.assertEqual(round_trip('雨が降ったので、子供たちは家にいた。'),
+                         ('雨の降りければ、子どもは家にをりけり。', '雨が降ったので、子どもは家にいた。'))   # 雨 + 落ちる → 降る
+        self.assertEqual(round_trip('女王は少女たちに花を与えた。')[1], '女王は少女たちに花を与えた。')   # 乙女ども → 少女たち
 
     def test_copula_and_negation(self):
         self.assertEqual(self.kobun('Nauta nōn est malus.'), '舟人は悪しからず。')

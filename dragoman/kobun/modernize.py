@@ -536,6 +536,7 @@ def b_is_attributive(b, nxt):
     return last.form == '連体形' and nxt is not None and nxt.kind == 'nominal'
 
 
+PLURAL_SUFFIXES = {'ども': 'たち', 'ばら': 'たち', 'ら': 'たち'}
 NOMINALIZED_PARTICLES = {'を', 'に', 'が', 'は', 'も', 'より', 'こそ'}
 DEMONSTRATIVE_NO = {'そ': 'その', 'こ': 'この', 'か': 'あの', 'あ': 'あの'}
 WH_WORDS = {'何': 'を', '誰': 'が', 'たれ': 'が', 'いづこ': '', 'いづく': '', 'いかに': '', 'など': '', 'いつ': '',
@@ -610,6 +611,9 @@ def modernize(tokens):
             continue
         if word is None:
             word = ''.join(_modern_kana_surface(t) for t in b.tokens if t.pos not in ('助詞', '助動詞'))
+        else:   # 表の語に置き換えた体言の後ろの接尾辞 (乙女ども → 少女たち)
+            word += ''.join(PLURAL_SUFFIXES.get(t.surface, _modern_kana_surface(t)) for t in b.tokens[1:]
+                            if t.pos == '接尾辞')
         rest = [t for t in b.tokens if t.pos in ('助詞', '助動詞')]
         out = word
         for t in rest:
@@ -686,6 +690,10 @@ def _indirect_question(bunsetsu):
                 key = b.head.surface if b.head.surface in WH_WORDS else b.head.lemma
                 b.modern = b.modern[:-1] + WH_WORDS[key]
                 later.modern = later.modern[:-1] + 'か'
+                prev = bunsetsu[i - 1] if i else None
+                if prev is not None and prev.modern.endswith('の') and prev.tokens[-1].lemma == 'の' and \
+                        prev.tokens[-1].pos2 == '格助詞' and prev.head.pos in ('名詞', '代名詞'):
+                    prev.modern = prev.modern[:-1] + 'が'   # 節の主語の の (かの人の何か書きける → あの人が何を書いたか)
                 break
 
 

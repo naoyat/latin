@@ -54,7 +54,7 @@ PREFERRED = {'見る': 'videō', '褒める': 'laudō', '美しい': 'pulcher', 
              '小さい': 'parvus', '多い': 'multus', '戦う': 'pugnō', '呼ぶ': 'vocō', '恐れる': 'timeō', '男': 'vir',
              '女': 'fēmina', '人': 'homō', '神': 'deus', '友': 'amīcus', '友達': 'amīcus', '父': 'pater',
              '娘': 'fīlia', '息子': 'fīlius', '主人': 'dominus', '奴隷': 'servus', '兵士': 'mīles', '敵': 'hostis',
-             'できる': 'possum', '渡る': 'trānseō', '人々': 'homō', '送る': 'mittō', '摘む': 'carpō', '帰る': 'redeō', '降る': 'cadō', '雨': 'imber', '知る': 'sciō', '書く': 'scrībō',
+             'できる': 'possum', '渡る': 'trānseō', '人々': 'homō', '送る': 'mittō', '摘む': 'carpō', '帰る': 'redeō', '降る': 'cadō', '雨': 'imber', '居る': 'sum', 'いる': 'sum', '都': 'urbs', '都市': 'urbs', '町': 'oppidum', '知る': 'sciō', '書く': 'scrībō',
              '道': 'via', '家': 'domus', '国': 'patria', '島': 'īnsula', '川': 'flūmen', '水': 'aqua', '剣': 'gladius'}
 
 
@@ -190,12 +190,15 @@ def noun_phrase(chunk, modifiers=()):
     noun = chunk.nouns[-1] if chunk.nouns else chunk.head
     lemma = noun.lemma
     number = 'sg'
+    human_plural = False   # 〜たち は人の複数
     if lemma.endswith(('たち', '達', 'ら')) and lemma not in PRONOUNS:
         lemma, number = re.sub('(たち|達|ら)$', '', lemma), 'pl'
+        human_plural = not lemma.endswith('ら')
     if lemma.endswith('々'):
         number = 'pl'   # 人々 (優先表で homō の複数)
     if any(t.lemma in ('たち', '達', 'ら') and t.pos == '接尾辞' for t in chunk.tokens):
         number = 'pl'
+        human_plural = human_plural or any(t.lemma in ('たち', '達') and t.pos == '接尾辞' for t in chunk.tokens)
     if lemma in PRONOUNS:
         latin, person, number = PRONOUNS[lemma]
         np = NP(Lex(latin, 'pronoun', desc='人称代名詞' if latin in ('ego', 'tū', 'is') else '指示代名詞'),
@@ -212,7 +215,8 @@ def noun_phrase(chunk, modifiers=()):
         lex, gender = found
         np = NP(lex, number=number, gender=_gender(lex, gender), surface=chunk.surface)
         # 人・動物: 訳語から、または日本語の語 (〜人・〜者・〜士・〜夫・人々・子)
-        np.animate = _animate(lex) or bool(re.search('(人|者|士|夫|々|子|王|母|父|娘|女|男|師)$', noun.lemma))
+        np.animate = human_plural or _animate(lex) or \
+            bool(re.search('(人|者|士|夫|々|子|供|王|母|父|娘|女|男|師|君|姫|民|客|友)$', noun.lemma))
     for m in modifiers:
         np.modifiers.append(m)
     return np

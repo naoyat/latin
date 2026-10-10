@@ -119,19 +119,37 @@ def _flag(clause):
     return flag
 
 
+# 主語と動詞の連語: 雨・雪が「落ちる」→「降る」(rain falls、imber cadit を日本語の言い回しに)
+COLLOCATIONS = {('雨', '落ちる'): '降る', ('雪', '落ちる'): '降る', ('霰', '落ちる'): '降る', ('雹', '落ちる'): '降る',
+                ('霜', '落ちる'): '降りる', ('露', '落ちる'): '降りる', ('日', '落ちる'): '沈む', ('太陽', '落ちる'): '沈む'}
+
+
+def collocation(clause, verb):
+    for np in clause.role('subject'):
+        if np.head is not None and not np.members:
+            replaced = COLLOCATIONS.get((gloss(np.head), verb))
+            if replaced:
+                return replaced
+    return verb
+
+
 def predicate(clause, final=True):
     """述語の形 (主節の終わりなら終止形、ほかは同じ形で連体修飾・接続に使う)"""
     tense = {'imperfect': 'past', 'perfect': 'past', 'past-perfect': 'past', 'future': 'future'}.get(
         clause.tense, 'present')
-    if clause.copula:
+    if clause.copula or clause.verb.lemma == 'sum':   # 日本語の入口の いる・ある (sum) も
         complements = clause.role('complement')
         if not complements:
+            if any(np.animate for np in clause.role('subject')):   # 人・動物の存在は いる
+                return JaVerb('いる').form(_flag(clause), clause.negated)
+            if tense == 'past':
+                return 'あった' if not clause.negated else 'なかった'
             return 'ある' if not clause.negated else 'ない'
         np = complements[0]
         adjective = not np.members and np.head is not None and np.head.pos in ('adj', 'participle')
         text = gloss(np.head) if adjective else noun_phrase(np)
         return copula_predicate(text, adjective, tense, clause.negated).split(',')[0]
-    verb = gloss(clause.verb)
+    verb = collocation(clause, gloss(clause.verb))
     if not re.search('[うくぐすつぬぶむる]$', verb):
         verb += 'する' if not verb.endswith('する') else ''
     try:
@@ -164,7 +182,10 @@ def clause_text(clause, final=True, attributive=False):
             if clause.voice == 'passive' and np.prep.lemma in ('ā', 'ab'):
                 parts.append(noun_phrase(np) + 'に')   # 受動の動作主
             else:
-                parts.append(noun_phrase(np) + PREPOSITIONS.get((np.prep.lemma, np.case), 'で'))
+                particle = PREPOSITIONS.get((np.prep.lemma, np.case), 'で')
+                if particle == 'で' and _existence(clause):
+                    particle = 'に'   # 家にいる・都に住む (存在・居住の動詞の場所)
+                parts.append(noun_phrase(np) + particle)
         elif attributive and clause.gap == role:
             continue
         else:
@@ -180,6 +201,13 @@ def clause_text(clause, final=True, attributive=False):
         verb = predicate(clause).replace('〜', '')
     parts.append(verb)
     return ''.join(parts)
+
+
+EXISTENCE = {'いる', '居る', 'ある', '有る', '在る', '住む', '暮らす', 'とどまる', '泊まる', '滞在する', '居住する'}
+
+
+def _existence(clause):
+    return (clause.copula and not clause.role('complement')) or gloss(clause.verb) in EXISTENCE
 
 
 def infinitive(inner, governor):
