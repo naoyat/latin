@@ -18,11 +18,34 @@ from dragoman.latin import macronizer
 
 from dragoman.core import speech as speak_latin
 
+def latin_word_notes(options):
+    """ノートの語の注 (子孫語・語源)。端末と同じ色 (core.cli.word_notes と同じ形) で"""
+    from dragoman.core import ansi_color, descendants, etymology
+    if not (options.show_descendants or options.show_etymology):
+        return None
+
+    def notes(word):
+        lines = []
+        if options.show_descendants:
+            lines += [ansi_color.fgcolor(ansi_color.CYAN, '%s: %s' % (lemma, text))
+                      for lemma, text in descendants.describe_word(word)]
+        if options.show_etymology:
+            for lemma, ety in etymology.describe_word(word):
+                lines.append(ansi_color.fgcolor(ansi_color.MAGENTA, '%s の語源:' % lemma))
+                lines.extend('  ' + line for line in ety)
+        return lines
+    return notes
+
+
 def analyse_text(text, options):
     if options.auto_macron_mode:
         # マクロンの無い入力にマクロンを推定して付けてから解析する
         text = macronizer.macronize_text(text)
     for analysis in analyzer.analyze_text(text):
+        if options.notebook is not None:
+            options.notebook.add(analysis, word_notes=latin_word_notes(options),
+                                 show_word_detail=options.show_word_detail, show_translation=options.show_translation)
+            continue
         if options.echo_on:
             render.render_sentence_header(analysis.text)
         if options.speech_mode:
@@ -197,6 +220,8 @@ class Options:
                                              "no-wiktionary",
                                              "descendants",
                                              "etymology",
+                                             "html=",
+                                             "pdf=",
                                              "help"])
         except getopt.GetoptError:
             self.usage()
@@ -212,6 +237,9 @@ class Options:
         self.echo_on = True
         self.show_descendants = False
         self.show_etymology = False
+        self.html = None
+        self.pdf = None
+        self.notebook = None
 
         for option, arg in opts:
             if option in ('-w', '--no-word-detail'):
@@ -236,6 +264,10 @@ class Options:
                 self.show_descendants = True
             elif option in ('-E', '--etymology'):
                 self.show_etymology = True
+            elif option == '--html':
+                self.html = arg
+            elif option == '--pdf':
+                self.pdf = arg
             elif option in ('-h', '--help'):
                 self.usage()
                 sys.exit()
@@ -253,6 +285,8 @@ class Options:
         print("      --no-wiktionary                Use only the hand-made dictionary.")
         print("  -D, --descendants                  Show descendants (French, English, ...) of each word.")
         print("  -E, --etymology                    Show etymology (ancestors, cognates) of each word.")
+        print("      --html=FILE                    Write a notebook (HTML): interlinear gloss, diagrams, translation.")
+        print("      --pdf=FILE                     Write the notebook as PDF (headless Google Chrome).")
         print("  -h, --help                         Print this message and exit.")
 
 
@@ -263,6 +297,9 @@ def main(argv=None):
         speak_latin.init_synth(options.tts_backend)
 
     latindic.load()
+    if options.html or options.pdf:
+        from dragoman.core.notebook import Notebook
+        options.notebook = Notebook('ラテン語 — dragoman')
 
     if len(options.args) == 0:
         # repl mode
@@ -279,6 +316,9 @@ def main(argv=None):
                 text = char.trans(text)
 
             analyse_text(text, options)
+    if options.notebook is not None:
+        from dragoman.core.cli import save_notebook
+        save_notebook(options.notebook, options)
 
 if __name__ == '__main__':
     main()

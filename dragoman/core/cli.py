@@ -16,6 +16,8 @@
 #   --no-explain           初学者向けの解説 (動詞の型・語根など) を出さない
 #   --english-glosses      英語の訳語 (Wiktionary などの語義) を日本語に置き換えない
 #   --sentence-per-line    改行も文の区切りにする (歌詞・詩など、行末に句点の無い行。行末がカンマなら次の行に続ける)
+#   --html=FILE            解析結果をノート (HTML) に清書する (行間逐語訳・弧の図・入れ子の図・訳・語の詳細)
+#   --pdf=FILE             ノートを PDF に (Google Chrome のヘッドレス印刷)
 #   -h, --help             説明を表示する
 #
 import getopt
@@ -26,7 +28,7 @@ from dragoman.core import ansi_color, descendants, etymology, render
 
 COMMON_SHORT = 'wDEst:rh'
 COMMON_LONG = ['no-word-detail', 'descendants', 'etymology', 'speech', 'tts=', 'romanize', 'no-explain',
-               'english-glosses', 'sentence-per-line', 'help']
+               'english-glosses', 'sentence-per-line', 'html=', 'pdf=', 'help']
 
 
 @dataclass
@@ -40,6 +42,8 @@ class Options:
     romanize: bool = False
     explain: bool = True
     sentence_per_line: bool = False
+    html: str = None                # ノートの HTML の書き出し先
+    pdf: str = None                 # ノートの PDF の書き出し先
     extra: dict = field(default_factory=dict)  # 言語固有のオプションの値
 
 
@@ -122,6 +126,10 @@ def parse(command, argv):
             options.explain = False
         elif option == '--sentence-per-line':
             options.sentence_per_line = True
+        elif option == '--html':
+            options.html = arg
+        elif option == '--pdf':
+            options.pdf = arg
         elif option == '--english-glosses':
             from dragoman.core import en_ja
             en_ja.ENABLED = False
@@ -177,9 +185,25 @@ def run(command, argv=None, texts=None):
     texts = texts if texts is not None else read_texts(args)
     if options.sentence_per_line:
         texts = [chunk for text in texts for chunk in split_lines(text)]
+    notebook = None
+    if options.html or options.pdf:
+        from dragoman.core.notebook import Notebook
+        notebook = Notebook('%s — dragoman' % command.name)
     for text in texts:
         for analysis in command.analyzer.analyze_text(text):
             line = command.header(analysis, options) if command.header else ' '.join(analysis.surfaces)
+            if notebook is not None:
+                rendered = None
+                if command.render:   # 独自の表示の言語 (古文など): 表示をそのままノートに
+                    import contextlib
+                    import io
+                    buffer = io.StringIO()
+                    with contextlib.redirect_stdout(buffer):
+                        command.render(analysis, options)
+                    rendered = buffer.getvalue()
+                notebook.add(analysis, header=line, word_notes=notes, show_word_detail=options.show_word_detail,
+                             romanize=command.romanize if options.romanize else None, rendered=rendered)
+                continue
             render.render_sentence_header(line)
             if speech:
                 speech.say_latin(command.speech_text(analysis, options) if command.speech_text
@@ -191,6 +215,17 @@ def run(command, argv=None, texts=None):
                                        romanize=command.romanize if options.romanize else None)
             if speech:
                 speech.pause_while_speaking()
+    if notebook is not None:
+        save_notebook(notebook, options)
+
+
+def save_notebook(notebook, options):
+    if options.html:
+        notebook.write(options.html)
+        print('ノート: %s' % options.html, file=sys.stderr)
+    if options.pdf:
+        notebook.write_pdf(options.pdf)
+        print('ノート (PDF): %s' % options.pdf, file=sys.stderr)
 
 
 def main(command):
