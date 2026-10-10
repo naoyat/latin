@@ -147,6 +147,11 @@ class RelativeTestCase(unittest.TestCase):
         self.assertEqual((relative.antecedent.surface, relative.gap), ('eum', 'Acc'))
         self.assertIn('{少女が 愛する}人を', analysis.clauses[0].predicate.translate()[0])
 
+    def test_connecting_relative(self):
+        # 文頭の関係代名詞 + 従属の接続詞 (Quod cum …「それを … したとき」) は前の文を指す。関係節にしない
+        analysis, = analyzer.analyze_text('Quod cum puella vīdisset, eum magister laudāvit.')
+        self.assertEqual(analysis.relatives, [])
+
     def test_comparative_quam(self):
         analysis, = analyzer.analyze_text('Nēmō clārior erat quam Hector.')
         self.assertEqual(analysis.relatives, [])

@@ -1354,6 +1354,17 @@ def _agreeing_gender(pronoun, antecedent):
     return next((g for item in antecedent.items if item._ for _, n, g in item._ if (n, g) in readings), None)
 
 
+SUBORDINATORS = {'cum', 'ubi', 'postquam', 'sī', 'dum', 'ut', 'quoniam', 'quia', 'etsī', 'simul', 'nisi', 'quamquam'}
+
+
+def _connecting_relative(pronoun, sentence_words):
+    """文頭の関係代名詞のすぐ後ろに従属の接続詞 (Quod cum …、Quae ubi …): 前の文を指す関係の接続"""
+    words = [w for w in sentence_words if isinstance(w, Word) and w.surface[:1].isalpha()]
+    if not words or words[0] is not pronoun or len(words) < 2:
+        return False
+    return words[1].surface.lower() in SUBORDINATORS
+
+
 def _antecedent_after(pronoun, clause):
     """関係節が先行詞より前に来る形の先行詞: 後ろの節の語のうち位置の早い6語までの、性・数の一致する指示代名詞
     (is, ille, hic …: Quem puella amat, eum magister laudat の eum)"""
@@ -1394,7 +1405,7 @@ def _gap_by_agreement(pronoun, antecedent, pred):
     return cases[0] if cases else 'Nom'
 
 
-def detect_relative_clauses(clauses, trace):
+def detect_relative_clauses(clauses, trace, sentence_words=()):
     """関係節: 関係代名詞を含む節を、前にある性・数の一致する名詞 (先行詞) の Word.relatives に付ける。
     関係代名詞は節の格の枠から外し、その役割を空所 (gap) として持つ。
     (関係節が先行詞より前に来るもの (quī …, is …)、先行詞の省かれたものは扱わない)"""
@@ -1413,6 +1424,8 @@ def detect_relative_clauses(clauses, trace):
         antecedent = _antecedent(pronoun, words_by_index, adverb=slot_obj == 'conjunction')
         k = out.index(q)
         before = antecedent is None   # 関係節が先行詞より前 (相関の形)
+        if antecedent is None and _connecting_relative(pronoun, sentence_words):
+            continue   # 関係の接続 (Quod cum vīdisset Ulixēs「それを見たとき」): 前の文を指す。関係節ではない
         if antecedent is None and slot_obj != 'conjunction' and k + 1 < len(out) and pred.person() not in (1, 2):
             # 先行詞より前の関係節 (相関の形): 後ろの節の頭の指示代名詞 (Quī bene cantat, is laudātur)。
             # 動詞が1・2人称なら先行詞は話し手・聞き手で省かれている (quī sedēs ad dextram Patris, miserēre nōbīs)
@@ -1666,7 +1679,7 @@ def analyze_words(surfaces, words, word_details=None, trace=None):
             not_solved = _attach_to_predicate(nodes, group, verbs_ix[i])
             clauses.append(Clause(nodes[verbs_ix[i]], not_solved))
     clauses, questions = detect_indirect_questions(clauses, trace)
-    clauses, relatives = detect_relative_clauses(clauses, trace)
+    clauses, relatives = detect_relative_clauses(clauses, trace, words)
 
     return SentenceAnalysis(
         surfaces=list(surfaces), words=words, word_details=word_details,
