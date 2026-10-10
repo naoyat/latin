@@ -40,6 +40,8 @@ VOICES = {'active': '能動', 'passive': '受動', 'middle': '中動', 'middle-p
 ANSI = re.compile(r'\x1b\[[0-9;]*m')
 NOTE_KINDS = {'32': 'explain', '36': 'descendants', '35': 'etymology'}   # 端末の色 → 種類 (緑・シアン・マゼンタ)
 RTL = re.compile('[֐-ࣿיִ-﷿ﹰ-﻿]')
+NON_LATIN = re.compile('[\u0370-\u03ff\u1f00-\u1fff\u0400-\u052f\u0590-\u08ff\u0900-\u0dff\u0f00-\u0fff'
+                       '\u3040-\u30ff\u4e00-\u9fff\ufb1d-\ufdff\ufe70-\ufeff]')   # ラテン文字以外の文字
 
 
 def plain(text):
@@ -405,11 +407,14 @@ def find_chrome():
 
 
 def heading(text):
-    """見出しの文。右から左の文字の文に転写の括弧が付いていれば (בָּרָא … (bārā …)) 向きを分けて"""
+    """見出しの文。ラテン文字以外の文に転写の括弧が付いていれば (लड़के … (laṛke …)) 転写を薄く小さく。
+    右から左の文字 (בָּרָא … (bārā …)) は向きを分けて次の行に"""
     m = re.match(r'^(.*?)\s*\(([^()]*)\)\s*$', text)
-    if m and RTL.search(m.group(1)) and not RTL.search(m.group(2)):
-        return ('<bdi class="text" dir="rtl">%s</bdi><br><span class="rm" dir="ltr">%s</span>'
-                % (esc(m.group(1)), esc(m.group(2))))
+    if m and NON_LATIN.search(m.group(1)) and not NON_LATIN.search(m.group(2)):
+        if RTL.search(m.group(1)):   # 右から左の文字: 転写は次の行に
+            return ('<bdi class="text" dir="rtl">%s</bdi><br><span class="rm" dir="ltr">%s</span>'
+                    % (esc(m.group(1)), esc(m.group(2))))
+        return '<bdi class="text">%s</bdi> <span class="rm">(%s)</span>' % (esc(m.group(1)), esc(m.group(2)))
     return '<bdi class="text" dir="auto">%s</bdi>' % esc(text)
 
 
@@ -469,14 +474,14 @@ body { font-family: "Gentium Plus", "Noto Serif", "Times New Roman", "Noto Serif
             padding-bottom: .5rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: .25rem 1rem; }
 .sentence { border-bottom: 1px solid var(--line); padding: .5rem 0 1.25rem; break-inside: avoid-page; }
 h2 { font-size: 1.25rem; font-weight: normal; margin: .5rem 0; }
-h2 .rm { font-size: .9rem; color: var(--sub); font-style: italic; }
+h2 .rm { font-size: .8em; color: var(--sub); opacity: .75; font-style: italic; }
 h2 .num { font-family: sans-serif; font-size: .8rem; color: var(--sub); vertical-align: middle; }
 .part { margin: .75rem 0; }
 .part > .ttl { font-family: sans-serif; font-size: .7rem; color: var(--sub); margin-bottom: .25rem; }
 .cols { display: flex; flex-wrap: wrap; gap: .5rem .9rem; }
 .trees { display: flex; flex-wrap: wrap; gap: .5rem; align-items: flex-start; }
 .col { display: flex; flex-direction: column; }
-.col .sf { font-size: 1.1rem; } .col .rm { font-size: .8rem; color: var(--sub); font-style: italic; }
+.col .sf { font-size: 1.1rem; } .col .rm { font-size: .75rem; color: var(--sub); opacity: .75; font-style: italic; }
 .col .lm { font-size: .8rem; } .col .gr { font-family: sans-serif; font-size: .65rem; color: var(--sub); }
 .col .gl { font-size: .85rem; max-width: 9em; }
 .cols[dir="rtl"] .col > div { text-align: right; }
