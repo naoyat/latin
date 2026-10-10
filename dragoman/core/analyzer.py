@@ -1249,9 +1249,13 @@ def detect_indirect_questions(clauses, trace):
         coordinated = pred.conjunction is not None and pred.conjunction.surface in language.current().and_words
         neighbors = [k + 1, k - 1] if coordinated else [k - 1, k + 1]
         for g in neighbors:
-            if not 0 <= g < len(out) or out[g].predicate.first_item.attrib('pres1sg') not in QUESTION_VERBS:
+            if not 0 <= g < len(out):
                 continue
-            governor = out[g].predicate
+            # 支配する動詞: 隣の節の述語か、その中の不定詞 (nē … cōgnōscere posset quō in locō …)
+            candidates = [out[g].predicate] + [i.predicate for i in out[g].predicate.case_slot.get('Inf', [])]
+            governor = next((c for c in candidates if c.first_item.attrib('pres1sg') in QUESTION_VERBS), None)
+            if governor is None:
+                continue
             question = QuestionClause(pred, governor, word)
             pred.subordinate = True
             if coordinated and g > k and governor.conjunction is None:
@@ -1308,7 +1312,9 @@ def _antecedent(pronoun, words_by_index, adverb=False):
             return None   # 間に接続詞 (et quod … supererat の quod は「〜なので」)
         nouns = [item for item in word.items if item.pos in ('noun', 'pronoun') and item._ and
                  item.attrib('desc') != '関係代名詞']
-        if any((n, g) in readings for noun in nouns for _, n, g in noun._):
+        # 固有名詞は単数の読みだけ (Herculēs の複数の読みで quō 「どこで」に合わせない)
+        if any((n, g) in readings for noun in nouns for _, n, g in noun._
+               if n == 'sg' or not (noun.attrib('base') or '')[:1].isupper()):
             return word
     return None
 
