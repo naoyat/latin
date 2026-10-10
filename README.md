@@ -3,7 +3,7 @@
 古典語・現代語の文を辞書引き・構文解析して、日本語の逐語訳を付けるプログラムです（日本語の古文は現代語に組み立て直します）。語ごとの辞書引きと文法の解説、
 並列・係り先・前置詞句・格の枠・関係節・間接疑問の解析、日本語の動詞の活用を含む逐語訳、音読ができます。
 解析の結果はノート（HTML / PDF。行間逐語訳と構造の図）に清書できます。また、解析から言語に依らない「文の枠」を取り出し、
-そこから別の言語の文を作り直す試み（ラテン語・古典ギリシア語・ロシア語・サンスクリット・日本語の間）もあります（下の「文の生成」）。
+そこから別の言語の文を作り直す試み（ラテン語・古典ギリシア語・ロシア語・サンスクリット・日本語の間。英語・インドネシア語へも）もあります（下の「文の生成」）。
 もとはラテン語の読解のための「latin」で、解析の骨組みを言語に依存しない形（`core/`）にして、ほかの言語へ広げています。
 
 ```
@@ -145,6 +145,7 @@ python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sql
 | 古典ギリシア語 | 解析器 | Wiktionary の語形を逆に引く。冠詞、アオリスト、属格独立、前接語のアクセント、後置のつなぎ（δέ・γάρ） |
 | ロシア語 | 解析器 | pymorphy3。完了体の未来、存在・所有の文（у меня есть） |
 | サンスクリット | 解析器 | Vidyut。分詞・動形容詞、処格独立、iti の直接話法、双数 |
+| インドネシア語 | — | 語根と派生形 (meN-・di-・ber-。辞書の対応か鼻音の交替の規則)、yang の関係節、重複の複数、時は telah・akan |
 | 英語 | — | 規則と語形の表 |
 | 日本語 | MeCab + UniDic と規則（長い文は GiNZA の係り受け） | 動詞の活用 (core/japanese.py)、連体修飾節、〜か・〜とき |
 
@@ -152,7 +153,7 @@ python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sql
 作るときに英語の訳語を仲立ちに置き換えます（`transfer.py`。元と同じ言語に戻すときは置き換えない）。
 
 ```
-python3 tools/generate.py "Puella rosam pulchram in hortō videt."            # ラテン語 → 文の枠 → 英・羅・露・梵・希・日
+python3 tools/generate.py "Puella rosam pulchram in hortō videt."            # ラテン語 → 文の枠 → 英・羅・露・梵・希・尼・日
 python3 tools/generate.py --to=grc,ja latin/texts/fabulae_faciles/perseus.txt
 python3 tools/generate.py --from=grc "ἡ κόρη τὸ καλὸν ῥόδον ἐν τῷ κήπῳ βλέπει."   # --from=ru / sa / grc / ja
 python3 tools/generate.py --from=ja "少女が庭で美しい薔薇を見た。"
@@ -165,7 +166,7 @@ python3 tools/generate.py --from=ja "少女が庭で美しい薔薇を見た。"
 
 ```
 python3 tools/build_latin_english.py               # la-en.tsv (ラテン語 → 英語。kaikki-Latin.jsonl.gz から)
-python3 tools/build_english_index.py --lang=ru     # ru/en-index.tsv (英語 → ロシア語。sa・grc も)
+python3 tools/build_english_index.py --lang=ru     # ru/en-index.tsv (英語 → ロシア語。sa・grc・id も)
 python3 tools/build_sanskrit_apte.py               # sa/en-index-apte.tsv (Apte の英梵辞典。任意)
 python3 tools/build_ja_transitivity.py             # ja-transitivity.tsv (日本語の動詞の自他。日本語の入口で)
 ```

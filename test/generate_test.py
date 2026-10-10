@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dragoman.core import paths  # noqa: E402
 from dragoman.latin import latindic, analyzer  # noqa: E402
-from dragoman.generate import frame, english, latin, russian, sanskrit, greek  # noqa: E402
+from dragoman.generate import frame, english, latin, russian, sanskrit, greek, indonesian  # noqa: E402
 from dragoman.generate.frame import Lex  # noqa: E402
 
 _saved = None
@@ -457,6 +457,44 @@ class GreekTestCase(unittest.TestCase):
 
     def test_negated_copula(self):
         self.assertEqual(self.greek('Nauta nōn est malus.'), 'ὁ ναύτης κακὸς οὐκ ἔστι.')
+
+
+@unittest.skipUnless(indonesian.available(), 'id/en-index.tsv が無い')
+class IndonesianTestCase(unittest.TestCase):
+    """ラテン語 → 文の枠 → インドネシア語"""
+
+    @classmethod
+    def setUpClass(cls):
+        latindic.load()
+
+    def indonesian(self, text):
+        analysis, = analyzer.analyze_text(text)
+        return indonesian.sentence(frame.frames(analysis))
+
+    def test_svo_and_prepositions(self):
+        self.assertEqual(self.indonesian('Puella rosam pulchram in hortō videt.'), 'Gadis melihat mawar cantik di taman.')
+        self.assertEqual(self.indonesian('Rēgīna puellīs rosās dedit.'),
+                         'Ratu telah memberi mawar-mawar kepada gadis-gadis.')   # 重複で複数、受け手 kepada
+
+    def test_passive_and_relative(self):
+        self.assertEqual(self.indonesian('Puer ā magistrō laudātus est.'), 'Anak laki-laki telah dipuji oleh guru.')
+        self.assertEqual(self.indonesian('Puella puerum videt quem magister laudat.'),
+                         'Gadis melihat anak laki-laki yang dipuji oleh guru.')
+
+    def test_copula(self):
+        self.assertEqual(self.indonesian('Nauta nōn est malus.'), 'Pelaut tidak buruk.')
+        self.assertEqual(self.indonesian('Puella est rēgīna.'), 'Gadis adalah ratu.')
+
+    def test_question_and_absolute(self):
+        self.assertEqual(self.indonesian('Magister rogāvit quis cantāret.'), 'Guru telah bertanya siapa yang bernyanyi.')
+        self.assertEqual(self.indonesian('Urbe captā, cīvēs fūgērunt.'), 'Setelah kota diambil, warga-warga telah berlari.')
+
+    def test_affixes(self):
+        self.assertEqual([indonesian.men(r) for r in ('tulis', 'pakai', 'kirim', 'sapu', 'baca', 'dengar', 'ambil', 'cat')],
+                         ['menulis', 'memakai', 'mengirim', 'menyapu', 'membaca', 'mendengar', 'mengambil', 'mengecat'])
+        self.assertEqual(indonesian.passive('memiliki'), 'dimiliki')
+        self.assertEqual(indonesian.intransitive('nyanyi'), 'bernyanyi')
+        self.assertEqual(indonesian.active('beri'), 'memberi')   # ber- で始まるが語根
 
 
 if __name__ == '__main__':

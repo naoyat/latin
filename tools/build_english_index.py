@@ -7,6 +7,7 @@
 #   python3 tools/build_english_index.py --lang=ru
 #   python3 tools/build_english_index.py --lang=sa
 #   python3 tools/build_english_index.py --lang=grc
+#   python3 tools/build_english_index.py --lang=id
 #
 # 各行: 見出し語、品詞、英語の訳語 (語義の頭の語句を先に。読点区切り、多くて12)、性 (名詞)、語根の類 (サンスクリットの動詞)、
 #       語義の数 (よく使う語ほど多い)
@@ -14,7 +15,7 @@
 #   サンスクリット: 見出し語は SLP1 (kanyA)。動詞は現在3人称単数の見出し (ददाति: class 3, root दा) から語根 (dA) と類 (3) を
 #
 # 入力: $DRAGOMAN_DATA/ru/kaikki-Russian.jsonl.gz、$DRAGOMAN_DATA/sa/kaikki-Sanskrit.jsonl.gz、
-#       $DRAGOMAN_DATA/grc/kaikki-AncientGreek.jsonl.gz (CC BY-SA)
+#       $DRAGOMAN_DATA/grc/kaikki-AncientGreek.jsonl.gz、$DRAGOMAN_DATA/id/kaikki.org-dictionary-Indonesian.jsonl (CC BY-SA)
 # 出力: $DRAGOMAN_DATA/<lang>/en-index.tsv (Wiktionary 由来 (CC BY-SA))
 #
 import os
@@ -31,7 +32,8 @@ from dragoman.core.wiktionary_import import english_glosses
 
 POS = {'noun': 'noun', 'adj': 'adj', 'verb': 'verb', 'adv': 'adv', 'pron': 'pronoun', 'det': 'pronoun',
        'prep': 'preposition', 'conj': 'conj', 'num': 'num'}
-FILES = {'ru': 'kaikki-Russian.jsonl.gz', 'sa': 'kaikki-Sanskrit.jsonl.gz', 'grc': 'kaikki-AncientGreek.jsonl.gz'}
+FILES = {'ru': 'kaikki-Russian.jsonl.gz', 'sa': 'kaikki-Sanskrit.jsonl.gz', 'grc': 'kaikki-AncientGreek.jsonl.gz',
+         'id': 'kaikki.org-dictionary-Indonesian.jsonl'}
 GENDER = re.compile(r'\b(m|f|n)\b(?: inan| anim)?')
 SA_VERB = re.compile(r'class (\d+).*root (\S+?)\)')
 
@@ -50,7 +52,8 @@ def glosses(entry, senses, limit=12):
 def entries(lang):
     from dragoman.russian import script as ru_script
     from dragoman.sanskrit import script as sa_script
-    with gzip.open(paths.data(lang, FILES[lang]), 'rt', encoding='utf-8') as f:
+    path = paths.data(lang, FILES[lang])
+    with (gzip.open(path, 'rt', encoding='utf-8') if path.endswith('.gz') else open(path, encoding='utf-8')) as f:
         for line in f:
             entry = json.loads(line)
             pos = POS.get(entry.get('pos'))
@@ -63,7 +66,9 @@ def entries(lang):
                 continue
             head = ' '.join(h.get('expansion', '') for h in entry.get('head_templates', []))
             gender, gana = '', ''
-            if lang == 'grc':
+            if lang == 'id':
+                lemma = entry['word']   # インドネシア語: 見出しのまま (語根の動詞 baca、派生形 berjalan)
+            elif lang == 'grc':
                 lemma = entry['word']   # 古典ギリシア語: 見出しは多調のまま (κόρη)
                 if pos in ('noun', 'adj'):
                     m = re.search(r'\)\s*(m|f|n)\b', head)

@@ -137,6 +137,12 @@ def _db(lang):
     return sqlite3.connect(path, check_same_thread=False) if os.path.exists(path) else None
 
 
+@functools.lru_cache(maxsize=8)
+def _has_japanese(lang):
+    db = _db(lang)
+    return db is not None and 'ja' in [row[1] for row in db.execute('PRAGMA table_info(lemmas)')]
+
+
 @functools.lru_cache(maxsize=50000)
 def japanese(lang, target):
     """作る言語の見出し語の日本語の訳語 (の集合)"""
@@ -147,7 +153,7 @@ def japanese(lang, target):
         for _, item in latin._forms(target.lemma, target.pos)[:20]:
             out.update(_keys(item.get('ja')))
         return frozenset(out)
-    db = _db(lang) if lang != 'grc' else None   # ギリシア語の辞書は lemmas.info (JSON) だけで日本語の訳語の列が無い
+    db = _db(lang) if _has_japanese(lang) else None   # 日本語の訳語の列が無い辞書 (ギリシア語・インドネシア語) は英語から
     if db is not None:
         pos = 'root' if target.pos == 'verb' and lang == 'sa' else target.pos
         for ja, gloss_lang in db.execute('SELECT ja, gloss_lang FROM lemmas WHERE key = ? AND pos IN (?, ?)',
@@ -241,6 +247,49 @@ PREFERRED = {
            ('carefully', 'adv'): ('yatnena', ''), ('centaur', 'noun'): ('kinnara', 'm'),
            ('boat', 'noun'): ('nOkA', 'f'), ('ship', 'noun'): ('nO', 'f'), ('cattle', 'noun'): ('go', 'm'),
            ('fruit', 'noun'): ('Pala', 'n'), ('priestess', 'noun'): ('tApasI', 'f'), ('victim', 'noun'): ('paSu', 'm')},
+    'id': {('girl', 'noun'): ('gadis', ''), ('boy', 'noun'): ('anak laki-laki', ''), ('child', 'noun'): ('anak', ''),
+           ('son', 'noun'): ('putra', ''), ('daughter', 'noun'): ('putri', ''), ('teacher', 'noun'): ('guru', ''),
+           ('master', 'noun'): ('tuan', ''), ('lord', 'noun'): ('tuan', ''), ('book', 'noun'): ('buku', ''),
+           ('rose', 'noun'): ('mawar', ''), ('garden', 'noun'): ('taman', ''), ('king', 'noun'): ('raja', ''),
+           ('queen', 'noun'): ('ratu', ''), ('city', 'noun'): ('kota', ''), ('citizen', 'noun'): ('warga', ''),
+           ('man', 'noun'): ('laki-laki', ''), ('woman', 'noun'): ('perempuan', ''), ('slave', 'noun'): ('budak', ''),
+           ('sailor', 'noun'): ('pelaut', ''), ('farmer', 'noun'): ('petani', ''), ('soldier', 'noun'): ('prajurit', ''),
+           ('god', 'noun'): ('dewa', ''), ('goddess', 'noun'): ('dewi', ''), ('war', 'noun'): ('perang', ''),
+           ('letter', 'noun'): ('surat', ''), ('word', 'noun'): ('kata', ''), ('road', 'noun'): ('jalan', ''),
+           ('way', 'noun'): ('jalan', ''), ('house', 'noun'): ('rumah', ''), ('friend', 'noun'): ('teman', ''),
+           ('ship', 'noun'): ('kapal', ''), ('island', 'noun'): ('pulau', ''), ('horse', 'noun'): ('kuda', ''),
+           ('sea', 'noun'): ('laut', ''), ('land', 'noun'): ('tanah', ''), ('water', 'noun'): ('air', ''),
+           ('field', 'noun'): ('ladang', ''), ('forest', 'noun'): ('hutan', ''), ('wood', 'noun'): ('hutan', ''),
+           ('people', 'noun'): ('rakyat', ''), ('father', 'noun'): ('ayah', ''), ('mother', 'noun'): ('ibu', ''),
+           ('brother', 'noun'): ('saudara laki-laki', ''), ('sister', 'noun'): ('saudara perempuan', ''),
+           ('hero', 'noun'): ('pahlawan', ''), ('monster', 'noun'): ('monster', ''), ('wife', 'noun'): ('istri', ''),
+           ('see', 'verb'): ('lihat', ''), ('praise', 'verb'): ('puji', ''), ('compliment', 'verb'): ('puji', ''),
+           ('give', 'verb'): ('beri', ''),
+           ('have', 'verb'): ('memiliki', ''), ('say', 'verb'): ('berkata', ''), ('ask', 'verb'): ('tanya', ''),
+           ('love', 'verb'): ('mencintai', ''), ('sing', 'verb'): ('nyanyi', ''), ('walk', 'verb'): ('berjalan', ''),
+           ('write', 'verb'): ('tulis', ''), ('read', 'verb'): ('baca', ''), ('come', 'verb'): ('datang', ''),
+           ('go', 'verb'): ('pergi', ''), ('flee', 'verb'): ('lari', ''), ('run', 'verb'): ('lari', ''),
+           ('rejoice', 'verb'): ('bergembira', ''), ('be happy', 'verb'): ('bergembira', ''),
+           ('carry', 'verb'): ('bawa', ''), ('bear', 'verb'): ('bawa', ''), ('lead', 'verb'): ('pimpin', ''),
+           ('send', 'verb'): ('kirim', ''), ('teach', 'verb'): ('ajar', ''), ('hear', 'verb'): ('dengar', ''),
+           ('fight', 'verb'): ('bertempur', ''), ('kill', 'verb'): ('bunuh', ''), ('take', 'verb'): ('ambil', ''),
+           ('capture', 'verb'): ('rebut', ''), ('seize', 'verb'): ('rebut', ''), ('know', 'verb'): ('tahu', ''),
+           ('want', 'verb'): ('ingin', ''), ('wish', 'verb'): ('ingin', ''), ('weep', 'verb'): ('menangis', ''),
+           ('cry', 'verb'): ('menangis', ''), ('laugh', 'verb'): ('tertawa', ''), ('sleep', 'verb'): ('tidur', ''),
+           ('live', 'verb'): ('tinggal', ''), ('inhabit', 'verb'): ('tinggal', ''), ('call', 'verb'): ('panggil', ''),
+           ('kill', 'verb'): ('bunuh', ''), ('build', 'verb'): ('bangun', ''), ('make', 'verb'): ('buat', ''),
+           ('do', 'verb'): ('buat', ''), ('die', 'verb'): ('mati', ''), ('grow', 'verb'): ('tumbuh', ''),
+           ('beautiful', 'adj'): ('cantik', ''), ('pretty', 'adj'): ('cantik', ''), ('good', 'adj'): ('baik', ''),
+           ('bad', 'adj'): ('buruk', ''), ('evil', 'adj'): ('jahat', ''), ('great', 'adj'): ('besar', ''),
+           ('big', 'adj'): ('besar', ''), ('large', 'adj'): ('besar', ''), ('small', 'adj'): ('kecil', ''),
+           ('long', 'adj'): ('panjang', ''), ('wise', 'adj'): ('bijaksana', ''), ('brave', 'adj'): ('berani', ''),
+           ('new', 'adj'): ('baru', ''), ('old', 'adj'): ('tua', ''), ('many', 'adj'): ('banyak', ''),
+           ('happy', 'adj'): ('bahagia', ''), ('high', 'adj'): ('tinggi', ''), ('deep', 'adj'): ('dalam', ''),
+           ('famous', 'adj'): ('terkenal', ''), ('dear', 'adj'): ('tersayang', ''), ('certain', 'adj'): ('pasti', ''),
+           ('same', 'adj'): ('sama', ''), ('upper', 'adj'): ('atas', ''), ('pain', 'noun'): ('rasa sakit', ''),
+           ('insanity', 'noun'): ('kegilaan', ''), ('madness', 'noun'): ('kegilaan', ''),
+           ('frighten', 'verb'): ('takuti', ''), ('terrify', 'verb'): ('takuti', ''), ('cease', 'verb'): ('berhenti', ''),
+           ('stop', 'verb'): ('berhenti', ''), ('transfix', 'verb'): ('tusuk', ''), ('pierce', 'verb'): ('tusuk', '')},
     'grc': {('girl', 'noun'): ('κόρη', 'f'), ('boy', 'noun'): ('παῖς', 'm'), ('child', 'noun'): ('παῖς', 'm'),
             ('king', 'noun'): ('βασιλεύς', 'm'), ('queen', 'noun'): ('βασίλεια', 'f'), ('book', 'noun'): ('βιβλίον', 'n'),
             ('teacher', 'noun'): ('διδάσκαλος', 'm'), ('master', 'noun'): ('δεσπότης', 'm'),
