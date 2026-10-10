@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dragoman.core import paths  # noqa: E402
 from dragoman.latin import latindic, analyzer  # noqa: E402
-from dragoman.generate import frame, english, latin, russian, sanskrit  # noqa: E402
+from dragoman.generate import frame, english, latin, russian, sanskrit, greek  # noqa: E402
 from dragoman.generate.frame import Lex  # noqa: E402
 
 _saved = None
@@ -356,7 +356,7 @@ class JapaneseOutputTestCase(unittest.TestCase):
 
 
 class OtherSourceTestCase(unittest.TestCase):
-    """ロシア語・サンスクリット → 文の枠 → 元の言語・ラテン語"""
+    """ロシア語・サンスクリット・古典ギリシア語 → 文の枠 → 元の言語・ラテン語"""
 
     def frames_of(self, module, text):
         analysis, = module.analyze_text(text)
@@ -378,6 +378,49 @@ class OtherSourceTestCase(unittest.TestCase):
         self.assertEqual(sanskrit.sentence(cs).split('\n')[0], 'nṛpaḥ aśvān adadāt ।')   # 元の類 (dā 第3類)
         cs = self.frames_of(sa, 'बालकः पुस्तकं पठति')
         self.assertEqual(latin.sentence(cs), 'Puer librum legit.')
+
+    @unittest.skipUnless(greek.available(), 'grc/wiktionary.sqlite か grc/en-index.tsv が無い')
+    def test_greek(self):
+        from dragoman.greek import analyzer as gr
+        cs = self.frames_of(gr, 'ὁ διδάσκαλος τοῖς παισὶ βιβλίον ἔδωκεν.')
+        self.assertEqual(greek.sentence(cs), 'ὁ διδάσκαλος τοῖς παισὶ βιβλίον ἔδωκε.')
+        cs = self.frames_of(gr, 'οἱ πολῖται ἔχαιρον.')   # 1単と同形の3複
+        self.assertEqual(latin.sentence(cs), 'Cīvēs gaudēbant.')
+        cs = self.frames_of(gr, 'οἱ στρατιῶται οὐκ ἐμάχοντο.')
+        self.assertEqual(greek.sentence(cs), 'οἱ στρατιῶται οὐκ ἐμάχοντο.')
+
+
+@unittest.skipUnless(greek.available(), 'grc/wiktionary.sqlite か grc/en-index.tsv が無い')
+class GreekTestCase(unittest.TestCase):
+    """ラテン語 → 文の枠 → 古典ギリシア語"""
+
+    @classmethod
+    def setUpClass(cls):
+        latindic.load()
+
+    def greek(self, text):
+        analysis, = analyzer.analyze_text(text)
+        return greek.sentence(frame.frames(analysis))
+
+    def test_article_and_accent(self):
+        self.assertEqual(self.greek('Puella rosam pulchram in hortō videt.'), 'ἡ κόρη τὸ καλὸν ῥόδον ἐν τῷ κήπῳ ὁρᾷ.')
+
+    def test_aorist_and_augment(self):
+        self.assertEqual(self.greek('Magister puerōs in hortum dūxit.'), 'ὁ διδάσκαλος τοὺς παῖδας εἰς τὸν κῆπον ἤγαγε.')
+        self.assertEqual(self.greek('Rēgīna puellīs rosās dedit.'), 'ἡ βασίλεια ταῖς κόραις τὰ ῥόδα ἔδωκε.')
+
+    def test_passive_agent(self):
+        self.assertEqual(self.greek('Puer ā magistrō laudātus est.'), 'ὁ παῖς ὑπὸ τοῦ διδασκάλου ἐπῃνέθη.')
+
+    def test_relative(self):
+        self.assertEqual(self.greek('Puella puerum videt quem magister laudat.'),
+                         'ἡ κόρη τὸν παῖδα ὃν ὁ διδάσκαλος ἐπαινεῖ ὁρᾷ.')
+
+    def test_genitive_absolute(self):
+        self.assertEqual(self.greek('Urbe captā, cīvēs fūgērunt.'), 'τῆς πόλεως ληφθείσης οἱ πολῖται ἀπέδρασαν.')
+
+    def test_negated_copula(self):
+        self.assertEqual(self.greek('Nauta nōn est malus.'), 'ὁ ναύτης κακὸς οὐκ ἔστι.')
 
 
 if __name__ == '__main__':

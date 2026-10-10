@@ -58,6 +58,10 @@ SOURCE_CONNECTIVES = {
     'ru': {'когда': 'ubi', 'если': 'sī', 'потому': 'quod', 'пока': 'dum', 'хотя': 'quamquam', 'чтобы': 'ut',
            'и': 'et', 'но': 'sed', 'однако': 'tamen', 'поэтому': 'itaque', 'тогда': 'tum', 'ведь': 'enim',
            'же': 'autem', 'после': 'postquam', 'прежде': 'antequam', 'как': 'ubi'},
+    'grc': {'καί': 'et', 'τε': 'que', 'δέ': 'autem', 'γάρ': 'enim', 'οὖν': 'igitur', 'ἀλλά': 'sed', 'ἀλλ’': 'sed',
+            'ὅμως': 'tamen', 'τότε': 'tum', 'ἔπειτα': 'deinde', 'ὅτε': 'ubi', 'ἐπεί': 'postquam', 'ἐπειδή': 'postquam',
+            'ἕως': 'dum', 'ὅτι': 'quod', 'διότι': 'quod', 'εἰ': 'sī', 'ἐάν': 'sī', 'ἵνα': 'ut', 'ὥστε': 'ut',
+            'καίπερ': 'quamquam', 'ἤδη': 'iam', 'οὐδέ': 'neque', 'μηδέ': 'neque'},
     'sa': {'yadā': 'ubi', 'yadi': 'sī', 'yataḥ': 'quod', 'yāvat': 'dum', 'yadyapi': 'quamquam', 'ca': 'et',
            'kintu': 'sed', 'tu': 'autem', 'hi': 'enim', 'tathāpi': 'tamen', 'tadā': 'tum', 'ataḥ': 'itaque'},
 }

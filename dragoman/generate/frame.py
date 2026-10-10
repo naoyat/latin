@@ -31,11 +31,23 @@ SOURCE_PRONOUNS = {
            'себя': ('sē', ''), 'свой': ('suus', ''), 'мой': ('meus', ''), 'твой': ('tuus', ''), 'наш': ('noster', ''),
            'ваш': ('vester', ''), 'который': ('quī', ''), 'кто': ('quis', ''), 'что': ('quid', ''),
            'весь': ('omnis', ''), 'сам': ('ipse', '')},
+    'grc': {'ἐγώ': ('ego', 'sg'), 'σύ': ('tū', 'sg'), 'ἡμεῖς': ('ego', 'pl'), 'ὑμεῖς': ('tū', 'pl'),
+            'αὐτός': ('is', ''), 'οὗτος': ('hic', ''), 'ὅδε': ('hic', ''), 'ἐκεῖνος': ('ille', ''), 'ὅς': ('quī', ''),
+            'ὅ': ('quī', ''), 'ὅστις': ('quī', ''), 'τίς': ('quis', ''), 'ἑαυτοῦ': ('sē', ''), 'ἐμός': ('meus', ''),
+            'σός': ('tuus', ''), 'πᾶς': ('omnis', '')},
     'sa': {'asmad': ('ego', ''), 'yuṣmad': ('tū', ''), 'tad': ('is', ''), 'idam': ('hic', ''), 'etad': ('hic', ''),
            'adas': ('ille', ''), 'yad': ('quī', ''), 'kim': ('quis', ''), 'sva': ('suus', ''), 'sarva': ('omnis', '')},
 }
 # ロシア語の前置詞 + 格 → ラテン語の前置詞 + 格
 SOURCE_PREPOSITIONS = {
+    'grc': {('ἐν', 'Dat'): ('in', 'Abl'), ('εἰς', 'Acc'): ('in', 'Acc'), ('ἐς', 'Acc'): ('in', 'Acc'),
+            ('ἐκ', 'Gen'): ('ex', 'Abl'), ('ἐξ', 'Gen'): ('ex', 'Abl'), ('ἀπό', 'Gen'): ('ab', 'Abl'),
+            ('ὑπό', 'Gen'): ('ab', 'Abl'), ('πρός', 'Acc'): ('ad', 'Acc'), ('σύν', 'Dat'): ('cum', 'Abl'),
+            ('μετά', 'Gen'): ('cum', 'Abl'), ('μετά', 'Acc'): ('post', 'Acc'), ('περί', 'Gen'): ('dē', 'Abl'),
+            ('ἄνευ', 'Gen'): ('sine', 'Abl'), ('διά', 'Gen'): ('per', 'Acc'), ('διά', 'Acc'): ('propter', 'Acc'),
+            ('πρό', 'Gen'): ('ante', 'Acc'), ('ὑπό', 'Dat'): ('sub', 'Abl'), ('ὑπέρ', 'Gen'): ('prō', 'Abl'),
+            ('παρά', 'Dat'): ('apud', 'Acc'), ('κατά', 'Gen'): ('contrā', 'Acc'), ('ἐπί', 'Dat'): ('in', 'Abl'),
+            ('ἐπί', 'Acc'): ('ad', 'Acc'), ('παρά', 'Acc'): ('ad', 'Acc'), ('παρά', 'Gen'): ('ab', 'Abl')},
     'ru': {('в', 'Loc'): ('in', 'Abl'), ('в', 'Acc'): ('in', 'Acc'), ('во', 'Loc'): ('in', 'Abl'),
            ('во', 'Acc'): ('in', 'Acc'), ('на', 'Loc'): ('in', 'Abl'), ('на', 'Acc'): ('in', 'Acc'),
            ('к', 'Dat'): ('ad', 'Acc'), ('с', 'Ins'): ('cum', 'Abl'), ('со', 'Ins'): ('cum', 'Abl'),
@@ -49,6 +61,7 @@ SOURCE_PREPOSITIONS = {
 }
 # 前置詞の無い格の役割 (ラテン語に無い格): 具格は手段、サンスクリットの奪格は起点、処格は場所
 SOURCE_ROLES = {'ru': {'Ins': 'means', 'Loc': 'place'}, 'sa': {'Ins': 'means', 'Abl': 'source', 'Loc': 'place'}}
+VOICES = {'middle': 'active', 'middle-passive': 'active'}   # 中動態は能動に (Clause.middle に印。ギリシア語に戻すとき中動)
 TENSES = {'aorist': 'perfect'}   # ギリシア語・サンスクリットのアオリストは完了 (語りの過去) に
 SOURCE_TENSES = {'sa': {'imperfect': 'perfect'}}   # サンスクリットの laṅ は語りの過去 (ラテン語の完了に)
 
@@ -95,6 +108,7 @@ class NP:
     relatives: list = field(default_factory=list)    # 関係節 (Clause。gap に空所の役割)
     animate: bool = False    # 人・動物 (関係代名詞 who / which の選択)
     dual: bool = False       # 両数 (number は pl)
+    definite: object = None  # 定か (冠詞のある言語から: True / False。ラテン語・日本語からは None = 分からない)
     prep: Lex = None         # 前置詞句なら前置詞
     interrogative: bool = False   # 間接疑問の疑問代名詞 (quid fierī vellet の quid)
     surface: str = ''
@@ -113,6 +127,7 @@ class Clause:
     copula: bool = False
     aspect: str = ''          # 体 (ロシア語の perf / impf。ほかの言語の完了・未完了の時制とは別に)
     dual: bool = False        # 両数 (number は pl。サンスクリットに戻すとき両数に)
+    middle: str = ''          # 中動態 (ギリシア語・サンスクリットから。voice は能動にしてある)
     args: list = field(default_factory=list)       # (役割, NP) の列 (元の語順)
     adverbs: list = field(default_factory=list)    # Lex
     infinitives: list = field(default_factory=list)  # 不定詞句 (Clause。mood='infinitive')
@@ -228,6 +243,8 @@ def np_of(node, case=None):
             cases=list(dict.fromkeys(t[0] for t in item._ or [])), surface=node.surface)
     if np.number == 'du':
         np.number, np.dual = 'pl', True
+    if _lang not in ('', 'la'):   # 冠詞のある言語 (ギリシア語) なら、定かかどうか (冠詞の有無)
+        np.definite = any(isinstance(m, Word) and m.items and m.items[0].pos == 'article' for m in node.modifiers)
     for mod in node.modifiers:
         if isinstance(mod, Word) and mod.items and mod.items[0].pos != 'article':
             np.modifiers.append(lex_of(mod))
@@ -297,6 +314,9 @@ def clause_of(predicate, lang=None):
                     number=verb_item.attrib('number') or 'sg', copula=predicate.is_sum, surface=predicate.surface)
     if clause.number == 'du':
         clause.number, clause.dual = 'pl', True   # 両数はほかの言語では複数
+    if clause.voice in VOICES and _lang not in ('', 'la'):
+        clause.middle = clause.voice
+        clause.voice = VOICES[clause.voice]
     if predicate.conjunction is not None and is_negation(predicate.conjunction, predicate.language):
         clause.negated = True
     elif predicate.conjunction is not None and conn.is_connective(conn.normalize(predicate.conjunction.surface, _lang)):
@@ -387,7 +407,21 @@ def clause_of(predicate, lang=None):
     for sub in predicate.subordinates:
         if isinstance(sub, (ParticiplePhrase, AblativeAbsolute)):
             clause.adjuncts.append(participial_of(sub))
+    _agree_with_subject(clause, predicate)
     return clause
+
+
+def _agree_with_subject(clause, predicate):
+    """名詞の主語なのに1・2人称で取った動詞 (ἔχαιρον: 1単 = 3複) は、同じ形の3人称の読みに"""
+    subjects = clause.role('subject')
+    if clause.person == 3 or not subjects or subjects[0].head is None or subjects[0].head.pos != 'noun':
+        return
+    number = 'pl' if subjects[0].members else subjects[0].number
+    for item in predicate.verb.items or []:
+        if item.attrib('person') == 3 and item.attrib('number') in (number, 'du' if number == 'pl' else None) and \
+                (item.attrib('tense') or 'present') == (predicate.first_item.attrib('tense') or 'present'):
+            clause.person, clause.number = 3, number
+            return
 
 
 def _first_index(np):

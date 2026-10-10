@@ -6,6 +6,7 @@
 #   python3 tools/generate.py "Puella rosam pulchram in hortō videt."
 #   python3 tools/generate.py samples/samples.txt
 #   python3 tools/generate.py --to=en,ru,sa "…"     作る言語 (既定: en,la と、語の置き換えの表があれば ru,sa)
+#   python3 tools/generate.py --from=grc "ἡ κόρη τὸ καλὸν ῥόδον βλέπει."   ロシア語 (ru)・サンスクリット (sa)・古典ギリシア語から
 #   python3 tools/generate.py --from=ja "少女が庭で美しい薔薇を見た。"   日本語の文から (MeCab と規則で文の枠に)
 #
 # ラテン語に戻した文が元の文と同じ語 (順序は問わない) になれば ✓。違えば、違う語を出す。
@@ -20,7 +21,7 @@ from collections import Counter
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dragoman.latin import analyzer, latindic
-from dragoman.generate import frame, english, latin, russian, sanskrit, japanese
+from dragoman.generate import frame, english, latin, russian, sanskrit, greek, japanese
 
 
 def _word_list(text):
@@ -87,7 +88,8 @@ def run(text):
 
 
 TARGETS = ['en', 'la']
-OTHERS = [('ru', 'ロシア語:', russian), ('sa', '梵語:    ', sanskrit), ('ja', '日本語:  ', japanese)]
+OTHERS = [('ru', 'ロシア語:', russian), ('sa', '梵語:    ', sanskrit), ('grc', 'ギリシア語:', greek),
+          ('ja', '日本語:  ', japanese)]
 
 
 def run_japanese(text):
@@ -114,11 +116,11 @@ def run_japanese(text):
 
 
 def run_other(text, source):
-    """ロシア語・サンスクリットの文 → 文の枠 → 各言語。元の言語に戻した文と元の文を比べる"""
+    """ロシア語・サンスクリット・古典ギリシア語の文 → 文の枠 → 各言語。元の言語に戻した文と元の文を比べる"""
     import importlib
-    analyzer_module = importlib.import_module('dragoman.%s.analyzer' % {'ru': 'russian', 'sa': 'sanskrit'}[source])
+    analyzer_module = importlib.import_module('dragoman.%s.analyzer' % {'ru': 'russian', 'sa': 'sanskrit', 'grc': 'greek'}[source])
     modules = {'la': ('ラテン語:', latin), 'en': ('英語:    ', english), 'ru': ('ロシア語:', russian),
-               'sa': ('梵語:    ', sanskrit), 'ja': ('日本語:  ', japanese)}
+               'sa': ('梵語:    ', sanskrit), 'grc': ('ギリシア語:', greek), 'ja': ('日本語:  ', japanese)}
     for analysis in analyzer_module.analyze_text(text):
         print(analysis.text)
         clauses = frame.frames(analysis)
@@ -127,7 +129,7 @@ def run_other(text, source):
             continue
         for clause in clauses:
             print(frame.describe(clause))
-        for lang in ['ja', 'la', 'en', 'ru', 'sa']:
+        for lang in ['ja', 'la', 'en', 'ru', 'sa', 'grc']:
             if lang not in TARGETS and lang != source:
                 continue
             label, module = modules[lang]
@@ -147,11 +149,15 @@ def run_other(text, source):
 
 def _source_words(text, lang):
     """元の言語の文の語 (比べる用。サンスクリットは SLP1 に、ロシア語は小文字・ё → е)"""
-    words = [w.strip('.,;:!?।"“”()') for w in text.split()]
+    words = [w.strip('.,;:!?।"“”()·;') for w in text.split()]
     words = [w for w in words if w]
     if lang == 'sa':
         from dragoman.sanskrit import script
         return Counter(re.sub('[sr]$', 'H', script.to_slp1(w)) for w in words)   # rāmas = rāmaḥ (語末の連声)
+    if lang == 'grc':   # 重アクセント = 鋭アクセント、語末の ν (ἔδωκεν = ἔδωκε)
+        words = [unicodedata.normalize('NFC', unicodedata.normalize('NFD', w.lower()).replace('\u0300', '\u0301'))
+                 for w in words]
+        return Counter(re.sub('(?<=[ει])ν$', '', w) for w in words)
     return Counter(w.lower().replace('ё', 'е') for w in words)
 
 
@@ -167,7 +173,7 @@ def main():
         elif opt == '--from':
             source = value
     global run
-    if source in ('ru', 'sa'):
+    if source in ('ru', 'sa', 'grc'):
         def run(text, source=source):
             run_other(text, source)
     if source == 'ja':

@@ -134,7 +134,7 @@ def japanese(lang, target):
         for _, item in latin._forms(target.lemma, target.pos)[:20]:
             out.update(_keys(item.get('ja')))
         return frozenset(out)
-    db = _db(lang)
+    db = _db(lang) if lang != 'grc' else None   # ギリシア語の辞書は lemmas.info (JSON) だけで日本語の訳語の列が無い
     if db is not None:
         pos = 'root' if target.pos == 'verb' and lang == 'sa' else target.pos
         for ja, gloss_lang in db.execute('SELECT ja, gloss_lang FROM lemmas WHERE key = ? AND pos IN (?, ?)',
@@ -180,7 +180,7 @@ PREFERRED = {
            ('in vain', 'adv'): ('напрасно', ''), ('heavily', 'adv'): ('тяжело', ''), ('by chance', 'adv'): ('случайно', ''),
            ('kindly', 'adv'): ('ласково', ''), ('everywhere', 'adv'): ('везде', ''),
            ('golden', 'adj'): ('золотой', ''), ('happy', 'adj'): ('счастливый', ''), ('glad', 'adj'): ('радостный', '')},
-    'la': {('see', 'verb'): ('videō', ''), ('die', 'verb'): ('morior', ''), ('give', 'verb'): ('dō', ''),
+    'la': {('see', 'verb'): ('videō', ''), ('rejoice', 'verb'): ('gaudeō', ''), ('be happy', 'verb'): ('gaudeō', ''), ('die', 'verb'): ('morior', ''), ('give', 'verb'): ('dō', ''),
            ('love', 'verb'): ('amō', ''), ('like', 'verb'): ('amō', ''), ('praise', 'verb'): ('laudō', ''),
            ('read', 'verb'): ('legō', ''), ('weep', 'verb'): ('fleō', ''), ('cry', 'verb'): ('fleō', ''),
            ('boy', 'noun'): ('puer', 'm'), ('girl', 'noun'): ('puella', 'f'), ('teacher', 'noun'): ('magister', 'm'),
@@ -228,6 +228,29 @@ PREFERRED = {
            ('carefully', 'adv'): ('yatnena', ''), ('centaur', 'noun'): ('kinnara', 'm'),
            ('boat', 'noun'): ('nOkA', 'f'), ('ship', 'noun'): ('nO', 'f'), ('cattle', 'noun'): ('go', 'm'),
            ('fruit', 'noun'): ('Pala', 'n'), ('priestess', 'noun'): ('tApasI', 'f'), ('victim', 'noun'): ('paSu', 'm')},
+    'grc': {('girl', 'noun'): ('κόρη', 'f'), ('boy', 'noun'): ('παῖς', 'm'), ('child', 'noun'): ('παῖς', 'm'),
+            ('king', 'noun'): ('βασιλεύς', 'm'), ('queen', 'noun'): ('βασίλεια', 'f'), ('book', 'noun'): ('βιβλίον', 'n'),
+            ('teacher', 'noun'): ('διδάσκαλος', 'm'), ('master', 'noun'): ('δεσπότης', 'm'),
+            ('lord', 'noun'): ('δεσπότης', 'm'), ('slave', 'noun'): ('δοῦλος', 'm'), ('sailor', 'noun'): ('ναύτης', 'm'),
+            ('farmer', 'noun'): ('γεωργός', 'm'), ('man', 'noun'): ('ἀνήρ', 'm'), ('woman', 'noun'): ('γυνή', 'f'),
+            ('city', 'noun'): ('πόλις', 'f'), ('god', 'noun'): ('θεός', 'm'), ('goddess', 'noun'): ('θεά', 'f'),
+            ('war', 'noun'): ('πόλεμος', 'm'), ('letter', 'noun'): ('ἐπιστολή', 'f'), ('word', 'noun'): ('λόγος', 'm'),
+            ('road', 'noun'): ('ὁδός', 'f'), ('way', 'noun'): ('ὁδός', 'f'), ('house', 'noun'): ('οἰκία', 'f'),
+            ('friend', 'noun'): ('φίλος', 'm'), ('soldier', 'noun'): ('στρατιώτης', 'm'), ('ship', 'noun'): ('ναῦς', 'f'),
+            ('island', 'noun'): ('νῆσος', 'f'), ('horse', 'noun'): ('ἵππος', 'm'), ('sea', 'noun'): ('θάλαττα', 'f'),
+            ('land', 'noun'): ('γῆ', 'f'), ('earth', 'noun'): ('γῆ', 'f'), ('water', 'noun'): ('ὕδωρ', 'n'),
+            ('see', 'verb'): ('ὁράω', ''), ('praise', 'verb'): ('ἐπαινέω', ''), ('give', 'verb'): ('δίδωμι', ''),
+            ('love', 'verb'): ('φιλέω', ''), ('say', 'verb'): ('λέγω', ''), ('have', 'verb'): ('ἔχω', ''),
+            ('write', 'verb'): ('γράφω', ''), ('carry', 'verb'): ('φέρω', ''), ('bear', 'verb'): ('φέρω', ''),
+            ('lead', 'verb'): ('ἄγω', ''), ('come', 'verb'): ('ἔρχομαι', ''), ('go', 'verb'): ('ἔρχομαι', ''),
+            ('send', 'verb'): ('πέμπω', ''), ('teach', 'verb'): ('διδάσκω', ''), ('hear', 'verb'): ('ἀκούω', ''),
+            ('sing', 'verb'): ('ᾄδω', ''), ('walk', 'verb'): ('βαδίζω', ''), ('fight', 'verb'): ('μάχομαι', ''),
+            ('kill', 'verb'): ('ἀποκτείνω', ''), ('take', 'verb'): ('λαμβάνω', ''), ('know', 'verb'): ('γιγνώσκω', ''),
+            ('beautiful', 'adj'): ('καλός', ''), ('good', 'adj'): ('ἀγαθός', ''), ('bad', 'adj'): ('κακός', ''),
+            ('evil', 'adj'): ('κακός', ''), ('great', 'adj'): ('μέγας', ''), ('big', 'adj'): ('μέγας', ''),
+            ('large', 'adj'): ('μέγας', ''), ('small', 'adj'): ('μικρός', ''), ('long', 'adj'): ('μακρός', ''),
+            ('wise', 'adj'): ('σοφός', ''), ('brave', 'adj'): ('ἀνδρεῖος', ''), ('new', 'adj'): ('νέος', ''),
+            ('old', 'adj'): ('παλαιός', ''), ('many', 'adj'): ('πολύς', ''), ('dear', 'adj'): ('φίλος', '')},
 }
 
 
