@@ -155,6 +155,12 @@ def conjugate(lex, person, number, tense, mood, voice, gender=''):
              (item.get('tense') or 'present') == tense and (item.get('mood') or 'indicative') == mood and
              (item.get('voice') or 'active') == voice]
     found = list(dict.fromkeys(found))
+    if found and not wiktionary.lookup(found[0]):
+        # 手作りの表の形が Wiktionary に無ければ (possum の posest)、同じ見出しの別の項目の形も候補に (potest)
+        found += [surface for surface, item in _forms(lex.lemma, 'verb')
+                  if item.get('person') == person and item.get('number') == number and
+                  (item.get('tense') or 'present') == tense and (item.get('mood') or 'indicative') == mood and
+                  (item.get('voice') or 'active') == voice and surface not in found]
     if gender and any(' ' in f for f in found):
         # 分詞と sum の2語の形 (完了受動、形式受動態動詞の完了) は、分詞を主語の性・数に合わせる
         ending = PARTICIPLE_ENDINGS.get((number, gender))

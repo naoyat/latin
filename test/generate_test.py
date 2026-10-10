@@ -292,5 +292,37 @@ class SanskritTestCase(unittest.TestCase):
         self.assertEqual(form('cantandus', 'cantō', 'future', 'n'), 'gAtavyam')
 
 
+
+from dragoman.generate import from_japanese  # noqa: E402
+
+
+@unittest.skipUnless(from_japanese.available(), 'MeCab が無い')
+class JapaneseInputTestCase(unittest.TestCase):
+    """日本語の文 → 文の枠 → ラテン語"""
+
+    def latin(self, text):
+        return latin.sentence(from_japanese.parse(text))
+
+    def test_simple(self):
+        self.assertEqual(self.latin('少女が庭で美しい薔薇を見た。'), 'Puella rosam pulchram in hortō vīdit.')
+        self.assertEqual(self.latin('農夫は水夫を愛さない。'), 'Agricola nautam nōn amat.')
+
+    def test_passive_agent(self):
+        self.assertEqual(self.latin('少年は先生に褒められた。'), 'Puer ā magistrō laudātus est.')
+
+    def test_relative_clause(self):
+        # 連体修飾節: 空所は節の中で欠けている格 (褒める は他動詞で が があるので目的語)
+        self.assertEqual(self.latin('先生が褒める少年は本を読んでいた。'), 'Puer quem magister laudat librum legēbat.')
+
+    def test_complement_clauses(self):
+        self.assertEqual(self.latin('私は少女が歌うのを見た。'), 'Puellam cantāre vīdī.')
+        self.assertEqual(self.latin('少年は少女が来ると言った。'), 'Puer puellam venīre dīxit.')
+        self.assertEqual(self.latin('あなたは誰が来たか知らない。'), 'Quis vēnerit nōn scīs.')
+
+    def test_subordinate_clauses(self):
+        self.assertEqual(self.latin('少年が庭で寝ているとき、少女は歌った。'),
+                         'Ubi puer in hortō dormiēbat, puella cantāvit.')
+
+
 if __name__ == '__main__':
     unittest.main()

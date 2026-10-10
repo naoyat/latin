@@ -6,12 +6,14 @@
 #   python3 tools/generate.py "Puella rosam pulchram in hortō videt."
 #   python3 tools/generate.py samples/samples.txt
 #   python3 tools/generate.py --to=en,ru,sa "…"     作る言語 (既定: en,la と、語の置き換えの表があれば ru,sa)
+#   python3 tools/generate.py --from=ja "少女が庭で美しい薔薇を見た。"   日本語の文から (MeCab と規則で文の枠に)
 #
 # ラテン語に戻した文が元の文と同じ語 (順序は問わない) になれば ✓。違えば、違う語を出す。
 # ファイルは1行1文 (# で始まる行は飛ばす。samples/samples.txt の形)
 #
 import os
 import sys
+import re
 import unicodedata
 from collections import Counter
 
@@ -88,14 +90,42 @@ TARGETS = ['en', 'la']
 OTHERS = [('ru', 'ロシア語:', russian), ('sa', '梵語:    ', sanskrit)]
 
 
+def run_japanese(text):
+    """日本語の文 → 文の枠 → 各言語 (ラテン語との往復の比べは無し)"""
+    from dragoman.generate import from_japanese
+    for sentence in re.split(r'(?<=[。！？])', text.strip()):
+        if not sentence.strip():
+            continue
+        print(sentence.strip())
+        clauses = from_japanese.parse(sentence)
+        if not clauses:
+            print('  (述語が見つからない)\n')
+            continue
+        for clause in clauses:
+            print(frame.describe(clause))
+        for lang, label, module in [('la', 'ラテン語:', latin), ('en', '英語:    ', english)] + OTHERS:
+            if lang in TARGETS:
+                try:
+                    print('  %s ' % label + module.sentence(clauses))
+                except Exception as e:
+                    print('  %s (作れない: %s: %s)' % (label, type(e).__name__, e))
+        print()
+
+
 def main():
     import getopt
     latindic.load()
-    opts, args = getopt.gnu_getopt(sys.argv[1:], '', ['to='])
+    opts, args = getopt.gnu_getopt(sys.argv[1:], '', ['to=', 'from='])
     TARGETS[:] = ['en', 'la'] + [lang for lang, _, module in OTHERS if module.available()]
+    source = 'la'
     for opt, value in opts:
         if opt == '--to':
             TARGETS[:] = value.split(',')
+        elif opt == '--from':
+            source = value
+    global run
+    if source == 'ja':
+        run = run_japanese
     if not args:
         print(__doc__ if __doc__ else 'usage: generate.py TEXT|FILE')
         return
