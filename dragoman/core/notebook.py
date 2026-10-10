@@ -4,10 +4,10 @@
 # 解析結果をノート (HTML) に清書する: --html=FILE (PDF は --pdf=FILE。HTML を Chrome のヘッドレス印刷で)
 #
 #   文ごとに
+#     訳           節ごとの逐語訳 (原文の直下に)
 #     行間逐語訳   語ごとに 原文 / (転写) / 見出し語 / 文法 / 日本語の訳語 を縦に揃える
 #     図A 弧の図    語を原文の順に並べ、述語から格の枠の語へ、名詞から修飾語へ … 弧を張る (ブラウザで文字幅を測って SVG に)
 #     図B 入れ子    述語 → 格の枠 → 語 (端末の字下げの表示と同じ構造) を箱の入れ子で
-#     訳           節ごとの逐語訳
 #     語の詳細      辞書引きの結果と、解説・子孫語 (-D)・語源 (-E)
 #
 #   ページの上のチェックボックスで、表示する部分を選べる (印刷にも効く)
@@ -419,6 +419,9 @@ def sentence_html(n, s):
     if s['rendered']:
         out.append('<pre class="rendered">%s</pre></section>' % esc(s['rendered']))
         return '\n'.join(out)
+    if s['translations']:
+        out.append('<div class="part translation"><div class="ttl">訳</div><ul>%s</ul></div>'
+                   % ''.join('<li>%s</li>' % esc(t) for t in s['translations']))
     cols = []
     for w in s['words']:
         if w.get('punct'):
@@ -436,9 +439,6 @@ def sentence_html(n, s):
                % (' dir="rtl"' if s['rtl'] else '', ''.join(cols)))
     out.append('<div class="part arcs"><div class="ttl">図A 弧</div><svg class="arcsvg"></svg></div>')
     out.append('<div class="part tree"><div class="ttl">図B 入れ子</div><div class="trees">%s</div></div>' % s['tree'])
-    if s['translations']:
-        out.append('<div class="part translation"><div class="ttl">訳</div><ul>%s</ul></div>'
-                   % ''.join('<li>%s</li>' % esc(t) for t in s['translations']))
     if s['detail']:
         rows = []
         for i, w in enumerate(s['words']):
@@ -520,10 +520,10 @@ body.no-detail .detail { display: none; }
 </head>
 <body>
 <div class="controls">
+  <label><input type="checkbox" data-part="translation" checked> 訳</label>
   <label><input type="checkbox" data-part="interlinear" checked> 行間逐語訳</label>
   <label><input type="checkbox" data-part="arcs" checked> 図A 弧</label>
   <label><input type="checkbox" data-part="tree" checked> 図B 入れ子</label>
-  <label><input type="checkbox" data-part="translation" checked> 訳</label>
   <label><input type="checkbox" data-part="detail" checked> 語の詳細</label>
 </div>
 %BODY%
