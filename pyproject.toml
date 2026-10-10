@@ -17,6 +17,7 @@ sanskrit = ["vidyut"]
 russian = ["pymorphy3", "pymorphy3-dicts-ru"]
 arabic = ["camel-tools"]
 tibetan = ["botok"]
+ja-input = ["ginza", "ja-ginza"]
 piper = ["piper-tts"]
 
 [project.scripts]

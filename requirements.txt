@@ -10,6 +10,9 @@ unidic-lite
 #pymorphy3-dicts-ru
 # アラビア語 (--lang=ar。語形の解析と曖昧性解消。データは camel_data で)
 #camel-tools
+# 日本語の文を文の枠に (tools/generate.py --from=ja) するときの係り受け解析 (無ければ MeCab と規則だけで)
+#ginza
+#ja-ginza
 # 音読 (piper バックエンド)
 #piper-tts
 # 合成音声の評価 (tools/tts_eval.py)。Apple Silicon なら mlx-whisper の方が速い

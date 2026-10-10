@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# 解析の結果 (格の枠) から文を作り直す試み: ラテン語 → 文の枠 → 英語・ラテン語
+# 解析の結果 (格の枠) から文を作り直す試み: ラテン語 (・古典ギリシア語・ロシア語・サンスクリット・日本語) → 文の枠 →
+# ラテン語・英語・ロシア語・サンスクリット・古典ギリシア語・日本語
 #
 #   python3 tools/generate.py "Puella rosam pulchram in hortō videt."
 #   python3 tools/generate.py samples/samples.txt
-#   python3 tools/generate.py --to=en,ru,sa "…"     作る言語 (既定: en,la と、語の置き換えの表があれば ru,sa)
+#   python3 tools/generate.py --to=en,ru,sa "…"     作る言語 (既定: en,la と、語の置き換えの表があれば ru,sa,grc,ja)
 #   python3 tools/generate.py --from=grc "ἡ κόρη τὸ καλὸν ῥόδον βλέπει."   ロシア語 (ru)・サンスクリット (sa)・古典ギリシア語から
 #   python3 tools/generate.py --from=ja "少女が庭で美しい薔薇を見た。"   日本語の文から (MeCab と規則で文の枠に)
 #

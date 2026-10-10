@@ -1,7 +1,9 @@
 # dragoman
 
 古典語・現代語の文を辞書引き・構文解析して、日本語の逐語訳を付けるプログラムです（日本語の古文は現代語に組み立て直します）。語ごとの辞書引きと文法の解説、
-並列・係り先・前置詞句・格の枠の解析、日本語の動詞の活用を含む逐語訳、音読ができます。
+並列・係り先・前置詞句・格の枠・関係節・間接疑問の解析、日本語の動詞の活用を含む逐語訳、音読ができます。
+解析の結果はノート（HTML / PDF。行間逐語訳と構造の図）に清書できます。また、解析から言語に依らない「文の枠」を取り出し、
+そこから別の言語の文を作り直す試み（ラテン語・古典ギリシア語・ロシア語・サンスクリット・日本語の間）もあります（下の「文の生成」）。
 もとはラテン語の読解のための「latin」で、解析の骨組みを言語に依存しない形（`core/`）にして、ほかの言語へ広げています。
 
 ```
@@ -45,7 +47,7 @@ $ echo "लड़के ने किताब पढ़ी।" | python3 dragom
 
 ## セットアップ
 
-Python 3.11 以降。日本語の動詞の活用に MeCab（辞書は UniDic）を使います。
+Python 3.11 以降。日本語の動詞の活用に MeCab（辞書は UniDic）を使います。ノートの PDF には Google Chrome（または Chromium）を使います。
 
 ```
 pip install -r requirements.txt     # または pip install -e .  (dragoman コマンドができる。任意の依存は .[russian] など)
@@ -92,9 +94,33 @@ python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sql
 | `--no-explain` | 初学者向けの解説（動詞の型・語根・連語形など）を出さない |
 | `--english-glosses` | 英語の訳語を日本語に置き換えない |
 | `--sentence-per-line` | 改行も文の区切りにする（歌詞・詩など、行末に句点の無い行。行末がカンマなら次の行に続ける） |
+| `--html=FILE` | 解析結果をノート（HTML）に清書する（下の「ノート」） |
+| `--pdf=FILE` | ノートを PDF にする（Google Chrome / Chromium のヘッドレス印刷） |
 
 言語ごとの例文とその訳は `python3 tools/samples.py --lang=xx` で、解析の精度は `python3 tools/ud_eval.py --lang=xx` で
 見られます（評価用のツリーバンクは言語ごとの文書を参照）。
+
+## ノート (HTML / PDF)
+
+`--html=FILE` / `--pdf=FILE` で、解析結果を読みやすい形に清書します（どの言語でも。`-D`・`-E`・`-r` の情報も入ります）。
+
+```
+./dragoman.py la -D -E --html=note.html -e "Puella rosam pulchram in hortō videt."
+./dragoman.py he -r --pdf=note.pdf FILE
+```
+
+文ごとに次のものを並べます。HTML ではページの上のチェックボックスで表示する部分を選べ、印刷にも効きます。
+
+* 訳: 節ごとの逐語訳（原文の直下に）
+* 行間逐語訳: 語ごとに 原文 / 転写 / 見出し語 / 文法 / 訳語 を縦に揃える。語の色は端末と同じ（主格 青、対格 黒、属格 緑、
+  奪格 黄、与格 赤紫、動詞 赤）
+* 図A 弧: 語を原文の順に並べ、述語から主語・目的語・前置詞句へ、名詞から修飾語・属格へ、先行詞から関係節へ弧を張る
+  （関係節・間接疑問・独立奪格は点線、関係節の空所も）。離れた語の係り先が一目で分かる
+* 図B 入れ子: 述語 → 格の枠 → 語 の構造（端末の字下げの表示と同じ）を箱の入れ子で
+* 語の詳細: 読みの候補ごとの見出し語・品詞・文法・訳語と、解説・子孫語（`-D`）・語源（`-E`）
+
+右から左の文字（ヘブライ語・アラビア語など）は逐語訳を右から並べ、図A を左右反転します。PDF は HTML を Chrome で
+印刷したもの（A4）。古文のように独自の表示の言語は、表示をそのまま載せます。
 
 ## 訳語
 
@@ -106,6 +132,45 @@ python3 tools/build_en_ja.py        # → ~/.local/share/dragoman-data/en-ja.sql
 英語が残る割合は、ロシア語 49% → 6%、アラビア語 70% → 7%、古典ギリシア語 84% → 21%、ヒンディー語 68% → 24%、
 サンスクリット 89% → 31% になりました。残りの多くは固有名詞・民族名（Corinthian）、説明的な語義（comparative degree of …）、
 辞書に無い語です。
+
+## 文の生成 (文の枠)
+
+実用の翻訳ではなく、言語の理解のための試みです。解析の結果（述語と格の枠）から、言語に依らない「文の枠」
+（`dragoman/generate/frame.py`。述語・時制・法・態・人称と、主語・目的語・受け手・前置詞句などの役割ごとの名詞句、
+関係節・間接疑問・不定詞句・独立奪格・分詞句、節のつなぎ）を取り出し、そこから文を作り直します。
+
+| | 入口（文 → 文の枠） | 出口（文の枠 → 文） |
+|---|---|---|
+| ラテン語 | 解析器 | 辞書（手作りの辞書・Wiktionary）を逆に引いて語形を作る |
+| 古典ギリシア語 | 解析器 | Wiktionary の語形を逆に引く。冠詞、アオリスト、属格独立、前接語のアクセント、後置のつなぎ（δέ・γάρ） |
+| ロシア語 | 解析器 | pymorphy3。完了体の未来、存在・所有の文（у меня есть） |
+| サンスクリット | 解析器 | Vidyut。分詞・動形容詞、処格独立、iti の直接話法、双数 |
+| 英語 | — | 規則と語形の表 |
+| 日本語 | MeCab + UniDic と規則（長い文は GiNZA の係り受け） | 動詞の活用 (core/japanese.py)、連体修飾節、〜か・〜とき |
+
+閉じた語類（代名詞・前置詞・つなぎの語・時制）はラテン語の形を中立の形に使い、名詞・動詞などの語は元の言語のまま持って、
+作るときに英語の訳語を仲立ちに置き換えます（`transfer.py`。元と同じ言語に戻すときは置き換えない）。
+
+```
+python3 tools/generate.py "Puella rosam pulchram in hortō videt."            # ラテン語 → 文の枠 → 英・羅・露・梵・希・日
+python3 tools/generate.py --to=grc,ja latin/texts/fabulae_faciles/perseus.txt
+python3 tools/generate.py --from=grc "ἡ κόρη τὸ καλὸν ῥόδον ἐν τῷ κήπῳ βλέπει."   # --from=ru / sa / grc / ja
+python3 tools/generate.py --from=ja "少女が庭で美しい薔薇を見た。"
+```
+
+元の言語に戻した文が元の文と同じ語になれば ✓ を付けます。Fabulae Faciles（Ritchie、Project Gutenberg）でラテン語に戻る文は、
+ペルセウス 80/109、ヘラクレス 266/394、アルゴナウタイ 114/206、ウリクセス 110/200。
+
+語の置き換えの表はデータの置き場所に作ります（いずれも手元だけで使う）:
+
+```
+python3 tools/build_latin_english.py               # la-en.tsv (ラテン語 → 英語。kaikki-Latin.jsonl.gz から)
+python3 tools/build_english_index.py --lang=ru     # ru/en-index.tsv (英語 → ロシア語。sa・grc も)
+python3 tools/build_sanskrit_apte.py               # sa/en-index-apte.tsv (Apte の英梵辞典。任意)
+python3 tools/build_ja_transitivity.py             # ja-transitivity.tsv (日本語の動詞の自他。日本語の入口で)
+```
+
+日本語の入口の長い文には GiNZA（`pip install ginza ja-ginza`）を使います（無ければ MeCab と規則だけで）。
 
 ## ラテン文字への転写
 
@@ -139,11 +204,14 @@ dragoman/                パッケージ
   core/                  言語に依存しない共通部分
     cli.py                 コマンドの骨組み (共通のオプション・見出しの行・音読・表示。言語ごとの違いは <言語>/command.py)
     paths.py               データの置き場所
-    analyzer.py            解析の骨組み (並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出) → SentenceAnalysis
+    analyzer.py            解析の骨組み (並列・係り先・前置詞句・独立奪格・分詞句・不定詞句・述語の検出、関係節・間接疑問)
+                           → SentenceAnalysis
     language.py            言語ごとの設定 (接続詞・繋辞・否定・格の助詞・独立奪格の格、辞書を引く関数など)
     render.py              解析結果の表示
+    notebook.py            ノート (HTML / PDF): 行間逐語訳・弧の図・入れ子の図・訳・語の詳細
     Word.py Item.py AndOr.py PrepClause.py Predicate.py   解析の要素と訳
     Absolute.py Participle.py Infinitive.py               独立奪格・分詞句・不定詞句
+    Relative.py Question.py                               関係節・間接疑問
     japanese.py verb_flags.py                             日本語の動詞の活用
     wiktionary_import.py keys.py                          Wiktionary (kaikki.org) の項目の取り込み、照合用のキー
     descendants.py etymology.py languages.py              子孫語・語源の表示 (言語名の日本語表記)
@@ -175,7 +243,11 @@ dragoman/                パッケージ
   tagalog/                 タガログ語 (焦点の接辞・アスペクトの重複の解析、ang / ng / sa と焦点からの格、繋ぎ、関係節)
   ainu/                    アイヌ語 (古いローマ字表記の正規化、人称の接辞の分解、後置詞・助詞から語順のままの日本語訳)
   kobun/                   古文 (中古和文UniDic による品詞分解、助動詞の連なりからの現代語への組み立て直し、係り結び)
-tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価
+  generate/                文の生成 (frame.py 文の枠、transfer.py 英語を仲立ちにした語の置き換え、
+                           latin.py greek.py russian.py sanskrit.py english.py japanese.py 文の枠 → 各言語、
+                           from_japanese.py ja_lexicon.py 日本語の文 → 文の枠、connectives.py 節のつなぎ、
+                           reverse.py 辞書の語形の逆引き)
+tools/                   マクロン推定・音読のコマンド、データの作成・取り込み、評価、文の生成 (generate.py)
 latin/                   ラテン語のデータ
   words/                 手作りの辞書 (*.def)
   texts/                 テキストと目録 (catalog.json)。src/ は大文字で長母音を書いた原稿 (make で .txt に)
@@ -187,8 +259,8 @@ test/                    テスト
 ## 経緯
 
 2013年に、初級ラテン語のリーディングの授業に参加しながら書いたプログラム（latin）を、2026年に Python 3 へ
-移行して改修し、古典ギリシア語・サンスクリット・ロシア語・ヘブライ語・アラビア語・ペルシア語・ヒンディー語・ウルドゥー語へ
-広げたものです。
+移行して改修し、古典ギリシア語・サンスクリット・ロシア語・ヘブライ語・アラビア語・ペルシア語・ヒンディー語・ウルドゥー語・
+古典チベット語・インドネシア語・マレー語・タガログ語・アイヌ語・古文へ広げ、文の生成（文の枠）とノートの清書を加えたものです。
 名前の dragoman は、オスマン帝国などで通訳・翻訳を務めた人々の呼び名（アラビア語 tarjumān から）。
 2013年からの開発履歴は、権利関係が不明なテキストを含むため、非公開のリポジトリに保管しています。
 
@@ -206,5 +278,6 @@ http://github.com/naoyat | http://twitter.com/naoya_t | http://naoyat.hatenablog
 追加データ（リポジトリには含まない）はそれぞれのライセンスに従います:
 Wiktionary（CC BY-SA）、Latin Macronizer（GPL-3.0）、RFTagger（教育・研究・評価目的なら無償）、
 MBROLA（AGPL-3.0）と la1 音声（MBROLA でのみ使用可・販売不可）、Piper の音声（モデルごと）、
-Vidyut（MIT）、Morpheus（Perseus）、JMdict（EDRDG、CC BY-SA 4.0）、OSHB（本文はパブリックドメイン、解析は CC BY 4.0）、
+Vidyut（MIT）、Morpheus（Perseus）、JMdict（EDRDG、CC BY-SA 4.0）、GiNZA・ja_ginza（MIT）と SudachiDict（Apache-2.0）、
+Apte の英梵辞典の電子版（Cologne Digital Sanskrit Dictionaries、CC BY-NC-SA 3.0）、OSHB（本文はパブリックドメイン、解析は CC BY 4.0）、
 CAMeL Tools の形態素辞書・曖昧性解消のモデル（GPL v2）、中古和文UniDic（国立国語研究所、CC BY-NC-SA 4.0）、Universal Dependencies の各ツリーバンク（評価用。ツリーバンクごと）。
