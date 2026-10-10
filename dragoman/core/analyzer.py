@@ -1290,6 +1290,18 @@ def _relative_pronoun(pred, not_solved):
     return None, None, None
 
 
+PLACE_NOUNS = {'locus', 'urbs', 'oppidum', 'īnsula', 'terra', 'regiō', 'domus', 'spēlunca', 'silva', 'mōns',
+               'templum', 'hortus', 'vīlla', 'castra', 'ager', 'campus', 'lītus', 'portus', 'mare', 'flūmen',
+               'vallis', 'palūs', 'patria', 'fīnis', 'rēgia', 'aedēs', 'sēdēs', 'pars', 'via', 'iter'}
+PLACE_GLOSSES = ('場所', '所', '町', '都市', '島', '国', '家', '庭', '森', '洞窟', '山', '谷', '神殿', '宮殿', '野',
+                 '岸', '港', '海', '川', '地', '陣営', '畑')
+
+
+def _place_noun(word):
+    item = word.items[0]
+    return (item.attrib('base') or '') in PLACE_NOUNS or any(g in (item.ja or '').split(',')[0] for g in PLACE_GLOSSES)
+
+
 def _antecedent(pronoun, words_by_index, adverb=False):
     """関係代名詞の前の、性・数の一致する名詞。句読点・前置詞の語は飛ばして6語まで。
     関係の副詞 ubi は、前の名詞 (間に動詞が1つあってもよい。句読点を挟まない: ad eum locum vēnit ubi …)"""
@@ -1299,7 +1311,7 @@ def _antecedent(pronoun, words_by_index, adverb=False):
             if word is None:
                 return None   # 句読点 (時の ubi: …, ubi …)
             if word.items and word.items[0].pos == 'noun':
-                return word
+                return word if _place_noun(word) else None   # 場所の名詞だけ (Perseus ubi … の ubi は「〜すると」)
             if not (word.items and word.items[0].pos == 'verb'):
                 return None
         return None

@@ -22,8 +22,10 @@ def _keys(ja):
     """訳語の並び → 照合の形の列 (注記・〜を除く): '〜を見る,眺める' → ['見る', '眺める']"""
     out = []
     for gloss in (ja or '').split(','):
-        gloss = NOTE.sub('', gloss.strip())
-        gloss = re.sub('^[をにがでとへの]', '', gloss).strip()
+        gloss = gloss.strip()
+        if gloss[:1] in '〜～':   # 〜を見る → 見る (〜 のすぐ後ろの助詞だけ。できる の で は残す)
+            gloss = re.sub('^[〜～]+[をにがでとへの]?', '', gloss)
+        gloss = NOTE.sub('', gloss).strip()
         if gloss and not re.search('[a-zA-Z0-9]', gloss) and len(gloss) <= 8 and gloss not in out:
             out.append(gloss)
     return out

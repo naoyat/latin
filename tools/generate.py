@@ -20,7 +20,7 @@ from collections import Counter
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dragoman.latin import analyzer, latindic
-from dragoman.generate import frame, english, latin, russian, sanskrit
+from dragoman.generate import frame, english, latin, russian, sanskrit, japanese
 
 
 def _word_list(text):
@@ -87,7 +87,7 @@ def run(text):
 
 
 TARGETS = ['en', 'la']
-OTHERS = [('ru', 'ロシア語:', russian), ('sa', '梵語:    ', sanskrit)]
+OTHERS = [('ru', 'ロシア語:', russian), ('sa', '梵語:    ', sanskrit), ('ja', '日本語:  ', japanese)]
 
 
 def run_japanese(text):
@@ -103,7 +103,8 @@ def run_japanese(text):
             continue
         for clause in clauses:
             print(frame.describe(clause))
-        for lang, label, module in [('la', 'ラテン語:', latin), ('en', '英語:    ', english)] + OTHERS:
+        for lang, label, module in [('ja', '日本語:  ', japanese), ('la', 'ラテン語:', latin),
+                                    ('en', '英語:    ', english)] + [o for o in OTHERS if o[0] != 'ja']:
             if lang in TARGETS:
                 try:
                     print('  %s ' % label + module.sentence(clauses))
@@ -126,6 +127,8 @@ def main():
     global run
     if source == 'ja':
         run = run_japanese
+        if 'ja' not in TARGETS:
+            TARGETS.insert(0, 'ja')   # 日本語からなら訳し戻しも
     if not args:
         print(__doc__ if __doc__ else 'usage: generate.py TEXT|FILE')
         return
