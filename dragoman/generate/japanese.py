@@ -41,6 +41,9 @@ def available():
     return True
 
 
+JAPANESE = re.compile('[\u3040-\u30ff\u4e00-\u9fff]')
+
+
 def gloss(lex):
     """ラテン語の語 → 日本語の訳語 (最初のもの。注記・〜を除く)"""
     from . import transfer
@@ -53,7 +56,7 @@ def gloss(lex):
     keys = ja_lexicon._keys(lex.ja or '')
     if keys:
         return keys[0]
-    if lex.ja and not lex.ja.isascii():
+    if lex.ja and JAPANESE.search(lex.ja.split(',')[0]):   # 英語の語義にギリシア文字などが混じるもの (form of θνῄσκω) は除く
         return re.sub('[〜～]', '', lex.ja.split(',')[0])
     # 日本語の訳語が無い語 (英語の語義だけの imber) は英語 → 日本語の表で
     from dragoman.core import en_ja
@@ -76,7 +79,9 @@ def noun_phrase(np):
     if np.members:
         return 'と'.join(noun_phrase(m) for m in np.members)
     head = np.head
-    if head.pos == 'pronoun' and (head.lemma, np.number) in PRONOUNS:
+    if head.pos == 'pronoun' and head.lemma == 'quis' and np.gender == 'n':
+        word = '何'   # 中性の疑問代名詞 (τί、quid)
+    elif head.pos == 'pronoun' and (head.lemma, np.number) in PRONOUNS:
         word = PRONOUNS[(head.lemma, np.number)]
     elif head.pos == 'pronoun' and head.lemma == 'is' and not np.modifiers and not np.relatives:
         word = '彼女' if np.gender == 'f' else '彼ら' if np.number == 'pl' else '彼'

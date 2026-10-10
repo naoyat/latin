@@ -42,7 +42,7 @@ PRONOUNS = {'ego': 'ἐγώ', 'tū': 'σύ', 'is': 'αὐτός', 'hic': 'οὗ�
             'quī': 'ὅς', 'quis': 'τίς', 'quid': 'τίς', 'sē': 'ἑαυτοῦ', 'meus': 'ἐμός', 'tuus': 'σός',
             'suus': 'ἑαυτοῦ', 'omnis': 'πᾶς', 'ipse': 'αὐτός'}
 PERSONAL_PLURALS = {'ἐγώ': 'ἡμεῖς', 'σύ': 'ὑμεῖς'}
-TENSES = {'present': 'present', 'imperfect': 'imperfect', 'perfect': 'aorist', 'past-perfect': 'pluperfect',
+TENSES = {'present': 'present', 'imperfect': 'imperfect', 'perfect': 'aorist', 'past-perfect': 'past-perfect',
           'future': 'future', 'future-perfect': 'future'}
 CONNECTIVES = {'et': ('καί', 'front'), 'que': ('τε', 'post'), 'autem': ('δέ', 'post'), 'enim': ('γάρ', 'post'),
                'igitur': ('οὖν', 'post'), 'itaque': ('οὖν', 'post'), 'sed': ('ἀλλά', 'front'),
@@ -104,7 +104,7 @@ def _hiatus(surface):
     """母音が続く (縮約していない) 形なら 1。方言の印が無いので、ἐπαινέει (イオニア方言) より ἐπαινεῖ を先に"""
     d = unicodedata.normalize('NFD', surface.lower())
     if '\u0308' in d:
-        return 0   # 分音符はもともと母音の連続
+        return 1   # 分音符の母音の連続 (κλαΐει): 縮約形 (κλαίει) を先に
     base = ''.join(c for c in d if not unicodedata.combining(c))
     return int(any(a in VOWELS and b in VOWELS and a + b not in DIPHTHONGS for a, b in zip(base, base[1:])))
 
@@ -124,8 +124,12 @@ def decline(lex, case, number, gender):
     return best[1]
 
 
+# 形は完了で意味は現在の動詞: 枠の現在 → 完了の形、未完了過去 → 過去完了の形 (οἶδα、ᾔδει)
+PERFECT_PRESENTS = {'οἶδα': {'present': 'perfect', 'imperfect': 'past-perfect'}}
+
+
 def conjugate(lex, person, number, tense, mood, voice):
-    tense = TENSES.get(tense, tense)
+    tense = PERFECT_PRESENTS.get(lex.lemma, {}).get(tense) or TENSES.get(tense, tense)
     candidates = []
     for surface, item in _forms(lex.lemma, 'verb'):
         if item.get('person') == person and item.get('number') == number and item.get('tense') == tense and \
@@ -244,11 +248,15 @@ def _negation(next_word):
 
 
 def realize(clause, capitalize=False):
+    from .frame import lexical_negation
+    clause = lexical_negation(clause)   # nesciō → οὐ + γιγνώσκω
     subjects = clause.role('subject')
     subject = subjects[0] if subjects else None
     person, number = clause.person, clause.number
     if subject is not None and subject.head is not None and subject.head.pos != 'pronoun':
         person, number = 3, 'pl' if subject.members else subject.number
+        if number == 'pl' and not subject.members and _neuter(subject):
+            number = 'sg'   # 中性複数の主語は単数の動詞 (τὰ ῥόδα αὐξάνει)
     out = []
     for p in clause.adjuncts:
         if p.kind == 'absolute' and p.subject is not None:
@@ -270,8 +278,9 @@ def realize(clause, capitalize=False):
                    else noun_phrase(np, ROLE_CASES.get(role, 'Dat')))
     for np in clause.role('complement'):
         if np.head is not None and np.head.pos in ('adj', 'participle') and not np.members:
-            g = subject.gender if subject is not None and subject.gender in GENDERS else 'm'
-            out.append(_adjective(np.head, subject_case, number, g))
+            g = _greek_gender(subject) if subject is not None else 'm'
+            n = ('pl' if subject.members else subject.number) if subject is not None else number
+            out.append(_adjective(np.head, subject_case, n, g))   # 主語のギリシア語の名詞の性・数 (τὰ ῥόδα καλά ἐστι)
         else:
             out.append(noun_phrase(np, subject_case))
     for adv in clause.adverbs:
@@ -283,7 +292,52 @@ def realize(clause, capitalize=False):
             verb = {'ἐστί': 'ἔστι', 'ἐστίν': 'ἔστιν'}.get(verb, verb)   # οὐκ ἔστι
         out.append(_negation(verb))
     out.append(verb)
+    for inner in clause.questions:   # 間接疑問は動詞の後ろ (οὐκ οἶδα τίς ἦλθεν)
+        out.append(_question(inner))
     return ' '.join(w for w in out if w)
+
+
+QUESTION_WORDS = {'quōmodo': 'πῶς', 'quemadmodum': 'πῶς', 'ubi': 'ποῦ', 'quandō': 'πότε', 'unde': 'πόθεν',
+                  'quō': 'ποῖ', 'num': 'εἰ', 'utrum': 'πότερον', 'cūr': 'διὰ τί', 'quārē': 'διὰ τί',
+                  'quantus': 'πόσος', 'quālis': 'ποῖος', 'quot': 'πόσοι'}
+
+
+def _question(inner):
+    """間接疑問の節: 疑問詞を頭に。元がギリシア語なら元の疑問詞と法 (希求法 γράφοι)、ほかからは直説法"""
+    import dataclasses
+    from .frame import interrogative_np
+    owner, role, np = interrogative_np(inner)
+    if np is not None:
+        head = noun_phrase(np, subject_case_of(owner, role))
+        rest = dataclasses.replace(inner, args=[(r, n) for r, n in inner.args if n is not np])
+        return head + ' ' + realize(rest)
+    if inner.question_source and inner.verb.lang == 'grc':
+        word = inner.question_source
+    else:
+        word = QUESTION_WORDS.get(inner.question_word, inner.question_word)
+    return word + ' ' + realize(inner)
+
+
+def subject_case_of(clause, role):
+    if role == 'subject':
+        return 'Acc' if clause.mood == 'infinitive' else 'Nom'
+    return ROLE_CASES.get(role, 'Acc')
+
+
+def _greek_gender(np):
+    """名詞句のギリシア語の名詞の性 (rosa 女性 → ῥόδον 中性)。代名詞・元がギリシア語なら名詞句の性"""
+    if np.members:
+        return _greek_gender(np.members[0])
+    if np.head is None:
+        return 'm'
+    if (np.head.lang == 'grc' or np.head.pos == 'pronoun') and np.gender in GENDERS:
+        return np.gender
+    lex, gender = to_greek(np.head)
+    return _gender(lex, gender) if lex is not None else 'm'
+
+
+def _neuter(np):
+    return _greek_gender(np) == 'n'
 
 
 def _verb(clause, person, number):
@@ -292,8 +346,12 @@ def _verb(clause, person, number):
         return '[%s]' % english.word(clause.verb)
     if clause.mood == 'infinitive':
         return infinitive(verb, clause.tense, _voice(clause))
-    return conjugate(verb, person, number, clause.tense, 'indicative' if clause.mood == 'subjunctive' and
-                     not clause.question_word else clause.mood, _voice(clause))
+    mood = clause.mood
+    if clause.question_word:   # 間接疑問: 元がギリシア語なら元の法、ほかからは直説法 (ラテン語の接続法はそのまま訳さない)
+        mood = clause.source_mood if clause.source_mood and clause.verb.lang == 'grc' else 'indicative'
+    elif mood == 'subjunctive':
+        mood = 'indicative'
+    return conjugate(verb, person, number, clause.tense, mood, _voice(clause))
 
 
 def _absolute(p):

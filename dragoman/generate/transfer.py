@@ -112,10 +112,16 @@ def english_glosses(lang, lemma, pos):
     """元の言語の語の英語の訳語 (表から)"""
     pos = {'participle': 'verb', 'name': 'noun'}.get(pos, pos)
     glosses = list(dict.fromkeys(_by_lemma(lang).get((source_key(lang, lemma), pos), [])))
+    for k, g in enumerate(glosses):
+        m = FORM_OF.search(g)
+        if m and m.group(1) != lemma:   # strengthened form of θνῄσκω with the same meaning → θνῄσκω の訳語
+            glosses = glosses[:k] + english_glosses(lang, m.group(1), pos) + glosses[k + 1:]
+            break
     first = FIRST_GLOSSES.get(lang, {}).get(lemma)
     return [first] + [g for g in glosses if g != first] if first in glosses else glosses
 
 
+FORM_OF = re.compile(r'\bform of ([^\sA-Za-z,]+)')   # 説明の語義 (… form of + 元の言語の語)
 # 表の最初の訳語が教科書の意味でない語 (βασιλεύς: chief, emperor, … king): 先に使う訳語
 FIRST_GLOSSES = {'grc': {'βασιλεύς': 'king', 'ὁράω': 'see', 'λόγος': 'word', 'ἀνήρ': 'man', 'κόρη': 'girl',
                          'λέγω': 'say', 'γράφω': 'write', 'παῖς': 'child', 'πόλις': 'city', 'ἔχω': 'have'}}
@@ -251,7 +257,9 @@ PREFERRED = {
             ('write', 'verb'): ('γράφω', ''), ('carry', 'verb'): ('φέρω', ''), ('bear', 'verb'): ('φέρω', ''),
             ('lead', 'verb'): ('ἄγω', ''), ('come', 'verb'): ('ἔρχομαι', ''), ('go', 'verb'): ('ἔρχομαι', ''),
             ('send', 'verb'): ('πέμπω', ''), ('teach', 'verb'): ('διδάσκω', ''), ('hear', 'verb'): ('ἀκούω', ''),
-            ('sing', 'verb'): ('ᾄδω', ''), ('walk', 'verb'): ('βαδίζω', ''), ('fight', 'verb'): ('μάχομαι', ''),
+            ('sing', 'verb'): ('ἀείδω', ''), ('want', 'verb'): ('βούλομαι', ''),
+            ('wish', 'verb'): ('βούλομαι', ''), ('weep', 'verb'): ('κλαίω', ''), ('cry', 'verb'): ('κλαίω', ''),
+            ('grow', 'verb'): ('αὐξάνω', ''), ('sleep', 'verb'): ('καθεύδω', ''), ('ask', 'verb'): ('ἐρωτάω', ''), ('walk', 'verb'): ('βαδίζω', ''), ('fight', 'verb'): ('μάχομαι', ''),
             ('kill', 'verb'): ('ἀποκτείνω', ''), ('take', 'verb'): ('λαμβάνω', ''), ('know', 'verb'): ('γιγνώσκω', ''),
             ('beautiful', 'adj'): ('καλός', ''), ('good', 'adj'): ('ἀγαθός', ''), ('bad', 'adj'): ('κακός', ''),
             ('evil', 'adj'): ('κακός', ''), ('great', 'adj'): ('μέγας', ''), ('big', 'adj'): ('μέγας', ''),

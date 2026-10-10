@@ -64,6 +64,13 @@ SOURCE_ROLES = {'ru': {'Ins': 'means', 'Loc': 'place'}, 'sa': {'Ins': 'means', '
 VOICES = {'middle': 'active', 'middle-passive': 'active'}   # 中動態は能動に (Clause.middle に印。ギリシア語に戻すとき中動)
 TENSES = {'aorist': 'perfect'}   # ギリシア語・サンスクリットのアオリストは完了 (語りの過去) に
 SOURCE_TENSES = {'sa': {'imperfect': 'perfect'}}   # サンスクリットの laṅ は語りの過去 (ラテン語の完了に)
+# 形は完了で意味は現在の動詞 (οἶδα「知っている」、ᾔδει「知っていた」)
+PERFECT_PRESENTS = {'grc': {'οἶδα'}}
+# 間接疑問の疑問詞 → ラテン語の疑問詞 (代名詞 τίς は性で quis / quid)
+SOURCE_QUESTION_WORDS = {'grc': {'πῶς': 'quōmodo', 'ὅπως': 'quōmodo', 'ποῦ': 'ubi', 'ὅπου': 'ubi', 'πότε': 'quandō',
+                                 'ὁπότε': 'quandō', 'πόθεν': 'unde', 'ὁπόθεν': 'unde', 'ποῖ': 'quō', 'ὅποι': 'quō',
+                                 'εἰ': 'num', 'πότερον': 'utrum', 'ὁπότερον': 'utrum', 'πόσος': 'quantus',
+                                 'ὁπόσος': 'quantus', 'ποῖος': 'quālis', 'ὁποῖος': 'quālis'}}
 
 _lang = ''   # 解析中の文の言語 (clause_of で述語の言語から)
 
@@ -134,6 +141,8 @@ class Clause:
     infinitive_kind: str = ''   # 不定詞句なら、支配する動詞の種類 (saying / perception / command / complement)
     questions: list = field(default_factory=list)  # 間接疑問 (Clause。question_word に疑問詞)
     question_word: str = ''   # 間接疑問の節なら疑問詞 (quid, cūr …。副詞の疑問詞は adverbs から除いてある)
+    question_source: str = ''   # ほかの言語の疑問詞 (πῶς)。元の言語に戻すとき
+    source_mood: str = ''   # 間接疑問の元の法 (ギリシア語の直説法・希求法。枠では接続法に)
     gap: str = ''             # 関係節なら空所の役割: subject / object / recipient / means / possessor / place / prep
     gap_prep: object = None   # 空所が前置詞句なら前置詞 (Lex) と格: (Lex, 'Abl')  (locus in quō)
     relative: object = None   # 関係節の関係詞 (Lex。ラテン語に戻すとき quī を変化させる。ubi なら副詞)
@@ -311,6 +320,8 @@ def clause_of(predicate, lang=None):
     _lang = getattr(predicate.language, 'name', '') or ''
     verb_item = predicate.first_item
     tense = verb_item.attrib('tense') or 'present'
+    if verb_item.attrib('pres1sg') in PERFECT_PRESENTS.get(_lang, ()):
+        tense = {'perfect': 'present', 'past-perfect': 'imperfect'}.get(tense, tense)
     clause = Clause(lex_of(predicate.verb), aspect=verb_item.attrib('aspect') or '',
                     tense=SOURCE_TENSES.get(_lang, {}).get(tense) or TENSES.get(tense, tense),
                     mood=verb_item.attrib('mood') or 'indicative',
@@ -456,6 +467,16 @@ def question_of(question):
         for _, np in c.args:
             if np.surface and np.surface.split(' ')[0].lower() == word:
                 np.interrogative = True
+    if _lang in SOURCE_QUESTION_WORDS:
+        inner.question_source = word
+        _, _, np = interrogative_np(inner)
+        inner.question_word = SOURCE_QUESTION_WORDS[_lang].get(word) or \
+            ('quid' if np is not None and np.gender == 'n' else 'quis')
+        if word == 'εἰ':
+            inner.connectives = [c for c in inner.connectives if c != 'sī']
+            inner.subordinator = '' if inner.subordinator == 'sī' else inner.subordinator
+        if inner.mood != 'subjunctive':
+            inner.source_mood, inner.mood = inner.mood, 'subjunctive'   # ラテン語の間接疑問は接続法
     return inner
 
 

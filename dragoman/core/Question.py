@@ -17,10 +17,17 @@ QUESTION_VERBS = {'rogō', 'interrogō', 'quaerō', 'requīrō', 'exquīrō', 's
                   'doceō', 'ēdoceō', 'dīcō', 'nārrō', 'nūntiō', 'ostendō', 'dēmōnstrō', 'mōnstrō', 'expōnō',
                   'explicō', 'referō', 'prōnūntiō', 'indicō', 'aperiō', 'mīror', 'dubitō', 'cōgitō', 'meminī',
                   'recordor', 'considerō', 'cōnsīderō', 'dēlīberō', 'exspectō', 'experior', 'temptō', 'probō',
-                  'cūrō', 'videor'}
+                  'cūrō', 'videor',
+                  # ギリシア語
+                  'ἐρωτάω', 'ἔρομαι', 'πυνθάνομαι', 'οἶδα', 'γιγνώσκω', 'ἐπίσταμαι', 'ἀγνοέω', 'μανθάνω', 'ὁράω',
+                  'ἀκούω', 'λέγω', 'φράζω', 'δηλόω', 'διδάσκω', 'θαυμάζω', 'σκοπέω', 'ἀπορέω', 'βουλεύω', 'εἶπον',
+                  'αἰσθάνομαι', 'ἐννοέω', 'σκέπτομαι', 'ζητέω', 'ἐξετάζω'}
 # 疑問の副詞・形容詞 (疑問代名詞 quis / quid は辞書の desc で見分ける)
 INTERROGATIVES = {'cūr', 'quārē', 'quōmodo', 'quemadmodum', 'unde', 'quō', 'quā', 'quotiēns', 'quandō',
-                  'utrum', 'num', 'nōnne', 'quantus', 'quālis', 'quot', 'uter', 'ubi', 'quam'}
+                  'utrum', 'num', 'nōnne', 'quantus', 'quālis', 'quot', 'uter', 'ubi', 'quam',
+                  # ギリシア語 (直接の形と間接の形 ὅπως・ὅπου …、εἰ「〜かどうか」)
+                  'πῶς', 'ποῦ', 'πότε', 'πόθεν', 'ποῖ', 'πόσος', 'ποῖος', 'πότερον', 'ὅπως', 'ὅπου', 'ὁπότε', 'ὁπόθεν',
+                  'ὅποι', 'ὁπόσος', 'ὁποῖος', 'ὁπότερον', 'εἰ'}
 
 
 def is_interrogative(word):
@@ -28,6 +35,8 @@ def is_interrogative(word):
     items = getattr(word, 'items', None) or []
     if any(item.pos == 'pronoun' and item.attrib('desc') == '疑問代名詞' for item in items):
         return True
+    if any(item.attrib('base') == 'ὅστις' for item in items):
+        return True   # ギリシア語の不定関係代名詞は間接疑問の疑問詞にも (ἤρετο ὅστις εἴη)。先行詞があれば関係節
     return getattr(word, 'surface', '').lower() in INTERROGATIVES and bool(items)
 
 

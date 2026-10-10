@@ -7,6 +7,7 @@
 # ラテン語と共通の解析器 (latin.analyzer.analyze_words) を、ギリシア語の設定 (GREEK) で使う
 #
 import re
+import unicodedata
 
 from dragoman.core import analyzer as common
 from dragoman.core import language
@@ -23,6 +24,7 @@ GREEK = language.Language(
     vocative_particles=frozenset({'ὦ'}),
     case_particles={'Nom': 'が', 'Acc': 'を', 'Gen': 'の', 'Dat': 'に', 'Voc': 'よ'},
     absolute_case='Gen',  # 属格独立
+    question_moods=('indicative', 'optative', 'subjunctive'),  # 間接疑問: 元の法のまま、過去の後は希求法
     # 属格を目的語に取る動詞 (知覚・接触・支配・記憶・欲求など)。主節の動詞がこれなら属格独立にしない
     absolute_case_verbs=frozenset({'ἀκούω', 'ἀκροάομαι', 'αἰσθάνομαι', 'ἅπτω', 'ἅπτομαι', 'ἄρχω', 'κρατέω',
                                    'βασιλεύω', 'ἡγέομαι', 'ἐπιθυμέω', 'ἐράω', 'μιμνῄσκω', 'μιμνήσκω', 'μνημονεύω',
@@ -91,6 +93,9 @@ def mark_relatives(items):
     (共通の解析の関係節の検出に)。
     関係代名詞の読みがあれば、同じ形の所有の ὅς (his own: 叙事詩) の読みは除く"""
     for item in items:
+        if item.get('base') == 'τίς' and item['pos'] in ('pronoun', 'adj') and \
+                unicodedata.normalize('NFD', item.get('surface') or '')[:3] == 'τι\u0301':
+            item['desc'] = '疑問代名詞'   # τίς τί τίνα τίνος …(最初の音節にアクセント)。τινά τινός は不定の τις
         if item.get('base') in DEMONSTRATIVES and not item.get('desc'):
             item['desc'] = '指示代名詞'   # 関係節の先行詞 (ταῦτά ἐστιν ἃ λέγει)・相関の形の指示代名詞に
     relative = [item for item in items if item.get('base') in RELATIVES and item['pos'] == 'pronoun' and

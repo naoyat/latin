@@ -1228,7 +1228,7 @@ def _relative_with_antecedent(word, words_by_index):
 
 
 def detect_indirect_questions(clauses, trace):
-    """間接疑問: 疑問詞を含み動詞が接続法の節を、隣の節の「問う・知る・教える・言う」動詞の格の枠 'Q' に入れる。
+    """間接疑問: 疑問詞を含み動詞が接続法 (ギリシア語は直説法・希求法も) の節を、隣の節の「問う・知る・教える・言う」動詞の格の枠 'Q' に入れる。
     節が et などで始まれば前の節と並列なので、支配する動詞は後ろの節 (…, et quid fierī vellet docuit)、
     ほかは前の節を先に見る (rogāvit quid vellet)"""
     out = list(clauses)
@@ -1240,7 +1240,7 @@ def detect_indirect_questions(clauses, trace):
                 words_by_index[n.index] = n
     for q in list(clauses):
         pred = q.predicate
-        if pred.first_item.attrib('mood') != 'subjunctive':
+        if pred.first_item.attrib('mood') not in language.current().question_moods:
             continue
         word = next((n for n in _nodes_in(pred, q.not_solved) if isinstance(n, Word) and is_interrogative(n)), None)
         if word is None or _relative_with_antecedent(word, words_by_index):

@@ -400,6 +400,20 @@ class OtherSourceTestCase(unittest.TestCase):
         cs = self.frames_of(gr, 'ἃ λέγει ὁ διδάσκαλος, ταῦτα γράφομεν.')   # 先行詞より前の関係節
         self.assertEqual(latin.sentence(cs), 'Haec quae magister dīcit scrībimus.')
 
+    @unittest.skipUnless(greek.available(), 'grc/wiktionary.sqlite か grc/en-index.tsv が無い')
+    def test_greek_indirect_question(self):
+        from dragoman.greek import analyzer as gr
+        cs = self.frames_of(gr, 'οὐκ οἶδα τίς ἦλθεν.')   # οἶδα: 形は完了、意味は現在
+        self.assertEqual(greek.sentence(cs), 'οὐκ οἶδα τίς ἦλθε.')
+        self.assertEqual(latin.sentence(cs), 'Quis ierit nōn sciō.')
+        cs = self.frames_of(gr, 'ὁ διδάσκαλος ἤρετο τί ὁ παῖς γράφοι.')   # 希求法 → 接続法
+        self.assertEqual(greek.sentence(cs), 'ὁ διδάσκαλος ἤρετο τί ὁ παῖς γράφοι.')
+        self.assertEqual(latin.sentence(cs), 'Magister puer quid scrībat interrogāvit.')
+        cs = self.frames_of(gr, 'ἐρωτῶ πῶς ὁ βασιλεὺς ἀπέθανεν.')
+        self.assertEqual(english.sentence(cs), 'I ask how the king died.')
+        cs = self.frames_of(gr, 'ἤρετο εἰ ὁ παῖς ἔλθοι.')
+        self.assertEqual(latin.sentence(cs), 'Num puer ierit interrogāvit.')
+
     def test_greek_enclitic_accent(self):
         self.assertEqual(greek._grave('ὁ ἄνθρωπος ἐστί'), 'ὁ ἄνθρωπός ἐστι')
         self.assertEqual(greek._grave('τὸ δῶρον ἐστί'), 'τὸ δῶρόν ἐστι')
@@ -434,6 +448,12 @@ class GreekTestCase(unittest.TestCase):
 
     def test_genitive_absolute(self):
         self.assertEqual(self.greek('Urbe captā, cīvēs fūgērunt.'), 'τῆς πόλεως ληφθείσης οἱ πολῖται ἀπέδρασαν.')
+
+    def test_indirect_question(self):
+        self.assertEqual(self.greek('Magister rogāvit quis cantāret.'), 'ὁ διδάσκαλος ἠρώτησε τίς ᾖδε.')
+
+    def test_neuter_plural_subject(self):
+        self.assertEqual(self.greek('Rosae sunt pulchrae.'), 'τὰ ῥόδα καλά ἐστι.')
 
     def test_negated_copula(self):
         self.assertEqual(self.greek('Nauta nōn est malus.'), 'ὁ ναύτης κακὸς οὐκ ἔστι.')
