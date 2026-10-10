@@ -134,6 +134,8 @@ def _modern_word(token):
     if token.pos in ('動詞', '形容詞'):
         if token.lemma == '行く' and token.surface.startswith('ゆ'):
             return 'ゆく'
+        if token.lemma == '居る' and token.surface.startswith('を'):
+            return 'いる'   # をり (ラ変) → いる (おる ではなく)
         if _has_kanji(token.surface) and _has_kanji(token.lemma):
             return token.lemma
         return hiragana(token.reading) if token.reading not in ('*', '') else token.lemma
@@ -144,6 +146,14 @@ def vocabulary(token):
     for key in (token.lemma, token.base_orth, token.surface):
         if key in grammar.VOCABULARY:
             return grammar.VOCABULARY[key]
+    return archaic(token)
+
+
+def archaic(token):
+    """ふつうの古語の現代語 (童 → 子供、こぼつ → 壊す)。重要古語の注は付けない"""
+    for key in (token.base_orth, token.surface, token.lemma):
+        if key in grammar.ARCHAIC and token.pos not in ('助詞', '助動詞'):
+            return grammar.ARCHAIC[key]
     return None
 
 
@@ -526,6 +536,12 @@ def b_is_attributive(b, nxt):
     return last.form == '連体形' and nxt is not None and nxt.kind == 'nominal'
 
 
+NOMINALIZED_PARTICLES = {'を', 'に', 'が', 'は', 'も', 'より', 'こそ'}
+DEMONSTRATIVE_NO = {'そ': 'その', 'こ': 'この', 'か': 'あの', 'あ': 'あの'}
+WH_WORDS = {'何': 'を', '誰': 'が', 'たれ': 'が', 'いづこ': '', 'いづく': '', 'いかに': '', 'など': '', 'いつ': '',
+            'なに': 'を', 'いかで': ''}
+
+
 def _particle(p, b, nxt, last_form):
     """助詞1つ → 現代語"""
     lemma = p.lemma
@@ -574,6 +590,9 @@ def modernize(tokens):
                 if b.head.obsolete == 'unknown':
                     text = '〔%s〕' % text  # 現代語に無い語を形だけ直したもの
                 last_form = ([t for t in b.tokens if t.pos in ('助動詞', '動詞', '形容詞')] or [b.head])[-1].form
+                if last_form == '連体形' and particles and particles[0].lemma in NOMINALIZED_PARTICLES and \
+                        particles[0].pos2 in ('格助詞', '係助詞', '副助詞') and not text.endswith(('の', 'こと')):
+                    text += 'の'   # 準体法: 子の泣くを聞く → 子が泣くのを聞く
                 b.modern = text + ''.join(_particle(p, b, nxt, last_form) for p in particles)
                 continue
         # 体言・形容動詞・副詞など
@@ -634,12 +653,40 @@ def modernize(tokens):
                 nxt.tokens[1].lemma == 'て' and b.modern.endswith('なく'):
             b.modern = b.modern[:-2] + 'ないで'  # 〜ずして → 〜ないで
             nxt.modern = ''
+    _demonstratives(bunsetsu)
+    _indirect_question(bunsetsu)
     text = ''
     for b in bunsetsu:
         if b.modern.startswith('ない') and text.endswith('で'):
             text += 'は'  # 〜にあらず → 〜ではない
         text += b.modern
     return bunsetsu, text, notes
+
+
+def _demonstratives(bunsetsu):
+    """そ・こ・か + の (代名詞 + 格助詞) → その・この・あの (主格の の と取らない)"""
+    for b in bunsetsu:
+        if len(b.tokens) == 2 and b.tokens[0].pos == '代名詞' and b.tokens[0].surface in DEMONSTRATIVE_NO and \
+                b.tokens[1].lemma == 'の':
+            b.modern = DEMONSTRATIVE_NO[b.tokens[0].surface]
+
+
+def _indirect_question(bunsetsu):
+    """疑問の係り結び + と (何か書きけると知らず) → 間接疑問 (何を書いたか知らない)"""
+    for i, b in enumerate(bunsetsu):
+        if not (b.head.surface in WH_WORDS or b.head.lemma in WH_WORDS) or not b.modern.endswith('か'):
+            continue
+        if not any(t.lemma == 'か' and t.pos2 == '係助詞' for t in b.tokens):
+            continue
+        for later in bunsetsu[i + 1:]:
+            if later.kind == 'punct':
+                break
+            if later.tokens and later.tokens[-1].lemma == 'と' and later.tokens[-1].pos2 == '格助詞' and \
+                    later.modern.endswith('と'):
+                key = b.head.surface if b.head.surface in WH_WORDS else b.head.lemma
+                b.modern = b.modern[:-1] + WH_WORDS[key]
+                later.modern = later.modern[:-1] + 'か'
+                break
 
 
 def kakari_musubi(bunsetsu):

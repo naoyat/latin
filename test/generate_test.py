@@ -533,6 +533,20 @@ class KobunTestCase(unittest.TestCase):
         self.assertEqual([kobun._past_attributive(w) for w in ('祝福された', '歌われた', '疲れた', '織った')],
                          ['祝福せられたる', '歌はれたる', '疲れたる', '織りたる'])
 
+    def test_round_trip_through_modern(self):
+        """現代語 → 文の枠 → 古文 → (古文の現代語訳) → 現代語"""
+        from dragoman.kobun import mecab, analyzer as kobun_analyzer
+        if not mecab.available() or from_japanese._tagger is None:
+            self.skipTest('MeCab か中古和文UniDic が無い')
+
+        def round_trip(text):
+            old = kobun.sentence(from_japanese.parse(text))
+            return old, ''.join(a.modern for a in kobun_analyzer.analyze_text(old))
+        self.assertEqual(round_trip('王は大きな都に住んでいた。'), ('王は大きなる都に住みたりけり。', '王は大きな都に住んでいた。'))
+        self.assertEqual(round_trip('子供が泣いているのを母が聞いた。')[1], '母は子が泣くのを聞いた。')   # 準体法の の
+        self.assertEqual(round_trip('先生が少年を褒めた。')[1], '先生は子供を褒めた。')
+        self.assertEqual(round_trip('私は彼が何を書いたか知らない。')[1], '私はあの人の何を書いたか知らない。')
+
     def test_copula_and_negation(self):
         self.assertEqual(self.kobun('Nauta nōn est malus.'), '舟人は悪しからず。')
         self.assertEqual(self.kobun('Puella est rēgīna.'), '乙女は女王なり。')

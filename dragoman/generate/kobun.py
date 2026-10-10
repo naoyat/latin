@@ -10,7 +10,7 @@
 #         下一段 → 下二段 (褒める → 褒む。ア行は原則ハ行: 与える → 与ふ、見える・燃える … はヤ行、植える … はワ行)
 #         来る → 来 (カ変)、する・〜する → す (サ変)、感じる → 感ず (サ変)、出る → 出づ、寝る → 寝
 #   形容詞: 美しい → 美し (シク活用)、良い → 良し (ク活用)。助動詞の前はカリ活用 (美しかりけり)
-#   助動詞: 過去 けり (連用形)、未来 む・打消 ず・受身 る / らる (未然形)、断定 なり (否定は にあらず)
+#   助動詞: 過去 けり (連用形)、未完了過去 たり + けり、未来 む・打消 ず・受身 る / らる (未然形)、断定 なり (否定は にあらず)
 #   助詞: 主節の主語 は、従属節・関係節の主語 の、場所 にて、起点 より
 #   節: ubi・cum・quod → 已然形 + ば、sī → 未然形 + ば、quamquam → 已然形 + ども、et → 連用形 + て、関係節は連体形、
 #       間接疑問は係り結び (誰か歌ひける と問ひけり)
@@ -199,7 +199,9 @@ def chain(verb, clause, name):
     if clause.negated:
         steps.append('ず')
     tense = clause.tense
-    if tense in ('perfect', 'imperfect', 'past-perfect'):
+    if tense == 'imperfect' and not clause.negated and verb.kind != 'ラ変' and not clause.question_word:
+        steps += ['たり', 'けり']   # 未完了過去は存続の たり + けり (住みたりけり「住んでいた」)。間接疑問 (時制の一致) は除く
+    elif tense in ('perfect', 'imperfect', 'past-perfect'):
         steps.append('けり')
     elif tense in ('future', 'future-perfect') and not clause.negated:
         steps.append('む')
@@ -388,7 +390,10 @@ def clause_text(clause, name='終止', attributive=False, topic=None):
             if clause.voice == 'passive' and np.prep.lemma in ('ā', 'ab'):
                 parts.append(noun_phrase(np) + 'に')
             else:
-                parts.append(noun_phrase(np) + PREPOSITIONS.get((np.prep.lemma, np.case), 'にて'))
+                particle = PREPOSITIONS.get((np.prep.lemma, np.case), 'にて')
+                if particle == 'にて' and _existence(clause):
+                    particle = 'に'   # 家にをり・都に住む (存在・居住の動詞の場所)
+                parts.append(noun_phrase(np) + particle)
         elif attributive and clause.gap == role:
             continue
         else:
@@ -399,9 +404,21 @@ def clause_text(clause, name='終止', attributive=False, topic=None):
     for inner in clause.questions:
         parts.append(question(inner))
     for adv in clause.adverbs:
-        parts.append(word_of(adv))
+        word = word_of(adv)
+        if word in CLAUSE_INITIAL:
+            parts.insert(0, word)   # もし雨降らば (節の頭に)
+        else:
+            parts.append(word)
     parts.append(predicate(clause, name))
     return ''.join(parts)
+
+
+CLAUSE_INITIAL = {'もし', 'もしも', 'たとひ', 'たとえ', 'かりに', 'さて', 'されど', 'されば', 'しかるに'}
+EXISTENCE = {'いる', '居る', 'ある', '有る', '在る', '住む', '住まう', '暮らす', 'とどまる', '泊まる', '滞在する', '居住する'}
+
+
+def _existence(clause):
+    return clause.copula and not clause.role('complement') or gloss(clause.verb) in EXISTENCE
 
 
 def infinitive(inner, governor):
