@@ -20,6 +20,7 @@ import re
 from dragoman.core.japanese import mecab_parse
 from . import japanese
 from .japanese import gloss
+from .kobun_lexicon import NOUNS, VERBS, ADJECTIVES, ADVERBS
 
 # 行 → 五十音 (あ・い・う・え・お の段)
 ROWS = {'カ': 'かきくけこ', 'ガ': 'がぎぐげご', 'サ': 'さしすせそ', 'ザ': 'ざじずぜぞ', 'タ': 'たちつてと',
@@ -35,6 +36,7 @@ IRREGULAR = {'カ変': ('こ', 'き', 'く', 'くる', 'くれ', 'こよ'), 'サ
              'ザ変': ('ぜ', 'じ', 'ず', 'ずる', 'ずれ', 'ぜよ'), '来': ('来', '来', '来', '来る', '来れ', '来よ'),
              'ナ変': ('な', 'に', 'ぬ', 'ぬる', 'ぬれ', 'ね'), 'ラ変': ('ら', 'り', 'り', 'る', 'れ', 'れ'),
              '上一段': ('', '', 'る', 'る', 'れ', 'よ')}
+KUN_ZURU = {'恥じる', '閉じる', '綴じる', '怖じる', '捩じる'}   # 和語の 〜じる (上二段ダ行)。ほか (命じる・信じる) はサ変
 KAMI_ICHIDAN = {'見る', '着る', '似る', '煮る', '干る', '射る', '居る', '率る', '鋳る', '顧みる', '試みる', '用いる'}
 YA_SHIMO = {'見える', '聞こえる', '燃える', '消える', '冷える', '越える', '覚える', '生える', '絶える', '栄える', '癒える',
             '肥える', '萌える', '映える', '吠える', '増える', '老いる', '報いる', '悔いる', '甘える', '仕える', '聳える'}
@@ -56,12 +58,8 @@ PRONOUNS = {('ego', 'sg'): '我', ('ego', 'pl'): '我ら', ('tū', 'sg'): '汝',
 DEMONSTRATIVE_NOUNS = {'hic': 'これ', 'hīc': 'これ', 'ille': 'かれ', 'is': 'それ', 'iste': 'それ'}
 DEMONSTRATIVE_ADJ = {'hic': 'この', 'hīc': 'この', 'ille': 'かの', 'is': 'その', 'iste': 'その', 'īdem': '同じ'}
 # 現代語の訳語 → 古語 (よく出る語だけ)
-WORDS = {'少女': '乙女', '女の子': '乙女', '少年': '童', '男の子': '童', '子供': '子', '教師': '師', '先生': '師',
-         '本': '書', '彼': 'かの人', '彼女': 'かの人', '彼ら': 'かの人々', 'とても': 'いと', '非常に': 'いと',
-         '再び': 'また', '今': '今', 'すぐに': 'やがて', 'しかし': 'されど', 'なぜ': 'など', 'どこで': 'いづこにて',
-         'どこへ': 'いづこへ', 'どこから': 'いづこより', 'いつ': 'いつ', 'どのように': 'いかに', '美しい': '美しい',
-         '称賛する': '褒める', '尋ねる': '問う', '捕らえる': '捕らえる', '水夫': '舟人', '船乗り': '舟人',
-         '市民': '民', '都市': '都', '女王': '女王', '王': '王', '庭': '庭'}
+WORDS = {'彼': 'かの人', '彼女': 'かの人', '彼ら': 'かの人々', 'どこで': 'いづこにて', 'どこへ': 'いづこへ',
+         'いつ': 'いつ'}
 PREPOSITIONS = {('in', 'Abl'): 'にて', ('in', 'Acc'): 'へ', ('ad', 'Acc'): 'へ', ('ex', 'Abl'): 'より',
                 ('ē', 'Abl'): 'より', ('ab', 'Abl'): 'より', ('ā', 'Abl'): 'より', ('cum', 'Abl'): 'と',
                 ('dē', 'Abl'): 'につきて', ('sine', 'Abl'): 'なくて', ('per', 'Acc'): 'を経て',
@@ -101,7 +99,12 @@ class Verb:
 
 
 def classical_verb(modern):
-    """現代語の動詞の辞書形 → 古語の動詞 (Verb)"""
+    """現代語の動詞の辞書形 → 古語の動詞 (Verb)。意味を置き換える語は kobun_lexicon.VERBS から"""
+    replaced = VERBS.get(modern)
+    if isinstance(replaced, tuple):
+        return Verb(*replaced)
+    if replaced:
+        modern = replaced
     if modern in SPECIAL:
         return Verb(*SPECIAL[modern])
     if modern.endswith('する') and len(modern) > 2:
@@ -128,8 +131,8 @@ def classical_verb(modern):
         row = ctype.split('-')[1][0]
         if body in KAMI_ICHIDAN:
             return Verb(prefix + body[:-1], '上一段')
-        if row == 'ザ' and len(reading) >= 3 and reading[-3] == 'ン':
-            return Verb(prefix + body[:-2], 'ザ変')   # 感じる → 感ず
+        if row == 'ザ' and body not in KUN_ZURU:
+            return Verb(prefix + body[:-2], 'ザ変')   # 感じる → 感ず、命じる → 命ず
         stem = prefix + body[:-2]
         if row == 'ア':
             row = 'ヤ' if body in YA_SHIMO else 'ハ'   # 老いる → 老ゆ、強いる → 強ふ
@@ -155,8 +158,21 @@ def adjective_forms(modern):
 
 
 def adjective(modern, name):
-    """形容詞の活用形 (ク・シク活用。助動詞の前の未然・連用はカリ活用)"""
-    found = adjective_forms(modern)
+    """形容詞の活用形 (ク・シク活用。助動詞の前の未然・連用はカリ活用)。古語は kobun_lexicon.ADJECTIVES から"""
+    entry = ADJECTIVES.get(modern)
+    if isinstance(entry, str):   # 名詞に係る語 (よろづの・疲れたる)。述語なら 〜なり
+        if name == '連体':
+            return entry
+        modern = entry[:-1] if entry.endswith('の') else entry
+        entry = None
+    if isinstance(entry, tuple):
+        stem, kind = entry
+        if kind == 'ナリ':
+            modern, found = stem, None
+        else:
+            found = (stem, kind)
+    else:
+        found = adjective_forms(modern)
     if found is None:   # 形容動詞・名詞: なり
         base = modern[:-1] if modern.endswith('な') else modern
         return base + {'未然': 'なら', '連用': 'に', '終止': 'なり', '連体': 'なる', '已然': 'なれ',
@@ -256,7 +272,9 @@ def _replace(clause, **kw):
 
 def word_of(lex):
     w = gloss(lex)
-    return WORDS.get(w, w)
+    if lex.pos == 'adv':
+        return ADVERBS.get(w) or WORDS.get(w, w)
+    return NOUNS.get(w) or WORDS.get(w) or ADVERBS.get(w, w)
 
 
 def noun_phrase(np):
@@ -293,10 +311,54 @@ def noun_phrase(np):
 
 
 def _attributive_adj(lex):
-    w = word_of(lex)
-    if w.endswith('の'):
-        return w
+    w = gloss(lex)
+    if w in ADJECTIVES:
+        return adjective(w, '連体')
+    if w.endswith('の') or w in NOUNS:
+        return NOUNS.get(w, w)
+    if w.endswith(('た', 'だ')):
+        past = _past_attributive(w)
+        if past:
+            return past
     return adjective(w, '連体')
+
+
+VERB_TAILS = ('る', 'う', 'く', 'ぐ', 'す', 'つ', 'む', 'ぶ', 'ぬ')
+
+
+def _past_attributive(modern):
+    """連体の 〜た → 連用形 + たる (疲れた → 疲れたる、燃えた → 燃えたる)。
+    受身 (祝福された・捕えられた・書かれた) は 未然形 + る / らる の連用形 + たる (捕へられたる)"""
+    verb = None
+    passive = re.match(r'^(.+?)(され|られ|れ)た$', modern)
+    if passive:
+        base, kind = passive.groups()
+        if kind == 'され':
+            verb = classical_verb(base + 'する')
+        elif kind == 'られ':
+            verb = classical_verb(base + 'る')
+        else:   # 五段の受身: 書かれた → 書く、歌われた → 歌ふ
+            old_base = base[:-1] + 'は' if base.endswith('わ') else base
+            for tail in VERB_TAILS:
+                candidate = classical_verb(base[:-1] + tail) if len(base) > 1 else None
+                if candidate is not None and candidate.kind == '四段' and candidate.form('未然') == old_base:
+                    verb = candidate
+                    break
+        if verb is not None:
+            aux = 'る' if verb.kind in ('四段', 'ナ変', 'ラ変') else 'らる'
+            return attach(verb.form('未然'), aux, '連用') + 'たる'
+        # 受身として作れない 〜れた (疲れた・隠れた) は能動の 〜た
+    from dragoman.core.japanese import JaVerb
+    stem = re.sub('(った|んだ|いだ|いた|した|た|だ)$', '', modern)
+    for ending in ('る', 'う', 'つ', 'く', 'ぐ', 'む', 'ぶ', 'ぬ', 'す'):
+        candidate = stem + ending
+        try:
+            if JaVerb(candidate).past_form() == modern:
+                verb = classical_verb(candidate)
+                break
+        except Exception:
+            continue
+    return verb.form('連用') + 'たる' if verb else None
 
 
 def clause_text(clause, name='終止', attributive=False, topic=None):

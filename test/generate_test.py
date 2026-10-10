@@ -517,13 +517,24 @@ class KobunTestCase(unittest.TestCase):
         self.assertEqual(kobun.classical_verb('褒める').form('連体'), '褒むる')
 
     def test_sentences(self):
-        self.assertEqual(self.kobun('Puella rosam pulchram in hortō videt.'), '乙女は美しきバラを庭にて見る。')
+        self.assertEqual(self.kobun('Puella rosam pulchram in hortō videt.'), '乙女は麗しきバラを庭にて見る。')
         self.assertEqual(self.kobun('Rēgīna puellīs rosās dedit.'), '女王は乙女どもにバラを与へけり。')
         self.assertEqual(self.kobun('Puer ā magistrō laudātus est.'), '童は師に褒められけり。')   # 受身 らる + けり
         self.assertEqual(self.kobun('Puella puerum videt quem magister laudat.'), '乙女は師の褒むる童を見る。')
 
+    def test_lexicon(self):
+        from dragoman.generate.kobun_lexicon import VERBS
+        self.assertEqual([m for m in VERBS if kobun.classical_verb(m) is None], [])   # 表の動詞はすべて古語に活用できる
+        self.assertEqual(kobun.classical_verb('探す').form('終止'), '求む')
+        self.assertEqual(kobun.classical_verb('見つける').form('連用'), '見出で')
+        self.assertEqual(kobun.adjective('素晴らしい', '連体'), 'めでたき')
+        self.assertEqual(kobun.adjective('素晴らしい', '連用+aux'), 'めでたかり')
+        self.assertEqual(kobun.adjective('すべての', '連体'), 'よろづの')
+        self.assertEqual([kobun._past_attributive(w) for w in ('祝福された', '歌われた', '疲れた', '織った')],
+                         ['祝福せられたる', '歌はれたる', '疲れたる', '織りたる'])
+
     def test_copula_and_negation(self):
-        self.assertEqual(self.kobun('Nauta nōn est malus.'), '舟人は悪からず。')
+        self.assertEqual(self.kobun('Nauta nōn est malus.'), '舟人は悪しからず。')
         self.assertEqual(self.kobun('Puella est rēgīna.'), '乙女は女王なり。')
 
     def test_question_and_absolute(self):
