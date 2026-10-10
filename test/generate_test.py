@@ -324,6 +324,15 @@ class JapaneseInputTestCase(unittest.TestCase):
                          'Ubi puer in hortō dormiēbat, puella cantāvit.')
 
 
+    def test_long_sentence(self):
+        # 関係節が2つある長い文 (GiNZA があれば係り受けで、無ければ後ろの一番近い述語へ)
+        self.assertEqual(self.latin('先生が褒めた少年は、庭で美しい薔薇を見ている少女に本を与えた。'),
+                         'Puer quem magister laudāvit puellae quae rosam pulchram in hortō videt librum dedit.')
+
+    def test_mecab_backend(self):
+        self.assertEqual(latin.sentence(from_japanese.parse('少女が庭で美しい薔薇を見た。', backend='mecab')),
+                         'Puella rosam pulchram in hortō vīdit.')
+
     def test_round_trip(self):
         # 日本語 → 文の枠 → 日本語 (語はラテン語の見出しの訳語に置き換わる: 先生 → 教師)
         from dragoman.generate import japanese

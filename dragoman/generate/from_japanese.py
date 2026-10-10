@@ -38,7 +38,12 @@ PRONOUNS = {'私': ('ego', 1, 'sg'), '僕': ('ego', 1, 'sg'), '俺': ('ego', 1, 
             'これ': ('hic', 3, 'sg'), 'それ': ('is', 3, 'sg'), 'あれ': ('ille', 3, 'sg')}
 DEMONSTRATIVES = {'この': 'hic', 'その': 'is', 'あの': 'ille'}
 INTERROGATIVES = {'誰': 'quis', '何': 'quid', 'なぜ': 'cūr', 'どこ': 'ubi', 'いつ': 'quandō', 'どう': 'quōmodo'}
-MOTION_VERBS = {'行く', '来る', '帰る', '入る', '向かう', '急ぐ', '走る', '逃げる', '着く', '送る', '運ぶ'}
+# 時の名詞 → 副詞 (昨日 → heri)。助詞が無くても目的語にしない
+TIME_ADVERBS = {'昨日': 'heri', '今日': 'hodiē', '明日': 'crās', '今': 'nunc', '毎日': 'cotīdiē', 'いつも': 'semper',
+                '朝': 'māne', '夜': 'nocte', '昔': 'ōlim', '後で': 'posteā', 'すぐ': 'statim'}
+# 「に」が場所を表す動詞 (島に住む → in īnsulā habitat)
+LOCATIVE_NI_VERBS = {'住む', 'いる', '居る', 'ある', '在る', '座る', '立つ', '寝る', '眠る', '残る', '隠れる', '生まれる'}
+MOTION_VERBS = {'行く', '来る', '帰る', '入る', '向かう', '急ぐ', '走る', '逃げる', '着く', '運ぶ'}
 PLACE_PARTICLE_PREP = {'で': ('in', 'Abl'), 'から': ('ex', 'Abl'), 'へ': ('ad', 'Acc'), 'まで': ('ad', 'Acc'),
                        'と': ('cum', 'Abl')}
 CONNECTIVES = {'て': 'et', 'で': 'et', 'ので': 'quod', 'から': 'quod', 'ば': 'sī', 'たら': 'sī', 'なら': 'sī',
@@ -49,7 +54,7 @@ PREFERRED = {'見る': 'videō', '褒める': 'laudō', '美しい': 'pulcher', 
              '小さい': 'parvus', '多い': 'multus', '戦う': 'pugnō', '呼ぶ': 'vocō', '恐れる': 'timeō', '男': 'vir',
              '女': 'fēmina', '人': 'homō', '神': 'deus', '友': 'amīcus', '友達': 'amīcus', '父': 'pater',
              '娘': 'fīlia', '息子': 'fīlius', '主人': 'dominus', '奴隷': 'servus', '兵士': 'mīles', '敵': 'hostis',
-             'できる': 'possum', '帰る': 'redeō', '降る': 'cadō', '雨': 'imber', '知る': 'sciō', '書く': 'scrībō',
+             'できる': 'possum', '渡る': 'trānseō', '人々': 'homō', '送る': 'mittō', '摘む': 'carpō', '帰る': 'redeō', '降る': 'cadō', '雨': 'imber', '知る': 'sciō', '書く': 'scrībō',
              '道': 'via', '家': 'domus', '国': 'patria', '島': 'īnsula', '川': 'flūmen', '水': 'aqua', '剣': 'gladius'}
 
 
@@ -162,6 +167,8 @@ def latin_lex(lemma, pos, lexeme=''):
     found = ja_lexicon.lookup(lemma, pos)
     if found is None and lexeme and lexeme != lemma:
         return latin_lex(lexeme, pos)   # 書字形で無ければ語彙素で (愛す → 愛する、返る → 帰る の逆も)
+    if found is None and pos == 'verb' and lemma.endswith('す') and not lemma.endswith('する'):
+        found = latin_lex(lemma[:-1] + 'する', pos)   # 愛す → 愛する (GiNZA の見出し)
     if found is None and pos == 'verb' and lemma.endswith('する'):
         found = ja_lexicon.lookup(lemma[:-2], 'verb') or ja_lexicon.lookup(lemma, 'verb')
     return found
@@ -185,6 +192,8 @@ def noun_phrase(chunk, modifiers=()):
     number = 'sg'
     if lemma.endswith(('たち', '達', 'ら')) and lemma not in PRONOUNS:
         lemma, number = re.sub('(たち|達|ら)$', '', lemma), 'pl'
+    if lemma.endswith('々'):
+        number = 'pl'   # 人々 (優先表で homō の複数)
     if any(t.lemma in ('たち', '達', 'ら') and t.pos == '接尾辞' for t in chunk.tokens):
         number = 'pl'
     if lemma in PRONOUNS:
@@ -202,7 +211,8 @@ def noun_phrase(chunk, modifiers=()):
     else:
         lex, gender = found
         np = NP(lex, number=number, gender=_gender(lex, gender), surface=chunk.surface)
-        np.animate = _animate(lex)
+        # 人・動物: 訳語から、または日本語の語 (〜人・〜者・〜士・〜夫・人々・子)
+        np.animate = _animate(lex) or bool(re.search('(人|者|士|夫|々|子|王|母|父|娘|女|男|師)$', noun.lemma))
     for m in modifiers:
         np.modifiers.append(m)
     return np
@@ -310,6 +320,9 @@ def _attach(clause, chunk, np, topic=False):
         if clause.voice == 'passive':
             np.prep, np.case = Lex('ā', 'preposition'), 'Abl'   # 受動の動作主 (〜に褒められる → ā magistrō)
             clause.args.append(('prep', np))
+        elif getattr(clause, 'ja_verb', '') in LOCATIVE_NI_VERBS:
+            np.prep, np.case = Lex('in', 'preposition'), 'Abl'   # 島に住む → in īnsulā
+            clause.args.append(('prep', np))
         elif any(v in head_lemma for v in MOTION_VERBS) or clause.verb.lemma in ('veniō', 'eō', 'redeō', 'currō'):
             np.prep, np.case = Lex('ad', 'preposition'), 'Acc'
             clause.args.append(('prep', np))
@@ -329,6 +342,8 @@ def _attach(clause, chunk, np, topic=False):
     elif p == 'は' or topic:
         role = 'object' if _transitive(clause) and clause.role('subject') else 'subject'
         clause.args.append((role, np))
+        if role == 'subject':
+            clause.topic_subject = True
     else:
         clause.args.append(('subject' if not clause.role('subject') else 'object', np))
 
@@ -394,16 +409,73 @@ def _marker(cs, k):
     return 'final'
 
 
-def parse(text):
-    """日本語の文 → 文の枠 (Clause の列)"""
-    tokens = [t for t in tokenize(text) if t.pos != '補助記号' or t.lemma in ('、', '，')]
-    cs = chunks(tokens)
-    # 連体形の形容詞で、すぐ後ろが名詞の文節なら修飾語 (美しい薔薇)。述語にしない
+@functools.lru_cache(maxsize=1)
+def _ginza():
+    """GiNZA (spaCy の日本語モデル ja_ginza)。無ければ None (MeCab と規則だけで)"""
+    try:
+        import spacy
+        import ginza
+        return spacy.load('ja_ginza'), ginza
+    except Exception:
+        return None
+
+
+def ginza_available():
+    return _ginza() is not None
+
+
+def ginza_chunks(text):
+    """GiNZA の文節と係り先: (文節の列, 係り先の文節の番号の列)。形態素は UniDic と同じ形の Token に"""
+    nlp, ginza = _ginza()
+    doc = nlp(text)
+    spans = ginza.bunsetu_spans(doc)
+    index_of = {}
+    cs = []
+    for k, span in enumerate(spans):
+        tokens = []
+        for t in span:
+            if t.tag_.startswith('補助記号') and t.text not in ('、', '，'):
+                continue
+            parts = t.tag_.split('-')
+            inflection = (t.morph.get('Inflection') or [';'])[0].split(';') + ['']
+            tokens.append(Token(t.text, parts[0], parts[1] if len(parts) > 1 else '*', inflection[0], inflection[1],
+                                t.lemma_, t.lemma_))
+            index_of[t.i] = k
+        cs.append(Chunk(tokens or [Token(span.text, '補助記号', '*', '', '', span.text, span.text)]))
+    heads = []
+    for k, span in enumerate(spans):
+        head = span.root.head
+        heads.append(index_of.get(head.i, k) if head.i not in range(span.start, span.end) else k)
+    return cs, heads
+
+
+def parse(text, backend=None):
+    """日本語の文 → 文の枠 (Clause の列)。backend: 'ginza' (係り受けを GiNZA で) / 'mecab' (後ろの一番近い述語へ)。
+    既定は GiNZA があれば GiNZA"""
+    use_ginza = backend == 'ginza' or (backend is None and ginza_available())
+    if use_ginza:
+        cs, heads = ginza_chunks(text)
+    else:
+        tokens = [t for t in tokenize(text) if t.pos != '補助記号' or t.lemma in ('、', '，')]
+        cs, heads = chunks(tokens), None
+    return parse_chunks(cs, heads)
+
+
+def parse_chunks(cs, heads=None):
+    """文節の列 (と係り先) → 文の枠。係り先が無ければ、名詞の文節は後ろの一番近い述語へ"""
+    def head_of(k):
+        return heads[k] if heads is not None and heads[k] != k else None
+
+    # 連体形の形容詞で、係り先 (無ければすぐ後ろ) が名詞の文節なら修飾語 (美しい薔薇)。述語にしない
+    def modifies_noun(k):
+        target = head_of(k) if heads is not None else k + 1
+        return target is not None and target < len(cs) and bool(cs[target].nouns) and not cs[target].is_predicate
     preds = [k for k, c in enumerate(cs) if c.is_predicate and not (
-        c.head.pos == '形容詞' and c.attributive and k + 1 < len(cs) and cs[k + 1].nouns)]
+        c.head.pos == '形容詞' and c.attributive and modifies_noun(k))]
     if not preds:
         return []
-    main_ix = preds[-1]
+    roots = [k for k in preds if heads is not None and heads[k] == k]
+    main_ix = roots[-1] if roots else preds[-1]
     built = {k: predicate(cs[k]) for k in preds}
     markers = {k: (_marker(cs, k) if k != main_ix else 'final') for k in preds}
     # 主題「は」の係り先: 後ろの、連体修飾節・名詞節・引用・疑問でない一番近い述語
@@ -419,10 +491,32 @@ def parse(text):
             continue   # 〜とき の「とき」は接続の語
         if head.lemma in ('こと', '事') and k > 0 and k - 1 in markers and markers[k - 1] == 'nominal':
             continue
+        if head.lemma in TIME_ADVERBS and not ({'の', 'が', 'を', 'は'} & set(c.particles)):
+            target = head_of(k) if head_of(k) in built else next((p for p in preds if p > k), None)
+            if target is not None:   # 昨日 → heri (時の副詞)
+                built[target].adverbs.append(Lex(TIME_ADVERBS[head.lemma], 'adv', surface=TIME_ADVERBS[head.lemma]))
+            continue
         if c.nouns or head.lemma in PRONOUNS or head.surface in PRONOUNS:
             nps[k] = noun_phrase(c, pending_mods)
             pending_mods = []
             later = [p for p in preds if p > k]
+            if head_of(k) in built:
+                target = head_of(k)   # 係り受け解析の係り先
+                if 'は' in c.particles:
+                    # 主題「は」は主節のもの (私は少女が歌うのを見た の 私は → 見た、兵士たちは、敵が逃げたので、帰った
+                    # の 兵士たちは → 帰った)。ただし主節に別の「は」があれば、その前の節のもの
+                    later_topics = [j for j in range(k + 1, len(cs)) if 'は' in cs[j].particles and cs[j].nouns]
+                    if not later_topics:
+                        target = main_ix
+                    else:
+                        seen = set()
+                        while target not in clause_final and head_of(target) is not None and target not in seen:
+                            seen.add(target)
+                            target = head_of(target)
+                        if target not in built:
+                            target = main_ix
+                owner_of[k] = target
+                continue
             if not later:
                 continue
             if 'は' in c.particles:
@@ -433,7 +527,7 @@ def parse(text):
         elif head.pos in ('連体詞', '形容詞') or head.surface in DEMONSTRATIVES:
             pending_mods.append(modifier(c))
         elif head.pos == '副詞':
-            later = [p for p in preds if p > k]
+            later = [head_of(k)] if head_of(k) in built else [p for p in preds if p > k]
             if later:
                 if head.lemma in INTERROGATIVES:
                     built[later[0]].question_word = INTERROGATIVES[head.lemma]
@@ -443,9 +537,10 @@ def parse(text):
     # 名詞の文節を述語へ (の は次の名詞の属格)
     for k in sorted(nps):
         c = cs[k]
-        if c.particles and c.particles[-1] == 'の' and k + 1 in nps:
+        target = head_of(k) if head_of(k) in nps else k + 1
+        if c.particles and c.particles[-1] == 'の' and target in nps:
             nps[k].case = 'Gen'
-            nps[k + 1].genitives.append(nps[k])
+            nps[target].genitives.append(nps[k])   # 係り先の名詞 (無ければすぐ後ろ) の属格
             continue
         if owner_of.get(k) is not None:
             attach(built[owner_of[k]], c, nps[k])
@@ -455,15 +550,18 @@ def parse(text):
         clause = _finish(built[k])
         marker = markers[k]
         following = [p for p in preds if p > k]
-        governor = built[following[0]] if following else None
-        if marker == 'rel' and k + 1 in nps:
+        governor = built[head_of(k)] if head_of(k) in built else built[following[0]] if following else None
+        antecedent = head_of(k) if head_of(k) in nps else k + 1
+        if heads is not None and marker == 'final' and k != main_ix and head_of(k) in nps and cs[k].attributive:
+            marker = 'rel'   # 係り先が名詞の連体形の述語 (離れた先行詞も)
+        if marker == 'rel' and antecedent in nps:
             gap = 'subject' if not clause.role('subject') else 'object' if _transitive(clause) and \
                 not clause.role('object') else ''
             if gap:   # 空所の無い連体修飾 (魚を焼く匂い) は扱わない
                 clause.gap = gap
                 if gap == 'subject':
-                    clause.number = nps[k + 1].number
-                nps[k + 1].relatives.append(clause)
+                    clause.number = nps[antecedent].number
+                nps[antecedent].relatives.append(clause)
                 continue
         if marker in ('nominal', 'quote') and governor is not None:
             # 名詞節・引用 → 不定詞句 (少女が歌うのを見た → puellam cantāre vīdit、来ると言った → venīre dīxit)
@@ -498,6 +596,17 @@ def parse(text):
             else:
                 clause.connectives.append(word)
         out.append(clause)
+    # て でつないだ節に主語が無く、主節の主語が主題 (は) なら、主語を前の節へ (王は都市に来て、兵士を呼んだ:
+    # Rēx ad urbem vēnit, et mīlitēs vocāvit)
+    main = built[main_ix]
+    for k in preds:
+        if markers[k] == 'te' and not built[k].role('subject') and main.role('subject') and \
+                getattr(main, 'topic_subject', False):
+            subject = main.role('subject')[0]
+            main.args = [(r, n) for r, n in main.args if n is not subject]
+            built[k].args.insert(0, ('subject', subject))
+            _finish(built[k])
+            break
     # て・が でつないだ節は、つなぎの語を後ろの節の頭へ
     for i in range(len(out) - 1):
         for word in ('et', 'sed'):
